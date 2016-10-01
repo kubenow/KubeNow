@@ -1,0 +1,3 @@
+[submodule "kargo"]
+	path = kargo
+	url = https://github.com/kubespray/kargo.git
