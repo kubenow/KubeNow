@@ -17,7 +17,7 @@ variable etcd_count {}
 variable etcd_flavor {}
 variable etcd_volume_size {}
 
-module "kube-master" {
+module "master" {
   source = "./node"
   name_prefix = "${var.cluster_prefix}"
   entity_name = "master"
@@ -30,7 +30,7 @@ module "kube-master" {
   count = "${var.master_count}"
 }
 
-module "kube-node" {
+module "node" {
   source = "./node"
   name_prefix = "${var.cluster_prefix}"
   entity_name = "node"
@@ -54,4 +54,11 @@ module "etcd" {
   floating_ip_pool = "${var.floating_ip_pool}"
   volume_size = "${var.etcd_volume_size}"
   count = "${var.etcd_count}"
+}
+
+module "inventory_gen" {
+  source = "./inventory"
+  master_inventory = "${module.master.inventory}"
+  node_inventory = "${module.node.inventory}"
+  etcd_inventory = "${module.etcd.inventory}"
 }

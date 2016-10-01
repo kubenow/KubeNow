@@ -38,3 +38,7 @@ resource "openstack_compute_instance_v2" "instance" {
   }
   count = "${var.count}"
 }
+
+output "inventory" {
+  value = "${join("\n",formatlist("%s ansible_ssh_host=%s", openstack_compute_instance_v2.instance.*.name, openstack_compute_floatingip_v2.floating_ip.*.address))}"
+}
