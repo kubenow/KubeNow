@@ -1,14 +1,12 @@
 variable cluster_prefix {}
 variable KuberNow_image {}
 variable keypair_name {}
-
 variable private_network {}
 variable floating_ip_pool {}
-
 variable master_flavor {}
-
 variable worker_count {}
 variable worker_flavor {}
+variable kubeadm_tocken {}
 
 module "master" {
   source = "./node"
