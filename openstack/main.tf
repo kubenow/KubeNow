@@ -1,64 +1,37 @@
+# Cluster settings
 variable cluster_prefix {}
 variable KuberNow_image {}
 variable keypair_name {}
-
 variable private_network {}
+
+# Master settings
+variable master_flavor {}
 variable floating_ip_pool {}
 
-variable master_count {}
-variable master_flavor {}
-variable master_volume_size {}
-
+# Nodes settings
 variable node_count {}
 variable node_flavor {}
-variable node_volume_size {}
-
-variable etcd_count {}
-variable etcd_flavor {}
-variable etcd_volume_size {}
+variable kubeadm_token {}
 
 module "master" {
-  source = "./node"
+  source = "./master"
   name_prefix = "${var.cluster_prefix}"
-  entity_name = "master"
   image_name = "${var.KuberNow_image}"
   flavor_name = "${var.master_flavor}"
   keypair_name = "${var.keypair_name}"
   network_name = "${var.private_network}"
   floating_ip_pool = "${var.floating_ip_pool}"
-  volume_size = "${var.master_volume_size}"
-  count = "${var.master_count}"
+  kubeadm_token = "${var.kubeadm_token}"
 }
 
 module "node" {
   source = "./node"
   name_prefix = "${var.cluster_prefix}"
-  entity_name = "node"
   image_name = "${var.KuberNow_image}"
   flavor_name = "${var.node_flavor}"
   keypair_name = "${var.keypair_name}"
   network_name = "${var.private_network}"
-  floating_ip_pool = "${var.floating_ip_pool}"
-  volume_size = "${var.node_volume_size}"
+  kubeadm_token = "${var.kubeadm_token}"
+  master_ip = "${module.master.ip_address}"
   count = "${var.node_count}"
-}
-
-module "etcd" {
-  source = "./node"
-  name_prefix = "${var.cluster_prefix}"
-  entity_name = "etcd"
-  image_name = "${var.KuberNow_image}"
-  flavor_name = "${var.etcd_flavor}"
-  keypair_name = "${var.keypair_name}"
-  network_name = "${var.private_network}"
-  floating_ip_pool = "${var.floating_ip_pool}"
-  volume_size = "${var.etcd_volume_size}"
-  count = "${var.etcd_count}"
-}
-
-module "inventory_gen" {
-  source = "./inventory"
-  master_inventory = "${module.master.inventory}"
-  node_inventory = "${module.node.inventory}"
-  etcd_inventory = "${module.etcd.inventory}"
 }
