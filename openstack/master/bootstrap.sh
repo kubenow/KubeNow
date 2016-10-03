@@ -4,4 +4,4 @@
 set -e
 
 echo "Inititializing the master..."
-sudo kubeadm init --token ${kubeadm_token}
+kubeadm init --token ${kubeadm_token}
