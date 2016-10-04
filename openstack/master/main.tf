@@ -42,7 +42,7 @@ resource "null_resource" "generate-inventory" {
   }
 
   provisioner "local-exec" {
-    command =  "echo \"${openstack_compute_instance_v2.instance.0.name} ansible_ssh_host=${openstack_compute_floatingip_v2.floating_ip.0.address}\" >> inventory"
+    command =  "echo \"${openstack_compute_instance_v2.instance.0.name} ansible_ssh_host=${openstack_compute_floatingip_v2.floating_ip.0.address} ansible_ssh_user=ubuntu\" >> inventory"
   }
 
 }
