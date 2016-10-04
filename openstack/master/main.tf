@@ -34,6 +34,19 @@ resource "openstack_compute_instance_v2" "instance" {
   user_data = "${template_file.bootstrap.rendered}"
 }
 
+# Generate ansible inventory
+resource "null_resource" "generate-inventory" {
+
+  provisioner "local-exec" {
+    command =  "echo \"[master]\" > inventory"
+  }
+
+  provisioner "local-exec" {
+    command =  "echo \"${openstack_compute_instance_v2.instance.0.name} ansible_ssh_host=${openstack_compute_floatingip_v2.floating_ip.0.address}\" >> inventory"
+  }
+
+}
+
 output "ip_address" {
   value = "${openstack_compute_instance_v2.instance.0.network.0.fixed_ip_v4}"
 }
