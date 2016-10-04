@@ -1,0 +1,4 @@
+---
+- hosts: master
+  roles:
+    - weave
