@@ -13,3 +13,6 @@ sudo apt-get upgrade -y
 
 echo "Installing Kubernetes requirements..."
 sudo apt-get install -y docker.io kubelet kubeadm kubectl kubernetes-cni
+
+echo "Installing Python..."
+sudo apt-get install -y python
