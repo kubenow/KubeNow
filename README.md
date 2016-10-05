@@ -1,2 +1,2 @@
-# KuberNow
+# KubeNow
 Deploy Kubernetes on OpenStack. Now!
