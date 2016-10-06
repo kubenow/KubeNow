@@ -1,0 +1,7 @@
+---
+- hosts: edge:master
+  vars:
+    cf_record_state: absent
+  gather_facts: False
+  roles:
+    - cloudflare

@@ -1,0 +1,43 @@
+---
+- name: set wildcard record
+  local_action: set_fact
+  args:
+    cf_record: "*"
+  when:
+    - cf_subdomain is undefined
+    - inventory_hostname in groups['edge']
+
+- name: set wildcard record (with subdomain)
+  local_action: set_fact
+  args:
+    cf_record: "*.{{cf_subdomain}}"
+  when:
+    - cf_subdomain is defined
+    - inventory_hostname in groups['edge']
+
+- name: set master record
+  local_action: set_fact
+  args:
+    cf_record: "{{inventory_hostname}}"
+  when:
+    - cf_subdomain is undefined
+    - inventory_hostname in groups['master']
+
+- name: set master record (with subdomain)
+  local_action: set_fact
+  args:
+    cf_record: "{{inventory_hostname}}.{{cf_subdomain}}"
+  when:
+    - cf_subdomain is defined
+    - inventory_hostname in groups['master']
+
+- name: add record
+  local_action: cloudflare_dns
+  args:
+    zone: "{{ cf_zone }}"
+    record: "{{ cf_record }}"
+    type: A
+    value: "{{ ansible_ssh_host }}"
+    state: "{{ cf_record_state }}"
+    account_email: "{{ cf_mail }}"
+    account_api_token: "{{ cf_token }}"

@@ -1,9 +1,11 @@
 ---
 - hosts: master
+  gather_facts: False
   roles:
     - weave
     - dashboard
 
 - hosts: all
+  gather_facts: False
   roles:
     - traefik
