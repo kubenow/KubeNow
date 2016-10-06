@@ -1,0 +1,31 @@
+---
+- name: create traefik etc directory
+  become: yes
+  file:
+    path: /etc/traefik
+    state: directory
+    mode: 0755
+
+- name: copy traefik configuration
+  become: yes
+  copy:
+    src: traefik.toml
+    dest: "/etc/traefik"
+
+- name: copy traefik DaemonSet configuration
+  become: yes
+  copy:
+    src: traefik-daemonset.yml
+    dest: "/etc/traefik"
+
+- name: label egdes
+  command: >
+    kubectl label --overwrite
+    nodes {{ edge_names }} role=edge
+  when: inventory_hostname in groups['master']
+
+- name: start traefik DaemonSet
+  command: >
+    kubectl apply -f
+    /etc/traefik/traefik-daemonset.yml
+  when: inventory_hostname in groups['master']

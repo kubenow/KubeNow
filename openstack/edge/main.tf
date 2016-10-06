@@ -48,4 +48,12 @@ resource "null_resource" "generate-inventory" {
     command =  "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", openstack_compute_instance_v2.edge.*.name, openstack_compute_floatingip_v2.edge_ip.*.address))}\" >> inventory"
   }
 
+  provisioner "local-exec" {
+    command =  "echo \"[master:vars]\" >> inventory"
+  }
+
+  provisioner "local-exec" {
+    command =  "echo 'edge_names=\"${lower(join(" ",formatlist("%s", openstack_compute_instance_v2.edge.*.name)))}\"' >> inventory"
+  }
+
 }

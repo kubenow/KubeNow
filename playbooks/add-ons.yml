@@ -1,5 +1,10 @@
 ---
+
 - hosts: master
   roles:
     - weave
-    - dashboard
+    # - dashboard
+
+- hosts: all
+  roles:
+    - traefik
