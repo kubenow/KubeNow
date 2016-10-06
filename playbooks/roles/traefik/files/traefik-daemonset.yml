@@ -19,6 +19,7 @@ spec:
       containers:
       - image: containous/traefik:v1.0.3
         name: traefik-ingress-lb
+        imagePullPolicy: Always
         volumeMounts:
           - mountPath: /etc/traefik
             name: traefik-volume
