@@ -10,18 +10,18 @@ address = ":8080"
 ################################################################
 # ACME
 ################################################################
-#[entryPoints]
-#  [entryPoints.http]
-#  address = ":80"
-#    [entryPoints.http.redirect]
-#    entryPoint = "https"
-#  [entryPoints.https]
-#  address = ":443"
-#    [entryPoints.https.tls]
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+    entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
 # Enable ACME (Let's Encrypt): automatic SSL
-#[acme]
-#email = ""
-#storageFile = "/etc/traefik/acme/acme.json"
-#entryPoint = "https"
-#onDemand = true
-#OnHostRule = true
+[acme]
+email = "marco.capuccini@it.uu.se"
+storageFile = "/etc/traefik/acme/acme.json"
+entryPoint = "https"
+onDemand = true
+OnHostRule = true

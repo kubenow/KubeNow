@@ -5,3 +5,4 @@
 **/inventory
 **/packer-conf.json
 **/*.retry
+**/traefik.toml
