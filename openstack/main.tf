@@ -26,7 +26,6 @@ module "master" {
   network_name = "${var.private_network}"
   floating_ip_pool = "${var.floating_ip_pool}"
   kubeadm_token = "${var.kubeadm_token}"
-  node_count = "${var.node_count}"
 }
 
 module "node" {

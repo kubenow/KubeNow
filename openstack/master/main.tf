@@ -5,7 +5,6 @@ variable keypair_name {}
 variable network_name {}
 variable floating_ip_pool {}
 variable kubeadm_token {}
-variable node_count {}
 
 # Allocate floating IPs
 resource "openstack_compute_floatingip_v2" "master_ip" {
@@ -17,7 +16,6 @@ resource "template_file" "master_bootstrap" {
   template = "${file("${path.root}/../bootstrap/master.sh")}"
   vars {
     kubeadm_token = "${var.kubeadm_token}"
-    node_count = "${var.node_count}"
   }
 }
 
