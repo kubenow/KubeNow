@@ -1,5 +1,5 @@
 ---
-- hosts: edge:master
+- hosts: all
   vars:
     cf_record_state: absent
   gather_facts: False
