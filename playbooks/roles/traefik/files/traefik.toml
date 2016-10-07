@@ -18,10 +18,10 @@ address = ":8080"
 #  [entryPoints.https]
 #  address = ":443"
 #    [entryPoints.https.tls]
-# Enable ACME (Let's Encrypt): automatic SSL
+#
 #[acme]
 #email = ""
-#storageFile = "/etc/traefik/acme/acme.json"
+#storageFile = "/etc/traefik/acme.json"
 #entryPoint = "https"
 #onDemand = true
 #OnHostRule = true
