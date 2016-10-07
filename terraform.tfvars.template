@@ -1,0 +1,14 @@
+cluster_prefix = ""
+KuberNow_image = ""
+keypair_name = ""
+private_network = ""
+kubeadm_token = ""
+
+master_flavor = ""
+floating_ip_pool = ""
+
+node_count = ""
+node_flavor = ""
+
+edge_count = ""
+edge_flavor = ""

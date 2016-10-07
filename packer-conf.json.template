@@ -1,0 +1,7 @@
+{
+  "image_name": "KubeNow",
+  "source_image_name": "Ubuntu Xenial",
+  "network": "",
+  "flavor": "",
+  "floating_ip_pool": ""
+}
