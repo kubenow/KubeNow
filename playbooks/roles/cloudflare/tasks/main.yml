@@ -1,4 +1,7 @@
 ---
+- name: load vars
+  local_action: include_vars conf.yml
+
 - name: set wildcard record
   local_action: set_fact
   args:
@@ -31,7 +34,7 @@
     - cf_subdomain is defined
     - inventory_hostname in groups['master']
 
-- name: add record
+- name: call cloudlare API
   local_action: cloudflare_dns
   args:
     zone: "{{ cf_zone }}"

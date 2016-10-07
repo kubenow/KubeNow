@@ -6,3 +6,4 @@
 **/packer-conf.json
 **/*.retry
 **/traefik.toml
+playbooks/roles/cloudflare/vars/conf.yml
