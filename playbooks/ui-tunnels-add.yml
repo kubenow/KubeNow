@@ -1,0 +1,22 @@
+---
+- hosts: master
+  gather_facts: False
+  vars:
+    dashboard_port: 8001
+  tasks:
+    - name: setup tunnel for dashboard
+      local_action: >
+        command ssh -o "StrictHostKeyChecking no"
+        -N -f -L {{ dashboard_port }}:localhost:8001
+        ubuntu@{{ ansible_ssh_host }}
+
+- hosts: edge
+  gather_facts: False
+  vars:
+    traefik_port_base: 90
+  tasks:
+    - name: setup tunnel for traefik
+      local_action: >
+        command ssh -o "StrictHostKeyChecking no" -N -f -L
+        {{traefik_port_base}}{{inventory_hostname[-2:]}}:localhost:8080
+        ubuntu@{{ ansible_ssh_host }}
