@@ -23,5 +23,4 @@ address = ":8080"
 #email = ""
 #storageFile = "/etc/traefik/acme.json"
 #entryPoint = "https"
-#onDemand = true
 #OnHostRule = true
