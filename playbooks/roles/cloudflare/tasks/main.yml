@@ -44,3 +44,8 @@
     state: "{{ cf_record_state }}"
     account_email: "{{ cf_mail }}"
     account_api_token: "{{ cf_token }}"
+
+- name: remove domain name from known_hosts
+  local_action: >
+    command ssh-keygen -R {{cf_record}}.{{cf_zone}}
+  when: cf_record_state == "absent"

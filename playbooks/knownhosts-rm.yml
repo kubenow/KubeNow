@@ -1,0 +1,14 @@
+---
+- hosts: master
+  gather_facts: False
+  tasks:
+    - name: remove master entry
+      local_action: >
+        command ssh-keygen -R {{ansible_ssh_host}}
+
+- hosts: edge
+  gather_facts: False
+  tasks:
+    - name: remove edge entry
+      local_action: >
+        command ssh-keygen -R {{ansible_ssh_host}}
