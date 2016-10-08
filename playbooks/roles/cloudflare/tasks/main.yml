@@ -24,7 +24,6 @@
     cf_record: "{{inventory_hostname}}"
   when:
     - cf_subdomain is undefined
-    - inventory_hostname in groups['master']
 
 - name: set master record (with subdomain)
   local_action: set_fact
@@ -32,7 +31,6 @@
     cf_record: "{{inventory_hostname}}.{{cf_subdomain}}"
   when:
     - cf_subdomain is defined
-    - inventory_hostname in groups['master']
 
 - name: call cloudlare API
   local_action: cloudflare_dns
@@ -44,9 +42,3 @@
     state: "{{ cf_record_state }}"
     account_email: "{{ cf_mail }}"
     account_api_token: "{{ cf_token }}"
-
-- name: remove domain name from known_hosts
-  serial: 1
-  local_action: >
-    command ssh-keygen -R {{ cf_record | lower }}.{{ cf_zone }}
-  when: cf_record_state == "absent"

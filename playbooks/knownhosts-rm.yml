@@ -1,15 +1,22 @@
 ---
-- hosts: master
-  gather_facts: False
-  tasks:
-    - name: remove master entry
-      local_action: >
-        command ssh-keygen -R {{ansible_ssh_host}}
-
-- hosts: edge
+- hosts: all
   serial: 1
   gather_facts: False
   tasks:
-    - name: remove edge entry
+    - name: remove entry
       local_action: >
         command ssh-keygen -R {{ansible_ssh_host}}
+    - include_vars: roles/cloudflare/vars/conf.yml
+    - name: set master record
+      local_action: set_fact
+      args:
+        cf_record: "{{inventory_hostname}}"
+      when: cf_subdomain is undefined
+    - name: set master record (with subdomain)
+      local_action: set_fact
+      args:
+        cf_record: "{{inventory_hostname}}.{{cf_subdomain}}"
+      when: cf_subdomain is defined
+    - name: remove domain name from known_hosts
+      local_action: >
+        command ssh-keygen -R {{ cf_record | lower }}.{{ cf_zone }}
