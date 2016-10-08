@@ -24,6 +24,7 @@
     cf_record: "{{inventory_hostname}}"
   when:
     - cf_subdomain is undefined
+    - inventory_hostname in groups['master']
 
 - name: set master record (with subdomain)
   local_action: set_fact
@@ -31,6 +32,7 @@
     cf_record: "{{inventory_hostname}}.{{cf_subdomain}}"
   when:
     - cf_subdomain is defined
+    - inventory_hostname in groups['master']
 
 - name: call cloudlare API
   local_action: cloudflare_dns
