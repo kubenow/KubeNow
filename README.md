@@ -231,7 +231,7 @@ ansible-playbook playbooks/ui-tunnels-rm.yml
 If everything went well, you should be able to access the UIs from your browser at the following addresses.
 
     Dashboard UI: http://localhost:8001
-    Traefic: http://localhost:90
+    Traefic: http://localhost:9000
     
 >**Debug this step:**
 >
