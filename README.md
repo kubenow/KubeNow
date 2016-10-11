@@ -14,3 +14,4 @@ Deploying a KubeNow cluster you will get:
  - [Kubernetes Dashboard](http://kubernetes.io/docs/user-guide/ui/)
  - Cloudflare dynamic DNS integration
 
+![GitHub Logo](/architecture.png)
