@@ -1,19 +1,19 @@
 # Cluster configuration
 cluster_prefix = "KubeNow" # Your cluster prefix
-KuberNow_image = "KubeNow" # Name of image created with Packer
-keypair_name = "my-clud-keypair" # Name of keypair in OpenStack project (for ssh node access)
+KuberNow_image = "KubeNow" # Name of the image created with Packer
+keypair_name = "my-keypair" # Name of the keypair in OpenStack project (for ssh node access)
 private_network = "my_internal_net_name" # Name of the network to fire up the instances on
 kubeadm_token = "your-kubeadm-token" # You can run generate_kubetoken.sh to create a valid token
+floating_ip_pool = "your-pool-name"
 
 # Master configuration
-# obs: too flavors might cause diffuse errors on your installation
-master_flavor = "your-master-flavor" 
-floating_ip_pool = "your-pool-name"
+# obs: too small flavors might cause diffuse errors on your installation
+master_flavor = "your-master-flavor"
 
 # Node configuration
 node_count = "3"
-node_flavor = "s1.medium" 
+node_flavor = "s1.medium"
 
 # Edge configuration
 edge_count = "2"
-edge_flavor = "s1.medium" 
+edge_flavor = "s1.medium"
