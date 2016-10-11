@@ -1,7 +1,7 @@
 {
   "image_name": "KubeNow",
-  "source_image_name": "Ubuntu 16.04",
-  "network": "19he280e-ce1b-4300-9d6a-de645eejhefef",
-  "flavor": "s1.medium",
-  "floating_ip_pool": "my_pool_name"
+  "source_image_name": "Your Ubuntu Xenial",
+  "network": "your-private-network-id",
+  "flavor": "your-packer-flavor-name",
+  "floating_ip_pool": "your-pool-name"
 }
