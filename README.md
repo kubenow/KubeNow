@@ -17,3 +17,7 @@ Deploying a KubeNow cluster you will get:
 ![GitHub Logo](/architecture.png)
 
 This kind of deployment is particularly convenient, as only the master node, and the **edge nodes** (that run [Traefik](https://traefik.io/)) need to be associated to public IPs (which are usually scarce). Therefore, the end user will access the microservices running in the **Kubernetes nodes**, through a **edge node** that will act as a reverse proxy. The DNS service will loadbalance the requests over the edge nodes. 
+
+## Getting started
+
+Want to try KubeNow? You can get started following the tutorials in the [wiki](https://github.com/mcapuccini/KubeNow/wiki)
