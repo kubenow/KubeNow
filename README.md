@@ -21,3 +21,30 @@ This kind of deployment is particularly convenient, as only the master node, and
 ## Getting started
 
 Want to try KubeNow? You can get started following the tutorials in the [wiki](https://github.com/mcapuccini/KubeNow/wiki).
+
+## Roadmap
+
+### Core
+- [x] Kubernetes 
+- [x] Kubernetes Dashboard
+- [ ] High Availability
+- [ ] Scaling 
+- [ ] Autoscaling
+
+### Cloud Providers
+- [x] OpenStack
+- [ ] Google Cloud Platform
+- [ ] Amazon Web Services
+- [ ] Local 
+
+
+### Load balancer
+- [x] Traefik
+
+### Networking
+- [x] Weave
+- [ ] Callico
+
+### Big Data Frameworks
+- [ ] Spark
+- [ ] Hadoop
