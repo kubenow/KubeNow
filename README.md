@@ -34,7 +34,6 @@ Want to try KubeNow? You can get started following the tutorials in the [wiki](h
 ### Core
 - [x] Kubernetes 
 - [x] Kubernetes Dashboard
-- [ ] Test Automation
 - [ ] High Availability
 - [ ] Scaling 
 - [ ] Autoscaling
