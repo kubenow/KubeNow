@@ -1,3 +1,0 @@
----
-- name: start kubectl proxy as daemon
-  command: daemon -- kubectl proxy
