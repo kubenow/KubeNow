@@ -1,7 +1,6 @@
 variable name_prefix {}
 variable image_name {}
 variable flavor_name {}
-#variable keypair_name {}
 variable network_name {}
 variable kubeadm_token {}
 variable master_ip {}
