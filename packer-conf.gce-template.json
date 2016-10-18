@@ -1,0 +1,8 @@
+
+{
+  "image_name": "kube-now",
+  "source_image_name": "ubuntu-1604-xenial-v20161013",
+  "account_file": "/path/to/credentials.json",
+  "zone": "zone-where-image-will-be-created",
+  "project_id": "your-project-id"
+}

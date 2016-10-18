@@ -1,0 +1,27 @@
+cluster_prefix = "kube-now" # Your cluster prefix
+KuberNow_image = "kube-now" # Name of the image created with Packer
+kubeadm_token = ""
+
+gce_credentials_file = "/home/my/account_file.json" # path to your Google service account file
+gce_project = "your_project_id" # Google project id
+gce_region = "europe-west1-b" #the zone for your project
+
+ssh_key = "/path/to/your/public/key.pub" #path to your public ssh-key to be used (for ssh node access)
+ssh_user = "ubuntu" # the ssh user that will log on to the nodes
+
+# Master configuration
+# obs: too small flavors might cause diffuse errors on your installation
+master_flavor = ""
+
+# Node configuration
+node_count = "2"
+node_flavor = "n1-standard-1"
+
+# Edge configuration
+edge_count = "1"
+edge_flavor = "n1-standard-1"
+
+# All node configuration
+disk_size = "20" # Size in GB
+
+
