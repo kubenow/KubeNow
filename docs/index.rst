@@ -11,3 +11,12 @@ Welcome to KubeNow's documentation! This is a place where we aim to help you to 
    traefik-lb
    first-app
    clean-up
+
+.. toctree::
+  :maxdepth: 1
+  :caption: Troubleshooting
+
+  trouble-terraform
+  trouble-os
+  trouble-kubernetes
+  trouble-misc
