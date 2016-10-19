@@ -13,9 +13,12 @@ There are 3 tools that you need to install on your local machine, in order to pr
 Get KubeNow
 -----------
 
-To get KubeNow please clone its repository::
+To get KubeNow please clone its repository:
+
+.. parsed-literal::
 
   git clone https://github.com/mcapuccini/KubeNow.git
+  git checkout |release|
   cd KubeNow
 
 All of the commands in this documentation are meant to be run in the KubeNow directory.
