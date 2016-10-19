@@ -3,23 +3,20 @@ Deploy your first application
 
 In this guide we are going to deploy a simple application: `cheese-deployent <https://github.com/mcapuccini/KubeNow/blob/master/examples/cheese-deployment.yml>`_. This deployment defines 3 services with a 2 replication factor. Traefik will load balance the requests among the replicas in the Kubernetes nodes. For more details about the cheese deployment, please refer to: https://docs.traefik.io/user-guide/kubernetes.
 
-Start by copying the cheese-deployent.yml file into the master node. You can figure out the master node public IP looking into the ``inventory`` file, which is automatically generated in the root directory of KubeNow.
+Start by substituting ``domain_name`` with ``yourdomain.com`` in ``cheese-deployent.yml`` (where `yourdomain.com` is the domain that points to the edge nodes, through CloudFlare)::
 
-::
+  sed -i 's/domain_name/yourdomain.com/g' examples/cheese-deployment.yml
 
-  scp examples/cheese-deployment.yml ubuntu@<mater-ip>:/home/ubuntu
+Now, copy the ``cheese-deployent.yml`` file into the master node::
 
-Now ssh into the master, and substitute ``domain_name`` with ``somedomain.com`` in `cheese-deployent.yml`::
-
-  ssh ubuntu@<mater-ip>
-  sed -i 's/domain_name/somedomain.com/g' cheese-deployment.yml
+  ansible master -m copy -a "src=examples/cheese-deployment.yml dest=/home/ubuntu"
 
 Finally, deploy the application using kubectl::
 
-  kubectl apply -f cheese-deployment.yml
+  ansible master -a "kubectl apply -f /home/ubuntu/cheese-deployment.yml"
 
 If everything goes well you should see some front-ends and back-ends showing up in the Traefik UI, and you should be able to access the services at:
 
-- http://stilton.somedomain.com
-- http://cheddar.somedomain.com
-- http://wensleydale.somedomain.com
+- http://stilton.yourdomain.com
+- http://cheddar.yourdomain.com
+- http://wensleydale.yourdomain.com

@@ -13,7 +13,7 @@ There are 3 tools that you need to install on your local machine, in order to pr
 Get KubeNow
 -----------
 
-To get KubeNow please clone its repository:
+KubeNow |release| is distributed via `GitHub <http://github.com>`_:
 
 .. parsed-literal::
 

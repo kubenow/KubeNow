@@ -16,9 +16,9 @@ CloudFlare account configuration
 --------------------------------
 In this stack, the edge nodes act as getaways to access some services running in the Kubernetes nodes. Typically, you want the end user to access your services through a domain name. One option is to manually configure the DNS services, for a domain name, to load balance the requests among the edge nodes. However, doing this for each deployment can be tedious, and and prone to configuration errors. Hence, we recommend to sign up for a free account on `CloudFlare <http://cloudflare.com>`_, that you can use as dynamic DNS service for your domain name.
 
-Once you have your CloudFlare account, start by creating a ``playbooks/roles/cloudflare/vars/conf.yml`` configuration file. There is a template file that you can use for your convenience::
+Once you have your CloudFlare account, start by creating a ``stacks/traefik-lb/roles/cloudflare/vars/conf.yml`` configuration file. There is a template file that you can use for your convenience::
 
-  mv playbooks/roles/cloudflare/vars/conf.yml.template playbooks/roles/cloudflare/vars/conf.yml
+  mv stacks/traefik-lb/roles/cloudflare/vars/conf.yml.template stacks/traefik-lb/roles/cloudflare/vars/conf.yml
 
 In this configuration file you need to set:
 
@@ -31,7 +31,7 @@ Deploy the stack
 ----------------
 Once you are done with the CloudFlare account configuration, you can deploy the stack via `Ansible <http://ansible.com>`_::
 
-  ansible-playbook stacks/traefik_lb/main.yml
+  ansible-playbook stacks/traefik-lb/main.yml
 
 To make sure that each service is running you can run the following command::
 

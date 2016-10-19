@@ -1,9 +1,9 @@
 Bootstrap Kubernetes on a host cloud
 ====================================
 
-This step depends on the cloud provider that your are going to use. Here you find a section for each of the supported providers.
+This step is slightly different for each host cloud. Here you find a section for each of the supported providers.
 
-.. contents:: Jump to your section of interest
+.. contents:: Sections
   :depth: 2
 
 Bootstrap on OpenStack
@@ -16,7 +16,7 @@ In this section we assume that:
 
 - You have downloaded and sourced the OpenStack RC file for your tenancy: ``source project-openrc.sh``
 
-Every OpenStack installation it's a bit different, and the RC file you get to download for the interface might be incomplete. Please make sure that all of these environment variables are set in the RC file::
+Every OpenStack installation it's a bit different, and the RC file you get to download from the interface might be incomplete. Please make sure that all of these environment variables are set in the RC file::
 
   OS_USERNAME
   OS_PASSWORD
