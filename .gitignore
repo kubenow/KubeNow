@@ -5,4 +5,3 @@
 **/inventory
 **/packer-conf.json
 **/*.retry
-playbooks/roles/cloudflare/vars/conf.yml
