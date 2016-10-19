@@ -56,7 +56,7 @@ copyright = u'2016, mcapuccini'
 #
 
 proc = subprocess.Popen(["git","describe","--tags"], stdout=subprocess.PIPE)
-version = proc.stdout.read()
+version = proc.stdout.read().strip()
 
 # The short X.Y version.
 version = version
