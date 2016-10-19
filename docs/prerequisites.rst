@@ -8,7 +8,7 @@ There are 3 tools that you need to install on your local machine, in order to pr
 
 - `Packer <http://packer.io/>`_ to build a KubeNow cloud image on the host cloud
 - `Terraform <http://terraform.io/>`_ to fire-up the virtual infrastructure on the host cloud
-- `Ansible <http://ansible.io/>`_ to provision the VMs (e.g. install and configure networking, reverse proxy etc.)
+- `Ansible <http://ansible.com/>`_ to provision the VMs (e.g. install and configure networking, reverse proxy etc.)
 
 Get KubeNow
 -----------
