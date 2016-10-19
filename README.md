@@ -27,7 +27,7 @@ This kind of deployment is particularly convenient, as only the master node, and
 
 ## Getting started
 
-Want to try KubeNow? You can get started following the tutorials in the [wiki](https://github.com/mcapuccini/KubeNow/wiki).
+Want to try KubeNow? You can get started following the tutorials in the [documentation](http://kubenow.readthedocs.io).
 
 ## Roadmap
 
