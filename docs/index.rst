@@ -6,17 +6,17 @@ Welcome to KubeNow's documentation! This is a place where we aim to help you to 
    :maxdepth: 2
    :caption: Getting Started
 
-   prerequisites
-   bootstrap
-   traefik-lb
-   first-app
-   clean-up
+   getting_started/prerequisites
+   getting_started/bootstrap
+   getting_started/traefik-lb
+   getting_started/first-app
+   getting_started/clean-up
 
 .. toctree::
   :maxdepth: 1
   :caption: Troubleshooting
 
-  trouble-terraform
-  trouble-os
-  trouble-kubernetes
-  trouble-misc
+  troubleshoot/trouble-terraform
+  troubleshoot/trouble-os
+  troubleshoot/trouble-kubernetes
+  troubleshoot/trouble-misc
