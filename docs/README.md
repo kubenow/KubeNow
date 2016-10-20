@@ -27,3 +27,7 @@ It is convenient to dynamically build the documentation as changes are made. The
 ```bash
 sphinx-autobuild . _html
 ```
+
+### Troubleshoot
+
+- Sometimes, when building locally, the sidebar doesn't update properly. To fix this, remove manually the `_build` folder.
