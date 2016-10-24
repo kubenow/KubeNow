@@ -31,7 +31,7 @@ This kind of deployment is particularly convenient, as only the master node, and
 
 Want to try KubeNow? You can get started following the tutorials in the documentation:
 
-[![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=0.0.1a1)](http://kubenow.readthedocs.io/en/0.0.1a1/?badge=0.0.1a1)
+[![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=0.0.1a2)](http://kubenow.readthedocs.io/en/0.0.1a2/?badge=0.0.1a2)
 [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=latest)](http://kubenow.readthedocs.io/en/latest/?badge=latest)
 
 ## Roadmap
