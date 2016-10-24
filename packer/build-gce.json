@@ -5,23 +5,22 @@
 		"source_image_name": "{{env `PACKER_SOURCE_IMAGE_NAME`}}",
 		"network": "{{env `PACKER_NETWORK`}}",
 		"image_name": "{{env `PACKER_IMAGE_NAME`}}",
-	    "source_image_name": "{{env `PACKER_SOURCE_IMAGE_NAME`}}",
-        "account_file": "{{env `PACKER_GCE_ACCOUNT_FILE`}}",
-        "zone": "{{env `PACKER_GCE_ZONE`}}",
-        "project_id": "{{env `PACKER_GCE_PROJECT_ID`}}"   
+	  "source_image_name": "{{env `PACKER_SOURCE_IMAGE_NAME`}}",
+    "account_file": "{{env `PACKER_GCE_ACCOUNT_FILE`}}",
+    "zone": "{{env `PACKER_GCE_ZONE`}}",
+    "project_id": "{{env `PACKER_GCE_PROJECT_ID`}}"
 	},
 	"builders": [
 		{
 			"name": "all",
 			"type": "googlecompute",
 			"image_name": "{{user `image_name`}}",
-			"source_image": "{{user `source_image_name`}}",		
+			"source_image": "{{user `source_image_name`}}",
 			"ssh_username":  "ubuntu",
-            "type": "googlecompute",
-            "account_file": "{{user `account_file`}}",
-            "project_id": "{{user `project_id`}}",
-            "zone": "{{user `zone`}}"
-	
+      "type": "googlecompute",
+      "account_file": "{{user `account_file`}}",
+      "project_id": "{{user `project_id`}}",
+      "zone": "{{user `zone`}}"
 		}
 	],
 	"provisioners": [

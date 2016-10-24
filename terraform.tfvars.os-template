@@ -12,8 +12,8 @@ master_flavor = "your-master-flavor"
 
 # Node configuration
 node_count = "3"
-node_flavor = "s1.medium"
+node_flavor = "your-node-flavor"
 
 # Edge configuration
 edge_count = "2"
-edge_flavor = "s1.medium"
+edge_flavor = "your-edge-flavor"
