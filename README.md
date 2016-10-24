@@ -1,6 +1,6 @@
 # KubeNow
 
-[![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=0.0.1a1)](http://kubenow.readthedocs.io/en/0.0.1a1/?badge=0.0.1a1)
+[![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=0.0.1a2)](http://kubenow.readthedocs.io/en/0.0.1a2/?badge=0.0.1a2)
 [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=latest)](http://kubenow.readthedocs.io/en/latest/?badge=latest)
 
 Using KubeNow you can rapidly deploy, scale, and tear down your Kubernetes clusters on any cloud.
