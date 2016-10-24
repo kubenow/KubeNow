@@ -1,0 +1,25 @@
+# Cluster configuration
+cluster_prefix = "kubenow" # Your cluster prefix
+KuberNow_image = "kubenow-image" # Name of the image created with Packer
+kubeadm_token = "your-kubeadm-token" # You can run generate_kubetoken.sh to create a valid token
+ssh_key = "~/.ssh/id_rsa.pub" # Path to your public SSH key (for ssh node access)
+
+# Google credetials
+gce_credentials_file = "/home/my/account_file.json" # Path to your Google service account file
+gce_project = "your_project_id" # Google project id
+gce_zone = "europe-west1-b" # Some GCE zone
+
+# Master configuration
+# obs: too small flavors might cause diffuse errors on your installation
+master_flavor = "n1-standard-1"
+master_disk_size = "20" # Size in GB
+
+# Node configuration
+node_count = "3"
+node_flavor = "n1-standard-1"
+node_disk_size = "20" # Size in GB
+
+# Edge configuration
+edge_count = "2"
+edge_flavor = "n1-standard-1"
+edge_disk_size = "20" # Size in GB
