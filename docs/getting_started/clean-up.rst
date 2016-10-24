@@ -7,4 +7,4 @@ To release the resources, please run::
 
   terraform destroy <cloud-provider>
 
-``<cloud-provider>`` can be only openstack at the moment.
+``<cloud-provider>`` can be "openstack" or "gce".
