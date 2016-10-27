@@ -192,7 +192,6 @@ To verify that each node connected to the master you can run::
 If all of the nodes are not yet connected and in the Ready state, wait a minute and try again. Keep in mind that booting the instances takes a couple of minutes.
 
 Good! Now you have the core components of Kubernetes up and running, and you are ready to :doc:`deploy the traefik-lb stack <traefik-lb>`.
-<<<<<<< Updated upstream
 =======
 
 
@@ -282,6 +281,3 @@ To verify that each node connected to the master you can run::
 If all of the nodes are not yet connected and in the Ready state, wait a minute and try again. Keep in mind that booting the instances takes a couple of minutes.
 
 Good! Now you have the core components of Kubernetes up and running, and you are ready to :doc:`deploy the traefik-lb stack <traefik-lb>`.
-
-
->>>>>>> Stashed changes
