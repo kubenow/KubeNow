@@ -8,20 +8,22 @@ variable aws_secret_access_key {}
 variable aws_region {}
 variable availability_zone {}
 
-variable disk_size {}
-variable ssh_user {}
+variable ssh_user { default = "ubuntu" }
 variable ssh_keypair_name {}
 
 # Master settings
 variable master_instance_type {}
+variable master_disk_size {}
 
 # Nodes settings
 variable node_count {}
 variable node_instance_type {}
+variable node_disk_size {}
 
 # Edges settings
 variable edge_count {}
 variable edge_instance_type {}
+variable edge_disk_size {}
 
 # Provider
 provider "aws" {
@@ -48,7 +50,7 @@ module "master" {
   availability_zone = "${var.availability_zone}"
   ssh_user = "${var.ssh_user}"
   ssh_keypair_name = "${var.ssh_keypair_name}"
-  disk_size = "${var.disk_size}"
+  disk_size = "${var.master_disk_size}"
 }
 
 module "node" {
@@ -64,7 +66,7 @@ module "node" {
   availability_zone = "${var.availability_zone}"
   ssh_user = "${var.ssh_user}"
   ssh_keypair_name = "${var.ssh_keypair_name}"
-  disk_size = "${var.disk_size}"  
+  disk_size = "${var.node_disk_size}"  
 }
 
 module "edge" {
@@ -80,5 +82,5 @@ module "edge" {
   availability_zone = "${var.availability_zone}"
   ssh_user = "${var.ssh_user}"
   ssh_keypair_name = "${var.ssh_keypair_name}"
-  disk_size = "${var.disk_size}" 
+  disk_size = "${var.edge_disk_size}" 
 }

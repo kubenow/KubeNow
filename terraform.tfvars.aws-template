@@ -8,7 +8,6 @@ aws_secret_access_key = "your-access-key-here"
 aws_region = "eu-central-1" # Region for your project
 availability_zone = "eu-central-1a" # Zone where cluster should be created
 
-ssh_user = "ubuntu" # the ssh user that will log on to the nodes
 ssh_keypair_name = "your-ssh-keypair-name" # Name of a keypair to use  (for ssh node access)
 
 # Master configuration
