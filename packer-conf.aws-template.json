@@ -1,0 +1,8 @@
+
+{
+  "image_name": "kube-now",
+  "source_image_id": "ubuntu-16-ami-image-id",
+  "aws_access_key_id": "your-acces-key-id",
+  "aws_secret_access_key": "your-access-key-here",
+  "region": "region-where-image-will-be-created"
+}
