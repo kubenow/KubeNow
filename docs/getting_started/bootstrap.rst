@@ -71,6 +71,7 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 - **KuberNow_image**: name of the image that you previously created using Packer
 - **keypair_name**: name of a keypair already present in your OpenStack project (for ssh node access)
 - **floating_ip_pool**: a floating IP pool name
+- **external_network_uuid**: the uuid of the external network in the OpenStack tenancy
 - **kubeadm_token**: a token that will be used by kubeadm, to bootstrap Kubernetes. You can run generate_kubetoken.sh to create a valid one.
 
 **Master configuration**
