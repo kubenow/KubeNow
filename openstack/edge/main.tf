@@ -7,6 +7,7 @@ variable floating_ip_pool {}
 variable kubeadm_token {}
 variable master_ip {}
 variable count {}
+variable secgroup_name {}
 
 # Allocate floating IPs
 resource "openstack_compute_floatingip_v2" "edge_ip" {
@@ -25,6 +26,7 @@ resource "template_file" "edge_bootstrap" {
 
 # Create instances
 resource "openstack_compute_instance_v2" "edge" {
+  count = "${var.count}"
   name="${var.name_prefix}-edge-${format("%02d", count.index)}"
   image_name = "${var.image_name}"
   flavor_name = "${var.flavor_name}"
@@ -33,8 +35,8 @@ resource "openstack_compute_instance_v2" "edge" {
   network {
     name = "${var.network_name}"
   }
+  security_groups = ["${var.secgroup_name}"]
   user_data = "${template_file.edge_bootstrap.rendered}"
-  count = "${var.count}"
 }
 
 # Generate ansible inventory
