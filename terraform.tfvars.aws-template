@@ -1,17 +1,17 @@
 # Cluster configuration
-cluster_prefix = "kube-now" # Your cluster prefix
-kubenow_image_id = "kube-now" # Name of the image created with Packer
+cluster_prefix = "kubenow" # Your cluster prefix
+kubenow_image_id = "ami-XXXX" # ID of the AMI previously created with Packer
 kubeadm_token = "your-kubeadm-token" # You can run generate_kubetoken.sh to create a valid token
+ssh_keypair_name = "some-keypair-name" # Name of the keypair to use (for ssh node access)
+aws_region = "eu-west-1" # Some region
+availability_zone = "eu-west-1a" # Some availability zone
 
+# Credentials
 aws_access_key_id = "your-acces-key-id"
-aws_secret_access_key = "your-access-key-here"
-aws_region = "eu-central-1" # Region for your project
-availability_zone = "eu-central-1a" # Zone where cluster should be created
-
-ssh_keypair_name = "your-ssh-keypair-name" # Name of a keypair to use  (for ssh node access)
+aws_secret_access_key = "your-secret-access-key"
 
 # Master configuration
-master_instance_type = "t2.micro" 
+master_instance_type = "t2.micro"
 master_disk_size = "10" # Size in GB
 
 # Node configuration

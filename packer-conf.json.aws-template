@@ -1,0 +1,8 @@
+
+{
+  "image_name": "kubenow-image",
+  "source_image_id": "ubuntu-xenial-ami-id",
+  "aws_access_key_id": "your-key-id",
+  "aws_secret_access_key": "your-secret",
+  "region": "some-aws-region"
+}

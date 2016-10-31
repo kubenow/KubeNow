@@ -2,7 +2,10 @@
 	"variables":
 	{
 		"image_name": "{{env `PACKER_IMAGE_NAME`}}",
-		"source_image_id": "{{env `PACKER_SOURCE_IMAGE_ID`}}"
+		"source_image_id": "{{env `PACKER_SOURCE_IMAGE_ID`}}",
+		"aws_access_key_id": "{{env `PACKER_AWS_ACCESS_KEY_ID`}}",
+		"aws_secret_access_key": "{{env `PACKER_AWS_SECRET_ACCESS_KEY`}}",
+		"region": "{{env `PACKER_REGION`}}"
 	},
 	"builders": [
 		{
