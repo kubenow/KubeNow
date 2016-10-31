@@ -29,13 +29,10 @@ Every OpenStack installation it's a bit different, and the RC file you get to do
   OS_TENANT_NAME
   OS_AUTH_VERSION
 
-- You added your workstation's public ssh key in your tenancy
 - You created a private network with a router that connect's it to the external network (for building the Packer image)
 - You have a floating IP quota that allows to allocate a public IP for each master and edge node (at least 2 in total)
 - You have a Ubuntu 16.04 (Xenial) image in your tenancy
-- You set up the default security group to allow ingress traffic on port 80 and port 22
-
-Some of this steps could be automated with Terraform, and we are thinking to do this in the future. However, some user may feel like having control over these steps, and we are looking forward to hear your opinion about that. Unfortunately, Terraform doesn't support conditional resource allocation yet, so we need to choose either an automatic or semi-automatic approach.
+- You set up the default security group to allow ingress traffic on port 22 (for building the Packer image)
 
 Build the KubeNow image (only the first time you are deploying)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -69,7 +66,7 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 
 - **cluster_prefix**: every resource in your tenancy will be named with this prefix
 - **KuberNow_image**: name of the image that you previously created using Packer
-- **keypair_name**: name of a keypair already present in your OpenStack project (for ssh node access)
+- **ssh_key**: path to your public ssh-key to be used (for ssh node access) e.g. ~/.ssh/id_rsa.pub
 - **floating_ip_pool**: a floating IP pool name
 - **external_network_uuid**: the uuid of the external network in the OpenStack tenancy
 - **kubeadm_token**: a token that will be used by kubeadm, to bootstrap Kubernetes. You can run generate_kubetoken.sh to create a valid one.

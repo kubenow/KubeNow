@@ -1,7 +1,7 @@
 # Cluster settings
 variable cluster_prefix {}
 variable KuberNow_image {}
-variable keypair_name {}
+variable ssh_key {}
 variable external_network_uuid{}
 variable kubeadm_token {}
 
@@ -17,6 +17,13 @@ variable node_flavor {}
 variable edge_count {}
 variable edge_flavor {}
 
+# Upload ssh-key to be used for access to the nodes
+module "keypair" {
+  source = "./keypair"
+  public_key = "${var.ssh_key}"
+  name_prefix = "${var.cluster_prefix}"
+}
+
 # Create a network (and security group) with an externally attached router
 module "network" {
   source = "./network"
@@ -29,7 +36,7 @@ module "master" {
   name_prefix = "${var.cluster_prefix}"
   image_name = "${var.KuberNow_image}"
   flavor_name = "${var.master_flavor}"
-  keypair_name = "${var.keypair_name}"
+  keypair_name = "${module.keypair.keypair_name}"
   network_name = "${module.network.network_name}"
   secgroup_name = "${module.network.secgroup_name}"
   floating_ip_pool = "${var.floating_ip_pool}"
@@ -41,7 +48,7 @@ module "node" {
   name_prefix = "${var.cluster_prefix}"
   image_name = "${var.KuberNow_image}"
   flavor_name = "${var.node_flavor}"
-  keypair_name = "${var.keypair_name}"
+  keypair_name = "${module.keypair.keypair_name}"
   network_name = "${module.network.network_name}"
   secgroup_name = "${module.network.secgroup_name}"
   kubeadm_token = "${var.kubeadm_token}"
@@ -54,7 +61,7 @@ module "edge" {
   name_prefix = "${var.cluster_prefix}"
   image_name = "${var.KuberNow_image}"
   flavor_name = "${var.edge_flavor}"
-  keypair_name = "${var.keypair_name}"
+  keypair_name = "${module.keypair.keypair_name}"
   network_name = "${module.network.network_name}"
   secgroup_name = "${module.network.secgroup_name}"
   kubeadm_token = "${var.kubeadm_token}"
