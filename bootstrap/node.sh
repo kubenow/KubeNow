@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SLEEPTIME=5
-MAX_TRY_CONNECT_TIME=60
+SLEEPTIME=5 # Sec
+MAX_TRY_CONNECT_TIME=600 # Sec
 
 cumulative_wait_time=0
 echo "Try to join master..."
