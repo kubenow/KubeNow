@@ -45,7 +45,7 @@ Want to try KubeNow? You can get started following the tutorials in the document
 ### Cloud Providers
 - [x] OpenStack
 - [x] Google Cloud Platform
-- [ ] Amazon Web Services
+- [x] Amazon Web Services
 - [ ] Local
 
 
