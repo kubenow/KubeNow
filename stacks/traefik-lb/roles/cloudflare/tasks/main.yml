@@ -23,6 +23,6 @@
     record: "{{ cf_record }}"
     type: A
     value: "{{ ansible_ssh_host }}"
-    state: "present"
+    state: "{{ cf_state | default('present') }}"
     account_email: "{{ cf_mail }}"
     account_api_token: "{{ cf_token }}"

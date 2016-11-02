@@ -8,3 +8,9 @@ To release the resources, please run::
   terraform destroy <cloud-provider>
 
 ``<cloud-provider>`` can be "openstack", "gce" or "aws".
+
+To delete the Clouflare DNS records, please run::
+
+  ansible-playbook playbooks/clean-cloudflare.yml
+
+**Warning:** if you create a new cluster before deleting the DNS records, the Ansible inventory will be replaced and you will have to delete the records manually.
