@@ -2,7 +2,7 @@
 variable cluster_prefix {}
 variable KuberNow_image {}
 variable ssh_key {}
-variable external_network_uuid{}
+variable external_network_uuid {}
 variable kubeadm_token {}
 
 # Master settings

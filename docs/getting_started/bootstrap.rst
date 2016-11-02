@@ -29,7 +29,7 @@ Every OpenStack installation it's a bit different, and the RC file you get to do
   OS_TENANT_NAME
   OS_AUTH_VERSION
 
-- You created a private network with a router that connect's it to the external network (for building the Packer image)
+- You created a private network with a router that connects it to the external network (for building the Packer image)
 - You have a floating IP quota that allows to allocate a public IP for each master and edge node (at least 2 in total)
 - You have a Ubuntu 16.04 (Xenial) image in your tenancy
 - You set up the default security group to allow ingress traffic on port 22 (for building the Packer image)
@@ -66,7 +66,7 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 
 - **cluster_prefix**: every resource in your tenancy will be named with this prefix
 - **KuberNow_image**: name of the image that you previously created using Packer
-- **ssh_key**: path to your public ssh-key to be used (for ssh node access) e.g. ~/.ssh/id_rsa.pub
+- **ssh_key**: path to your public ssh-key to be used (for ssh node access)
 - **floating_ip_pool**: a floating IP pool name
 - **external_network_uuid**: the uuid of the external network in the OpenStack tenancy
 - **kubeadm_token**: a token that will be used by kubeadm, to bootstrap Kubernetes. You can run generate_kubetoken.sh to create a valid one.
@@ -75,7 +75,7 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 
 - **master_flavor**: an instance flavor for the master
 
-- **Node configuration**
+**Node configuration**
 
 - **node_count**: number of Kubernetes nodes to be created (no floating IP is needed for these nodes)
 - **node_flavor**: an instance flavor for the Kubernetes nodes
@@ -246,7 +246,7 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 - **cluster_prefix**: every resource in your tenancy will be named with this prefix
 - **kubenow_image_id**: ID of the AMI that you previously created using packer
 - **kubeadm_token**: a token that will be used by kubeadm, to bootstrap Kubernetes. You can run `generate_kubetoken.sh` to create a valid one.
-- **ssh_key**: path to your public ssh-key to be used for ssh node access (e.g. ``~/.ssh/id_rsa.pub``) 
+- **ssh_key**: path to your public ssh-key to be used for ssh node access (e.g. ``~/.ssh/id_rsa.pub``)
 - **aws_region**: the region where your cluster will be bootstrapped (e.g. ``eu-west-1``)
 - **availability_zone**: an availability zone for your cluster (e.g. ``eu-west-1a``)
 
@@ -287,6 +287,6 @@ To verify that each node connected to the master you can run::
 
   ansible master -a "kubectl get nodes"
 
-If all of the nodes are not yet connected and in the Ready state, wait a minute and try again. Keep in mind that booting the instances takes a couple of minutes. **Warning** if you are using the free tier, the cluster will take a little bit more to bootstrap (~5 minutes). 
+If all of the nodes are not yet connected and in the Ready state, wait a minute and try again. Keep in mind that booting the instances takes a couple of minutes. **Warning** if you are using the free tier, the cluster will take a little bit more to bootstrap (~5 minutes).
 
 Good! Now you have the core components of Kubernetes up and running, and you are ready to :doc:`deploy the traefik-lb stack <traefik-lb>`.
