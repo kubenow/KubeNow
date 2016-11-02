@@ -1,0 +1,6 @@
+- hosts: edge
+  gather_facts: False
+  vars:
+    cf_state: "absent"
+  roles:
+    - { role: ../stacks/traefik-lb/roles/cloudflare }
