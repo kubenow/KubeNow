@@ -5,6 +5,7 @@ variable keypair_name {}
 variable network_name {}
 variable floating_ip_pool {}
 variable kubeadm_token {}
+variable secgroup_name {}
 
 # Allocate floating IPs
 resource "openstack_compute_floatingip_v2" "master_ip" {
@@ -29,6 +30,7 @@ resource "openstack_compute_instance_v2" "master" {
   network {
     name = "${var.network_name}"
   }
+  security_groups = ["${var.secgroup_name}"]
   user_data = "${template_file.master_bootstrap.rendered}"
 }
 

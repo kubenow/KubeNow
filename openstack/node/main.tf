@@ -6,6 +6,7 @@ variable network_name {}
 variable kubeadm_token {}
 variable master_ip {}
 variable count {}
+variable secgroup_name {}
 
 # Bootstrap
 resource "template_file" "node_bootstrap" {
@@ -18,6 +19,7 @@ resource "template_file" "node_bootstrap" {
 
 # Create instances
 resource "openstack_compute_instance_v2" "node" {
+  count = "${var.count}"
   name="${var.name_prefix}-node-${format("%03d", count.index)}"
   image_name = "${var.image_name}"
   flavor_name = "${var.flavor_name}"
@@ -25,6 +27,6 @@ resource "openstack_compute_instance_v2" "node" {
   network {
     name = "${var.network_name}"
   }
+  security_groups = ["${var.secgroup_name}"]
   user_data = "${template_file.node_bootstrap.rendered}"
-  count = "${var.count}"
 }
