@@ -104,7 +104,7 @@ Good! Now you have the core components of Kubernetes up and running, and you are
 
 
 Bootstrap on Google Cloud (GCE)
-----------------------
+-------------------------------
 
 Prerequisites
 ~~~~~~~~~~~~~
@@ -185,5 +185,110 @@ To verify that each node connected to the master you can run::
   ansible master -a "kubectl get nodes"
 
 If all of the nodes are not yet connected and in the Ready state, wait a minute and try again. Keep in mind that booting the instances takes a couple of minutes.
+
+Good! Now you have the core components of Kubernetes up and running, and you are ready to :doc:`deploy the traefik-lb stack <traefik-lb>`.
+
+Bootstrap on Amazon Web Services (EC2)
+--------------------------------------
+
+Prerequisites
+~~~~~~~~~~~~~
+
+In this section we assume that:
+
+- You have an IAM user along with its *access key* and *security credentials* (http://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html)
+
+- You have imported your workstation's public ssh key to EC2 (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws)
+
+Build the KubeNow image (only the first time you are deploying)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The first time you are going to deploy KubeNow, you'll have to create its cloud image. This considerably speeds up the following bootstraps, as all of the required software will already be installed on the instances.
+
+Start by creating a ``packer-conf.json`` file. There is a template that you can use for your convenience: ``mv packer-conf.json.aws-template packer-conf.json``. In this configuration file you will need to set:
+
+- **image_name**: the name of the image that will be created after the build (e.g. "kubenow-image")
+- **source_image_id**: an Ubuntu Xenial AMI ID
+
+  + **Tip:** to figure out an Ubuntu Xenial AMI ID that works with your preferred region, you can use the `Amazon EC2 AMI Locator <https://cloud-images.ubuntu.com/locator/ec2/>`_
+  + **Warning:** we support only `hvm:ebs-ssd` AMIs (other AMIs might work anyway)
+
+- **aws_access_key_id**: your access key id
+- **aws_secret_access_key**: your secret access key
+- **region**: the region to use in order to create the image
+
+  + **Warning:** this region has to contain the image that you previously selected (e.g. ``eu-west-1`` works with ``ami-0d77397e``)
+
+Once you are done with your settings you are ready to build KubeNow using Packer::
+
+  packer build -var-file=packer-conf.json packer/build-aws.json
+
+If everything goes well, something like the following will be printed out::
+
+  ==> Builds finished. The artifacts of successful builds are:
+  --> amazon-ebs: AMIs were created:
+
+  eu-west-1: ami-XXXX
+
+**Tip:** write down region and AMI ID for this KubeNow image build, as it will be useful in the next step.
+
+In addition, you will see the new image in the Amazon web interface (EC2 Dashboard > Images > AMIs). As an alternative, you can check that the image is present using the amazon cloud command line client::
+
+  aws ec2 describe-images --owners self
+
+Bootstrap Kubernetes
+~~~~~~~~~~~~~~~~~~~~
+
+Now we are going to provision the required virtual infrastructure in AWS (Amazon Web Services) using Terraform. This procedure will inject enough information in each instance, to independently provision itself.
+
+Start by creating a ``terraform.tfvars`` file. There is a template that you can use for your convenience: ``mv terraform.tfvars.aws-template terraform.tfvars``. In this configuration file you will need to set:
+
+**Cluser configuration**
+
+- **cluster_prefix**: every resource in your tenancy will be named with this prefix
+- **kubenow_image_id**: ID of the AMI that you previously created using packer
+- **kubeadm_token**: a token that will be used by kubeadm, to bootstrap Kubernetes. You can run `generate_kubetoken.sh` to create a valid one.
+- **ssh_keypair_name**: your workstation SSH keypair name, that you previously imported from the EC2 console (for ssh node access)
+- **aws_region**: the region where your cluster will be bootstrapped (e.g. ``eu-west-1``)
+- **availability_zone**: an availability zone for your cluster (e.g. ``eu-west-1a``)
+
+**Credentials**
+
+- **aws_access_key_id**: your access key id
+- **aws_secret_access_key**: your secret access key
+
+**Master configuration**
+
+- **master_instance_type**: an instance type for the master (e.g. ``t2.micro``)
+- **master_disk_size**: edges disk size in GB
+
+**Node configuration**
+
+- **node_count**: number of Kubernetes nodes to be created
+- **node_instance_type**: an instance type for the Kubernetes nodes (e.g. ``t2.micro``)
+- **node_disk_size**: edges disk size in GB
+
+**Edge configuration**
+
+- **edge_count**: number of egde nodes to be created
+- **edge_instance_type**: an instance type for the edge nodes (e.g. ``t2.micro``)
+- **edge_disk_size**: edges disk size in GB
+
+Once you are done with your settings you are ready to bootstrap the cluster using Terraform::
+
+  terraform get aws # get required modules (only the first time you deploy)
+  terraform apply aws # deploy the cluster
+
+If everything goes well, something like the following message will be printed::
+
+
+  Apply complete! Resources: X added, 0 changed, 0 destroyed.
+
+
+To verify that each node connected to the master you can run::
+
+  ansible master -a "kubectl get nodes"
+
+If all of the nodes are not yet connected and in the Ready state, wait a minute and try again. Keep in mind that booting the instances takes a couple of minutes. **Warning** if you are using the free tier, the cluster will take a little bit more to bootstrap (~5 minutes). 
 
 Good! Now you have the core components of Kubernetes up and running, and you are ready to :doc:`deploy the traefik-lb stack <traefik-lb>`.
