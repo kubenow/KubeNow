@@ -198,8 +198,6 @@ In this section we assume that:
 
 - You have an IAM user along with its *access key* and *security credentials* (http://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html)
 
-- You have imported your workstation's public ssh key to EC2 (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws)
-
 Build the KubeNow image (only the first time you are deploying)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -248,7 +246,7 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 - **cluster_prefix**: every resource in your tenancy will be named with this prefix
 - **kubenow_image_id**: ID of the AMI that you previously created using packer
 - **kubeadm_token**: a token that will be used by kubeadm, to bootstrap Kubernetes. You can run `generate_kubetoken.sh` to create a valid one.
-- **ssh_keypair_name**: your workstation SSH keypair name, that you previously imported from the EC2 console (for ssh node access)
+- **ssh_key**: path to your public ssh-key to be used for ssh node access (e.g. ``~/.ssh/id_rsa.pub``) 
 - **aws_region**: the region where your cluster will be bootstrapped (e.g. ``eu-west-1``)
 - **availability_zone**: an availability zone for your cluster (e.g. ``eu-west-1a``)
 

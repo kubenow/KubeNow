@@ -2,7 +2,7 @@
 cluster_prefix = "kubenow" # Your cluster prefix
 kubenow_image_id = "ami-XXXX" # ID of the AMI previously created with Packer
 kubeadm_token = "your-kubeadm-token" # You can run generate_kubetoken.sh to create a valid token
-ssh_keypair_name = "some-keypair-name" # Name of the keypair to use (for ssh node access)
+ssh_key = "~/.ssh/id_rsa.pub" # Path to your public SSH key (for ssh node access)
 aws_region = "eu-west-1" # Some region
 availability_zone = "eu-west-1a" # Some availability zone
 

@@ -9,7 +9,7 @@ variable aws_region {}
 variable availability_zone {}
 
 variable ssh_user { default = "ubuntu" }
-variable ssh_keypair_name {}
+variable ssh_key {}
 
 # Master settings
 variable master_instance_type {}
@@ -32,6 +32,13 @@ provider "aws" {
   region = "${var.aws_region}" 
 }
 
+# Upload ssh-key to be used for access to the nodes
+module "keypair" {
+  source = "./keypair"
+  public_key = "${var.ssh_key}"
+  name_prefix = "${var.cluster_prefix}"
+}
+
 # VPC Virtual Private Cloud - Networking
 module "vpc" {
   source = "./vpc"
@@ -49,7 +56,7 @@ module "master" {
   kubeadm_token = "${var.kubeadm_token}"
   availability_zone = "${var.availability_zone}"
   ssh_user = "${var.ssh_user}"
-  ssh_keypair_name = "${var.ssh_keypair_name}"
+  ssh_keypair_name = "${module.keypair.keypair_name}"
   disk_size = "${var.master_disk_size}"
 }
 
@@ -65,7 +72,7 @@ module "node" {
   count = "${var.node_count}"
   availability_zone = "${var.availability_zone}"
   ssh_user = "${var.ssh_user}"
-  ssh_keypair_name = "${var.ssh_keypair_name}"
+  ssh_keypair_name = "${module.keypair.keypair_name}"
   disk_size = "${var.node_disk_size}"  
 }
 
@@ -81,6 +88,6 @@ module "edge" {
   count = "${var.edge_count}"
   availability_zone = "${var.availability_zone}"
   ssh_user = "${var.ssh_user}"
-  ssh_keypair_name = "${var.ssh_keypair_name}"
+  ssh_keypair_name = "${module.keypair.keypair_name}"
   disk_size = "${var.edge_disk_size}" 
 }
