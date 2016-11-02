@@ -7,7 +7,7 @@ To release the resources, please run::
 
   terraform destroy <cloud-provider>
 
-``<cloud-provider>`` can be "openstack" or "gce".
+``<cloud-provider>`` can be "openstack", "gce" or "aws".
 
 To delete the Clouflare DNS records, please run::
 
