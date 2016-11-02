@@ -1,10 +1,10 @@
 # Cluster configuration
 cluster_prefix = "KubeNow" # Your cluster prefix
 KuberNow_image = "KubeNow" # Name of the image created with Packer
-keypair_name = "my-keypair" # Name of the keypair in OpenStack project (for ssh node access)
-private_network = "my_internal_net_name" # Name of the network to fire up the instances on
+ssh_key = "~/.ssh/id_rsa.pub" # Path to your public SSH key to be used for ssh node access
 kubeadm_token = "your-kubeadm-token" # You can run generate_kubetoken.sh to create a valid token
 floating_ip_pool = "your-pool-name"
+external_network_uuid = "external-net-uuid" # The uuid of the external network in the OpenStack tenancy
 
 # Master configuration
 # obs: too small flavors might cause diffuse errors on your installation
