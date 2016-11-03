@@ -49,7 +49,7 @@ Start by creating a ``packer-conf.json`` file. There is a template that you can 
 
 Once you are done with your settings you are ready to build KubeNow using Packer::
 
-  packer build -var-file=packer-conf.json packer/build.json
+  packer build -var-file=packer-conf.json packer/build-os.json
 
 If everything goes well, you will see the new image in the OpenStack web interface (Compute > Images). As an alternative, you can check that the image is present using the OpenStack command line client::
 
