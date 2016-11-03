@@ -2,7 +2,7 @@ Deploy traefik-lb stack
 =======================
 At this point you should have a core Kubernetes cluster up and running, on your cloud provider. KubeNow comes with some predefined software stacks that you can deploy on top of Kubernetes. If you are doing your first steps with Kubernetes, we recommend to start by deploying the traefik-lb stack, which is a good basis for many use cases.
 
-The the traefik-lb stack include:
+The traefik-lb stack include:
 
 - `Weave <http://weave.works>`_ networking installation
 - `Traefik <http://traefik.io/>`_ HTTP reverse proxy and load balancer installation (**only on the edge nodes**)
