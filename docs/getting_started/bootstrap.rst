@@ -205,9 +205,9 @@ The first time you are going to deploy KubeNow, you'll have to create its cloud 
 
 Start by creating a ``packer-conf.json`` file. There is a template that you can use for your convenience: ``mv packer-conf.json.aws-template packer-conf.json``. In this configuration file you will need to set:
 
-- **image_name**: the name of the image that will be created after the build (e.g. "kubenow-image"). 
+- **image_name**: the name of the image that will be created after the build (e.g. "kubenow-image")
 
-  + **Warning:** the image_name must be unique in AWS, otherwise it will fail creating the new image.
+  + **Warning:** the image_name must be unique in AWS, otherwise it will fail creating the new image
 
 - **source_image_id**: an Ubuntu Xenial AMI ID
 
