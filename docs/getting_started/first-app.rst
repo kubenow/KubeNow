@@ -5,7 +5,7 @@ In this guide we are going to deploy a simple application: `cheese-deployent <ht
 
 Start by substituting ``domain_name`` with ``yourdomain.com`` in ``cheese-deployent.yml`` (where `yourdomain.com` is the domain that points to the edge nodes, through CloudFlare)::
 
-  sed -i 's/domain_name/yourdomain.com/g' examples/cheese-deployment.yml
+  sed -i -e 's/domain_name/yourdomain.com/g' examples/cheese-deployment.yml
 
 Now, copy the ``cheese-deployent.yml`` file into the master node::
 
