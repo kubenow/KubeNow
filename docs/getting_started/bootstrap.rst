@@ -205,7 +205,7 @@ The first time you are going to deploy KubeNow, you'll have to create its cloud 
 
 Start by creating a ``packer-conf.json`` file. There is a template that you can use for your convenience: ``mv packer-conf.json.aws-template packer-conf.json``. In this configuration file you will need to set:
 
-- **image_name**: the name of the image that will be created after the build (e.g. "kubenow-image")
+- **image_name**: the name of the image that will be created after the build (e.g. "kubenow-image"). Note that the image_name must be unique in AWS, otherwise it will fail creating the new image.
 - **source_image_id**: an Ubuntu Xenial AMI ID
 
   + **Tip:** to figure out an Ubuntu Xenial AMI ID that works with your preferred region, you can use the `Amazon EC2 AMI Locator <https://cloud-images.ubuntu.com/locator/ec2/>`_
@@ -215,7 +215,7 @@ Start by creating a ``packer-conf.json`` file. There is a template that you can 
 - **aws_secret_access_key**: your secret access key
 - **region**: the region to use in order to create the image
 
-  + **Warning:** this region has to contain the image that you previously selected (e.g. ``eu-west-1`` works with ``ami-0d77397e``)
+  + **Warning:** this region has to contain the image that you previously selected (e.g. ``eu-central-1`` works with ``ami-8504fdea``)
 
 Once you are done with your settings you are ready to build KubeNow using Packer::
 
@@ -226,7 +226,7 @@ If everything goes well, something like the following will be printed out::
   ==> Builds finished. The artifacts of successful builds are:
   --> amazon-ebs: AMIs were created:
 
-  eu-west-1: ami-XXXX
+  eu-central-1: ami-XXXX
 
 **Tip:** write down region and AMI ID for this KubeNow image build, as it will be useful in the next step.
 
