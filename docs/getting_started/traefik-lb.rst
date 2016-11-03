@@ -2,7 +2,7 @@ Deploy traefik-lb stack
 =======================
 At this point you should have a core Kubernetes cluster up and running, on your cloud provider. KubeNow comes with some predefined software stacks that you can deploy on top of Kubernetes. If you are doing your first steps with Kubernetes, we recommend to start by deploying the traefik-lb stack, which is a good basis for many use cases.
 
-The the traefik-lb stack include:
+The traefik-lb stack include:
 
 - `Weave <http://weave.works>`_ networking installation
 - `Traefik <http://traefik.io/>`_ HTTP reverse proxy and load balancer installation (**only on the edge nodes**)
@@ -10,11 +10,11 @@ The the traefik-lb stack include:
 
 .. image:: https://github.com/mcapuccini/KubeNow/raw/master/architecture.png
 
-This kind of deployment is particularly convenient, as only the master node, and the edge nodes (that run `Traefik <https://traefik.io/>`_) need to be associated to public IPs (which can be scarce). Therefore, the end user will access the microservices running in the Kubernetes nodes, through a edge node that will act as a reverse proxy. The `CloudFlare <http://cloudflare.com>`_ service will loadbalance the requests over the edge nodes.
+This kind of deployment is particularly convenient, as only the master node, and the edge nodes (that run `Traefik <https://traefik.io/>`_) need to be associated to public IPs (which can be scarce). Therefore, the end user will access the microservices running in the Kubernetes nodes, through an edge node that will act as a reverse proxy. The `CloudFlare <http://cloudflare.com>`_ service will loadbalance the requests over the edge nodes.
 
 CloudFlare account configuration
 --------------------------------
-In this stack, the edge nodes act as getaways to access some services running in the Kubernetes nodes. Typically, you want the end user to access your services through a domain name. One option is to manually configure the DNS services, for a domain name, to load balance the requests among the edge nodes. However, doing this for each deployment can be tedious, and and prone to configuration errors. Hence, we recommend to sign up for a free account on `CloudFlare <http://cloudflare.com>`_, that you can use as dynamic DNS service for your domain name.
+In this stack, the edge nodes act as getaways to access some services running in the Kubernetes nodes. Typically, you want the end user to access your services through a domain name. One option is to manually configure the DNS services, for a domain name, to load balance the requests among the edge nodes. However, doing this for each deployment can be tedious, and prone to configuration errors. Hence, we recommend to sign up for a free account on `CloudFlare <http://cloudflare.com>`_, that you can use as dynamic DNS service for your domain name.
 
 Once you have your CloudFlare account, start by creating a ``stacks/traefik-lb/roles/cloudflare/vars/conf.yml`` configuration file. There is a template file that you can use for your convenience::
 
