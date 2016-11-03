@@ -230,7 +230,9 @@ If everything goes well, something like the following will be printed out::
 
 **Tip:** write down region and AMI ID for this KubeNow image build, as it will be useful in the next step.
 
-In addition, you will see the new image in the Amazon web interface (EC2 Dashboard > Images > AMIs). You might need to change your location in the dashboard for your image to be shown. As an alternative, you can check that the image is present using the amazon cloud command line client::
+In addition, you will see the new image in the Amazon web interface (EC2 Dashboard > Images > AMIs). You might need to change your location in the dashboard for your image to be shown. 
+
+As an alternative, you can check that the image is present using the amazon cloud command line client::
 
   aws ec2 describe-images --owners self
 
