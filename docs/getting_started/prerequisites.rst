@@ -18,7 +18,7 @@ KubeNow |release| is distributed via `GitHub <http://github.com>`_:
 .. parsed-literal::
 
   git clone https://github.com/mcapuccini/KubeNow.git
-  git checkout |release|
   cd KubeNow
+  git checkout |release|
 
 All of the commands in this documentation are meant to be run in the KubeNow directory.
