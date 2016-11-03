@@ -111,6 +111,7 @@ Prerequisites
 
 In this section we assume that:
 
+- You have enabled the Google Compute Engine API: API Manager > Library > Compute Engine API > Enable
 - You have created and downloaded a service account file for your GCE project: Api manager > Credentials > Create credentials > Service account key
 
 Build the KubeNow image (only the first time you are deploying)
