@@ -21,7 +21,7 @@ resource "template_file" "edge_bootstrap" {
 }
 
 resource "google_compute_instance" "edge" {
-  name="${var.name_prefix}-edge-${format("%03d", count.index)}"
+  name="${var.name_prefix}-edge-${format("%02d", count.index)}"
   machine_type = "${var.flavor_name}"
   zone = "${var.zone}"
   can_ip_forward = false
@@ -41,7 +41,7 @@ resource "google_compute_instance" "edge" {
     sshKeys = "${var.ssh_user}:${file(var.ssh_key)} ${var.ssh_user}"
     ssh_user = "${var.ssh_user}"
     user-data = "${template_file.edge_bootstrap.rendered}"
-  } 
+  }
 
   count = "${var.count}"
 
