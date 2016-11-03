@@ -47,6 +47,7 @@ Want to try KubeNow? You can get started following the tutorials in the document
 - [x] Google Cloud Platform
 - [x] Amazon Web Services
 - [ ] Local
+- [ ] Bare Metal
 
 
 ### Load balancer
@@ -54,8 +55,6 @@ Want to try KubeNow? You can get started following the tutorials in the document
 
 ### Networking
 - [x] Weave
-- [ ] Callico
 
 ### Big Data Frameworks
 - [ ] Spark
-- [ ] Hadoop
