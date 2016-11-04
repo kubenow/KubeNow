@@ -32,7 +32,6 @@ if [ "$COMMAND" = "help" ]; then
     exit 0
 fi
 
-
 # Wrap docker run
 docker run \
   -v $PWD:/work \
