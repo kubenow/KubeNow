@@ -1,0 +1,40 @@
+#!/bin/bash
+
+#Usage
+USAGE=$(cat <<EOF
+Usage: kubenow <command>
+Commands:
+  help                print this message
+  packer              run Packer. More help: kubenow packer --help
+  terraform           run Terraform. More help: kubenow terraform --help
+  ansible             run Ansible. More help: kubenow ansible --help
+  ansible-playbook    run an Ansible playbook.
+                      More help: kubenow ansible-playbook --help
+EOF)
+
+# Validate command
+if [ $# -eq 0 ]; then
+    >&2 echo "Error: no arguments supplied"
+    echo "$USAGE"
+    exit 1
+fi
+COMMAND=$1
+ALLOWED="help packer terraform ansible ansible-playbook"
+if [[ ! $ALLOWED =~ $COMMAND ]]; then
+    >&2 echo "Error: unrecognized command '$COMMAND'"
+    echo "$USAGE"
+    exit 1
+fi
+
+# Print help if required
+if [ "$COMMAND" = "help" ]; then
+    echo "$USAGE"
+    exit 0
+fi
+
+
+# Wrap docker run
+docker run \
+  -v $PWD:/work \
+  mcapuccini/kubenow \
+  $@
