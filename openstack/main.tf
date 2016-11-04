@@ -1,7 +1,7 @@
 # Cluster settings
 variable cluster_prefix {}
 variable KuberNow_image {}
-variable ssh_key {}
+variable ssh_key { default = "secrets/ssh-key.pub" }
 variable external_network_uuid {}
 variable kubeadm_token {}
 

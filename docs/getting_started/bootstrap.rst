@@ -1,6 +1,18 @@
 Bootstrap Kubernetes on a host cloud
 ====================================
 
+SSH access
+~~~~~~~~~~
+
+In KubeNow, SSH access to the nodes is passwordless. Start by linking a public SSH key into the *secrets* folder::
+
+  ln -s ~/.ssh/id_rsa.pub secrets/ssh_key.pub
+
+**Warning:** the location of the SSH keypairs might differ in different workstations (```~/.ssh/id_rsa.pub``` is just a common one).
+
+Choose a host cloud
+~~~~~~~~~~~~~~~~~~~
+
 This step is slightly different for each host cloud. Here you find a section for each of the supported providers.
 
 .. contents:: Sections
@@ -66,7 +78,6 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 
 - **cluster_prefix**: every resource in your tenancy will be named with this prefix
 - **KuberNow_image**: name of the image that you previously created using Packer
-- **ssh_key**: path to your public ssh-key to be used (for ssh node access)
 - **floating_ip_pool**: a floating IP pool name
 - **external_network_uuid**: the uuid of the external network in the OpenStack tenancy
 - **kubeadm_token**: a token that will be used by kubeadm, to bootstrap Kubernetes. You can run generate_kubetoken.sh to create a valid one.
@@ -147,7 +158,6 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 - **cluster_prefix**: every resource in your project will be named with this prefix (the name must match ``(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)``, e.g. "kubenow-image")
 - **KuberNow_image**: name of the image that you previously created using Packer
 - **kubeadm_token**: a token that will be used by kubeadm, to bootstrap Kubernetes. You can run `generate_kubetoken.sh` to create a valid one.
-- **ssh_key**: path to your public ssh-key to be used (for ssh node access)
 
 **Google credentials**
 
@@ -234,7 +244,7 @@ If everything goes well, something like the following will be printed out::
 
 **Tip:** write down region and AMI ID for this KubeNow image build, as it will be useful in the next step.
 
-In addition, you will see the new image in the Amazon web interface (EC2 Dashboard > Images > AMIs). You might need to change your location in the dashboard for your image to be shown. 
+In addition, you will see the new image in the Amazon web interface (EC2 Dashboard > Images > AMIs). You might need to change your location in the dashboard for your image to be shown.
 
 As an alternative, you can check that the image is present using the amazon cloud command line client::
 
@@ -252,7 +262,6 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 - **cluster_prefix**: every resource in your tenancy will be named with this prefix
 - **kubenow_image_id**: ID of the AMI that you previously created using packer
 - **kubeadm_token**: a token that will be used by kubeadm, to bootstrap Kubernetes. You can run `generate_kubetoken.sh` to create a valid one.
-- **ssh_key**: path to your public ssh-key to be used for ssh node access (e.g. ``~/.ssh/id_rsa.pub``)
 - **aws_region**: the region where your cluster will be bootstrapped (e.g. ``eu-west-1``)
 - **availability_zone**: an availability zone for your cluster (e.g. ``eu-west-1a``)
 
