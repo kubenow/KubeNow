@@ -1,4 +1,4 @@
-FROM alpine:3.3
+FROM alpine:3.4
 
 RUN apk update
 
@@ -26,9 +26,9 @@ RUN rm /tmp/packer.zip
 RUN rm /tmp/terraform.zip
 
 # Add Ansible
-RUN wget \
+RUN curl \
   https://bootstrap.pypa.io/get-pip.py \
-  -O /tmp/get-pip.py
+  > /tmp/get-pip.py
 RUN python /tmp/get-pip.py
 RUN pip install --upgrade pip
 RUN pip install ansible==2.1.2.0
