@@ -2,6 +2,7 @@
 
 #Usage
 USAGE=$(cat <<EOF
+Version: latest
 Usage: kubenow <command>
 Commands:
   help                print this message
