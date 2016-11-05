@@ -34,7 +34,7 @@ if [ "$COMMAND" = "help" ]; then
 fi
 
 # Wrap docker run
-docker run \
+docker run --rm -it \
   -v $PWD:/work \
   -v $SSH_AUTH_SOCK:/ssh-agent \
   -e "SSH_AUTH_SOCK=/ssh-agent" \
