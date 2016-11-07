@@ -15,11 +15,11 @@ master_instance_type = "t2.micro"
 master_disk_size = "10" # Size in GB
 
 # Node configuration
-node_count = "2"
+node_count = "3"
 node_instance_type = "t2.micro"
 node_disk_size = "10" # Size in GB
 
 # Edge configuration
-edge_count = "1"
+edge_count = "2"
 edge_instance_type = "t2.micro"
 edge_disk_size = "10" # Size in GB
