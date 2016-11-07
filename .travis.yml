@@ -1,0 +1,7 @@
+---
+#branches:
+#  only:
+#    - master
+#    - /^incubating\/.*$/
+
+install: ci/install-tools.sh
