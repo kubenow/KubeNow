@@ -1,0 +1,27 @@
+- name: "generate test facts"
+  set_fact:
+    timestamp: "{{lookup('pipe','date +%Y%m%d%H%M%S')}}"
+    tokenID: "{{lookup('pipe','openssl rand -hex 3')}}"
+    tokenVal: "{{lookup('pipe','openssl rand -hex 8')}}"
+
+- name: "generate kubeadm_token"
+  set_fact:
+    kubeadm_token: "{{tokenID}}.{{tokenVal}}"
+
+- name: "render tfvars"
+  template:
+  args:
+    src: "{{host_cloud}}.tfvars.j2"
+    dest: "{{playbook_dir}}/../terraform.tfvars"
+
+- name: "terraform get {{host_cloud}}"
+  command: terraform get {{host_cloud}}
+  args:
+    chdir: "{{playbook_dir}}/.."
+
+- name: "terraform apply {{host_cloud}}"
+  command: terraform apply {{host_cloud}}
+  args:
+    chdir: "{{playbook_dir}}/.."
+  notify: "terraform destroy {{host_cloud}}"
+  
