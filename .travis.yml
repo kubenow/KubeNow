@@ -3,9 +3,13 @@ language: python # (Ansible)
 sudo: required
 
 branches:
-  only:
-    - master
-    - /^incubating\/.*$/
+  except:
+    - /^experimental\/.*$/
+    - /^exp\/.*$/
+    - /^development\/.*$/
+    - /^dev\/.*$/
+    - /^testing\/.*$/
+    - /^test\/.*$/
 
 install:
   # Install deps by HashiCorp
