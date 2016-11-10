@@ -28,9 +28,40 @@ before_install:
   # Install Ansible
   - sudo pip install --upgrade pip
   - sudo pip install ansible==2.2.0.0
+  # Add credentials for CI user
+  - >
+    echo -e "machine github.com\n  login $GIT_USER\n  password $GIT_PASS"
+    >> ~/.netrc
 
 install:
   - source test/secrets-kubenow/host_cloud/CityCloud.sh
 
 script:
   - ansible-playbook -e "host_cloud=openstack" test/cheese-deployment.yml
+
+env:
+  global:
+    - secure: >
+        "FyDx2t70i1OeIYxsp6efPTe9n513hETU2kz//9IC/AIKCKZCWyb0IY0ajb8pSL2n1Xa
+        JoOB4+wOdKPiuZaTvs7pjrEyMRHh/tV6a3CPbjyBelPpNV/Idcp+VK01p7A776hwzQra
+        ifPDY8O5RtlQpOUVD6rv/FpUjG+xZn1VnB2Bs8P6GqBRL8rCLcATcWIMOcnmqZqqjQAH
+        0JwBpOkQnxwl94cLvHss6FXj4Jbj//cecNu3D0RMP/eGB3QkOXgavjuKNFbPRnPZpP6j
+        fNbGA5qVRgCUoF4Zk0ByDycIa5Gg+t+YjeTvoSJXNHjYdEjOAMH8YeuTFSUKf3oR1k22
+        OWuL8Z88lIUqBdLG43vpzvr1vmx5cjCbEMD65ag2DRaWsK/AIE3AumBI5RdUMXj2dAaV
+        5dCX8BWwpiE6xZOpRlRGpPdzll7iEZSyOi7rHyGDkxYOgP4gqy6pdCbaUsuJY2opLpIi
+        wWJWBaV4MR6X5cnrxmoeyD9uDdrH972VcW+P/mHA6jXoqNw54y6GY3kr1mzSIkPmT8i5
+        CD6zodLLYlXppGG2Fh2ocVJgMgoK5tERtrZd+RiMoEaF1UPbLTMbEsaNoIFbkMdQ6/rW
+        zNn0T5xuf8GAIM1xpxr3mEXBEurzGSHFnuJ25dxzfrfRYQnte4NE+NCE7SWPczJmlOO5
+        bbNw="
+    - secure: >
+        secure: "UiWR/ALejSZLeCE1Z2TahBnIrNtcZpo+uQRVJ7HB27AiVYuvJH2WPK/QPrI
+        RKmhwjS2pCzN1SLndshmA9TyLDXcXEiIeeINeMFjq0H05F4yyjr0rP/Rrqjsl2oK/YXr
+        +71+lqDNJzcxTQn790rwjOGuVRgAe1vnQPFbf6OWKbRRZtIqGzBqBOXzspEw8iGSK2WO
+        3iWEc1gVfMBf3kJad1jBleUUzeltwLKjtYOyKlhpw5wdQKBbmKPEatfEUfmMwWsOQciP
+        Ii3Im+tZFmUDN9wWxx9q7KI7uloO2l9k8hcGfKoPVwvnyDto/aeUb6No2BMxlol05c9a
+        b8w4i1VuCQFTlEp7bdWbg/nj/XpEFjfRePHOT6cpuC5m+qr+1UkhpTsURTO9VoscwVAn
+        IaH3zhjyu1mYzlELiqSmLhzjwTgDDjqFas94gFhiz0/G6/m+z/xwViLyQ8jlLFyI+6dQ
+        yOUfpEQjUAGr6D6/ySLkmijafXW7CLBMtCIgvKNyFOAZQc1cqMPiXPuBRdY3kd75Autl
+        5K2VQc2CTRm4OC5noVUhErTyDsJi+6rzU6T4eME29tm/aiZqUsU6zqto2Rf7RXbZmj3P
+        QKpFkox3jA4SQj3Les2UOq1OHCOipf2czCQol+fuXAaZRHBpwex52+Qd9888K3FiT/jW
+        qgTnk/6Kn9L0="
