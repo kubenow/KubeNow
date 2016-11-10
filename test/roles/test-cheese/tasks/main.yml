@@ -1,0 +1,32 @@
+- name: "render cloudflare configuration"
+  template:
+  args:
+    src: "{{playbook_dir}}/secrets-kubenow/cloudflare/conf.yml.j2"
+    dest: "{{playbook_dir}}/../stacks/traefik-lb/roles/cloudflare/vars/conf.yml"
+  notify: "clean Cloudflare"
+
+- name: "deploy stack/cheese-deployment"
+  command: >
+    ansible-playbook
+    -e "domain_name={{test_timestamp}}.test.{{cf_zone}}"
+    stacks/cheese-deployment/main.yml
+  args:
+    chdir: "{{playbook_dir}}/.."
+
+- name: "test stilton"
+  include: >
+    test-page.yml
+    cheese=stilton
+    search_for=Stilton
+
+- name: "test wensleydale"
+  include: >
+    test-page.yml
+    cheese=wensleydale
+    search_for=Wensleydale
+
+- name: "test cheddar"
+  include: >
+    test-page.yml
+    cheese=cheddar
+    search_for=Cheddar

@@ -1,7 +1,3 @@
-- name: "generate test timestamp"
-  set_fact:
-    test_timestamp: "{{lookup('pipe','date +%Y%m%d%H%M%S')}}"
-
 - name: "render tfvars"
   template:
   args:
