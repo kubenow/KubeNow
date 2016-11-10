@@ -13,6 +13,7 @@
       set_fact:
         test_timestamp: "{{lookup('pipe','date +%Y%m%d%H%M%S')}}"
   roles:
+    - test-packer
     - test-terraform
     - test-bootstrap
     - test-cheese
