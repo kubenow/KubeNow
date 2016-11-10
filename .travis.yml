@@ -11,7 +11,7 @@ branches:
     - /^testing\/.*$/
     - /^test\/.*$/
 
-install:
+before_install:
   # Install deps by HashiCorp
   - > curl
       https://releases.hashicorp.com/packer/0.11.0/packer_0.11.0_linux_amd64.zip
@@ -26,3 +26,9 @@ install:
   # Install Ansible
   - sudo pip install --upgrade pip
   - sudo pip install ansible==2.2.0.0
+
+install:
+  - source test/secrets-kubenow/host_cloud/CityCloud.sh
+
+script:
+  - ansible-playbook -e "host_cloud=openstack" test/cheese-deployment.yml
