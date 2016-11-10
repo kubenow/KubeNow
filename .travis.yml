@@ -13,10 +13,12 @@ branches:
 
 before_install:
   # Install deps by HashiCorp
-  - > curl
+  - >
+      curl
       https://releases.hashicorp.com/packer/0.11.0/packer_0.11.0_linux_amd64.zip
       > /tmp/packer.zip
-  - > curl
+  - >
+      curl
       https://releases.hashicorp.com/terraform/0.7.8/terraform_0.7.8_linux_amd64.zip
       > /tmp/terraform.zip
   - sudo unzip /tmp/packer.zip -d /usr/bin
