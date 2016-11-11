@@ -16,23 +16,18 @@ branches:
     - /^test\/.*$/
 
 before_install:
-  # Add CI keys
+  # Decrypt secrets
   - >
     openssl aes-256-cbc
-    -K $encrypted_d4d3f0a1e05a_key
-    -iv $encrypted_d4d3f0a1e05a_iv
-    -in test/ci-keys/kubenow-ci.enc
-    -out test/ci-keys/kubenow-ci
+    -K $encrypted_92d825aa39d7_key
+    -iv $encrypted_92d825aa39d7_iv
+    -in test/secret.enc
+    -out test/secret.tgz
     -d
-  - >
-    openssl aes-256-cbc
-    -K $encrypted_d4d3f0a1e05a_key
-    -iv $encrypted_d4d3f0a1e05a_iv
-    -in kubenow-ci.pub.enc
-    -out kubenow-ci.pub
-    -d
+  # Extract secrets
+  - tar xzvf test/secret.tgz -C test
   # Add the keypair to the agent
-  - ssh-add test/ci-keys/kubenow-ci
+  - ssh-add test/secret/kubenow-ci
   # Get submodules
   - git submodule update --init --recursive
 
