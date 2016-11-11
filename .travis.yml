@@ -2,6 +2,10 @@ language: python # (Ansible)
 
 sudo: required
 
+git:
+  # Disable default submodule logic
+  submodules: false
+
 branches:
   except:
     - /^experimental\/.*$/
@@ -29,6 +33,8 @@ before_install:
     -d
   # Add the keypair to the agent
   - ssh-add test/ci-keys/kubenow-ci
+  # Get submodules
+  - git submodule update --init --recursive
 
 install:
   # Install deps by HashiCorp
