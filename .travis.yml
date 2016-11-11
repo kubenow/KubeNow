@@ -27,6 +27,7 @@ before_install:
   # Extract secrets
   - tar xzvf test/secret.tgz -C test
   # Add the keypair to the agent
+  - eval "$(ssh-agent -s)"
   - ssh-add test/secret/kubenow-ci
   # Get submodules
   - git submodule update --init --recursive
