@@ -1,4 +1,7 @@
 - name: "get test timestamp"
   set_fact:
     test_timestamp: "{{lookup('pipe','date +%Y%m%d%H%M%S')}}"
-- debug: msg="{{host_cloud}} build timestamp: {{test_timestamp}}"
+- name: "print host_cloud"
+  debug: var=host_cloud
+- name: "print timestamp"
+  debug: var=test_timestamp
