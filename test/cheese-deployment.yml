@@ -9,7 +9,7 @@
     node_count: 6
     cf_zone: uservices.cloud
   pre_tasks:
-    - include: {{playbook_dir}}/pre_tasks/get_timestamp.yml
+    - include: "{{playbook_dir}}/pre_tasks/get_timestamp.yml"
   roles:
     - test-packer
     - test-terraform
