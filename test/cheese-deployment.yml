@@ -9,10 +9,7 @@
     node_count: 6
     cf_zone: uservices.cloud
   pre_tasks:
-    - name: "get test timestamp"
-      set_fact:
-        test_timestamp: "{{lookup('pipe','date +%Y%m%d%H%M%S')}}"
-    - debug: msg="{{host_cloud}} build timestamp: {{test_timestamp}}"
+    - include: {{playbook_dir}}/pre_tasks/get_timestamp.yml
   roles:
     - test-packer
     - test-terraform
