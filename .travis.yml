@@ -12,6 +12,25 @@ branches:
     - /^test\/.*$/
 
 before_install:
+  # Add CI keys
+  - >
+    openssl aes-256-cbc
+    -K $encrypted_d4d3f0a1e05a_key
+    -iv $encrypted_d4d3f0a1e05a_iv
+    -in test/ci-keys/kubenow-ci.enc
+    -out test/ci-keys/kubenow-ci
+    -d
+  - >
+    openssl aes-256-cbc
+    -K $encrypted_d4d3f0a1e05a_key
+    -iv $encrypted_d4d3f0a1e05a_iv
+    -in kubenow-ci.pub.enc
+    -out kubenow-ci.pub
+    -d
+  # Add the keypair to the agent
+  - ssh-add test/ci-keys/kubenow-ci
+
+install:
   # Install deps by HashiCorp
   - >
       curl
@@ -28,17 +47,8 @@ before_install:
   # Install Ansible
   - sudo pip install --upgrade pip
   - sudo pip install ansible==2.2.0.0
-  # Add credentials for CI user
-  - >
-    echo -e "machine github.com\n  login mcapuccini-ci\n  password $GIT_PASS"
-    >> ~/.netrc
-
-install:
+  # Source CityCloud RC file
   - source test/secrets-kubenow/host_cloud/CityCloud.sh
 
 script:
   - ansible-playbook -e "host_cloud=openstack" test/cheese-deployment.yml
-
-env:
-  global:
-    - secure: "bvkgxAw4aAZzycX2grCtbMaMc05d7jIEafyxRFKk+RxR3NCL0UIldJQsybcdWpsaXbGeV63+FzOFaFmTb7DMrlIfkD/LGgAQY0mBX7HZubePeguzXk+qthUzo2pcTZw8je/Z7MM2sJx6Za88nc/90/f3QwGF1YMJa1D58wdFfImiiYuMCbHQ0FW7uPRIy57YyGQIyhkl+pOVpejcWeU0dVzk6Hv6PHJ2KxDikXw6cxhyuIZiiHmBsPwmAG9uItIfuUC41m/JwHSn1Uhu9D/FjUlEJxD+ajvGlqXyECphxlIscjZYd3bJRKGO7v17kRGGXaXQvZQ1gpZ+nxa8hBhkmQanTMaa95yKMMBRpsCnRRtxk6ed4q4y/45UG/1B2oSfX7FwII7clN5DGklxhlRCs4N090WgBWJLCkpqF4X5hmt1JXyIXjIUfV7AA1LsXIE1YT19RSYrQge/6gI86p81luvgH8zEjU6MrEniDEILkoiZR4E885TEh5xlkCyG8W10vj/FbpSUcsd6aA/AqWHosBa66OEbh46y5oFYbekW5xNL35FWjDnS7G1AhncIOp2HMJgT6xv6qfv0+SQ5Fv+oZV+VE7e5Rm//CrKDvpHWUFpi5bZNVdxhc4MxNqd1/2nCcwrNxZvn9XAbEbjbF/cjsCzNitpTLTcPRpa69y2HYZg="
