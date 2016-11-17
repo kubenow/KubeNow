@@ -41,6 +41,7 @@ Want to try KubeNow? You can get started following the tutorials in the document
 - [ ] High Availability
 - [ ] Scaling (it lacks documentation, but it should work)
 - [ ] Autoscaling
+- [ ] Dashboard
 
 ### Cloud Providers
 - [x] OpenStack
