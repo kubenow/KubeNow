@@ -17,3 +17,7 @@ node_flavor = "your-node-flavor"
 # Edge configuration
 edge_count = "2"
 edge_flavor = "your-edge-flavor"
+
+# Storage configuration
+storage_count = "3"
+storage_flavor = "your-storage-flavor"
