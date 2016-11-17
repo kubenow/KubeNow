@@ -59,3 +59,6 @@ Want to try KubeNow? You can get started following the tutorials in the document
 
 ### Big Data Frameworks
 - [ ] Spark
+
+### Storage 
+- [ ] GlusterFS
