@@ -36,4 +36,6 @@ sudo apt-get install -y \
 echo "Installing other requirements..."
 sudo apt-get install -y \
   python \
-  daemon
+  daemon \
+  attr \
+  glusterfs-client
