@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: gluster-server
+  namespace: kube-system
+  labels:
+    k8s-app: gluster-storage
+    kubernetes.io/cluster-service: "true"
+spec:
+  template:
+    metadata:
+      labels:
+        k8s-app: gluster-storage
+        name: gluster-storage
+    spec:
+      hostNetwork: true
+      terminationGracePeriodSeconds: 60
+      containers:
+      - image: kubenow/glusterfs
+        name: gluster-storage
+        imagePullPolicy: Always
+      nodeSelector:
+        role: storage
