@@ -3,7 +3,7 @@
 [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=stable)](http://kubenow.readthedocs.io/en/stable/?badge=stable)
 [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=latest)](http://kubenow.readthedocs.io/en/latest/?badge=latest)
 
-Using KubeNow you can rapidly deploy, scale, and tear down your Kubernetes clusters on any cloud.
+Using KubeNow you can rapidly deploy, scale, and tear down your Kubernetes clusters on AWS, GCE and OpenStack.
 
 ## Table of Contents
 
