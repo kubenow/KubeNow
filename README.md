@@ -1,4 +1,4 @@
-# KubeNow
+<p align="center"><img src="img/logo_wide_300dpi.png" width="500px"/></p>
 
 [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=stable)](http://kubenow.readthedocs.io/en/stable/?badge=stable)
 [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=latest)](http://kubenow.readthedocs.io/en/latest/?badge=latest)
@@ -23,7 +23,7 @@ Deploying a KubeNow cluster you will get:
  - [Traefik](https://traefik.io/) HTTP reverse proxy and load balancer
  - [Cloudflare](https://www.cloudflare.com/) dynamic DNS integration
 
-![GitHub Logo](/architecture.png)
+![GitHub Logo](img/architecture.png)
 
 This kind of deployment is particularly convenient, as only the master node, and the **edge nodes** (that run [Traefik](https://traefik.io/)) need to be associated to public IPs (which can be scarce). Therefore, the end user will access the microservices running in the **Kubernetes nodes**, through a **edge node** that will act as a reverse proxy. The DNS service will loadbalance the requests over the edge nodes.
 
