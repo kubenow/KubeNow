@@ -1,9 +1,9 @@
-# KubeNow
+![architecture](img/logo_wide_50dpi.png)
 
 [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=stable)](http://kubenow.readthedocs.io/en/stable/?badge=stable)
 [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=latest)](http://kubenow.readthedocs.io/en/latest/?badge=latest)
 
-Using KubeNow you can rapidly deploy, scale, and tear down your Kubernetes clusters on any cloud.
+Using KubeNow you can rapidly deploy, scale, and tear down your Kubernetes clusters on AWS, GCE and OpenStack.
 
 ## Table of Contents
 
@@ -23,7 +23,7 @@ Deploying a KubeNow cluster you will get:
  - [Traefik](https://traefik.io/) HTTP reverse proxy and load balancer
  - [Cloudflare](https://www.cloudflare.com/) dynamic DNS integration
 
-![GitHub Logo](/architecture.png)
+![architecture](img/architecture.png)
 
 This kind of deployment is particularly convenient, as only the master node, and the **edge nodes** (that run [Traefik](https://traefik.io/)) need to be associated to public IPs (which can be scarce). Therefore, the end user will access the microservices running in the **Kubernetes nodes**, through a **edge node** that will act as a reverse proxy. The DNS service will loadbalance the requests over the edge nodes.
 
