@@ -1,0 +1,21 @@
+---
+- hosts: master
+  gather_facts: False
+  tasks:
+    - name: create gluster etc directory
+      become: yes
+      file:
+        path: /etc/gluster
+        state: directory
+        mode: 0755
+
+    - name: copy gluster DaemonSet configuration
+      become: yes
+      copy:
+        src: gluster-daemonset.yml
+        dest: "/etc/gluster"
+
+    - name: start gluster DaemonSet
+      command: >
+        kubectl apply -f
+        /etc/gluster/gluster-daemonset.yml

@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -36,5 +37,19 @@ spec:
         imagePullPolicy: Always
         securityContext:
           privileged: true
-      nodeSelector:
-        role: storage
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: shared-volume
+spec:
+  capacity:
+    storage: 10G
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  glusterfs:
+    endpoints: gluster-server
+    path: shared-volume
+    readOnly: false
