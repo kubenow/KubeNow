@@ -17,10 +17,6 @@ variable node_flavor {}
 variable edge_count {}
 variable edge_flavor {}
 
-# Storage settings
-variable storage_count {}
-variable storage_flavor {}
-
 # Upload ssh-key to be used for access to the nodes
 module "keypair" {
   source = "./keypair"
