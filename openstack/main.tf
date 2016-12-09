@@ -73,16 +73,3 @@ module "edge" {
   master_ip = "${module.master.ip_address}"
   count = "${var.edge_count}"
 }
-
-module "storage" {
-  source = "./storage"
-  name_prefix = "${var.cluster_prefix}"
-  image_name = "${var.KuberNow_image}"
-  flavor_name = "${var.storage_flavor}"
-  keypair_name = "${module.keypair.keypair_name}"
-  network_name = "${module.network.network_name}"
-  secgroup_name = "${module.network.secgroup_name}"
-  kubeadm_token = "${var.kubeadm_token}"
-  master_ip = "${module.master.ip_address}"
-  count = "${var.storage_count}"
-}
