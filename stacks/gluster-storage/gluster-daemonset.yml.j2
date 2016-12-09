@@ -45,7 +45,7 @@ metadata:
   name: shared-volume
 spec:
   capacity:
-    storage: 10G
+    storage: {{gluster_vol_size}}
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain

@@ -11,9 +11,9 @@
 
     - name: copy gluster DaemonSet configuration
       become: yes
-      copy:
-        src: gluster-daemonset.yml
-        dest: "/etc/gluster"
+      template:
+        src: gluster-daemonset.yml.j2
+        dest: "/etc/gluster/gluster-daemonset.yml"
 
     - name: start gluster DaemonSet
       command: >

@@ -39,3 +39,7 @@ sudo apt-get install -y \
   daemon \
   attr \
   glusterfs-client
+
+echo "Pulling required Docker images..."
+sudo docker pull \
+  kubenow/gluster-server
