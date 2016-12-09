@@ -1,4 +1,8 @@
-- include: ../weave-network/main.yml
+- hosts: master
+  gather_facts: False
+  roles:
+    - hostnames
+    - weave-network
 
 - hosts: all
   gather_facts: False
@@ -9,3 +13,8 @@
   gather_facts: False
   roles:
     - cloudflare
+    
+- hosts: master
+  gather_facts: False
+  roles:
+    - helm
