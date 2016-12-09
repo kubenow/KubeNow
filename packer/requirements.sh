@@ -36,4 +36,10 @@ sudo apt-get install -y \
 echo "Installing other requirements..."
 sudo apt-get install -y \
   python \
-  daemon
+  daemon \
+  attr \
+  glusterfs-client
+
+echo "Pulling required Docker images..."
+sudo docker pull \
+  kubenow/gluster-server
