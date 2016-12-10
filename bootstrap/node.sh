@@ -1,8 +1,5 @@
 #!/bin/bash
 
-export KUBE_LOGGING_DESTINATION=elasticsearch;
-export KUBE_ENABLE_NODE_LOGGING=true;
-
 SLEEPTIME=5 # Sec
 MAX_TRY_CONNECT_TIME=600 # Sec
 

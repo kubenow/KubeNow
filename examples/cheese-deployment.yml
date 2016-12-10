@@ -143,21 +143,21 @@ metadata:
   name: cheese
 spec:
   rules:
-  - host: stilton.kubenow.uservice.se
+  - host: stilton.domain_name
     http:
       paths:
       - path: /
         backend:
           serviceName: stilton
           servicePort: http
-  - host: cheddar.kubenow.uservice.se
+  - host: cheddar.domain_name
     http:
       paths:
       - path: /
         backend:
           serviceName: cheddar
           servicePort: http
-  - host: wensleydale.kubenow.uservice.se
+  - host: wensleydale.domain_name
     http:
       paths:
       - path: /
