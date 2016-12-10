@@ -1,21 +1,4 @@
 ---
-- name: download helm
-  sudo: yes
-  get_url:
-    url: "https://kubernetes-helm.storage.googleapis.com/{{ helmfile }}"
-    dest: "/tmp/{{ helmfile }}"
-
-- name: extract helm tarball
-  sudo: yes
-  unarchive:
-    src: "/tmp/{{ helmfile }}"
-    dest: /tmp
-    copy: no
-
-- name: move helm to bin
-  sudo: yes
-  command: mv /tmp/linux-amd64/helm /usr/local/bin/
-
 - name: start helm
   sudo: yes
   command: helm init

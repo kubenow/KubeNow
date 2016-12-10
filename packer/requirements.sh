@@ -36,4 +36,16 @@ sudo apt-get install -y \
 echo "Installing other requirements..."
 sudo apt-get install -y \
   python \
-  daemon
+  daemon \
+  attr \
+  glusterfs-client
+
+echo "Download and move helm to /usr/local/bin/"
+helmfile=helm-v2.0.0-linux-amd64.tar.gz
+wget -P /tmp/ https://kubernetes-helm.storage.googleapis.com/$helmfile
+tar -xf /tmp/$helmfile -C /tmp/
+sudo mv /tmp/linux-amd64/helm /usr/local/bin/
+
+echo "Pulling required Docker images..."
+sudo docker pull \
+  kubenow/gluster-server
