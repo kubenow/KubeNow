@@ -2,8 +2,8 @@
 - name: run add-hostnames script
   sudo: yes
   script: add-hostnames.sh
-  
-# restarting docker is needed for "something" to pick up the changes in /etc/hosts
+
+# restarting docker is needed pick up the changes in /etc/hosts
 - name: restart docker
   sudo: yes
   service:
