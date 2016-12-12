@@ -1,0 +1,5 @@
+---
+- name: start helm
+  sudo: yes
+  command: helm init
+

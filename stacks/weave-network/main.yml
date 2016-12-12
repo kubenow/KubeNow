@@ -1,6 +1,0 @@
----
-- hosts: master
-  gather_facts: False
-  tasks:
-    - name: install weave
-      command: kubectl apply -f https://git.io/weave-kube

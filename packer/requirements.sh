@@ -34,11 +34,18 @@ sudo apt-get install -y \
   kubernetes-cni
 
 echo "Installing other requirements..."
+# APT requirements
 sudo apt-get install -y \
   python \
   daemon \
   attr \
   glusterfs-client
+
+# Helm
+HELM_TGZ=helm-v2.0.0-linux-amd64.tar.gz
+wget -P /tmp/ https://kubernetes-helm.storage.googleapis.com/$HELM_TGZ
+tar -xf /tmp/$HELM_TGZ -C /tmp/
+sudo mv /tmp/linux-amd64/helm /usr/local/bin/
 
 echo "Pulling required Docker images..."
 sudo docker pull \
