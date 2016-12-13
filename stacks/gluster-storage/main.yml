@@ -12,10 +12,10 @@
     - name: copy gluster DaemonSet configuration
       become: yes
       template:
-        src: gluster-daemonset.yml.j2
-        dest: "/etc/gluster/gluster-daemonset.yml"
+        src: glusterfs.yml.j2
+        dest: "/etc/gluster/glusterfs.yml"
 
     - name: start gluster DaemonSet
       command: >
         kubectl apply -f
-        /etc/gluster/gluster-daemonset.yml
+        /etc/gluster/glusterfs.yml
