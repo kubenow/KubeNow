@@ -1,0 +1,5 @@
+#- name: render shared-volume configuration
+#  become: yes
+#  template:
+#    src: shared-volume.yml
+#    dest: "/etc/kubenow/yaml/shared-volume"
