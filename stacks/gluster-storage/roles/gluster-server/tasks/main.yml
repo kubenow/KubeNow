@@ -56,8 +56,10 @@
 - set_fact:
     enpoint_list: "[\"{{get_ips.stdout | replace(' ','\",\"')}}\"]"
 
-- name: "gluster peer probe"
+- name: "gluster peer probe (gluster_side)"
   command: >
     kubectl exec --namespace gluster {{get_name.stdout}}
     gluster peer probe {{item}}
   with_items: "{{enpoint_list}}"
+  tags:
+    - gluster_side
