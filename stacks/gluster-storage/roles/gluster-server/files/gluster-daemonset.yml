@@ -20,7 +20,7 @@ spec:
       hostNetwork: true
       containers:
       - name: gluster-server
-        image: kubenow/gluster-server:dev-daemon
+        image: kubenow/gluster-server
         imagePullPolicy: Always
         securityContext:
           privileged: true
