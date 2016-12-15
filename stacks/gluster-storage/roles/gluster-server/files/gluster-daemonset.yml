@@ -1,0 +1,67 @@
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: gluster-server
+  namespace: gluster
+  labels:
+    k8s-app: gluster-server
+    kubernetes.io/cluster-service: "true"
+spec:
+  selector:
+    matchLabels:
+      k8s-app: gluster-server
+  template:
+    metadata:
+      labels:
+        k8s-app: gluster-server
+    spec:
+      terminationGracePeriodSeconds: 60
+      hostNetwork: true
+      containers:
+      - name: gluster-server
+        image: kubenow/gluster-server
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /var/bricks
+          name: bricks
+          readOnly: false
+        - mountPath: /var/lib/glusterd
+          name: glusterd
+          readOnly: false
+        - mountPath: /var/log/glusterfs
+          name: logs
+          readOnly: false
+        - mountPath: /etc/glusterfs
+          name: etc
+          readOnly: false
+      volumes:
+        - hostPath:
+            path: /var/bricks
+          name: bricks
+        - hostPath:
+            path: /var/lib/glusterd
+          name: glusterd
+        - hostPath:
+            path: /var/log/glusterfs
+          name: logs
+        - hostPath:
+            path: /etc/glusterfs
+          name: etc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gluster-server
+  namespace: gluster
+spec:
+  selector:
+    k8s-app: gluster-server
+  clusterIP: None
+  ports:
+  - name: dummy
+    targetPort: 1
+    port: 1
