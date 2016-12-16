@@ -1,5 +1,4 @@
 ---
 - name: start helm
-  sudo: yes
+  become: yes
   command: helm init
-

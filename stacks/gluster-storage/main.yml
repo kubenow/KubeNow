@@ -1,5 +1,0 @@
-- hosts: master
-  gather_facts: False
-  roles:
-    - gluster-server
-    - shared-volume

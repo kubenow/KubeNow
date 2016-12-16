@@ -3,6 +3,9 @@
   roles:
     - hostnames
     - weave-network
+    - helm
+    - gluster-server
+    - shared-volume
 
 - hosts: all
   gather_facts: False
@@ -13,8 +16,3 @@
   gather_facts: False
   roles:
     - cloudflare
-    
-- hosts: master
-  gather_facts: False
-  roles:
-    - helm
