@@ -1,11 +1,11 @@
 ---
 - name: run add-hostnames script
-  sudo: yes
+  become: yes
   script: add-hostnames.sh
 
 # restarting docker is needed pick up the changes in /etc/hosts
 - name: restart docker
-  sudo: yes
+  become: yes
   service:
     name: docker
     state: restarted
