@@ -22,6 +22,7 @@ Deploying a KubeNow cluster you will get:
  - [Weave](https://www.weave.works/) networking
  - [Traefik](https://traefik.io/) HTTP reverse proxy and load balancer
  - [Cloudflare](https://www.cloudflare.com/) dynamic DNS integration
+ - [GlusterFS](https://www.gluster.org/) distributed file system
 
 ![architecture](img/architecture.png)
 
