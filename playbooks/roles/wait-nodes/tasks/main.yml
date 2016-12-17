@@ -10,6 +10,8 @@
   args:
     chdir: "{{playbook_dir}}/.."
   register: get_nodes_count
+  when:
+    - get_nodes_count is undefined
 
 - name: "wait for all nodes to join the master"
   shell: >
