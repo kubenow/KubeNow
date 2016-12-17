@@ -4,7 +4,7 @@
   when:
     (cf_zone is undefined) or
     (cf_token is undefined) or
-    (cf_zone is undefined)
+    (cf_mail is undefined)
 
 - name: set wildcard record
   local_action: set_fact
