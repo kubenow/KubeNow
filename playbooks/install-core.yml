@@ -1,6 +1,7 @@
 - hosts: master
   gather_facts: False
   roles:
+    - wait-nodes
     - hostnames
     - weave-network
     - helm
