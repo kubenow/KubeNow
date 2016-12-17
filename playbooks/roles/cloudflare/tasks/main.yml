@@ -1,6 +1,10 @@
 ---
 - name: load vars
   local_action: include_vars conf.yml
+  when:
+    (cf_zone is undefined) or
+    (cf_token is undefined) or
+    (cf_zone is undefined)
 
 - name: set wildcard record
   local_action: set_fact
