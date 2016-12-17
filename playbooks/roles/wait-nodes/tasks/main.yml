@@ -1,0 +1,23 @@
+---
+- name: "render node count"
+  local_action: >
+    shell
+    cat terraform.tfvars |
+    grep '[node|edge]_count' |
+    awk '{print $3;}' |
+    tr -d '"' |
+    awk '{s+=$1} END {print s}'
+  args:
+    chdir: "{{playbook_dir}}/.."
+  register: get_nodes_count
+
+- name: "wait for all nodes to join the master"
+  shell: >
+    kubectl get nodes
+    -o jsonpath='{.items[*].status.conditions[-1:].type}' |
+    grep -o 'Ready' | wc -l
+  register: get_ready_nodes
+  until: "{{get_ready_nodes.stdout | int}} == {{(get_nodes_count.stdout | int) + 1}}"
+  # Wait for 15 minutes
+  retries: 180
+  delay: 5
