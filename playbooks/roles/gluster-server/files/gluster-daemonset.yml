@@ -50,6 +50,8 @@ spec:
         - hostPath:
             path: /etc/glusterfs
           name: etc
+      nodeSelector:
+        role: node
 
 ---
 apiVersion: v1

@@ -18,12 +18,6 @@
     src: traefik-daemonset.yml
     dest: "/etc/traefik"
 
-- name: label egdes
-  command: >
-    kubectl label --overwrite
-    nodes {{ edge_names }} role=edge
-  when: inventory_hostname in groups['master']
-
 - name: start traefik DaemonSet
   command: >
     kubectl apply -f
