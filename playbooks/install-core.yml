@@ -2,7 +2,6 @@
   gather_facts: False
   roles:
     - wait-nodes
-    - hostnames
     - label-nodes
     - weave-network
     - helm
