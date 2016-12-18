@@ -3,6 +3,7 @@
   roles:
     - wait-nodes
     - hostnames
+    - label-nodes
     - weave-network
     - helm
     - gluster-server
