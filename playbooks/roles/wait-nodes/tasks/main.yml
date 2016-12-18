@@ -1,4 +1,12 @@
 ---
+- name: "wait for server to respond on ssh port"
+  local_action: wait_for
+    host={{ ansible_ssh_host | default(inventory_hostname) }}
+    port=22
+    search_regex=OpenSSH
+    delay=3
+    timeout=300
+
 - name: "render node count"
   local_action: >
     shell
