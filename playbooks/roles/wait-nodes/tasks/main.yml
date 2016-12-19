@@ -18,6 +18,14 @@
   args:
     chdir: "{{playbook_dir}}/.."
   register: get_nodes_count
+  when:
+    - nodes_count is undefined
+
+- set_fact:
+    # +1 because master is also one node
+    nodes_count: "{{(get_nodes_count.stdout | int) + 1}}"
+  when:
+    - nodes_count is undefined
 
 - name: "wait for all nodes to join the master"
   shell: >
@@ -25,7 +33,7 @@
     -o jsonpath='{.items[*].status.conditions[-1:].type}' |
     grep -o 'Ready' | wc -l
   register: get_ready_nodes
-  until: "{{get_ready_nodes.stdout | int}} == {{(get_nodes_count.stdout | int) + 1}}"
+  until: "{{get_ready_nodes.stdout | int}} == {{nodes_count | int}}"
   # Wait for 15 minutes
   retries: 180
   delay: 5
