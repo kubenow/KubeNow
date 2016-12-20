@@ -27,6 +27,16 @@
   retries: 120
   delay: 5
 
+- name: wait for gluster DaemonSet to be Ready
+  command: >
+    kubectl get pods
+    -o jsonpath='{.items[?(@.spec.containers[*].name=="gluster-server")].status.containerStatuses[*].ready}'
+  register: get_is_ready
+  until: get_is_ready.stdout | match( '^(true\s)*true$' )
+  # Wait for 10 minutes
+  retries: 120
+  delay: 5
+
 - name: retrieve gluster-server pod name
   shell: >
     kubectl get pods
