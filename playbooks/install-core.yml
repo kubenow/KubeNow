@@ -1,10 +1,9 @@
 - hosts: master
   gather_facts: False
   roles:
-    - wait-nodes
-    - label-nodes
+    - common
     - weave-network
-    - helm
+    - start-helm
     - gluster-server
     - shared-volume
 
