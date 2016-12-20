@@ -1,18 +1,18 @@
 - hosts: master
   gather_facts: False
   roles:
-    - common
-    - weave-network
-    - start-helm
-    - gluster-server
-    - shared-volume
+    - { role: common, tags: [ 'minimal' ] }
+    - { role: weave-network, tags: [ 'minimal' ] }
+    - { role: start-helm, tags: [ 'minimal' ] }
+    - { role: gluster-server, tags: [ 'glusterfs' ] }
+    - { role: shared-volume, tags: [ 'glusterfs' ] }
 
 - hosts: all
   gather_facts: False
   roles:
-    - traefik
+    - { role: traefik, tags: [ 'traefik' ] }
 
 - hosts: edge
   gather_facts: False
   roles:
-    - cloudflare
+    - { role: cloudflare, tags: [ 'cloudflare' ] }
