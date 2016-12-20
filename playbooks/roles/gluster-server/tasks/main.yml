@@ -17,6 +17,16 @@
     kubectl apply -f
     /etc/kubenow/yaml/gluster-daemonset.yml
 
+- name: wait for gluster DaemonSet to be Running
+  command: >
+    kubectl get pods
+    -o jsonpath='{.items[?(@.spec.containers[*].name=="gluster-server")].status.phase}'
+  register: get_phase
+  until: get_phase.stdout | match('^(Running\s)*Running$')
+  # Wait for 10 minutes
+  retries: 120
+  delay: 5
+
 - name: wait for gluster DaemonSet to be Ready
   command: >
     kubectl get pods
