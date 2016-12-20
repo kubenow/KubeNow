@@ -1,0 +1,39 @@
+---
+- name: "wait for server to respond on ssh port"
+  local_action: wait_for
+    host={{ ansible_ssh_host | default(inventory_hostname) }}
+    port=22
+    search_regex=OpenSSH
+    delay=3
+    timeout=300
+
+- name: "render node count"
+  local_action: >
+    shell
+    cat terraform.tfvars |
+    grep '[node|edge]_count' |
+    awk '{print $3;}' |
+    tr -d '"' |
+    awk '{s+=$1} END {print s}'
+  args:
+    chdir: "{{playbook_dir}}/.."
+  register: get_nodes_count
+  when:
+    - nodes_count is undefined
+
+- set_fact:
+    # +1 because master is also one node
+    nodes_count: "{{(get_nodes_count.stdout | int) + 1}}"
+  when:
+    - nodes_count is undefined
+
+- name: "wait for all nodes to join the master"
+  shell: >
+    kubectl get nodes
+    -o jsonpath='{.items[*].status.conditions[-1:].type}' |
+    grep -o 'Ready' | wc -l
+  register: get_ready_nodes
+  until: "{{get_ready_nodes.stdout | int}} == {{nodes_count | int}}"
+  # Wait for 15 minutes
+  retries: 180
+  delay: 5

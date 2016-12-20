@@ -1,0 +1,62 @@
+---
+- name: create gluster kubenow yaml directory
+  become: yes
+  file:
+    path: /etc/kubenow/yaml
+    state: directory
+    mode: 0755
+
+- name: copy gluster DaemonSet configuration
+  become: yes
+  copy:
+    src: gluster-daemonset.yml
+    dest: "/etc/kubenow/yaml/gluster-daemonset.yml"
+
+- name: start gluster DaemonSet
+  command: >
+    kubectl apply -f
+    /etc/kubenow/yaml/gluster-daemonset.yml
+
+- name: wait for gluster DaemonSet to be Running
+  command: >
+    kubectl get pods
+    -o jsonpath='{.items[?(@.spec.containers[*].name=="gluster-server")].status.phase}'
+  register: get_phase
+  until: get_phase.stdout | match('^(Running\s)*Running$')
+  # Wait for 10 minutes
+  retries: 120
+  delay: 5
+
+- name: wait for gluster DaemonSet to be Ready
+  command: >
+    kubectl get pods
+    -o jsonpath='{.items[?(@.spec.containers[*].name=="gluster-server")].status.containerStatuses[*].ready}'
+  register: get_is_ready
+  until: get_is_ready.stdout | match( '^(true\s)*true$' )
+  # Wait for 10 minutes
+  retries: 120
+  delay: 5
+
+- name: retrieve gluster-server pod name
+  shell: >
+    kubectl get pods
+    -o jsonpath='{.items[?(@.spec.containers[*].name=="gluster-server")].metadata.name}' |
+    awk '{print $1;}' | tr -d '\n'
+  register: get_name
+
+- name: retrieve gluster-server IPs
+  command: >
+    kubectl get pods
+    -o jsonpath='{.items[?(@.spec.containers[*].name=="gluster-server")].status.podIP}'
+  register: get_ips
+
+- set_fact:
+    enpoint_list: "[\"{{get_ips.stdout | replace(' ','\",\"')}}\"]"
+
+- name: "gluster peer probe (gluster_side)"
+  command: >
+    kubectl exec {{get_name.stdout}}
+    gluster peer probe {{item}}
+  with_items: "{{enpoint_list}}"
+  tags:
+    - gluster_side

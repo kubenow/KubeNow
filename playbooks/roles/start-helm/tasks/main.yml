@@ -1,0 +1,4 @@
+---
+- name: start helm
+  become: yes
+  command: helm init

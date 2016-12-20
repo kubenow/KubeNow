@@ -1,0 +1,17 @@
+---
+- name: label egdes
+  command: >
+    kubectl label --overwrite
+    nodes {{ edge_names }} role=edge
+
+- name: get other node names
+  command: >
+    kubectl get nodes
+    -o jsonpath='{@.items[*].metadata.name}'
+    -l kubeadm.alpha.kubernetes.io/role!=master,role!=edge
+  register: get_node_names
+
+- name: label nodes
+  command: >
+    kubectl label --overwrite
+    nodes {{ get_node_names.stdout }} role=node

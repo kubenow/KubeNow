@@ -1,9 +1,9 @@
-# KubeNow
+![architecture](img/logo_wide_50dpi.png)
 
-[![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=0.1.0rc2)](http://kubenow.readthedocs.io/en/0.1.0rc2/?badge=0.1.0rc2)
+[![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=stable)](http://kubenow.readthedocs.io/en/stable/?badge=stable)
 [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=latest)](http://kubenow.readthedocs.io/en/latest/?badge=latest)
 
-Using KubeNow you can rapidly deploy, scale, and tear down your Kubernetes clusters on any cloud.
+Using KubeNow you can rapidly deploy, scale, and tear down your Kubernetes clusters on AWS, GCE and OpenStack.
 
 ## Table of Contents
 
@@ -22,8 +22,9 @@ Deploying a KubeNow cluster you will get:
  - [Weave](https://www.weave.works/) networking
  - [Traefik](https://traefik.io/) HTTP reverse proxy and load balancer
  - [Cloudflare](https://www.cloudflare.com/) dynamic DNS integration
+ - [GlusterFS](https://www.gluster.org/) distributed file system
 
-![GitHub Logo](/architecture.png)
+![architecture](img/architecture.png)
 
 This kind of deployment is particularly convenient, as only the master node, and the **edge nodes** (that run [Traefik](https://traefik.io/)) need to be associated to public IPs (which can be scarce). Therefore, the end user will access the microservices running in the **Kubernetes nodes**, through a **edge node** that will act as a reverse proxy. The DNS service will loadbalance the requests over the edge nodes.
 
@@ -31,7 +32,7 @@ This kind of deployment is particularly convenient, as only the master node, and
 
 Want to try KubeNow? You can get started following the tutorials in the documentation:
 
-[![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=0.1.0rc2)](http://kubenow.readthedocs.io/en/0.1.0rc2/?badge=0.1.0rc2)
+[![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=stable)](http://kubenow.readthedocs.io/en/stable/?badge=stable)
 [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=latest)](http://kubenow.readthedocs.io/en/latest/?badge=latest)
 
 ## Roadmap
@@ -41,6 +42,7 @@ Want to try KubeNow? You can get started following the tutorials in the document
 - [ ] High Availability
 - [ ] Scaling (it lacks documentation, but it should work)
 - [ ] Autoscaling
+- [ ] Dashboard
 
 ### Cloud Providers
 - [x] OpenStack
@@ -58,3 +60,6 @@ Want to try KubeNow? You can get started following the tutorials in the document
 
 ### Big Data Frameworks
 - [ ] Spark
+
+### Storage
+- [x] GlusterFS
