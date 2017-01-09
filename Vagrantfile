@@ -120,7 +120,7 @@ Vagrant.configure("2") do |config|
       
       # provision create hosts file (workaround for kubeadm bug otherwise joining nodes get vagrant nat ip number)
       master.vm.provision "shell",
-                          path: "/home/anders/projekt/phenomenal/KubeNow/hosts.sh",
+                          path: "hosts.sh",
                           :privileged => true
 
       # provision
@@ -179,7 +179,7 @@ Vagrant.configure("2") do |config|
       edge.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
 
       # provision
-      edge.vm.provision "shell", path: "/home/anders/projekt/phenomenal/KubeNow/hosts.sh", :privileged => true
+      edge.vm.provision "shell", path: "hosts.sh", :privileged => true
 
       # provision
       edge.vm.provision "shell", path: NODE_BOOTSTRAP_FILE, env: {"api_advertise_addresses" => ip4, "master_ip" => firstMasterIP,"kubeadm_token" => kubeadm_token}, :privileged => true
@@ -220,7 +220,7 @@ Vagrant.configure("2") do |config|
       worker.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
       
       # provision
-      worker.vm.provision "shell", path: "/home/anders/projekt/phenomenal/KubeNow/hosts.sh", :privileged => true
+      worker.vm.provision "shell", path: "hosts.sh", :privileged => true
       
       # provision
       worker.vm.provision "shell", path: NODE_BOOTSTRAP_FILE, env: {"api_advertise_addresses" => ip4, "master_ip" => firstMasterIP,"kubeadm_token" => kubeadm_token}, :privileged => true
