@@ -2,6 +2,7 @@
   gather_facts: False
   roles:
     - { role: common-test, tags: [ 'minimal' ] }
+    - { role: weave-network-test, tags: [ 'minimal' ] }
 
 - hosts: edge
   gather_facts: False

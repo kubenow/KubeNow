@@ -1,0 +1,19 @@
+# Testing weave by checking if kube-dns containers are ready
+- name: "get kube-dns pod name"
+  shell: >
+    kubectl get pods --namespace=kube-system |
+    grep kube-dns- |
+    awk '{print $1;}' |
+    tr -d '\n'
+  register: get_pod_name
+
+- name: "get kube-dns ready statuses"
+  command: >
+    kubectl get pods --namespace=kube-system {{get_pod_name.stdout}}
+    -o jsonpath='{.status.containerStatuses[*].ready}'
+  register: get_ready_statuses
+
+- name: "test kube-dns ready statuses"
+  fail:
+    msg: "unexpected kube-dns ready statuses: {{get_ready_statuses.stdout}}"
+  when: not (get_ready_statuses.stdout | match('^(true\s)*true$'))
