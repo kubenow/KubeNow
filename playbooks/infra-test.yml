@@ -1,4 +1,4 @@
 - hosts: edge
   gather_facts: False
   roles:
-    - cloudflare-test
+    - { role: cloudflare-test, tags: [ 'cloudflare' ] }
