@@ -21,7 +21,7 @@ edge_vm_memory = 2048
 edge_vm_cpus = 2
 $next_ssh_port = 3001
 bridge_interface_name = ["enx1000b0000052", "eno1"]
-gateway = "130.238.239.1"
+gateway = "192.168.10.1"
 gateway_interface = "enp0s8"
 
 #
@@ -108,19 +108,41 @@ Vagrant.configure("2") do |config|
       # Network
       ip4 = masterIP(i)
 #      master.vm.network :public_network, "bridge": bridge_interface_name
-      master.vm.network :private_network, ip: ip4, "bridge": bridge_interface_name
+      master.vm.network :private_network, ip: ip4
       
 	  # default gateway
-      master.vm.provision "shell", run: "always", inline: "route del default"
-      master.vm.provision "shell", run: "always", inline: "route add default gw #{gateway} #{gateway_interface}"
+#      master.vm.provision "shell", run: "always", inline: "route del default"
+#      master.vm.provision "shell", run: "always", inline: "route add default gw #{gateway} #{gateway_interface}"
       
       # ssh tunneling
       sshPort = nextSSHPort()
       master.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
+      
+      # provision create hosts file (workaround for kubeadm bug otherwise joining nodes get vagrant nat ip number)
+      master.vm.provision "shell",
+                          path: "/home/anders/projekt/phenomenal/KubeNow/hosts.sh",
+                          :privileged => true
 
       # provision
-      master.vm.provision "shell", path: MASTER_BOOTSTRAP_FILE, env: {"api_advertise_addresses" => firstMasterIP,"kubeadm_token" => kubeadm_token}
+      master.vm.provision "shell",
+                          path: MASTER_BOOTSTRAP_FILE,
+                          env: {"api_advertise_addresses" => firstMasterIP,"kubeadm_token" => kubeadm_token}
+      
+      # provision install jq (for kubeadm workaround below)
+      master.vm.provision "shell",
+                          inline: "apt-get install -y jq",
+                          :privileged => true
 
+      # provision advertise-address flag in kube-apiserver static pod manifest (workaround for https://github.com/kubernetes/kubernetes/issues/34101)
+      master.vm.provision "shell",
+                          inline: "jq '.spec.containers[0].command |= .+ [\"--advertise-address=#{firstMasterIP}\"]' /etc/kubernetes/manifests/kube-apiserver.json > /tmp/kube-apiserver.json && mv /tmp/kube-apiserver.json /etc/kubernetes/manifests/kube-apiserver.json",
+                          :privileged => true
+
+      # provision Set --cluster-cidr flag in kube-proxy daemonset (workaround for https://github.com/kubernetes/kubernetes/issues/34101)
+      #master.vm.provision "shell",
+      #                    inline: "kubectl -n kube-system get ds -l 'component=kube-proxy' -o json | jq '.items[0].spec.template.spec.containers[0].command |= .+ [\"--proxy-mode=userspace\"]' | kubectl apply -f - && kubectl -n kube-system delete pods -l 'component=kube-proxy'",
+      #                    :privileged => true
+      
       masters[vm_name] = {
           "hostname": vm_name,
           "ansible_host": "localhost",
@@ -146,15 +168,18 @@ Vagrant.configure("2") do |config|
       # Network
       ip4 = edgeIP(i)
  #     edge.vm.network :public_network, "bridge": bridge_interface_name
-      edge.vm.network :private_network, ip: ip4, "bridge": bridge_interface_name
+      edge.vm.network :private_network, ip: ip4
 
       # default router 
-      edge.vm.provision "shell", run: "always", inline: "route del default"
-      edge.vm.provision "shell", run: "always", inline: "route add default gw #{gateway} #{gateway_interface}"
+#      edge.vm.provision "shell", run: "always", inline: "route del default"
+#      edge.vm.provision "shell", run: "always", inline: "route add default gw #{gateway} #{gateway_interface}"
 
       # ssh tunneling
       sshPort = nextSSHPort()
       edge.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
+
+      # provision
+      edge.vm.provision "shell", path: "/home/anders/projekt/phenomenal/KubeNow/hosts.sh", :privileged => true
 
       # provision
       edge.vm.provision "shell", path: NODE_BOOTSTRAP_FILE, env: {"api_advertise_addresses" => ip4, "master_ip" => firstMasterIP,"kubeadm_token" => kubeadm_token}, :privileged => true
@@ -182,17 +207,20 @@ Vagrant.configure("2") do |config|
       
       # Network
       ip4 = workerIP(i)
-      worker.vm.network :public_network, "bridge": bridge_interface_name
-      worker.vm.network :private_network, ip: ip4, "bridge": bridge_interface_name
+      #worker.vm.network :public_network, "bridge": bridge_interface_name
+      worker.vm.network :private_network, ip: ip4
       
       
       # default router 
-      worker.vm.provision "shell", run: "always", inline: "route del default"
-      worker.vm.provision "shell", run: "always", inline: "route add default gw #{gateway} #{gateway_interface}"
+#      worker.vm.provision "shell", run: "always", inline: "route del default"
+#      worker.vm.provision "shell", run: "always", inline: "route add default gw #{gateway} #{gateway_interface}"
       
       # ssh tunneling
       sshPort = nextSSHPort()
       worker.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
+      
+      # provision
+      worker.vm.provision "shell", path: "/home/anders/projekt/phenomenal/KubeNow/hosts.sh", :privileged => true
       
       # provision
       worker.vm.provision "shell", path: NODE_BOOTSTRAP_FILE, env: {"api_advertise_addresses" => ip4, "master_ip" => firstMasterIP,"kubeadm_token" => kubeadm_token}, :privileged => true
