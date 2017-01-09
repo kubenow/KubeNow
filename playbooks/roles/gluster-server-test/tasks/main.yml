@@ -1,0 +1,10 @@
+- name: "get gluster-server ready statuses"
+  command: >
+    kubectl get pods
+    -o jsonpath='{.items[?(@.spec.containers[*].name=="gluster-server")].status.containerStatuses[*].ready}'
+  register: get_ready_status
+
+- name: "test gluster-server ready statuses"
+  fail:
+    msg: "unexpected gluster-server ready status: {{get_ready_status.stdout}}"
+  when: not (get_ready_statuses.stdout | match('^(true\s)*true$'))
