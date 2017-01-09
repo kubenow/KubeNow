@@ -1,0 +1,4 @@
+- hosts: edge
+  gather_facts: False
+  roles:
+    - cloudflare-test
