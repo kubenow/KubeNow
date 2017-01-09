@@ -3,6 +3,7 @@
   roles:
     - { role: common-test, tags: [ 'minimal' ] }
     - { role: weave-network-test, tags: [ 'minimal' ] }
+    - { role: start-helm-test, tags: [ 'minimal' ] }
 
 - hosts: edge
   gather_facts: False

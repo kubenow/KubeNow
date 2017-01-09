@@ -1,0 +1,19 @@
+# Testing Helm by checking if tiller-deploy pod is ready
+- name: "get tiller-deploy pod name"
+  shell: >
+    kubectl get pods --namespace=kube-system |
+    grep tiller-deploy- |
+    awk '{print $1;}' |
+    tr -d '\n'
+  register: get_pod_name
+
+- name: "get tiller-deploy ready statuses"
+  command: >
+    kubectl get pods --namespace=kube-system {{get_pod_name.stdout}}
+    -o jsonpath='{.status.containerStatuses[*].ready}'
+  register: get_ready_status
+
+- name: "test tiller-deploy ready statuses"
+  fail:
+    msg: "unexpected tiller-deploy ready status: {{get_ready_status.stdout}}"
+  when: get_ready_status.stdout != "true"
