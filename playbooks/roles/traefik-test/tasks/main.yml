@@ -1,3 +1,6 @@
+- name: load cloudflare vars
+  local_action: include_vars {{playbook_dir}}/roles/cloudflare/vars/conf.yml
+
 - name: "get traefik ready count"
   command: >
     kubectl get ds traefik-ingress-controller --namespace=kube-system
@@ -10,3 +13,39 @@
       the number of traefik ready count ({{get_ready_count.stdout}})
       doesn't match the number of edge nodes ({{groups['edge'] | length}})
   when: "{{get_ready_count.stdout | int}} != {{groups['edge'] | length}}"
+
+- name: set cheese domain name with subdomain
+  set_fact:
+    cheese_domain_name: "{{cf_subdomain}}.{{cf_zone}}"
+  when: cf_subdomain is defined
+
+- name: set cheese domain name with subdomain
+  set_fact:
+    cheese_domain_name: "{{cf_zone}}"
+  when: cf_subdomain is not defined
+
+- name: render cheese deployment
+  template:
+    src: cheese-deployment.yml.j2
+    dest: "/tmp/cheese-deployment.yml"
+
+- name: submit cheese deployment
+  command: kubectl apply -f /tmp/cheese-deployment.yml
+
+- name: "test stilton"
+  include: >
+    test-page.yml
+    cheese=stilton
+    search_for=Stilton
+
+- name: "test wensleydale"
+  include: >
+    test-page.yml
+    cheese=wensleydale
+    search_for=Wensleydale
+
+- name: "test cheddar"
+  include: >
+    test-page.yml
+    cheese=cheddar
+    search_for=Cheddar
