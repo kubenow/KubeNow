@@ -8,3 +8,62 @@
   fail:
     msg: "unexpected gluster-server ready status: {{get_ready_status.stdout}}"
   when: not (get_ready_statuses.stdout | match('^(true\s)*true$'))
+
+- name: "render node count"
+  local_action: >
+    shell
+    cat terraform.tfvars |
+    grep 'node_count' |
+    awk '{print $3;}' |
+    tr -d '"' |
+    awk '{s+=$1} END {print s}'
+  args:
+    chdir: "{{playbook_dir}}/.."
+  register: get_node_count
+
+- name: "get number of ready nodes"
+  local_action: >
+    shell
+    echo {{get_ready_status.stdout}} | wc -w | tr -d " "
+  register: get_ready_count
+
+- name: "get number of endpoints"
+  shell: >
+    kubectl get ep
+    -o jsonpath='{@.items[?(@.metadata.name=="gluster-server")].subsets[*].addresses[*].ip}' |
+    wc -w | tr -d " "
+  register: get_endpoint_count
+
+- name: "retrieve gluster-server pod name"
+  shell: >
+    kubectl get pods
+    -o jsonpath='{.items[?(@.spec.containers[*].name=="gluster-server")].metadata.name}' |
+    awk '{print $1;}' | tr -d '\n'
+  register: get_gluster_name
+
+- name: "get peer count"
+  shell: >
+    kubectl exec {{get_gluster_name.stdout}} gluster peer status |
+    head -1 | awk '{print $4+1;}'
+  register: get_peer_count
+
+- name: "match ready count with node count"
+  fail:
+    msg: >
+      the number of ready glusterfs servers ({{get_ready_count.stdout}})
+      doesn't match the number of nodes ({{get_node_count.stdout}})
+  when: get_ready_count.stdout != get_node_count.stdout
+
+- name: "match endpoint count with node count"
+  fail:
+    msg: >
+      the number of glusterfs endpoints ({{get_endpoint_count.stdout}})
+      doesn't match the number of nodes ({{get_node_count.stdout}})
+  when: get_endpoint_count.stdout != get_node_count.stdout
+
+- name: "match peer count with node count"
+  fail:
+    msg: >
+      the number of glusterfs peers ({{get_peer_count.stdout}})
+      doesn't match the number of nodes ({{get_node_count.stdout}})
+  when: get_peer_count.stdout != get_node_count.stdout

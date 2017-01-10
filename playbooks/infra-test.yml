@@ -5,6 +5,7 @@
     - { role: weave-network-test, tags: [ 'minimal' ] }
     - { role: start-helm-test, tags: [ 'minimal' ] }
     - { role: gluster-server-test, tags: [ 'glusterfs' ] }
+    - { role: shared-volume-test, tags: [ 'glusterfs' ] }
 
 - hosts: edge
   gather_facts: False
