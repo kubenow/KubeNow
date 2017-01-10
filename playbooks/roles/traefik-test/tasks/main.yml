@@ -1,0 +1,12 @@
+- name: "get traefik ready count"
+  command: >
+    kubectl get ds traefik-ingress-controller --namespace=kube-system
+    -o jsonpath='{@.status.numberReady}'
+  register: get_ready_count
+
+- name: "match traefik ready count with edge count"
+  fail:
+    msg: >
+      the number of traefik ready count ({{get_ready_count.stdout}})
+      doesn't match the number of edge nodes ({{groups['edge'] | length}})
+  when: "{{get_ready_count.stdout | int}} != {{groups['edge'] | length}}"
