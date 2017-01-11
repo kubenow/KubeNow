@@ -49,8 +49,12 @@ install:
   # Install Ansible
   - sudo pip install --upgrade pip
   - sudo pip install ansible==2.2.0.0
+  # Install other deps
+  - sudo pip install dnspython
+  # Install OpenStack deps
+  - pip install python-glanceclient
   # Source CityCloud RC file
   - source test/secrets-kubenow/host_cloud/CityCloud.sh
 
 script:
-  - ansible-playbook -e "host_cloud=openstack" test/cheese-deployment.yml
+  - ansible-playbook -e "host_cloud=openstack" test/integration-test.yml
