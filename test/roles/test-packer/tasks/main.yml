@@ -11,3 +11,4 @@
     packer/build-{{host_cloud}}.json
   args:
     chdir: "{{playbook_dir}}/.."
+  notify: "delete image"

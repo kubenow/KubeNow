@@ -7,13 +7,13 @@
     tr -d '\n'
   register: get_pod_name
 
-- name: "get tiller-deploy ready statuses"
+- name: "get tiller-deploy ready status"
   command: >
     kubectl get pods --namespace=kube-system {{get_pod_name.stdout}}
     -o jsonpath='{.status.containerStatuses[*].ready}'
   register: get_ready_status
 
-- name: "test tiller-deploy ready statuses"
+- name: "test tiller-deploy ready status"
   fail:
     msg: "unexpected tiller-deploy ready status: {{get_ready_status.stdout}}"
   when: get_ready_status.stdout != "true"

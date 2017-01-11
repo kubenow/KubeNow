@@ -2,3 +2,21 @@
 - name: start helm
   become: yes
   command: helm init
+
+- name: "get tiller-deploy pod name"
+  shell: >
+    kubectl get pods --namespace=kube-system |
+    grep tiller-deploy- |
+    awk '{print $1;}' |
+    tr -d '\n'
+  register: get_pod_name
+
+- name: "wait for tiller-deploy ready status"
+  command: >
+    kubectl get pods --namespace=kube-system {{get_pod_name.stdout}}
+    -o jsonpath='{.status.containerStatuses[*].ready}'
+  register: tiller_ready_status
+  # Wait for 10 minutes
+  until: tiller_ready_status.stdout | match( '^(true\s)*true$' )
+  retries: 120
+  delay: 5

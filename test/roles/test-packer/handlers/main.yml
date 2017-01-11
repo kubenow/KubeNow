@@ -1,0 +1,16 @@
+- name: "get packer image id (openstack)"
+  listen: "delete image"
+  shell: >
+    glance image-list |
+    grep 'kubenow-{{current_version}}' |
+    awk '{print $2;}' |
+    tr -d "\n"
+  register: get_image_id
+  when: host_cloud == "openstack"
+
+- name: "delete packer image (openstack)"
+  listen: "delete image"
+  command: glance image-delete {{get_image_id.stdout}}
+  args:
+    chdir: "{{playbook_dir}}/.."
+  when: host_cloud == "openstack"
