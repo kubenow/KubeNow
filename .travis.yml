@@ -72,7 +72,7 @@ install:
   - >
       gcloud auth activate-service-account
       12202776487-compute@developer.gserviceaccount.com
-      --key-file=/Users/marco/PhenoMeNal-103a10a02d9a.json
+      --key-file=test/secrets-kubenow/host_cloud/gce-key.json
   - >
       gcloud auth login 12202776487-compute@developer.gserviceaccount.com
       --project phenomenal-1145
