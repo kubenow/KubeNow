@@ -11,6 +11,11 @@
 - name: "delete packer image (openstack)"
   listen: "delete image"
   command: glance image-delete {{get_image_id.stdout}}
-  args:
-    chdir: "{{playbook_dir}}/.."
   when: host_cloud == "openstack"
+
+- name: "delete packer image (gce)"
+  listen: "delete image"
+  command: >
+    gcloud compute images delete
+    'kubenow-{{current_version}}' -q
+  when: host_cloud == "gce"
