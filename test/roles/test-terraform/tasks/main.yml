@@ -4,8 +4,8 @@
     src: "{{playbook_dir}}/secrets-kubenow/tfvars/{{host_cloud}}.tfvars.j2"
     dest: "{{playbook_dir}}/../terraform.tfvars"
 
-- name: "terraform get {{host_cloud}}"
-  command: terraform get {{host_cloud}}
+- name: "terraform get -update {{host_cloud}}"
+  command: terraform get -update {{host_cloud}}
   args:
     chdir: "{{playbook_dir}}/.."
   notify: "terraform destroy {{host_cloud}}"
