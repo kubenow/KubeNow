@@ -75,7 +75,7 @@ install:
       --key-file=test/secrets-kubenow/host_cloud/gce-key.json
   - >
       gcloud auth login 12202776487-compute@developer.gserviceaccount.com
-      --project phenomenal-1145
+      --project phenomenal-1145 -q
 
 script:
   - ansible-playbook -e "host_cloud=openstack" test/integration-test.yml
