@@ -1,3 +1,7 @@
+- name: "ensure cloudflare configuration is not present"
+    path: "{{playbook_dir}}/../playbooks/roles/cloudflare/vars/conf.yml"
+    state: absent
+
 - name: "render cloudflare configuration"
   template:
   args:
