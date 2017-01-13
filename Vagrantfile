@@ -1,4 +1,4 @@
-# -*- mode: ruby -*-
+j# -*- mode: ruby -*-
 # # vi: set ft=ruby :
 
 require 'fileutils'
@@ -20,7 +20,7 @@ edge_count = 1
 edge_vm_memory = 2048
 edge_vm_cpus = 2
 $next_ssh_port = 3001
-bridge_interface_name = ["enx1000b0000052", "eno1"]
+#bridge_interface_name = ["nothing"]
 gateway = "192.168.10.1"
 gateway_interface = "enp0s8"
 
@@ -57,7 +57,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "andersla/kubenow"
   
   # always use Vagrant's insecure key
-  config.ssh.insert_key = false
+  # config.ssh.insert_key = false
   
   # fix for bento version 2.3.2
   config.vm.provider "virtualbox" do |vb|
@@ -65,25 +65,25 @@ Vagrant.configure("2") do |config|
   end
   
   # plugin conflict
-  if Vagrant.has_plugin?("vagrant-vbguest") then
-    config.vbguest.auto_update = false
-  end
+  #if Vagrant.has_plugin?("vagrant-vbguest") then
+  #  config.vbguest.auto_update = false
+  #end
 
   # No gui
-  config.vm.provider :virtualbox do |vb|
-    vb.gui = false
-  end
+  #config.vm.provider :virtualbox do |vb|
+  #  vb.gui = false
+  #end
   
   # Consmetic fix
-  config.vm.provision "fix-no-tty", type: "shell" do |s|
-    s.privileged = false
-    s.inline = "sudo sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n/' /root/.profile"
-  end
+  #config.vm.provision "fix-no-tty", type: "shell" do |s|
+  #  s.privileged = false
+  #  s.inline = "sudo sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n/' /root/.profile"
+  #end
   
   # Preferred network adapters to use as bridge (if any found - no question)
-  config.vm.network "public_network", "bridge": bridge_interface_name
+  config.vm.network "public_network"
   # The private dhcp network is only needed if using Vagrant built in nfs
-  config.vm.network "private_network", type: "dhcp"
+  #config.vm.network "private_network", type: "dhcp"
   # All hostvars will be stored in these hashes, progressively as the VMs are made
   # and configured
   masters = {}
@@ -116,7 +116,7 @@ Vagrant.configure("2") do |config|
       
       # ssh tunneling
       sshPort = nextSSHPort()
-      master.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
+      #master.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
       
       # provision create hosts file (workaround for kubeadm bug otherwise joining nodes get vagrant nat ip number)
       master.vm.provision "shell",
@@ -176,7 +176,7 @@ Vagrant.configure("2") do |config|
 
       # ssh tunneling
       sshPort = nextSSHPort()
-      edge.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
+      #edge.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
 
       # provision
       edge.vm.provision "shell", path: "hosts.sh", :privileged => true
@@ -217,7 +217,7 @@ Vagrant.configure("2") do |config|
       
       # ssh tunneling
       sshPort = nextSSHPort()
-      worker.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
+      #orker.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
       
       # provision
       worker.vm.provision "shell", path: "hosts.sh", :privileged => true
