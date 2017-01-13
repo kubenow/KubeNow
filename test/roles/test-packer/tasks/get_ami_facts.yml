@@ -2,8 +2,7 @@
   shell: >
     aws ec2 describe-images --owners self
     --query 'Images[*].{ID:ImageId}'
-    --filters "Name=name,Values=kubenow-{{current_version}}" |
-    grep -Eo "(?i)\\b[a-z]+-[a-z0-9]+"
+    --filters "Name=name,Values=kubenow-{{current_version}}"
   register: get_ami_id
 
 - set_fact:
