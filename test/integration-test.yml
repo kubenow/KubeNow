@@ -6,8 +6,8 @@
   vars:
     cf_zone: uservices.cloud
   pre_tasks:
-    - name: get KubeNow version (git describe --tags)
-      command: git describe --tags
+    - name: get KubeNow version (git describe --tags --always)
+      command: git describe --tags --always
       register: git_describe
     - set_fact:
         current_version: "v{{git_describe.stdout | replace('\n','') | replace('.', '')}}"
