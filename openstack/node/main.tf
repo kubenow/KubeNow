@@ -1,6 +1,7 @@
 variable name_prefix {}
 variable image_name {}
 variable flavor_name {}
+variable flavor_id {}
 variable keypair_name {}
 variable network_name {}
 variable kubeadm_token {}
@@ -23,6 +24,7 @@ resource "openstack_compute_instance_v2" "node" {
   name="${var.name_prefix}-node-${format("%03d", count.index)}"
   image_name = "${var.image_name}"
   flavor_name = "${var.flavor_name}"
+  flavor_id = "${var.flavor_id}"
   key_pair = "${var.keypair_name}"
   network {
     name = "${var.network_name}"

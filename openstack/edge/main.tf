@@ -1,6 +1,7 @@
 variable name_prefix {}
 variable image_name {}
 variable flavor_name {}
+variable flavor_id {}
 variable keypair_name {}
 variable network_name {}
 variable floating_ip_pool {}
@@ -30,6 +31,7 @@ resource "openstack_compute_instance_v2" "edge" {
   name="${var.name_prefix}-edge-${format("%02d", count.index)}"
   image_name = "${var.image_name}"
   flavor_name = "${var.flavor_name}"
+  flavor_id = "${var.flavor_id}"
   key_pair = "${var.keypair_name}"
   floating_ip = "${element(openstack_compute_floatingip_v2.edge_ip.*.address, count.index)}"
   network {
