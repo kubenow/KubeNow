@@ -12,3 +12,6 @@
   args:
     chdir: "{{playbook_dir}}/.."
   notify: "delete image"
+
+- include: get_ami_facts.yml
+  when: host_cloud == "aws"

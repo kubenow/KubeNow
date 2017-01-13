@@ -64,6 +64,8 @@ install:
       curl https://packages.cloud.google.com/apt/doc/apt-key.gpg |
       sudo apt-key add -
   - sudo apt-get update && sudo apt-get install google-cloud-sdk
+  # Install AWS deps
+  - sudo pip install awscli
 
   # TEST ENV LOGIN
   # Source CityCloud RC file
@@ -76,7 +78,10 @@ install:
   - >
       gcloud auth login 12202776487-compute@developer.gserviceaccount.com
       --project phenomenal-1145 -q
+  # AWS login
+  - source test/secrets-kubenow/host_cloud/aws.sh
 
 script:
   - ansible-playbook -e "host_cloud=openstack" test/integration-test.yml
   - ansible-playbook -e "host_cloud=gce" test/integration-test.yml
+  - ansible-playbook -e "host_cloud=aws" test/integration-test.yml

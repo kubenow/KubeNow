@@ -263,19 +263,19 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 
 **Master configuration**
 
-- **master_instance_type**: an instance type for the master (e.g. ``t2.micro``)
+- **master_instance_type**: an instance type for the master (e.g. ``t2.medium``)
 - **master_disk_size**: edges disk size in GB
 
 **Node configuration**
 
 - **node_count**: number of Kubernetes nodes to be created
-- **node_instance_type**: an instance type for the Kubernetes nodes (e.g. ``t2.micro``)
+- **node_instance_type**: an instance type for the Kubernetes nodes (e.g. ``t2.medium``)
 - **node_disk_size**: edges disk size in GB
 
 **Edge configuration**
 
 - **edge_count**: number of egde nodes to be created
-- **edge_instance_type**: an instance type for the edge nodes (e.g. ``t2.micro``)
+- **edge_instance_type**: an instance type for the edge nodes (e.g. ``t2.medium``)
 - **edge_disk_size**: edges disk size in GB
 
 Once you are done with your settings you are ready to bootstrap the cluster using Terraform::
