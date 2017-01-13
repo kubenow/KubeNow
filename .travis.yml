@@ -85,6 +85,6 @@ install:
   - source test/secrets-kubenow/host_cloud/aws.sh
 
 script:
+  - ansible-playbook -e "host_cloud=aws" test/integration-test.yml
   - ansible-playbook -e "host_cloud=openstack" test/integration-test.yml
   - ansible-playbook -e "host_cloud=gce" test/integration-test.yml
-  - ansible-playbook -e "host_cloud=aws" test/integration-test.yml
