@@ -4,7 +4,7 @@
     host={{ ansible_ssh_host | default(inventory_hostname) }}
     port=22
     search_regex=OpenSSH
-    delay=20
+    delay=10
     timeout=300
 
 - name: "render node count"
