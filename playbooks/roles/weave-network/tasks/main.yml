@@ -1,0 +1,20 @@
+---
+
+- name: copy deploy file
+  become: yes
+  copy:
+    src: "/home/anders/projekt/phenomenal/local_docker/weave_1.9_a3_vnew.yaml"
+    dest: "/tmp/weave.yaml"
+    
+- name: install weave
+  command: kubectl apply -f /tmp/weave.yaml
+  
+- name: set --cluster-cidr flag in kube-proxy daemonset (workaround for https://github.com/kubernetes/kubernetes/issues/34101)
+  shell:  >
+    kubectl -n kube-system get ds -l 'component=kube-proxy' -o json | 
+      jq '.items[0].spec.template.spec.containers[0].command
+      |= .+ ["--cluster-cidr=10.32.0.0/12"]' |
+      kubectl apply -f - &&
+      kubectl -n kube-system delete pods -l 'component=kube-proxy'
+  when: provider == "vagrant"
+    
