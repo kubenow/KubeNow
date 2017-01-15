@@ -1,0 +1,12 @@
+---
+- name: load vars
+  local_action: include_vars {{playbook_dir}}/roles/cloudflare/vars/conf.yml
+
+- name: DNS query
+  set_fact:
+    query_result: "{{lookup('dig', 'test.{{cf_subdomain}}.{{cf_zone}}', wantlist=True)}}"
+
+- name: fail if edge IP is not in query result
+  fail:
+    msg: "{{ansible_ssh_host}} is not in the DNS query result: {{query_result}}"
+  when: "'{{ansible_ssh_host}}' not in query_result"

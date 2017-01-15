@@ -19,13 +19,13 @@ To build the documentation please run:
 make html
 ```
 
-If everithing goes well, the docs will be generated in the `_html` directory
+If everithing goes well, the docs will be generated in the `_build` directory
 
 ### Build automatically while editing
 It is convenient to dynamically build the documentation as changes are made. The following command will start a web server on port ```8000```, that you can use to see changes in the documentation while you are editing it.
 
 ```bash
-sphinx-autobuild . _html
+sphinx-autobuild . _build
 ```
 
 ### Troubleshoot

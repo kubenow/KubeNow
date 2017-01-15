@@ -49,7 +49,7 @@ Start by creating a ``packer-conf.json`` file. There is a template that you can 
 
 Once you are done with your settings you are ready to build KubeNow using Packer::
 
-  packer build -var-file=packer-conf.json packer/build-os.json
+  packer build -var-file=packer-conf.json packer/build-openstack.json
 
 If everything goes well, you will see the new image in the OpenStack web interface (Compute > Images). As an alternative, you can check that the image is present using the OpenStack command line client::
 
@@ -101,7 +101,7 @@ To verify that each node connected to the master you can run::
 
 If all of the nodes are not yet connected and in the Ready state, wait a minute and try again. Keep in mind that booting the instances takes a couple of minutes.
 
-Good! Now you have the core components of Kubernetes up and running, and you are ready to :doc:`deploy the traefik-lb stack <traefik-lb>`.
+Good! Now you have a minimal Kubernetes cluster up and running, and you are ready to :doc:`install the KubeNow core components <install-core>`.
 
 
 Bootstrap on Google Cloud (GCE)
@@ -188,7 +188,7 @@ To verify that each node connected to the master you can run::
 
 If all of the nodes are not yet connected and in the Ready state, wait a minute and try again. Keep in mind that booting the instances takes a couple of minutes.
 
-Good! Now you have the core components of Kubernetes up and running, and you are ready to :doc:`deploy the traefik-lb stack <traefik-lb>`.
+Good! Now you have a minimal Kubernetes cluster up and running, and you are ready to :doc:`install the KubeNow core components <install-core>`.
 
 Bootstrap on Amazon Web Services (EC2)
 --------------------------------------
@@ -235,7 +235,7 @@ If everything goes well, something like the following will be printed out::
 
 **Tip:** write down region and AMI ID for this KubeNow image build, as it will be useful in the next step.
 
-In addition, you will see the new image in the Amazon web interface (EC2 Dashboard > Images > AMIs). You might need to change your location in the dashboard for your image to be shown. 
+In addition, you will see the new image in the Amazon web interface (EC2 Dashboard > Images > AMIs). You might need to change your location in the dashboard for your image to be shown.
 
 As an alternative, you can check that the image is present using the amazon cloud command line client::
 
@@ -264,19 +264,19 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 
 **Master configuration**
 
-- **master_instance_type**: an instance type for the master (e.g. ``t2.micro``)
+- **master_instance_type**: an instance type for the master (e.g. ``t2.medium``)
 - **master_disk_size**: edges disk size in GB
 
 **Node configuration**
 
 - **node_count**: number of Kubernetes nodes to be created
-- **node_instance_type**: an instance type for the Kubernetes nodes (e.g. ``t2.micro``)
+- **node_instance_type**: an instance type for the Kubernetes nodes (e.g. ``t2.medium``)
 - **node_disk_size**: edges disk size in GB
 
 **Edge configuration**
 
 - **edge_count**: number of egde nodes to be created
-- **edge_instance_type**: an instance type for the edge nodes (e.g. ``t2.micro``)
+- **edge_instance_type**: an instance type for the edge nodes (e.g. ``t2.medium``)
 - **edge_disk_size**: edges disk size in GB
 
 Once you are done with your settings you are ready to bootstrap the cluster using Terraform::
@@ -296,4 +296,4 @@ To verify that each node connected to the master you can run::
 
 If all of the nodes are not yet connected and in the Ready state, wait a minute and try again. Keep in mind that booting the instances takes a couple of minutes. **Warning** if you are using the free tier, the cluster will take a little bit more to bootstrap (~5 minutes).
 
-Good! Now you have the core components of Kubernetes up and running, and you are ready to :doc:`deploy the traefik-lb stack <traefik-lb>`.
+Good! Now you have a minimal Kubernetes cluster up and running, and you are ready to :doc:`install the KubeNow core components <install-core>`.

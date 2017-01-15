@@ -1,0 +1,21 @@
+- name: "ensure cloudflare configuration is not present"
+  file:
+    path: "{{playbook_dir}}/../playbooks/roles/cloudflare/vars/conf.yml"
+    state: absent
+
+- name: "render cloudflare configuration"
+  template:
+  args:
+    src: "{{playbook_dir}}/secrets-kubenow/cloudflare/conf.yml.j2"
+    dest: "{{playbook_dir}}/../playbooks/roles/cloudflare/vars/conf.yml"
+  notify: "clean Cloudflare"
+
+- name: "run install-core.yml playbook"
+  command: ansible-playbook playbooks/install-core.yml
+  args:
+    chdir: "{{playbook_dir}}/.."
+
+- name: "run infra-test.yml playbook"
+  command: ansible-playbook playbooks/infra-test.yml
+  args:
+    chdir: "{{playbook_dir}}/.."

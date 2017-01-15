@@ -1,0 +1,90 @@
+language: python # (Ansible)
+
+sudo: required
+
+git:
+  # Disable default submodule logic
+  submodules: false
+
+branches:
+  except:
+    - /^experimental\/.*$/
+    - /^exp\/.*$/
+    - /^development\/.*$/
+    - /^dev\/.*$/
+    - /^testing\/.*$/
+    - /^test\/.*$/
+    - /^doc\/.*$/
+    - /^docs\/.*$/
+    - /^documentation\/.*$/
+
+before_install:
+  # Decrypt secrets
+  - >
+    openssl aes-256-cbc
+    -K $encrypted_92d825aa39d7_key
+    -iv $encrypted_92d825aa39d7_iv
+    -in test/secret.enc
+    -out test/secret.tgz
+    -d
+  # Extract secrets
+  - tar xzvf test/secret.tgz -C test
+  # Add the keypair to the agent
+  - eval "$(ssh-agent -s)"
+  - ssh-add test/secret/kubenow-ci
+  # Get submodules
+  - git submodule update --init --recursive
+
+install:
+
+  # INSTALL DEPS
+  # Install deps by HashiCorp
+  - >
+      curl
+      https://releases.hashicorp.com/packer/0.11.0/packer_0.11.0_linux_amd64.zip
+      > /tmp/packer.zip
+  - >
+      curl
+      https://releases.hashicorp.com/terraform/0.7.8/terraform_0.7.8_linux_amd64.zip
+      > /tmp/terraform.zip
+  - sudo unzip /tmp/packer.zip -d /usr/bin
+  - sudo unzip /tmp/terraform.zip -d /usr/bin
+  - sudo chmod +x /usr/bin/packer
+  - sudo chmod +x /usr/bin/terraform
+  # Install Ansible
+  - sudo pip install --upgrade pip
+  - sudo pip install ansible==2.2.0.0
+  # Install other deps
+  - sudo pip install dnspython
+  # Install OpenStack deps
+  - pip install python-glanceclient
+  # Install GCE deps
+  - export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
+  - >
+      echo "deb https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" |
+      sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+  - >
+      curl https://packages.cloud.google.com/apt/doc/apt-key.gpg |
+      sudo apt-key add -
+  - sudo apt-get update && sudo apt-get install google-cloud-sdk
+  # Install AWS deps
+  - sudo pip install awscli
+
+  # TEST ENV LOGIN
+  # Source CityCloud RC file
+  - source test/secrets-kubenow/host_cloud/CityCloud.sh
+  # GCE login
+  - >
+      gcloud auth activate-service-account
+      12202776487-compute@developer.gserviceaccount.com
+      --key-file=test/secrets-kubenow/host_cloud/gce-key.json
+  - >
+      gcloud auth login 12202776487-compute@developer.gserviceaccount.com
+      --project phenomenal-1145 -q
+  # AWS login
+  - source test/secrets-kubenow/host_cloud/aws.sh
+
+script:
+  - travis_wait ansible-playbook -e "host_cloud=openstack" test/integration-test.yml
+  - travis_wait ansible-playbook -e "host_cloud=gce" test/integration-test.yml
+  - travis_wait ansible-playbook -e "host_cloud=aws" test/integration-test.yml

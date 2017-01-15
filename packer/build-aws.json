@@ -14,7 +14,7 @@
             "secret_key": "{{user `aws_secret_access_key`}}",
             "region": "{{user `region`}}",
             "source_ami": "{{user `source_image_id`}}",
-            "instance_type": "t2.micro",
+            "instance_type": "t2.medium",
             "ssh_username": "ubuntu",
             "ami_name": "{{user `image_name`}}",
             "ami_description": "{{user `image_name`}}",
