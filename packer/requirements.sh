@@ -8,7 +8,8 @@ sudo apt-get update -y
 sudo apt-get install -y \
   apt-transport-https \
   ca-certificates \
-  software-properties-common
+  software-properties-common \
+  curl
 
 echo "Add Kubernetes repo..."
 sudo sh -c 'curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -'
@@ -25,7 +26,7 @@ sudo add-apt-repository -y ppa:gluster/glusterfs-3.9
 
 echo "Updating Ubuntu..."
 sudo apt-get update -y
-sudo apt-get upgrade -y
+sudo DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade
 
 echo "Installing Kubernetes requirements..."
 sudo apt-get install -y \
@@ -43,7 +44,8 @@ sudo apt-get install -y \
   python \
   daemon \
   attr \
-  glusterfs-client
+  glusterfs-client \
+  jq
 
 # Helm
 HELM_TGZ=helm-v2.1.0-linux-amd64.tar.gz
