@@ -8,7 +8,7 @@ Welcome to KubeNow's documentation! This is a place where we aim to help you to 
 
    getting_started/prerequisites
    getting_started/bootstrap
-   getting_started/traefik-lb
+   getting_started/install-core
    getting_started/first-app
    getting_started/clean-up
 
