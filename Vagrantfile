@@ -9,20 +9,19 @@ require 'yaml'
 #
 #  Custom vars
 # 
-cloud_prefix = "vagrant"
-master_count = 1
+$cloud_prefix = "vagrant"
+$master_count = 1
 master_vm_cpus = 2
 master_vm_memory = 2048
-worker_count = 1
-worker_vm_memory = 2048
-worker_vm_cpus = 2
-edge_count = 1
+$node_count = 1
+node_vm_memory = 2048
+node_vm_cpus = 2
+$edge_count = 1
 edge_vm_memory = 2048
 edge_vm_cpus = 2
-$next_ssh_port = 3001
-#bridge_interface_name = ["nothing"]
-gateway = "192.168.10.1"
-gateway_interface = "enp0s8"
+first_ssh_port = 3001
+bridge_interface_name = ["(optional)name_here"]
+provider = "virtualbox"
 
 #
 #  end custom vars
@@ -34,19 +33,44 @@ NODE_BOOTSTRAP_FILE = File.expand_path("bootstrap/node.sh")
 def edgeIP(num)
   return "10.0.0.#{num+20}"
 end
+def edgeName(num)
+  return "#{$cloud_prefix}-edge-%02d" % num
+end
 
 def masterIP(num)
   return "10.0.0.#{num+10}"
 end
-
-def workerIP(num)
-  return "10.0.0.#{num+30}"
+def masterName(num)
+  name = "#{$cloud_prefix}-master-%02d" % num
+  return name
 end
 
+def nodeIP(num)
+  return "10.0.0.#{num+30}"
+end
+def nodeName(num)
+  return "#{$cloud_prefix}-node-%02d" % num
+end
+
+$next_ssh_port = first_ssh_port
 def nextSSHPort()
   current_ssh_port = $next_ssh_port
   $next_ssh_port=$next_ssh_port + 1
   return current_ssh_port
+end
+
+def appendHostsCmd()
+   hostCmd = ""
+  (1..$master_count).each do |i|
+      hostCmd += "echo " + masterIP(i) + " " + masterName(i) + " >> /etc/hosts;"
+  end
+  (1..$edge_count).each do |i|
+      hostCmd += "echo " + edgeIP(i) + " " + edgeName(i) + " >> /etc/hosts;"
+  end
+  (1..$node_count).each do |i|
+      hostCmd += "echo " + nodeIP(i) + " " + nodeName(i) + " >> /etc/hosts;"
+  end
+  return hostCmd
 end
 
 Vagrant.require_version ">= 1.9.1"
@@ -54,47 +78,41 @@ Vagrant.require_version ">= 1.9.1"
 Vagrant.configure("2") do |config|
   
   # Use this box for all machines
-  config.vm.box = "andersla/kubenow"
+  config.vm.box = "kubenow/kubenow"
+  config.vm.box_version = "0.0.2"
   
-  # always use Vagrant's insecure key
-  # config.ssh.insert_key = false
-  
-  # fix for bento version 2.3.2
+  # fix for bento version 2.3.2 = kubenow base image
   config.vm.provider "virtualbox" do |vb|
     vb.customize ["modifyvm", :id, "--cableconnected1", "on"]
   end
   
   # plugin conflict
-  #if Vagrant.has_plugin?("vagrant-vbguest") then
-  #  config.vbguest.auto_update = false
-  #end
+  if Vagrant.has_plugin?("vagrant-vbguest") then
+    config.vbguest.auto_update = false
+  end
 
-  # No gui
-  #config.vm.provider :virtualbox do |vb|
-  #  vb.gui = false
-  #end
+  # no gui
+  config.vm.provider :virtualbox do |vb|
+    vb.gui = false
+  end
   
-  # Consmetic fix
-  #config.vm.provision "fix-no-tty", type: "shell" do |s|
-  #  s.privileged = false
-  #  s.inline = "sudo sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n/' /root/.profile"
-  #end
+  # consmetic fix
+  config.vm.provision "fix-no-tty", type: "shell" do |s|
+    s.privileged = false
+    s.inline = "sudo sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n/' /root/.profile"
+  end
   
-  # Preferred network adapters to use as bridge (if any found - no question)
-  config.vm.network "public_network"
-  # The private dhcp network is only needed if using Vagrant built in nfs
-  #config.vm.network "private_network", type: "dhcp"
   # All hostvars will be stored in these hashes, progressively as the VMs are made
   # and configured
   masters = {}
   edges = {}
-  workers = {}
+  nodes = {}
   
   firstMasterIP = masterIP(1)
   kubeadm_token = %x( ./generate_kubetoken.sh )
   
-  (1..master_count).each do |i|
-    config.vm.define vm_name = "#{cloud_prefix}-master-%02d" % i do |master|
+  (1..$master_count).each do |i|
+    config.vm.define vm_name = masterName(i) do |master|
 
       master.vm.hostname = vm_name
 
@@ -103,46 +121,30 @@ Vagrant.configure("2") do |config|
         vb.cpus = master_vm_cpus
       end
 
-
-      
-      # Network
+      # network
       ip4 = masterIP(i)
-#      master.vm.network :public_network, "bridge": bridge_interface_name
-      master.vm.network :private_network, ip: ip4
-      
-	  # default gateway
-#      master.vm.provision "shell", run: "always", inline: "route del default"
-#      master.vm.provision "shell", run: "always", inline: "route add default gw #{gateway} #{gateway_interface}"
+      master.vm.network :private_network, ip: ip4, netmask: "255.255.255.0", bridge: bridge_interface_name, auto_config: true, virtualbox__intnet: "kubenow-net"
       
       # ssh tunneling
       sshPort = nextSSHPort()
-      #master.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
+      master.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
       
-      # provision create hosts file (workaround for kubeadm bug otherwise joining nodes get vagrant nat ip number)
+      # edit hosts file (workaround for kubeadm bug otherwise joining nodes get vagrant nat ip number)
       master.vm.provision "shell",
-                          path: "hosts.sh",
+                          inline: appendHostsCmd(),
                           :privileged => true
 
-      # provision
+      # bootstrap (kubeadm init)
       master.vm.provision "shell",
                           path: MASTER_BOOTSTRAP_FILE,
                           env: {"api_advertise_addresses" => firstMasterIP,"kubeadm_token" => kubeadm_token}
-      
-      # provision install jq (for kubeadm workaround below)
-      master.vm.provision "shell",
-                          inline: "apt-get install -y jq",
-                          :privileged => true
 
-      # provision advertise-address flag in kube-apiserver static pod manifest (workaround for https://github.com/kubernetes/kubernetes/issues/34101)
+      # advertise-address flag in kube-apiserver static pod manifest (workaround for https://github.com/kubernetes/kubernetes/issues/34101)
       master.vm.provision "shell",
                           inline: "jq '.spec.containers[0].command |= .+ [\"--advertise-address=#{firstMasterIP}\"]' /etc/kubernetes/manifests/kube-apiserver.json > /tmp/kube-apiserver.json && mv /tmp/kube-apiserver.json /etc/kubernetes/manifests/kube-apiserver.json",
                           :privileged => true
-
-      # provision Set --cluster-cidr flag in kube-proxy daemonset (workaround for https://github.com/kubernetes/kubernetes/issues/34101)
-      #master.vm.provision "shell",
-      #                    inline: "kubectl -n kube-system get ds -l 'component=kube-proxy' -o json | jq '.items[0].spec.template.spec.containers[0].command |= .+ [\"--proxy-mode=userspace\"]' | kubectl apply -f - && kubectl -n kube-system delete pods -l 'component=kube-proxy'",
-      #                    :privileged => true
       
+      # add metadata for inventory
       masters[vm_name] = {
           "hostname": vm_name,
           "ansible_host": "localhost",
@@ -150,13 +152,11 @@ Vagrant.configure("2") do |config|
           "ip4": ip4
       }
       
-      puts "masters.length = #{masters.length}"
-
     end
   end
 
-  (1..edge_count).each do |i|
-    config.vm.define vm_name = "#{cloud_prefix}-edge-%02d" % i do |edge|
+  (1..$edge_count).each do |i|
+    config.vm.define vm_name = edgeName(i) do |edge|
       
       edge.vm.hostname = vm_name
 
@@ -165,25 +165,23 @@ Vagrant.configure("2") do |config|
         vb.cpus = edge_vm_cpus
       end
 
-      # Network
+      # network
       ip4 = edgeIP(i)
- #     edge.vm.network :public_network, "bridge": bridge_interface_name
-      edge.vm.network :private_network, ip: ip4
-
-      # default router 
-#      edge.vm.provision "shell", run: "always", inline: "route del default"
-#      edge.vm.provision "shell", run: "always", inline: "route add default gw #{gateway} #{gateway_interface}"
+      edge.vm.network :private_network, ip: ip4, netmask: "255.255.255.0", bridge: bridge_interface_name, auto_config: true, virtualbox__intnet: "kubenow-net"
 
       # ssh tunneling
       sshPort = nextSSHPort()
-      #edge.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
+      edge.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
 
-      # provision
-      edge.vm.provision "shell", path: "hosts.sh", :privileged => true
+      # edit hosts file (workaround for kubeadm bug otherwise joining nodes get vagrant nat ip number)
+      edge.vm.provision "shell",
+                         inline: appendHostsCmd(),
+                         :privileged => true
 
-      # provision
-      edge.vm.provision "shell", path: NODE_BOOTSTRAP_FILE, env: {"api_advertise_addresses" => ip4, "master_ip" => firstMasterIP,"kubeadm_token" => kubeadm_token}, :privileged => true
+      # bootstrap (kubeadm join)
+      edge.vm.provision "shell", path: NODE_BOOTSTRAP_FILE, env: {"master_ip" => firstMasterIP,"kubeadm_token" => kubeadm_token}, :privileged => true
       
+      # add metadata for inventory
       edges[vm_name] = {
           "hostname": vm_name,
           "ansible_host": "localhost",
@@ -194,63 +192,67 @@ Vagrant.configure("2") do |config|
     end
   end
   
-  (1..worker_count).each do |i|
-    config.vm.define vm_name = "#{cloud_prefix}-node-%02d" % i do |worker|
-      worker.vm.hostname = vm_name
+  (1..$node_count).each do |i|
+    config.vm.define vm_name = nodeName(i) do |node|
+      node.vm.hostname = vm_name
 
-      worker.vm.provider :virtualbox do |vb|
-        vb.memory = worker_vm_memory
-        vb.cpus = worker_vm_cpus
+      node.vm.provider :virtualbox do |vb|
+        vb.memory = node_vm_memory
+        vb.cpus = node_vm_cpus
       end
       
-      
-      
-      # Network
-      ip4 = workerIP(i)
-      #worker.vm.network :public_network, "bridge": bridge_interface_name
-      worker.vm.network :private_network, ip: ip4
-      
-      
-      # default router 
-#      worker.vm.provision "shell", run: "always", inline: "route del default"
-#      worker.vm.provision "shell", run: "always", inline: "route add default gw #{gateway} #{gateway_interface}"
+      # network
+      ip4 = nodeIP(i)
+      node.vm.network :private_network, ip: ip4, netmask: "255.255.255.0", bridge: bridge_interface_name, auto_config: true, virtualbox__intnet: "kubenow-net"
       
       # ssh tunneling
       sshPort = nextSSHPort()
-      #orker.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
+      node.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
       
-      # provision
-      worker.vm.provision "shell", path: "hosts.sh", :privileged => true
+      # edit hosts file (workaround for kubeadm bug otherwise joining nodes get vagrant nat ip number)
+      node.vm.provision "shell",
+                          inline: appendHostsCmd(),
+                          :privileged => true
       
-      # provision
-      worker.vm.provision "shell", path: NODE_BOOTSTRAP_FILE, env: {"api_advertise_addresses" => ip4, "master_ip" => firstMasterIP,"kubeadm_token" => kubeadm_token}, :privileged => true
+      # bootstrap (kubeadm join)
+      node.vm.provision "shell", path: NODE_BOOTSTRAP_FILE, env: {"master_ip" => firstMasterIP,"kubeadm_token" => kubeadm_token}, :privileged => true
       
-      workers[vm_name] = {
+      # add metadata for inventory
+      nodes[vm_name] = {
           "hostname": vm_name,
           "ansible_host": "localhost",
           "ansible_port": sshPort,
           "ip4": ip4
       }
       
-      if i == worker_count # create inventory last when all hosts are up
+      # create inventory last when all hosts are up
+      if i == $node_count
       
         inventory = "[master]\n"
         masters.each do |key, innerhash|
-          inventory += "#{innerhash[:hostname]} ansible_host=#{innerhash[:ansible_host]} ansible_port=#{innerhash[:ansible_port]} ansible_user=vagrant \n"
+          private_key_path = File.absolute_path(".vagrant/machines/#{innerhash[:hostname]}/#{provider}/private_key")
+          inventory += "#{innerhash[:hostname]} ansible_host=#{innerhash[:ansible_host]} ansible_port=#{innerhash[:ansible_port]} ansible_user=vagrant ansible_ssh_private_key_file=\"#{private_key_path}\"\n"
         end
         
         inventory += "[edge]\n"
         edges.each do |key, innerhash|
-          inventory += "#{innerhash[:hostname]} ansible_host=#{innerhash[:ansible_host]} ansible_port=#{innerhash[:ansible_port]} ansible_user=vagrant \n"
+          private_key_path = File.absolute_path(".vagrant/machines/#{innerhash[:hostname]}/#{provider}/private_key")
+          inventory += "#{innerhash[:hostname]} ansible_host=#{innerhash[:ansible_host]} ansible_port=#{innerhash[:ansible_port]} ansible_user=vagrant ansible_ssh_private_key_file=\"#{private_key_path}\"\n"
         end
         
         inventory += "[master:vars]\n"
         inventory += "edge_names=\""
         edges.each do |key, innerhash|
-          inventory += "#{innerhash[:hostname]}"
+          inventory += "#{innerhash[:hostname]} "
         end
         inventory.strip!
-        inventory += "\""
+        inventory += "\"" + "\n"
+        
+        inventory += "[all:vars]\n"
+        nodes_count = $master_count + $edge_count + $node_count;
+        inventory += "nodes_count=#{nodes_count}" + "\n"
+        inventory += "provider=vagrant"
+        
         invFile = File.open("inventory" ,'w')
         invFile.write inventory
         invFile.close
@@ -260,8 +262,6 @@ Vagrant.configure("2") do |config|
       
     end
   end
-
-  puts "here"
 
 end
 
