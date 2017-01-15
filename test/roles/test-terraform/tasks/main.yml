@@ -1,0 +1,16 @@
+- name: "render tfvars"
+  template:
+  args:
+    src: "{{playbook_dir}}/secrets-kubenow/tfvars/{{host_cloud}}.tfvars.j2"
+    dest: "{{playbook_dir}}/../terraform.tfvars"
+
+- name: "terraform get -update {{host_cloud}}"
+  command: terraform get -update {{host_cloud}}
+  args:
+    chdir: "{{playbook_dir}}/.."
+  notify: "terraform destroy {{host_cloud}}"
+
+- name: "terraform apply {{host_cloud}}"
+  command: terraform apply {{host_cloud}}
+  args:
+    chdir: "{{playbook_dir}}/.."

@@ -1,0 +1,17 @@
+- name: "render Packer configuration"
+  template:
+  args:
+    src: "{{playbook_dir}}/secrets-kubenow/packer/{{host_cloud}}.json.j2"
+    dest: "{{playbook_dir}}/../packer-conf.json"
+
+- name: "build KubeNow image ({{host_cloud}})"
+  command: >
+    packer build
+    -var-file=packer-conf.json
+    packer/build-{{host_cloud}}.json
+  args:
+    chdir: "{{playbook_dir}}/.."
+  notify: "delete image"
+
+- include: get_ami_facts.yml
+  when: host_cloud == "aws"

@@ -57,6 +57,12 @@
   command: >
     kubectl exec {{get_name.stdout}}
     gluster peer probe {{item}}
+  register: probe_command
+  until: probe_command.rc == 0
+  # Try for 10 minutes
+  retries: 120
+  delay: 5
+  # Probe each endpoint
   with_items: "{{enpoint_list}}"
   tags:
     - gluster_side

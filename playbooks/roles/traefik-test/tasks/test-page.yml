@@ -1,0 +1,20 @@
+- name: "test endpoint"
+  command: >
+    curl --silent --head
+    -H "host: {{cheese}}.{{cheese_domain_name}}"
+    http://{{cheese}}.{{cheese_domain_name}}
+  register: head
+  until: head.stdout.find("200 OK") != -1
+  retries: 5
+  delay: 30
+
+- name: "test page"
+  action: >
+    uri
+    url=http://{{cheese}}.{{cheese_domain_name}}
+    return_content=yes
+  register: body
+
+- name: "fail on missing '{{search_for}}' in page"
+  fail: msg="missing '{{search_for}}' in page"
+  when: "'{{search_for}}' not in body.content"
