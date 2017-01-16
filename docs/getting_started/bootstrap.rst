@@ -62,7 +62,7 @@ Now we are going to provision the required virtual infrastructure in OpenStack u
 
 Start by creating a ``terraform.tfvars`` file. There is a template that you can use for your convenience: ``mv terraform.tfvars.os-template terraform.tfvars``. In this configuration file you will need to set:
 
-**Cluser configuration**
+**Cluster configuration**
 
 - **cluster_prefix**: every resource in your tenancy will be named with this prefix
 - **KuberNow_image**: name of the image that you previously created using Packer
@@ -142,7 +142,7 @@ Now we are going to provision the required virtual infrastructure in Google Clou
 
 Start by creating a ``terraform.tfvars`` file. There is a template that you can use for your convenience: ``mv terraform.tfvars.gce-template terraform.tfvars``. In this configuration file you will need to set:
 
-**Cluser configuration**
+**Cluster configuration**
 
 - **cluster_prefix**: every resource in your project will be named with this prefix (the name must match ``(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)``, e.g. "kubenow-image")
 - **KuberNow_image**: name of the image that you previously created using Packer
@@ -247,7 +247,7 @@ Now we are going to provision the required virtual infrastructure in AWS (Amazon
 
 Start by creating a ``terraform.tfvars`` file. There is a template that you can use for your convenience: ``mv terraform.tfvars.aws-template terraform.tfvars``. In this configuration file you will need to set:
 
-**Cluser configuration**
+**Cluster configuration**
 
 - **cluster_prefix**: every resource in your tenancy will be named with this prefix
 - **kubenow_image_id**: ID of the AMI that you previously created using packer
@@ -296,3 +296,64 @@ To verify that each node connected to the master you can run::
 If all of the nodes are not yet connected and in the Ready state, wait a minute and try again. Keep in mind that booting the instances takes a couple of minutes. **Warning** if you are using the free tier, the cluster will take a little bit more to bootstrap (~5 minutes).
 
 Good! Now you have the core components of Kubernetes up and running, and you are ready to :doc:`deploy the traefik-lb stack <traefik-lb>`.
+
+
+Bootstrap locally with Vagrant
+----------------------
+
+Prerequisites
+~~~~~~~~~~~~~
+
+In this section we assume that:
+
+- You have VirtualBox 5.0 and Vagrant 1.9.1 installed on your host (currenttly we are only supporting VirtualBox as provider)
+
+
+Build the KubeNow image 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You do not need to build the image, it is provided as a Vagrant box in the .....
+
+Bootstrap Kubernetes
+~~~~~~~~~~~~~~~~~~~~
+
+All you need to configure is the name and size of your cluster open Vagrantfile and edit the following:
+
+**Cluster configuration**
+
+- **cluster_prefix**: all your cluster resources will be named with this prefix
+- **first_ssh_port**: first port number on localhost that will be used for host-machine ssh communication
+
+**Master configuration**
+
+- **master_cpus**: number of virtual cpu's for the master ( need to be at least 2)
+- **master_memory**: memory for master node ( need to be at least 2000MB )
+
+**Node configuration**
+
+- **node_count**: number of Kubernetes worker nodes to be created
+- **node_cpus**: number of virtual cpu's for the Kubernetes worker nodes ( need to be at least 2)
+- **node_memory**: memory for Kubernetes worker nodes ( need to be at least 2000MB )
+
+**Edge configuration**
+
+- **node_count**: number of edge nodes to be created
+- **node_cpus**: number of virtual cpu's for the edge nodes ( need to be at least 2)
+- **node_memory**: memory for edge nodes ( need to be at least 2000MB )
+
+Now you are ready to go:
+
+  vagrant up
+
+If everything goes well, the Vagrant script would end in a ::
+
+  my-node-xx: Joinined the master...
+
+To verify that each node connected to the master you can run::
+
+  ansible master -a "kubectl get nodes"
+
+You should hopefylly see all the nodes joined the master OK
+
+Good! Now you have the core components of Kubernetes up and running, and you are ready to :doc:`deploy the traefik-lb stack <traefik-lb>`.
+
