@@ -33,7 +33,7 @@ before_install:
   # Add the keypair to the agent
   - eval "$(ssh-agent -s)"
   - ssh-add test/secret/kubenow-ci
-  # Get submodules
+  # Get secrets
   - git clone git@github.com:mcapuccini/secrets-kubenow.git test/secrets-kubenow
 
 install:
