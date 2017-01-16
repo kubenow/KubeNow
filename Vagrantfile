@@ -9,47 +9,47 @@ require 'yaml'
 #
 #  Custom vars
 # 
-$cloud_prefix = "vagrant"
-$master_count = 1
-master_vm_cpus = 2
-master_vm_memory = 2048
-$node_count = 1
-node_vm_memory = 2048
-node_vm_cpus = 2
-$edge_count = 1
-edge_vm_memory = 2048
-edge_vm_cpus = 2
+$cluster_prefix = "vagrant"
 first_ssh_port = 3001
-bridge_interface_name = ["(optional)name_here"]
-provider = "virtualbox"
+
+master_cpus = 2
+master_memory = 2048
+$edge_count = 1
+edge_memory = 2048
+edge_vm_cpus = 2
+$node_count = 1
+node_memory = 2048
+node_cpus = 2
 
 #
 #  end custom vars
 #
+bridge_interface_name = ["(optional)name_here"]
+provider = "virtualbox"
 
 MASTER_BOOTSTRAP_FILE = File.expand_path("bootstrap/master.sh")
 NODE_BOOTSTRAP_FILE = File.expand_path("bootstrap/node.sh")
-
-def edgeIP(num)
-  return "10.0.0.#{num+20}"
-end
-def edgeName(num)
-  return "#{$cloud_prefix}-edge-%02d" % num
-end
 
 def masterIP(num)
   return "10.0.0.#{num+10}"
 end
 def masterName(num)
-  name = "#{$cloud_prefix}-master-%02d" % num
+  name = "#{$cluster_prefix}-master-%02d" % num
   return name
+end
+
+def edgeIP(num)
+  return "10.0.0.#{num+20}"
+end
+def edgeName(num)
+  return "#{$cluster_prefix}-edge-%02d" % num
 end
 
 def nodeIP(num)
   return "10.0.0.#{num+30}"
 end
 def nodeName(num)
-  return "#{$cloud_prefix}-node-%02d" % num
+  return "#{$cluster_prefix}-node-%02d" % num
 end
 
 $next_ssh_port = first_ssh_port
@@ -59,6 +59,7 @@ def nextSSHPort()
   return current_ssh_port
 end
 
+$master_count = 1
 def appendHostsCmd()
    hostCmd = ""
   (1..$master_count).each do |i|
@@ -117,10 +118,10 @@ Vagrant.configure("2") do |config|
       master.vm.hostname = vm_name
 
       master.vm.provider :virtualbox do |vb|
-        vb.memory = master_vm_memory
-        vb.cpus = master_vm_cpus
+        vb.memory = master_memory
+        vb.cpus = master_cpus
       end
-
+      
       # network
       ip4 = masterIP(i)
       master.vm.network :private_network, ip: ip4, netmask: "255.255.255.0", bridge: bridge_interface_name, auto_config: true, virtualbox__intnet: "kubenow-net"
@@ -128,6 +129,9 @@ Vagrant.configure("2") do |config|
       # ssh tunneling
       sshPort = nextSSHPort()
       master.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
+      
+      # disable shared folders
+      master.vm.synced_folder '.', '/vagrant', disabled: true
       
       # edit hosts file (workaround for kubeadm bug otherwise joining nodes get vagrant nat ip number)
       master.vm.provision "shell",
@@ -161,10 +165,10 @@ Vagrant.configure("2") do |config|
       edge.vm.hostname = vm_name
 
       edge.vm.provider :virtualbox do |vb|
-        vb.memory = edge_vm_memory
+        vb.memory = edge_memory
         vb.cpus = edge_vm_cpus
       end
-
+         
       # network
       ip4 = edgeIP(i)
       edge.vm.network :private_network, ip: ip4, netmask: "255.255.255.0", bridge: bridge_interface_name, auto_config: true, virtualbox__intnet: "kubenow-net"
@@ -172,6 +176,9 @@ Vagrant.configure("2") do |config|
       # ssh tunneling
       sshPort = nextSSHPort()
       edge.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
+
+      # disable shared folders
+      edge.vm.synced_folder '.', '/vagrant', disabled: true
 
       # edit hosts file (workaround for kubeadm bug otherwise joining nodes get vagrant nat ip number)
       edge.vm.provision "shell",
@@ -197,10 +204,10 @@ Vagrant.configure("2") do |config|
       node.vm.hostname = vm_name
 
       node.vm.provider :virtualbox do |vb|
-        vb.memory = node_vm_memory
-        vb.cpus = node_vm_cpus
+        vb.memory = node_memory
+        vb.cpus = node_cpus
       end
-      
+       
       # network
       ip4 = nodeIP(i)
       node.vm.network :private_network, ip: ip4, netmask: "255.255.255.0", bridge: bridge_interface_name, auto_config: true, virtualbox__intnet: "kubenow-net"
@@ -208,6 +215,9 @@ Vagrant.configure("2") do |config|
       # ssh tunneling
       sshPort = nextSSHPort()
       node.vm.network :forwarded_port, guest: 22, host: sshPort, id: 'ssh'
+      
+      # disable shared folders
+      node.vm.synced_folder '.', '/vagrant', disabled: true
       
       # edit hosts file (workaround for kubeadm bug otherwise joining nodes get vagrant nat ip number)
       node.vm.provision "shell",
@@ -225,7 +235,9 @@ Vagrant.configure("2") do |config|
           "ip4": ip4
       }
       
+      #
       # create inventory last when all hosts are up
+      #
       if i == $node_count
       
         inventory = "[master]\n"
