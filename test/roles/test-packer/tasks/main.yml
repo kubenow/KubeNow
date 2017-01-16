@@ -12,6 +12,17 @@
   args:
     chdir: "{{playbook_dir}}/.."
   notify: "delete image"
+  # run asynch (travis needs some polling output)
+  async: 1800 # 30 minutes
+  poll: 0
+  register: packer_build
+
+- name: "wait for packer image to be ready"
+  async_status: jid={{ packer_build.ansible_job_id }}
+  register: build_result
+  until: build_result.finished
+  retries: 30
+  delay: 60
 
 - include: get_ami_facts.yml
   when: host_cloud == "aws"
