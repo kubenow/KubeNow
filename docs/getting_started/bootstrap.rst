@@ -79,7 +79,7 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 
 - **node_count**: number of Kubernetes nodes to be created (no floating IP is needed for these nodes)
 - **node_flavor**: an instance flavor name for the Kubernetes nodes
-- **node_flavor_id**: this is an alternative way of specifying the instance flavor (Optional, Required if **node_flavor** is empty)
+- **node_flavor_id**: this is an alternative way of specifying the instance flavor (optional, please set this only if **node_flavor** is empty)
 
 **Edge configuration**
 
