@@ -62,7 +62,7 @@ Now we are going to provision the required virtual infrastructure in OpenStack u
 
 Start by creating a ``terraform.tfvars`` file. There is a template that you can use for your convenience: ``mv terraform.tfvars.os-template terraform.tfvars``. In this configuration file you will need to set:
 
-**Cluser configuration**
+**Cluster configuration**
 
 - **cluster_prefix**: every resource in your tenancy will be named with this prefix
 - **KuberNow_image**: name of the image that you previously created using Packer
@@ -143,7 +143,7 @@ Now we are going to provision the required virtual infrastructure in Google Clou
 
 Start by creating a ``terraform.tfvars`` file. There is a template that you can use for your convenience: ``mv terraform.tfvars.gce-template terraform.tfvars``. In this configuration file you will need to set:
 
-**Cluser configuration**
+**Cluster configuration**
 
 - **cluster_prefix**: every resource in your project will be named with this prefix (the name must match ``(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)``, e.g. "kubenow-image")
 - **KuberNow_image**: name of the image that you previously created using Packer
@@ -248,7 +248,7 @@ Now we are going to provision the required virtual infrastructure in AWS (Amazon
 
 Start by creating a ``terraform.tfvars`` file. There is a template that you can use for your convenience: ``mv terraform.tfvars.aws-template terraform.tfvars``. In this configuration file you will need to set:
 
-**Cluser configuration**
+**Cluster configuration**
 
 - **cluster_prefix**: every resource in your tenancy will be named with this prefix
 - **kubenow_image_id**: ID of the AMI that you previously created using packer
