@@ -14,8 +14,14 @@
   command: ansible-playbook playbooks/install-core.yml
   args:
     chdir: "{{playbook_dir}}/.."
+  # Timeout to avoid travis to kill the whole job
+  async: 550
+  poll: 10
 
 - name: "run infra-test.yml playbook"
   command: ansible-playbook playbooks/infra-test.yml
   args:
     chdir: "{{playbook_dir}}/.."
+  # Timeout to avoid travis to kill the whole job
+  async: 550
+  poll: 10

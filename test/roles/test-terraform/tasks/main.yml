@@ -14,3 +14,6 @@
   command: terraform apply {{host_cloud}}
   args:
     chdir: "{{playbook_dir}}/.."
+  # Timeout to avoid travis to kill the whole job
+  async: 550
+  poll: 10
