@@ -26,7 +26,11 @@ sudo add-apt-repository -y ppa:gluster/glusterfs-3.9
 
 echo "Updating Ubuntu..."
 sudo apt-get update -y
-sudo DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade
+sudo DEBIAN_FRONTEND=noninteractive \
+  apt-get -y \
+  -o Dpkg::Options::="--force-confdef" \
+  -o Dpkg::Options::="--force-confold" \
+  upgrade
 
 echo "Installing Kubernetes requirements..."
 sudo apt-get install -y \
