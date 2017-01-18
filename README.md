@@ -52,7 +52,6 @@ Want to try KubeNow? You can get started following the tutorials in the document
 - [ ] Local
 - [ ] Bare Metal
 
-
 ### Load balancer
 - [x] Traefik
 
