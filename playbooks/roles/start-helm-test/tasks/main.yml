@@ -1,8 +1,4 @@
----
-- name: start helm
-  become: yes
-  command: helm init
-
+# Testing Helm by checking if tiller-deploy pod is ready
 - name: "get tiller-deploy pod name"
   shell: >
     kubectl get pods --namespace=kube-system |
@@ -11,12 +7,13 @@
     tr -d '\n'
   register: get_pod_name
 
-- name: "wait for tiller-deploy ready status"
+- name: "get tiller-deploy ready status"
   command: >
     kubectl get pods --namespace=kube-system {{get_pod_name.stdout}}
     -o jsonpath='{.status.containerStatuses[*].ready}'
-  register: tiller_ready_status
-  # Wait for 10 minutes
-  until: tiller_ready_status.stdout | match( '^(true\s)*true$' )
-  retries: 120
-  delay: 5
+  register: get_ready_status
+
+- name: "test tiller-deploy ready status"
+  fail:
+    msg: "unexpected tiller-deploy ready status: {{get_ready_status.stdout}}"
+  when: get_ready_status.stdout != "true"

@@ -49,7 +49,7 @@ Start by creating a ``packer-conf.json`` file. There is a template that you can 
 
 Once you are done with your settings you are ready to build KubeNow using Packer::
 
-  packer build -var-file=packer-conf.json packer/build-os.json
+  packer build -var-file=packer-conf.json packer/build-openstack.json
 
 If everything goes well, you will see the new image in the OpenStack web interface (Compute > Images). As an alternative, you can check that the image is present using the OpenStack command line client::
 
@@ -78,7 +78,8 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 **Node configuration**
 
 - **node_count**: number of Kubernetes nodes to be created (no floating IP is needed for these nodes)
-- **node_flavor**: an instance flavor for the Kubernetes nodes
+- **node_flavor**: an instance flavor name for the Kubernetes nodes
+- **node_flavor_id**: this is an alternative way of specifying the instance flavor (optional, please set this only if **node_flavor** is empty)
 
 **Edge configuration**
 
@@ -263,19 +264,19 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 
 **Master configuration**
 
-- **master_instance_type**: an instance type for the master (e.g. ``t2.micro``)
+- **master_instance_type**: an instance type for the master (e.g. ``t2.medium``)
 - **master_disk_size**: edges disk size in GB
 
 **Node configuration**
 
 - **node_count**: number of Kubernetes nodes to be created
-- **node_instance_type**: an instance type for the Kubernetes nodes (e.g. ``t2.micro``)
+- **node_instance_type**: an instance type for the Kubernetes nodes (e.g. ``t2.medium``)
 - **node_disk_size**: edges disk size in GB
 
 **Edge configuration**
 
 - **edge_count**: number of egde nodes to be created
-- **edge_instance_type**: an instance type for the edge nodes (e.g. ``t2.micro``)
+- **edge_instance_type**: an instance type for the edge nodes (e.g. ``t2.medium``)
 - **edge_disk_size**: edges disk size in GB
 
 Once you are done with your settings you are ready to bootstrap the cluster using Terraform::
@@ -295,65 +296,4 @@ To verify that each node connected to the master you can run::
 
 If all of the nodes are not yet connected and in the Ready state, wait a minute and try again. Keep in mind that booting the instances takes a couple of minutes. **Warning** if you are using the free tier, the cluster will take a little bit more to bootstrap (~5 minutes).
 
-Good! Now you have the core components of Kubernetes up and running, and you are ready to :doc:`deploy the traefik-lb stack <traefik-lb>`.
-
-
-Bootstrap locally with Vagrant
-----------------------
-
-Prerequisites
-~~~~~~~~~~~~~
-
-In this section we assume that:
-
-- You have VirtualBox 5.0 and Vagrant 1.9.1 installed on your host (currenttly we are only supporting VirtualBox as provider)
-
-
-Build the KubeNow image 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You do not need to build the image, it is provided as a Vagrant box in the .....
-
-Bootstrap Kubernetes
-~~~~~~~~~~~~~~~~~~~~
-
-All you need to configure is the name and size of your cluster open Vagrantfile and edit the following:
-
-**Cluster configuration**
-
-- **cluster_prefix**: all your cluster resources will be named with this prefix
-- **first_ssh_port**: first port number on localhost that will be used for host-machine ssh communication
-
-**Master configuration**
-
-- **master_cpus**: number of virtual cpu's for the master ( need to be at least 2)
-- **master_memory**: memory for master node ( need to be at least 2000MB )
-
-**Node configuration**
-
-- **node_count**: number of Kubernetes worker nodes to be created
-- **node_cpus**: number of virtual cpu's for the Kubernetes worker nodes ( need to be at least 2)
-- **node_memory**: memory for Kubernetes worker nodes ( need to be at least 2000MB )
-
-**Edge configuration**
-
-- **node_count**: number of edge nodes to be created
-- **node_cpus**: number of virtual cpu's for the edge nodes ( need to be at least 2)
-- **node_memory**: memory for edge nodes ( need to be at least 2000MB )
-
-Now you are ready to go:
-
-  vagrant up
-
-If everything goes well, the Vagrant script would end in a ::
-
-  my-node-xx: Joinined the master...
-
-To verify that each node connected to the master you can run::
-
-  ansible master -a "kubectl get nodes"
-
-You should hopefylly see all the nodes joined the master OK
-
-Good! Now you have the core components of Kubernetes up and running, and you are ready to :doc:`deploy the traefik-lb stack <traefik-lb>`.
-
+Good! Now you have a minimal Kubernetes cluster up and running, and you are ready to :doc:`install the KubeNow core components <install-core>`.
