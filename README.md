@@ -19,7 +19,7 @@ Rather than providing an all-in-one tool for provisioning a Kubernetes cluster (
 ## Architecture
 Deploying a KubeNow cluster you will get:
 
- - A Kubernetes cluster up and running in less than 5 minutes (provisioned with [kubeadm](http://kubernetes.io/docs/getting-started-guides/kubeadm/))
+ - A Kubernetes cluster up and running in less than 10 minutes (provisioned with [kubeadm](http://kubernetes.io/docs/getting-started-guides/kubeadm/))
  - [Weave](https://www.weave.works/) networking
  - [Traefik](https://traefik.io/) HTTP reverse proxy and load balancer
  - [Cloudflare](https://www.cloudflare.com/) dynamic DNS integration
