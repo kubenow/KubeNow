@@ -1,6 +1,7 @@
 variable name_prefix {}
 variable image_name {}
 variable flavor_name {}
+variable flavor_id {}
 variable keypair_name {}
 variable network_name {}
 variable floating_ip_pool {}
@@ -25,6 +26,7 @@ resource "openstack_compute_instance_v2" "master" {
   name="${var.name_prefix}-master"
   image_name = "${var.image_name}"
   flavor_name = "${var.flavor_name}"
+  flavor_id = "${var.flavor_id}"
   floating_ip = "${openstack_compute_floatingip_v2.master_ip.address}"
   key_pair = "${var.keypair_name}"
   network {

@@ -1,0 +1,14 @@
+- hosts: master
+  gather_facts: False
+  roles:
+    - { role: common-test, tags: [ 'minimal' ] }
+    - { role: weave-network-test, tags: [ 'minimal' ] }
+    - { role: start-helm-test, tags: [ 'minimal' ] }
+    - { role: gluster-server-test, tags: [ 'glusterfs' ] }
+    - { role: shared-volume-test, tags: [ 'glusterfs' ] }
+    - { role: traefik-test, tags: [ 'traefik' ] }
+
+- hosts: edge
+  gather_facts: False
+  roles:
+    - { role: cloudflare-test, tags: [ 'cloudflare' ] }

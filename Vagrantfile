@@ -14,14 +14,15 @@ Vagrant.require_version ">= 1.9.1"
 $cluster_prefix = "kubenow"
 first_ssh_port = 3001
 
-master_cpus = 1
+master_cpus = 2
 master_memory = 1500
 $edge_count = 1
 edge_memory = 1500
-edge_vm_cpus = 1
+edge_cpus = 2
 $node_count = 1
-node_memory = 1500
-node_cpus = 1
+node_memory = 4096
+node_cpus = 3
+guest_port_80_forward = 8080
 
 #
 #  end custom vars
@@ -52,6 +53,8 @@ machines = {}
   machines[name] = {
                 "type": type,
                 "hostname": name,
+                "memory": master_memory,
+                "cpus": master_cpus,
                 "ansible_host": "localhost",
                 "ssh_port": nextSSHPort(),
                 "ip4": "10.0.0.#{i+10}",
@@ -67,6 +70,8 @@ end
   machines[name] = {
                 "type": type,
                 "hostname": name,
+                "memory": edge_memory,
+                "cpus": edge_cpus,
                 "ansible_host": "localhost",
                 "ssh_port": nextSSHPort(),
                 "ip4": "10.0.0.#{i+20}",
@@ -82,6 +87,8 @@ end
   machines[name] = {
                 "type": type,
                 "hostname": name,
+                "memory": node_memory,
+                "cpus": node_cpus,
                 "ansible_host": "localhost",
                 "ssh_port": nextSSHPort(),
                 "ip4": "10.0.0.#{i+30}",
@@ -166,11 +173,11 @@ Vagrant.configure("2") do |config|
   machines.each do |key, innerhash|
     config.vm.define vm_name = innerhash[:hostname] do |machine|
 
-      machine.vm.hostname =innerhash[:hostname]
+      machine.vm.hostname = innerhash[:hostname]
 
       machine.vm.provider :virtualbox do |vb|
-        vb.memory = master_memory
-        vb.cpus = master_cpus
+        vb.memory = innerhash[:memory]
+        vb.cpus = innerhash[:cpus]
       end
       
       # network
@@ -179,6 +186,12 @@ Vagrant.configure("2") do |config|
       # ssh tunneling
       machine.vm.network :forwarded_port, guest: 22, host: innerhash[:ssh_port], id: 'ssh'
       
+      # map guest port 80 to host port xx
+      if innerhash[:type] == "edge"
+        machine.vm.network :forwarded_port, guest: 80, host: guest_port_80_forward
+      end
+
+
       # disable shared folders
       machine.vm.synced_folder '.', '/vagrant', disabled: true
       

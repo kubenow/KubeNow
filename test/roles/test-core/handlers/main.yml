@@ -1,0 +1,4 @@
+- name: "clean Cloudflare"
+  command: ansible-playbook playbooks/clean-cloudflare.yml
+  args:
+    chdir: "{{playbook_dir}}/.."

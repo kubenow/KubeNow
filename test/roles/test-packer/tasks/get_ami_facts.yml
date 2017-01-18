@@ -1,0 +1,19 @@
+- name: "get AMI id"
+  command: >
+    aws ec2 describe-images --owners self
+    --query 'Images[*].{ID:ImageId}'
+    --filters "Name=name,Values=kubenow-{{current_version}}"
+  register: get_ami_id
+
+- set_fact:
+    aws_ami_id: "{{get_ami_id.stdout | from_json | json_query('[0].ID')}}"
+
+- name: "get AMI snapshot id"
+  command: >
+    aws ec2 describe-images --owners self
+    --query 'Images[*].BlockDeviceMappings[*].Ebs.SnapshotId'
+    --filters "Name=name,Values=kubenow-{{current_version}}"
+  register: get_snap_id
+
+- set_fact:
+    aws_snap_id: "{{get_snap_id.stdout | from_json | json_query('[0][0]')}}"

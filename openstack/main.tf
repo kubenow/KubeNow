@@ -3,19 +3,22 @@ variable cluster_prefix {}
 variable KuberNow_image {}
 variable ssh_key {}
 variable external_network_uuid {}
+variable floating_ip_pool {}
 variable kubeadm_token {}
 
 # Master settings
 variable master_flavor {}
-variable floating_ip_pool {}
+variable master_flavor_id { default = ""}
 
 # Nodes settings
 variable node_count {}
 variable node_flavor {}
+variable node_flavor_id { default = ""}
 
 # Edges settings
 variable edge_count {}
 variable edge_flavor {}
+variable edge_flavor_id { default = ""}
 
 # Upload ssh-key to be used for access to the nodes
 module "keypair" {
@@ -36,6 +39,7 @@ module "master" {
   name_prefix = "${var.cluster_prefix}"
   image_name = "${var.KuberNow_image}"
   flavor_name = "${var.master_flavor}"
+  flavor_id = "${var.master_flavor_id}"
   keypair_name = "${module.keypair.keypair_name}"
   network_name = "${module.network.network_name}"
   secgroup_name = "${module.network.secgroup_name}"
@@ -48,6 +52,7 @@ module "node" {
   name_prefix = "${var.cluster_prefix}"
   image_name = "${var.KuberNow_image}"
   flavor_name = "${var.node_flavor}"
+  flavor_id = "${var.node_flavor_id}"
   keypair_name = "${module.keypair.keypair_name}"
   network_name = "${module.network.network_name}"
   secgroup_name = "${module.network.secgroup_name}"
@@ -61,6 +66,7 @@ module "edge" {
   name_prefix = "${var.cluster_prefix}"
   image_name = "${var.KuberNow_image}"
   flavor_name = "${var.edge_flavor}"
+  flavor_id = "${var.edge_flavor_id}"
   keypair_name = "${module.keypair.keypair_name}"
   network_name = "${module.network.network_name}"
   secgroup_name = "${module.network.secgroup_name}"
