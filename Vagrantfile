@@ -28,23 +28,23 @@ guest_port_80_forward = 8080
 #  end custom vars
 #
 
+# currently we only support one master node
 $master_count = 1
 bridge_interface_name = ["(optional)name_here"]
 provider = "virtualbox"
 firstMasterIP = "10.0.0.11";
 kubeadm_token = %x( ./generate_kubetoken.sh )
-
 MASTER_BOOTSTRAP_FILE = File.expand_path("bootstrap/master.sh")
 NODE_BOOTSTRAP_FILE = File.expand_path("bootstrap/node.sh")
 
 $next_ssh_port = first_ssh_port
 def nextSSHPort()
   current_ssh_port = $next_ssh_port
-  $next_ssh_port=$next_ssh_port + 1
+  $next_ssh_port =  $next_ssh_port +1;
   return current_ssh_port
 end
 
-# All hostvars are be stored in these hashes
+# generate settings for all nodes into this hash
 machines = {}
 (1..$master_count).each do |i|
  
@@ -101,24 +101,24 @@ end
 # generate inventory
 #
 inventory = "[master]\n"
-machines.each do |key, innerhash|
-  if innerhash[:type] == "master"
-    inventory += "#{innerhash[:hostname]} ansible_host=#{innerhash[:ansible_host]} ansible_port=#{innerhash[:ssh_port]} ansible_user=vagrant ansible_ssh_private_key_file=\"#{innerhash[:private_key_path]}\"\n"
+machines.each do |key, settings|
+  if settings[:type] == "master"
+    inventory += "#{settings[:hostname]} ansible_host=#{settings[:ansible_host]} ansible_port=#{settings[:ssh_port]} ansible_user=vagrant ansible_ssh_private_key_file=\"#{settings[:private_key_path]}\"\n"
   end
 end
 
 inventory += "[edge]\n"
-machines.each do |key, innerhash|
-  if innerhash[:type] == "edge"
-    inventory += "#{innerhash[:hostname]} ansible_host=#{innerhash[:ansible_host]} ansible_port=#{innerhash[:ssh_port]} ansible_user=vagrant ansible_ssh_private_key_file=\"#{innerhash[:private_key_path]}\"\n"
+machines.each do |key, settings|
+  if settings[:type] == "edge"
+    inventory += "#{settings[:hostname]} ansible_host=#{settings[:ansible_host]} ansible_port=#{settings[:ssh_port]} ansible_user=vagrant ansible_ssh_private_key_file=\"#{settings[:private_key_path]}\"\n"
   end
 end
 
 inventory += "[master:vars]\n"
 inventory += "edge_names=\""
-machines.each do |key, innerhash|
-  if innerhash[:type] == "edge"
-    inventory += "#{innerhash[:hostname]} "
+machines.each do |key, settings|
+  if settings[:type] == "edge"
+    inventory += "#{settings[:hostname]} "
   end
 end
 
@@ -135,18 +135,18 @@ invFile.write inventory
 invFile.close
 
 #
-# generate edit /etc/hosts command
+# generate command to edit /etc/hosts
 #
 append_hosts_cmd = ""
-machines.each do |key, innerhash|
-  append_hosts_cmd += "echo " + innerhash[:ip4] + " " + innerhash[:hostname] + " >> /etc/hosts;"
+machines.each do |key, settings|
+  append_hosts_cmd += "echo " + settings[:ip4] + " " + settings[:hostname] + " >> /etc/hosts;"
 end
 
 Vagrant.configure("2") do |config|
 
   # Use this box for all machines
   config.vm.box = "kubenow/kubenow"
-  config.vm.box_version = "0.0.2"
+  config.vm.box_version = "0.0.3"
   
   # fix for bento version 2.3.2 = kubenow base image
   config.vm.provider "virtualbox" do |vb|
@@ -169,31 +169,41 @@ Vagrant.configure("2") do |config|
     s.inline = "sudo sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n/' /root/.profile"
   end
   
-  # eploy the machines
-  machines.each do |key, innerhash|
-    config.vm.define vm_name = innerhash[:hostname] do |machine|
+  # deploy the machines
+  machines.each do |key, settings|
+    config.vm.define vm_name = settings[:hostname] do |machine|
 
-      machine.vm.hostname = innerhash[:hostname]
+      machine.vm.hostname = settings[:hostname]
 
       machine.vm.provider :virtualbox do |vb|
-        vb.memory = innerhash[:memory]
-        vb.cpus = innerhash[:cpus]
+        vb.memory = settings[:memory]
+        vb.cpus = settings[:cpus]
       end
       
       # network
-      machine.vm.network :private_network, ip: innerhash[:ip4], netmask: "255.255.255.0", bridge: bridge_interface_name, auto_config: true, virtualbox__intnet: "kubenow-net"
+      machine.vm.network :private_network, ip: settings[:ip4],
+                                           netmask: "255.255.255.0", 
+                                           bridge: bridge_interface_name,
+                                           auto_config: true,
+                                           virtualbox__intnet: "kubenow-net"
       
       # ssh tunneling
-      machine.vm.network :forwarded_port, guest: 22, host: innerhash[:ssh_port], id: 'ssh'
+      machine.vm.network :forwarded_port, guest: 22, host: settings[:ssh_port], id: 'ssh'
       
-      # map guest port 80 to host port xx
-      if innerhash[:type] == "edge"
+      # map guest port 80 to host port xx on edge servers
+      if settings[:type] == "edge"
         machine.vm.network :forwarded_port, guest: 80, host: guest_port_80_forward
       end
 
-
-      # disable shared folders
+      # disable vagrant default shared folders
       machine.vm.synced_folder '.', '/vagrant', disabled: true
+      
+      # disable ssh password logon
+      machine.vm.provision "shell",
+                           inline: "sed -i -e 's/#PasswordAuthentication/PasswordAuthentication/g' /etc/ssh/sshd_config && 
+                                    sed -i -e 's/PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config &&  
+                                    service ssh restart",
+                           :privileged => true
       
       # edit hosts file (workaround for kubeadm bug otherwise joining nodes get vagrant nat ip number)
       machine.vm.provision "shell",
@@ -202,10 +212,11 @@ Vagrant.configure("2") do |config|
 
       # bootstrap (kubeadm init)
       machine.vm.provision "shell",
-                          path: innerhash[:bootstrap_file],
+                          path: settings[:bootstrap_file],
                           env: {"api_advertise_addresses" => firstMasterIP, "master_ip" => firstMasterIP, "kubeadm_token" => kubeadm_token}
       
-      if innerhash[:type] == "master"
+      # only master need this fix
+      if settings[:type] == "master"
         # advertise-address flag in kube-apiserver static pod manifest (workaround for https://github.com/kubernetes/kubernetes/issues/34101)
         machine.vm.provision "shell",
                             inline: "jq '.spec.containers[0].command |= .+ [\"--advertise-address=#{firstMasterIP}\"]' /etc/kubernetes/manifests/kube-apiserver.json > /tmp/kube-apiserver.json && mv /tmp/kube-apiserver.json /etc/kubernetes/manifests/kube-apiserver.json",
