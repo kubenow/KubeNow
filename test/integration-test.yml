@@ -20,7 +20,3 @@
     - test-packer
     - test-terraform
     - test-core
-  post_tasks:
-    - name: "set tests_passed flag"
-      set_fact:
-        tests_passed: true
