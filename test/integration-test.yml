@@ -9,8 +9,13 @@
     - name: get KubeNow version (git describe --tags --always)
       command: git describe --tags --always
       register: git_describe
-    - set_fact:
+    - name: "set version name"
+      set_fact:
         current_version: "v{{git_describe.stdout | replace('\n','') | replace('.', '')}}"
+    - name: "set keep_image flag"
+      set_fact:
+        keep_image: true
+      when: current_version | match("^v[0-9]{3}([ab][0-9]{1,}|rc[0-9]{1,})?$")
   roles:
     - test-packer
     - test-terraform
