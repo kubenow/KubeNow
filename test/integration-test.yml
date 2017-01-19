@@ -9,9 +9,11 @@
     - name: get KubeNow version (git describe --tags --always)
       command: git describe --tags --always
       register: git_describe
-    - set_fact:
+    - name: "set version name"
+      set_fact:
         current_version: "v{{git_describe.stdout | replace('\n','') | replace('.', '')}}"
-    - set_fact:
+    - name: "set keep_image flag"
+      set_fact:
         keep_image: true
       when: current_version | match("^v[0-9]{3}([ab][0-9]{1,}|rc[0-9]{1,})?$")
   roles:
@@ -19,6 +21,6 @@
     - test-terraform
     - test-core
   post_tasks:
-    - name: "tests passed flag"
+    - name: "set tests_passed flag"
       set_fact:
         tests_passed: true
