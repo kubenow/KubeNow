@@ -118,19 +118,11 @@ In this section we assume that:
 Build the KubeNow image (only the first time you are deploying)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The first time you are going to deploy KubeNow, you'll have to create its cloud image. This considerably speeds up the following bootstraps, as all of the required software will already be installed on the instances.
+The first time you are going to deploy KubeNow, you'll have to import its cloud image. This considerably speeds up the following bootstraps, as all of the required software will already be installed on the instances.
 
-Start by creating a ``packer-conf.json`` file. There is a template that you can use for your convenience: ``mv packer-conf.json.gce-template packer-conf.json``. In this configuration file you will need to set:
+You can import the latest image build by running the following `Ansible <http://ansible.com>`_ playbook::
 
-- **image_name**: the name of the image that will be created after the build (the name must match ``(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)``, e.g. "kubenow-image")
-- **source_image_name**: a Ubuntu Xenial image (this should already be in GCE, e.g. ``ubuntu-1604-xenial-v20161013``)
-- **account_file**: path to your service account file
-- **zone**: the zone to use in order to build the image (e.g. ``europe-west1-b``)
-- **project_id**: your project id
-
-Once you are done with your settings you are ready to build KubeNow using Packer::
-
-  packer build -var-file=packer-conf.json packer/build-gce.json
+  ansible-playbook -e "credentials_file_path=/full/path/to/service_account.json" playbooks/import-gce-image.yml 
 
 If everything goes well, you will see the new image in the GCE web interface (Compute Engine > Images). As an alternative, you can check that the image is present using the Google Cloud command line client::
 

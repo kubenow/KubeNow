@@ -20,3 +20,9 @@ Welcome to KubeNow's documentation! This is a place where we aim to help you to 
   troubleshoot/trouble-os
   troubleshoot/trouble-kubernetes
   troubleshoot/trouble-misc
+
+.. toctree::
+  :maxdepth: 1
+  :caption: Developers guide
+
+  developers/build-img
