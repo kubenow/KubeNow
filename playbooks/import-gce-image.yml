@@ -1,0 +1,20 @@
+# requires apache-libcloud (python)
+- hosts: localhost
+  gather_facts: False
+  vars:
+    img_name: "kubenow-v020a1"
+    img_source: "https://storage.googleapis.com/kubenow-images/kubenow-v020a1.tar.gz"
+    img_state: "present"
+    timeout: 1800
+    credentials_file: "{{ lookup('file', credentials_file_path) }}"
+  tasks:
+  - name: "import GCE image"
+    gce_img:
+      name: "{{img_name}}"
+      source: "{{img_source}}"
+      state: "{{img_state}}"
+      timeout: "{{timeout}}"
+    environment:
+      GCE_EMAIL: "{{credentials_file | json_query('[client_email][0]')}}"
+      GCE_PROJECT: "{{credentials_file | json_query('[project_id][0]')}}"
+      GCE_CREDENTIALS_FILE_PATH: "{{credentials_file_path}}"
