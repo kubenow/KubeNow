@@ -115,14 +115,14 @@ In this section we assume that:
 - You have enabled the Google Compute Engine API: API Manager > Library > Compute Engine API > Enable
 - You have created and downloaded a service account file for your GCE project: Api manager > Credentials > Create credentials > Service account key
 
-Build the KubeNow image (only the first time you are deploying)
+Import the KubeNow image (only the first time you are deploying)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The first time you are going to deploy KubeNow, you'll have to import its cloud image. This considerably speeds up the following bootstraps, as all of the required software will already be installed on the instances.
 
 You can import the latest image build by running the following `Ansible <http://ansible.com>`_ playbook::
 
-  ansible-playbook -e "credentials_file_path=/full/path/to/service_account.json" playbooks/import-gce-image.yml 
+  ansible-playbook -e "credentials_file_path=/full/path/to/service_account.json" playbooks/import-gce-image.yml
 
 If everything goes well, you will see the new image in the GCE web interface (Compute Engine > Images). As an alternative, you can check that the image is present using the Google Cloud command line client::
 
