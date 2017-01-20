@@ -1,0 +1,26 @@
+# requires apache-libcloud (python)
+- hosts: localhost
+  gather_facts: False
+  vars:
+    timeout: 1800
+    credentials_file: "{{ lookup('file', credentials_file_path) }}"
+  tasks:
+  - name: get latest KubeNow release (git describe --abbrev=0 --tags)
+    command: git describe --abbrev=0 --tags
+    register: git_describe
+  - name: "figure out latest version"
+    set_fact:
+      img_version: "v{{git_describe.stdout | replace('\n','') | replace('.', '')}}"
+  - name: "set image facts"
+    set_fact:
+      img_name: "kubenow-{{img_version}}"
+      img_source: "https://storage.googleapis.com/kubenow-images/kubenow-{{img_version}}.tar.gz"
+  - name: "import GCE image"
+    gce_img:
+      name: "{{img_name}}"
+      source: "{{img_source}}"
+      timeout: "{{timeout}}"
+    environment:
+      GCE_EMAIL: "{{credentials_file | json_query('[client_email][0]')}}"
+      GCE_PROJECT: "{{credentials_file | json_query('[project_id][0]')}}"
+      GCE_CREDENTIALS_FILE_PATH: "{{credentials_file_path}}"
