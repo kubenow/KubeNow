@@ -15,6 +15,9 @@
     gluster volume create shared-volume
     replica 3 {{gluster_bricks | replace('\n', '')}}
     force
+  # Try for 10 minutes
+  retries: 120
+  delay: 5
   tags:
     - gluster_side
 
