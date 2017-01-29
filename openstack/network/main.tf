@@ -1,7 +1,7 @@
 variable name_prefix {}
 variable subnet_cidr { default = "10.0.0.0/16"}
 variable external_net_uuid {}
-variable dns_nameservers { default="8.8.8.8,8.8.4.4" }
+variable dns_nameservers {}
 
 resource "openstack_networking_network_v2" "main" {
   name = "${var.name_prefix}-network"
