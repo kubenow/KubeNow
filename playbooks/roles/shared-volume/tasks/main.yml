@@ -15,6 +15,8 @@
     gluster volume create shared-volume
     replica 3 {{gluster_bricks | replace('\n', '')}}
     force
+  register: volume_create_command
+  until: volume_create_command.rc == 0
   # Try for 10 minutes
   retries: 120
   delay: 5
