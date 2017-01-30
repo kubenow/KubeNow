@@ -3,6 +3,7 @@ variable cluster_prefix {}
 variable KuberNow_image {}
 variable ssh_key {}
 variable external_network_uuid {}
+variable dns_nameservers { default="8.8.8.8,8.8.4.4" }
 variable floating_ip_pool {}
 variable kubeadm_token {}
 
@@ -32,6 +33,7 @@ module "network" {
   source = "./network"
   external_net_uuid = "${var.external_network_uuid}"
   name_prefix = "${var.cluster_prefix}"
+  dns_nameservers = "${var.dns_nameservers}"
 }
 
 module "master" {

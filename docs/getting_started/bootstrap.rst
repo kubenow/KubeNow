@@ -69,6 +69,7 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 - **ssh_key**: path to your public ssh-key to be used (for ssh node access)
 - **floating_ip_pool**: a floating IP pool name
 - **external_network_uuid**: the uuid of the external network in the OpenStack tenancy
+- **dns_nameservers**: (optional, only needed if you want to use other dns-servers than default 8.8.8.8 and 8.8.4.4)
 - **kubeadm_token**: a token that will be used by kubeadm, to bootstrap Kubernetes. You can run generate_kubetoken.sh to create a valid one.
 
 **Master configuration**
