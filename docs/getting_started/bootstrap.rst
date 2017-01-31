@@ -29,10 +29,8 @@ Every OpenStack installation it's a bit different, and the RC file you get to do
   OS_TENANT_NAME
   OS_AUTH_VERSION
 
-- You created a private network with a router that connects it to the external network (for building the Packer image)
 - You have a floating IP quota that allows to allocate a public IP for each master and edge node (at least 2 in total)
-- You have a Ubuntu 16.04 (Xenial) image in your tenancy
-- You set up the default security group to allow ingress traffic on port 22 (for building the Packer image)
+- You installed the glance command-line client in your local machine: http://docs.openstack.org/user-guide/common/cli-install-openstack-command-line-clients.html
 
 Import the KubeNow image (only the first time you are deploying)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -41,8 +39,6 @@ The first time you are going to deploy KubeNow, you'll have to import its cloud 
 
 You can import the latest image build by running the following `Ansible <http://ansible.com>`_ playbook::
   
-  # please note that this playbook is dependant on 
-  # having glance installed on your computer
   ansible-playbook playbooks/import-openstack-image.yml 
 
 If everything goes well, you will see the new image in the OpenStack web interface (Compute > Images). As an alternative, you can check that the image is present using the OpenStack command line client::
