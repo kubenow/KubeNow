@@ -29,9 +29,9 @@ Every OpenStack installation it's a bit different, and the RC file you get to do
   OS_TENANT_NAME
   OS_AUTH_VERSION
 
-- You created a private network with a router that connects it to the external network (for building the Packer image)
+- You created a private network with a router that connects it to the external network
 - You have a Ubuntu 16.04 (Xenial) image in your tenancy
-- You set up the default security group to allow ingress traffic on port 22 (for building the Packer image)
+- You set up the default security group to allow ingress traffic on port 22
 
 Build the KubeNow image
 ~~~~~~~~~~~~~~~~~~~~~~~
