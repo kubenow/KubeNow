@@ -6,6 +6,53 @@ KubeNow uses prebuilt images to speed up the deployment. Even if we provide some
 .. contents:: Sections
   :depth: 2
 
+Build KubeNow image on OpenStack
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Prerequisites
+~~~~~~~~~~~~~
+
+In this section we assume that:
+
+- You have downloaded and sourced the OpenStack RC file for your tenancy: ``source project-openrc.sh``
+
+Every OpenStack installation it's a bit different, and the RC file you get to download from the interface might be incomplete. Please make sure that all of these environment variables are set in the RC file::
+
+  OS_USERNAME
+  OS_PASSWORD
+  OS_AUTH_URL
+  OS_USER_DOMAIN_ID
+  OS_DOMAIN_ID
+  OS_REGION_NAME
+  OS_PROJECT_ID
+  OS_TENANT_ID
+  OS_TENANT_NAME
+  OS_AUTH_VERSION
+
+- You created a private network with a router that connects it to the external network (for building the Packer image)
+- You have a Ubuntu 16.04 (Xenial) image in your tenancy
+- You set up the default security group to allow ingress traffic on port 22 (for building the Packer image)
+
+Build the KubeNow image
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Start by creating a ``packer-conf.json`` file. There is a template that you can use for your convenience: ``mv packer-conf.json.os-template packer-conf.json``. In this configuration file you will need to set:
+
+- **image_name**: the name of the image that will be created after the build (e.g. "KubeNow")
+- **source_image_name**: a Ubuntu Xenial image, already present in your tenancy
+- **network**: the ID of a private network, already present in your tenancy
+- **flavor**: an instance flavor to use, in order to build the image
+- **floating_ip_pool**: a floating IP pool
+
+Once you are done with your settings you are ready to build KubeNow using Packer::
+
+  packer build -var-file=packer-conf.json packer/build-openstack.json
+
+If everything goes well, you will see the new image in the OpenStack web interface (Compute > Images). As an alternative, you can check that the image is present using the OpenStack command line client::
+
+  glance image-list
+  
+
 Build KubeNow image on GCE
 --------------------------
 
