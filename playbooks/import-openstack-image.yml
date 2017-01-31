@@ -1,0 +1,61 @@
+# requires glance
+- hosts: localhost
+  gather_facts: False
+  vars:
+    
+  tasks:
+    - name: get latest KubeNow release (git describe --abbrev=0 --tags)
+      command: git describe --abbrev=0 --tags
+      register: git_describe
+      
+    - name: "figure out latest version"
+      set_fact:
+        img_version: "v{{git_describe.stdout | replace('\n','') | replace('.', '')}}"
+      when:
+        - img_version is undefined
+        
+    - name: "set image facts"
+      set_fact:
+        image_name: "kubenow-{{img_version}}"
+
+    - name: "set url fact"
+      set_fact:
+        image_url: "https://owncloud.pharmb.io/index.php/apps/files/ajax/download.php?dir=%2Fkubenow&files={{ image_name }}.qcow2"
+    
+    - name: check if image {{ image_name }} is present in openstack teenancy
+      shell: >
+        glance image-list | grep -w {{ image_name }} | awk '{print $2}'
+      register: image_list
+      
+    - set_fact:
+        image_id: "{{ image_list.stdout }}"
+   
+    - name: upload image {{ image_name }} if not present ( url= {{ image_url }} )
+      shell: >
+        glance --os-image-api-version 1 image-create \
+              --copy-from "{{ image_url }}" \
+              --disk-format qcow2 \
+              --min-disk 20 \
+              --container-format bare \
+              --name {{ image_name }} \
+              --progress \
+              | grep -w id | awk '{print $4}'
+      register: image_upload
+      when:
+        - image_id == ""
+      
+      # if image was uploaded set new image_id
+    - set_fact:
+        image_id: "{{ image_upload.stdout }}"
+      when:
+        - image_upload.stdout is defined
+    
+    - name: wait until image status == "active"
+      shell: >
+        glance image-show {{ image_id }} | grep -w status | awk '{print $4}'
+      register: image_status
+      until:
+        - image_status.stdout == "active"
+      # Try for 60 minutes
+      retries: 600
+      delay: 6

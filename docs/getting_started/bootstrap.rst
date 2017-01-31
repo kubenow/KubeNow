@@ -29,31 +29,21 @@ Every OpenStack installation it's a bit different, and the RC file you get to do
   OS_TENANT_NAME
   OS_AUTH_VERSION
 
-- You created a private network with a router that connects it to the external network (for building the Packer image)
 - You have a floating IP quota that allows to allocate a public IP for each master and edge node (at least 2 in total)
-- You have a Ubuntu 16.04 (Xenial) image in your tenancy
-- You set up the default security group to allow ingress traffic on port 22 (for building the Packer image)
+- You installed the glance command-line client in your local machine: http://docs.openstack.org/user-guide/common/cli-install-openstack-command-line-clients.html
 
-Build the KubeNow image (only the first time you are deploying)
+Import the KubeNow image (only the first time you are deploying)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The first time you are going to deploy KubeNow, you'll have to create its cloud image. This considerably speeds up the following bootstraps, as all of the required software will already be installed on the instances.
+The first time you are going to deploy KubeNow, you'll have to import its cloud image. This considerably speeds up the following bootstraps, as all of the required software will already be installed on the instances.
 
-Start by creating a ``packer-conf.json`` file. There is a template that you can use for your convenience: ``mv packer-conf.json.os-template packer-conf.json``. In this configuration file you will need to set:
-
-- **image_name**: the name of the image that will be created after the build (e.g. "KubeNow")
-- **source_image_name**: a Ubuntu Xenial image, already present in your tenancy
-- **network**: the ID of a private network, already present in your tenancy
-- **flavor**: an instance flavor to use, in order to build the image
-- **floating_ip_pool**: a floating IP pool
-
-Once you are done with your settings you are ready to build KubeNow using Packer::
-
-  packer build -var-file=packer-conf.json packer/build-openstack.json
+You can import the latest image build by running the following `Ansible <http://ansible.com>`_ playbook::
+  
+  ansible-playbook playbooks/import-openstack-image.yml 
 
 If everything goes well, you will see the new image in the OpenStack web interface (Compute > Images). As an alternative, you can check that the image is present using the OpenStack command line client::
 
-  nova image-list
+  glance image-list
 
 Bootstrap Kubernetes
 ~~~~~~~~~~~~~~~~~~~~
