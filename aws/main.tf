@@ -9,7 +9,7 @@ variable aws_region {}
 variable availability_zone {}
 
 variable ssh_user { default = "ubuntu" }
-variable ssh_key {}
+variable ssh_key { default = "secrets/ssh-key.pub" }
 
 # Master settings
 variable master_instance_type {}
@@ -27,9 +27,9 @@ variable edge_disk_size {}
 
 # Provider
 provider "aws" {
-  access_key = "${var.aws_access_key_id}" 
-  secret_key = "${var.aws_secret_access_key}" 
-  region = "${var.aws_region}" 
+  access_key = "${var.aws_access_key_id}"
+  secret_key = "${var.aws_secret_access_key}"
+  region = "${var.aws_region}"
 }
 
 # Upload ssh-key to be used for access to the nodes
@@ -43,7 +43,7 @@ module "keypair" {
 module "vpc" {
   source = "./vpc"
   name_prefix = "${var.cluster_prefix}"
-  availability_zone = "${var.availability_zone}" 
+  availability_zone = "${var.availability_zone}"
 }
 
 module "master" {
@@ -73,7 +73,7 @@ module "node" {
   availability_zone = "${var.availability_zone}"
   ssh_user = "${var.ssh_user}"
   ssh_keypair_name = "${module.keypair.keypair_name}"
-  disk_size = "${var.node_disk_size}"  
+  disk_size = "${var.node_disk_size}"
 }
 
 module "edge" {
@@ -89,5 +89,5 @@ module "edge" {
   availability_zone = "${var.availability_zone}"
   ssh_user = "${var.ssh_user}"
   ssh_keypair_name = "${module.keypair.keypair_name}"
-  disk_size = "${var.edge_disk_size}" 
+  disk_size = "${var.edge_disk_size}"
 }

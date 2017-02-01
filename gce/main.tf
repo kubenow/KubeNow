@@ -3,7 +3,7 @@ variable cluster_prefix {}
 variable KuberNow_image {}
 variable kubeadm_token {}
 variable ssh_user { default = "ubuntu" }
-variable ssh_key {}
+variable ssh_key { default = "secrets/ssh-key.pub" }
 
 # Google credentials
 variable gce_project {}

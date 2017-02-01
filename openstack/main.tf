@@ -1,7 +1,7 @@
 # Cluster settings
 variable cluster_prefix {}
 variable KuberNow_image {}
-variable ssh_key {}
+variable ssh_key { default = "secrets/ssh-key.pub" }
 variable external_network_uuid {}
 variable dns_nameservers { default="8.8.8.8,8.8.4.4" }
 variable floating_ip_pool {}
