@@ -2,6 +2,7 @@
 - hosts: localhost
   gather_facts: False
   vars:
+    image_url: "https://owncloud.pharmb.io/index.php/s/OPbTMdgQjWV1YSY"
     
   tasks:
     - name: get latest KubeNow release (git describe --abbrev=0 --tags)
@@ -17,10 +18,6 @@
     - name: "set image facts"
       set_fact:
         image_name: "kubenow-{{img_version}}"
-
-    - name: "set url fact"
-      set_fact:
-        image_url: "https://owncloud.pharmb.io/index.php/apps/files/ajax/download.php?dir=%2Fkubenow&files={{ image_name }}.qcow2"
     
     - name: check if image {{ image_name }} is present in openstack teenancy
       shell: >
