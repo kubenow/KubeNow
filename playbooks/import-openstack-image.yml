@@ -20,7 +20,7 @@
 
     - name: "set url fact"
       set_fact:
-        image_url: "https://owncloud.pharmb.io/index.php/apps/files/ajax/download.php?dir=%2Fkubenow&files={{ image_name }}.qcow2"
+        image_url: "https://httpd.pharmb.io/kubenow-img/{{ image_name }}.qcow2"
     
     - name: check if image {{ image_name }} is present in openstack teenancy
       shell: >
