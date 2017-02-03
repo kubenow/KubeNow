@@ -1,5 +1,10 @@
 ![architecture](img/logo_wide_50dpi.png)
 
+
+
+Men Jag vill ha in den här
+
+
 [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=stable)](http://kubenow.readthedocs.io/en/stable/?badge=stable)
 [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=latest)](http://kubenow.readthedocs.io/en/latest/?badge=latest)
 [![Build Status](https://travis-ci.org/kubenow/KubeNow.svg?branch=master)](https://travis-ci.org/kubenow/KubeNow)
