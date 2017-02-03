@@ -29,14 +29,13 @@ FIND='"scripts/ubuntu/cleanup.sh",'
 INSERT='"\.\./\.\./\.\./packer/requirements\.sh",'
 REPLACE="$INSERT\n$FIND"
 
-sed "s#$FIND#$REPLACE#" ubuntu-16.04-amd64.json |
-  jq ".builders[].ssh_password = \"$PASSWORD\"" > kubenow.json
-
+sed "s#$FIND#$REPLACE#" ubuntu-16.04-amd64.json > kubenow.json
+  
 # build it
 #bento build --only=virtualbox-iso kubenow
 packer build --only=virtualbox-iso \
              --force \
-             -var "box_basename=$BOX_BASENAME-$BOX_VERSION" \
+             -var "box_basename=$BOX_BASENAME" \
              -var "name=$BOX_BASENAME" \
              -var "template=$BOX_BASENAME" \
              -var "version=$BOX_VERSION" \
@@ -64,7 +63,7 @@ EOF
 echo $META > "builds/$BOX_BASENAME-$BOX_VERSION.virtualbox.json"
 
 # upload it
-bento upload
+# bento upload
 
 # release it
-bento release $BOX_BASENAME $BOX_VERSION
+# bento release $BOX_BASENAME $BOX_VERSION
