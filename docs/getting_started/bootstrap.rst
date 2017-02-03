@@ -29,31 +29,21 @@ Every OpenStack installation it's a bit different, and the RC file you get to do
   OS_TENANT_NAME
   OS_AUTH_VERSION
 
-- You created a private network with a router that connects it to the external network (for building the Packer image)
 - You have a floating IP quota that allows to allocate a public IP for each master and edge node (at least 2 in total)
-- You have a Ubuntu 16.04 (Xenial) image in your tenancy
-- You set up the default security group to allow ingress traffic on port 22 (for building the Packer image)
+- You installed the glance command-line client in your local machine: http://docs.openstack.org/user-guide/common/cli-install-openstack-command-line-clients.html
 
-Build the KubeNow image (only the first time you are deploying)
+Import the KubeNow image (only the first time you are deploying)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The first time you are going to deploy KubeNow, you'll have to create its cloud image. This considerably speeds up the following bootstraps, as all of the required software will already be installed on the instances.
+The first time you are going to deploy KubeNow, you'll have to import its cloud image. This considerably speeds up the following bootstraps, as all of the required software will already be installed on the instances.
 
-Start by creating a ``packer-conf.json`` file. There is a template that you can use for your convenience: ``mv packer-conf.json.os-template packer-conf.json``. In this configuration file you will need to set:
-
-- **image_name**: the name of the image that will be created after the build (e.g. "KubeNow")
-- **source_image_name**: a Ubuntu Xenial image, already present in your tenancy
-- **network**: the ID of a private network, already present in your tenancy
-- **flavor**: an instance flavor to use, in order to build the image
-- **floating_ip_pool**: a floating IP pool
-
-Once you are done with your settings you are ready to build KubeNow using Packer::
-
-  packer build -var-file=packer-conf.json packer/build-openstack.json
+You can import the latest image build by running the following `Ansible <http://ansible.com>`_ playbook::
+  
+  ansible-playbook playbooks/import-openstack-image.yml 
 
 If everything goes well, you will see the new image in the OpenStack web interface (Compute > Images). As an alternative, you can check that the image is present using the OpenStack command line client::
 
-  nova image-list
+  glance image-list
 
 Bootstrap Kubernetes
 ~~~~~~~~~~~~~~~~~~~~
@@ -69,6 +59,7 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 - **ssh_key**: path to your public ssh-key to be used (for ssh node access)
 - **floating_ip_pool**: a floating IP pool name
 - **external_network_uuid**: the uuid of the external network in the OpenStack tenancy
+- **dns_nameservers**: (optional, only needed if you want to use other dns-servers than default 8.8.8.8 and 8.8.4.4)
 - **kubeadm_token**: a token that will be used by kubeadm, to bootstrap Kubernetes. You can run generate_kubetoken.sh to create a valid one.
 
 **Master configuration**
@@ -115,22 +106,14 @@ In this section we assume that:
 - You have enabled the Google Compute Engine API: API Manager > Library > Compute Engine API > Enable
 - You have created and downloaded a service account file for your GCE project: Api manager > Credentials > Create credentials > Service account key
 
-Build the KubeNow image (only the first time you are deploying)
+Import the KubeNow image (only the first time you are deploying)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The first time you are going to deploy KubeNow, you'll have to create its cloud image. This considerably speeds up the following bootstraps, as all of the required software will already be installed on the instances.
+The first time you are going to deploy KubeNow, you'll have to import its cloud image. This considerably speeds up the following bootstraps, as all of the required software will already be installed on the instances.
 
-Start by creating a ``packer-conf.json`` file. There is a template that you can use for your convenience: ``mv packer-conf.json.gce-template packer-conf.json``. In this configuration file you will need to set:
+You can import the latest image build by running the following `Ansible <http://ansible.com>`_ playbook::
 
-- **image_name**: the name of the image that will be created after the build (the name must match ``(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)``, e.g. "kubenow-image")
-- **source_image_name**: a Ubuntu Xenial image (this should already be in GCE, e.g. ``ubuntu-1604-xenial-v20161013``)
-- **account_file**: path to your service account file
-- **zone**: the zone to use in order to build the image (e.g. ``europe-west1-b``)
-- **project_id**: your project id
-
-Once you are done with your settings you are ready to build KubeNow using Packer::
-
-  packer build -var-file=packer-conf.json packer/build-gce.json
+  ansible-playbook -e "credentials_file_path=/full/path/to/service_account.json" playbooks/import-gce-image.yml
 
 If everything goes well, you will see the new image in the GCE web interface (Compute Engine > Images). As an alternative, you can check that the image is present using the Google Cloud command line client::
 
