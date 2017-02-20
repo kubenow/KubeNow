@@ -55,7 +55,7 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 **Cluster configuration**
 
 - **cluster_prefix**: every resource in your tenancy will be named with this prefix
-- **KuberNow_image**: name of the image that you previously created using Packer
+- **KuberNow_image**: name of the image that you previously imported using Ansible
 - **ssh_key**: path to your public ssh-key to be used (for ssh node access)
 - **floating_ip_pool**: a floating IP pool name
 - **external_network_uuid**: the uuid of the external network in the OpenStack tenancy
@@ -129,7 +129,7 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 **Cluster configuration**
 
 - **cluster_prefix**: every resource in your project will be named with this prefix (the name must match ``(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)``, e.g. "kubenow-image")
-- **KuberNow_image**: name of the image that you previously created using Packer
+- **KuberNow_image**: name of the image that you imported created using Ansible
 - **kubeadm_token**: a token that will be used by kubeadm, to bootstrap Kubernetes. You can run `generate_kubetoken.sh` to create a valid one.
 - **ssh_key**: path to your public ssh-key to be used (for ssh node access)
 
