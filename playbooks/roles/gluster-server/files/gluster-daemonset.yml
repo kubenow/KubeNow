@@ -37,6 +37,10 @@ spec:
         - mountPath: /etc/glusterfs
           name: etc
           readOnly: false
+        resources:
+          requests:
+            cpu: 1
+            memory: 1G
       volumes:
         - hostPath:
             path: /var/bricks
