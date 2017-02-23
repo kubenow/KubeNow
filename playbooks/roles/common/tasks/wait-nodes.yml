@@ -2,7 +2,7 @@
 - name: "wait for server to respond on ssh port"
   local_action: wait_for
     host={{ ansible_ssh_host | default(inventory_hostname) }}
-    port=22
+    port={{ ansible_port | default(22) }}
     search_regex=OpenSSH
     delay=10
     timeout=300
