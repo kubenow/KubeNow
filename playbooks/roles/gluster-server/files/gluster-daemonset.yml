@@ -39,8 +39,8 @@ spec:
           readOnly: false
         resources:
           requests:
-            cpu: 1
-            memory: 1G
+            cpu: 1.5
+            memory: 1.5G
       volumes:
         - hostPath:
             path: /var/bricks
