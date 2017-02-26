@@ -14,7 +14,7 @@ Prerequisites
 
 In this section we assume that:
 
-- You have downloaded and sourced the OpenStack RC file for your tenancy: ``source project-openrc.sh``
+- You have downloaded and sourced the OpenStack RC file for your tenancy: ``source project-openrc.sh`` https://docs.openstack.org/user-guide/common/cli-set-environment-variables-using-openstack-rc.html
 
 Every OpenStack installation it's a bit different, and the RC file you get to download from the interface might be incomplete. Please make sure that all of these environment variables are set in the RC file::
 
