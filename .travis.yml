@@ -42,7 +42,7 @@ install:
   # Install deps by HashiCorp
   - >
       curl
-      https://releases.hashicorp.com/packer/0.11.0/packer_0.11.0_linux_amd64.zip
+      https://releases.hashicorp.com/packer/0.12.1/packer_0.12.1_linux_amd64.zip
       > /tmp/packer.zip
   - >
       curl
