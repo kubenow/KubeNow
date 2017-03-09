@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Exit immediately if a command exits with a non-zero status
-# set -e
-
 echo "Inititializing the master..."
 
 if [ -n "$api_advertise_addresses" ]
@@ -11,4 +8,3 @@ then
 else
     kubeadm init --token ${kubeadm_token}
 fi
-
