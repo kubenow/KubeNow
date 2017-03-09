@@ -1,4 +1,4 @@
-j# -*- mode: ruby -*-
+# -*- mode: ruby -*-
 # # vi: set ft=ruby :
 
 require 'fileutils'
@@ -10,17 +10,16 @@ Vagrant.require_version ">= 1.9.1"
 
 #
 #  Custom vars
-# 
+#
 $cluster_prefix = "kubenow"
 first_ssh_port = 3001
-
 master_cpus = 2
 master_memory = 1500
 $edge_count = 1
 edge_memory = 1500
 edge_cpus = 2
 $node_count = 1
-node_memory = 4096
+node_memory = 5096
 node_cpus = 3
 guest_port_80_forward = 8080
 
@@ -32,10 +31,13 @@ guest_port_80_forward = 8080
 $master_count = 1
 bridge_interface_name = ["(optional)name_here"]
 provider = "virtualbox"
+domain = "#{$cluster_prefix}.local"
 firstMasterIP = "10.0.0.11";
-kubeadm_token = %x( ./generate_kubetoken.sh )
-MASTER_BOOTSTRAP_FILE = File.expand_path("bootstrap/master.sh")
-NODE_BOOTSTRAP_FILE = File.expand_path("bootstrap/node.sh")
+kubenow_dir = "."
+kubeadm_token = %x( "#{kubenow_dir}/generate_kubetoken.sh" )
+puts kubeadm_token
+MASTER_BOOTSTRAP_FILE = File.expand_path("#{kubenow_dir}/bootstrap/master.sh")
+NODE_BOOTSTRAP_FILE = File.expand_path("#{kubenow_dir}/bootstrap/node.sh")
 
 $next_ssh_port = first_ssh_port
 def nextSSHPort()
@@ -128,6 +130,8 @@ inventory += "\"" + "\n"
 inventory += "[all:vars]\n"
 nodes_count = $master_count + $edge_count + $node_count;
 inventory += "nodes_count=#{nodes_count}" + "\n"
+inventory += "domain=#{domain}" + "\n"
+inventory += "http_port=#{guest_port_80_forward}" + "\n"
 inventory += "provider=vagrant"
 
 invFile = File.open("inventory" ,'w')
@@ -146,7 +150,7 @@ Vagrant.configure("2") do |config|
 
   # Use this box for all machines
   config.vm.box = "kubenow/kubenow"
-  config.vm.box_version = "0.0.3"
+  config.vm.box_version = "0.2.0.a"
   
   # fix for bento version 2.3.2 = kubenow base image
   config.vm.provider "virtualbox" do |vb|
@@ -215,13 +219,21 @@ Vagrant.configure("2") do |config|
                           path: settings[:bootstrap_file],
                           env: {"api_advertise_addresses" => firstMasterIP, "master_ip" => firstMasterIP, "kubeadm_token" => kubeadm_token}
       
-      # only master need this fix
+      
+      # only master need these fixes (and has to be run in this order)
       if settings[:type] == "master"
+        # Set --proxy-mode flag in kube-proxy daemonset (workaround for https://github.com/kubernetes/kubernetes/issues/34101)
+        machine.vm.provision "shell",
+                            inline: "kubectl -n kube-system get ds -l \"component=kube-proxy\" -o json | jq \".items[0].spec.template.spec.containers[0].command |= .+ [\\\"--proxy-mode=userspace\\\"]\" | kubectl apply -f - && kubectl -n kube-system delete pods -l \"component=kube-proxy\"",
+                            :privileged => true                          
+
         # advertise-address flag in kube-apiserver static pod manifest (workaround for https://github.com/kubernetes/kubernetes/issues/34101)
         machine.vm.provision "shell",
                             inline: "jq '.spec.containers[0].command |= .+ [\"--advertise-address=#{firstMasterIP}\"]' /etc/kubernetes/manifests/kube-apiserver.json > /tmp/kube-apiserver.json && mv /tmp/kube-apiserver.json /etc/kubernetes/manifests/kube-apiserver.json",
                             :privileged => true
       end
+      
+      
           
     end
   end
