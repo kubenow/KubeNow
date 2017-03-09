@@ -1,0 +1,31 @@
+################################################################
+# Defaults
+################################################################
+defaultEntryPoints = ["http","https"]
+################################################################
+# Web configuration backend
+################################################################
+[web]
+address = ":8080"
+{% if acme_mail is defined %}
+################################################################
+# ACME
+################################################################
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+    entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
+# Enable ACME (Let's Encrypt): automatic SSL
+[acme]
+email = "{{acme_mail}}"
+storage = "/etc/traefik/acme.json"
+entryPoint = "https"
+onHostRule = true
+{% if (acme_staging | default(False)) %}
+caServer = "https://acme-staging.api.letsencrypt.org/directory"
+{% endif %}
+{% endif %}
