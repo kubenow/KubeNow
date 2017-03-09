@@ -7,7 +7,7 @@ KubeNow uses prebuilt images to speed up the deployment. Even if we provide some
   :depth: 2
 
 Build KubeNow image on OpenStack
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------
 
 Prerequisites
 ~~~~~~~~~~~~~
@@ -51,7 +51,6 @@ Once you are done with your settings you are ready to build KubeNow using Packer
 If everything goes well, you will see the new image in the OpenStack web interface (Compute > Images). As an alternative, you can check that the image is present using the OpenStack command line client::
 
   glance image-list
-  
 
 Build KubeNow image on GCE
 --------------------------
@@ -82,3 +81,54 @@ Once you are done with your settings you are ready to build KubeNow using Packer
 If everything goes well, you will see the new image in the GCE web interface (Compute Engine > Images). As an alternative, you can check that the image is present using the Google Cloud command line client::
 
   gcloud compute images list
+
+Build KubeNow image on Amazon Web Services (EC2)
+------------------------------------------------
+
+Prerequisites
+~~~~~~~~~~~~~
+
+In this section we assume that:
+
+- You have an IAM user along with its *access key* and *security credentials* (http://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html)
+
+Build the KubeNow image
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The first time you are going to deploy KubeNow, you'll have to create its cloud image. This considerably speeds up the following bootstraps, as all of the required software will already be installed on the instances.
+
+Start by creating a ``packer-conf.json`` file. There is a template that you can use for your convenience: ``mv packer-conf.json.aws-template packer-conf.json``. In this configuration file you will need to set:
+
+- **image_name**: the name of the image that will be created after the build (e.g. "kubenow-image")
+
+  + **Warning:** the image_name must be unique in AWS, otherwise it will fail creating the new image
+
+- **source_image_id**: an Ubuntu Xenial AMI ID
+
+  + **Tip:** to figure out an Ubuntu Xenial AMI ID that works with your preferred region, you can use the `Amazon EC2 AMI Locator <https://cloud-images.ubuntu.com/locator/ec2/>`_
+  + **Warning:** we support only `hvm:ebs-ssd` AMIs (other AMIs might work anyway)
+
+- **aws_access_key_id**: your access key id
+- **aws_secret_access_key**: your secret access key
+- **region**: the region to use in order to create the image
+
+  + **Warning:** the image that you previously selected has to be available in this region
+
+Once you are done with your settings you are ready to build KubeNow using Packer::
+
+  packer build -var-file=packer-conf.json packer/build-aws.json
+
+If everything goes well, something like the following will be printed out::
+
+  ==> Builds finished. The artifacts of successful builds are:
+  --> amazon-ebs: AMIs were created:
+
+  eu-central-1: ami-XXXX
+
+**Tip:** write down region and AMI ID for this KubeNow image build, as it will be useful in the next step.
+
+In addition, you will see the new image in the Amazon web interface (EC2 Dashboard > Images > AMIs). You might need to change your location in the dashboard for your image to be shown.
+
+As an alternative, you can check that the image is present using the amazon cloud command line client::
+
+  aws ec2 describe-images --owners self

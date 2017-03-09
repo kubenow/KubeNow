@@ -36,7 +36,7 @@ resource "aws_route_table" "main" {
   }
 
   tags {
-    Name = "${name_prefix}"
+    Name = "${var.name_prefix}"
   }
 }
 
