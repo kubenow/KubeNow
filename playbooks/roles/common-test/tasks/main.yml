@@ -1,7 +1,7 @@
 - name: "get edge labels"
   command: >
     kubectl get nodes {{ edge_names }}
-    -o jsonpath='{@.items[*].metadata.labels.role}'
+    -o jsonpath='{@..metadata.labels.role}'
   register: get_edge_roles
 
 - name: "test edge labels"
