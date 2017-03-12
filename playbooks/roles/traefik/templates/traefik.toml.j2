@@ -22,10 +22,23 @@ address = ":8080"
 # Enable ACME (Let's Encrypt): automatic SSL
 [acme]
 email = "{{acme_mail}}"
+{% if consul_endpoint is defined %}
+storage = "{{acme_key | default('traefik/acme/account')}}"
+{% else %}
 storage = "/etc/traefik/acme.json"
+{% endif %}
 entryPoint = "https"
 onHostRule = true
 {% if (acme_staging | default(False)) %}
 caServer = "https://acme-staging.api.letsencrypt.org/directory"
 {% endif %}
+{% endif %}
+{% if consul_endpoint is defined %}
+################################################################
+# Consul backend
+################################################################
+[consul]
+endpoint = "{{consul_endpoint}}"
+watch = true
+prefix = "{{consul_prefix | default('traefik')}}"
 {% endif %}
