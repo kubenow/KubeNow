@@ -25,3 +25,7 @@
   # Timeout to avoid travis to kill the whole job
   async: 550
   poll: 10
+
+- name: "set tests_passed flag"
+  set_fact:
+    tests_passed: true
