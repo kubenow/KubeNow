@@ -193,7 +193,7 @@ Start by creating a ``terraform.tfvars`` file. There is a template that you can 
 **Cluster configuration**
 
 - **cluster_prefix**: every resource in your tenancy will be named with this prefix
-- **kubenow_image_id**, it can be one of these: ``ami-6b427518`` (region: ``eu-west-1``), ``ami-e516de8a`` (region: ``eu-central-1``), ``ami-32647156`` (region: ``eu-west-2``), ``ami-3b60a12d`` (region: ``us-east-1``), ``ami-e31b3e86`` (region: ``us-east-2``), ``ami-78732f18`` (region: ``us-west-1``), ``ami-830386e3`` (region: ``us-west-2``), ``ami-b2aa17d6`` (region: ``ca-central-1``)
+- **kubenow_image_id**: please use one of the prebuilt images ID. You can figure it out in the release notes (https://github.com/kubenow/KubeNow/releases).
 
   + **Warning:** choose the image according to the region you want to use
 
