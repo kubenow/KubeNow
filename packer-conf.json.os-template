@@ -1,5 +1,5 @@
 {
-  "image_name": "KubeNow",
+  "image_name": "kubenow-image",
   "source_image_name": "Your Ubuntu Xenial",
   "network": "your-private-network-id",
   "flavor": "your-packer-flavor-name",
