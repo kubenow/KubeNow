@@ -4,6 +4,13 @@
   vars:
     
   tasks:
+  
+    - name: check if glance is installed AND OpenStack environment vars credentials are set
+      shell: >
+        glance image-list
+      register: glance_check
+      failed_when: '"ID" not in glance_check.stdout'
+
     - name: get latest KubeNow release (git describe --abbrev=0 --tags)
       command: git describe --abbrev=0 --tags
       register: git_describe
@@ -25,10 +32,10 @@
     - name: check if image {{ image_name }} is present in openstack teenancy
       shell: >
         glance image-list | grep -w {{ image_name }} | awk '{print $2}'
-      register: image_list
+      register: image_list_id
       
     - set_fact:
-        image_id: "{{ image_list.stdout }}"
+        image_id: "{{ image_list_id.stdout }}"
    
     - name: upload image {{ image_name }} if not present ( url= {{ image_url }} )
       shell: >
@@ -59,3 +66,4 @@
       # Try for 60 minutes
       retries: 600
       delay: 6
+      failed_when: image_status.stdout == ""
