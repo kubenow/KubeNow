@@ -33,6 +33,9 @@ sudo DEBIAN_FRONTEND=noninteractive \
   upgrade
 
 echo "Installing Kubernetes requirements..."
+
+# make sure that kubernetes_version in /bootstrap/master.sh always match
+# kubelet and kubectl version below
 sudo apt-get install -y \
   linux-image-extra-$(uname -r) \
   linux-image-extra-virtual \
