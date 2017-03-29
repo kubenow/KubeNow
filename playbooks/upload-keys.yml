@@ -6,4 +6,4 @@
         state: present
         key: "{{ lookup('file', item) }}"
       with_fileglob:
-        - '{{playbook_dir}}/../public_keys/*.pub'
+        - "{{ (public_keys_dir | default(playbook_dir ~ '/../public_keys' )) ~ '/*.pub' }}"
