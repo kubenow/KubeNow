@@ -17,6 +17,9 @@
     - name: "set image facts"
       set_fact:
         image_name: "kubenow-{{img_version}}"
+    
+    - debug:
+        msg: "image_name is {{ image_name }}"  
 
     - name: "set url fact"
       set_fact:
@@ -57,5 +60,5 @@
       until:
         - image_status.stdout == "active"
       # Try for 60 minutes
-      retries: 600
+      retries: 3
       delay: 6
