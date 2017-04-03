@@ -1,0 +1,29 @@
+{
+  "clusters": [
+    {
+      "nodes": [
+        {%- for host,ip in combined_host_ip.iteritems()  %}
+           {
+             "node": {
+               "hostnames": {
+                 "manage": [
+                   "{{ host }}"
+                 ],
+                 "storage": [
+                   "{{ ip }}"
+                 ]
+               },
+               "zone": 1
+             },
+             "devices": [
+               "/dev/disk/by-id/google-extra-disk"
+             ]
+           }
+           {% if not loop.last %}
+              ,
+           {%endif%}
+        {% endfor %}
+      ]
+    }
+  ]
+}
