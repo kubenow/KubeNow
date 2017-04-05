@@ -1,3 +1,21 @@
+- name: install heketi-cli (TODO remove and move into requirements.sh)
+  get_url:
+    url: https://github.com/heketi/heketi/releases/download/v4.0.0/heketi-client-v4.0.0.linux.amd64.tar.gz
+    dest: /tmp/heketi-client.amd64.tar.gz
+
+- name: unpack heketi-cli
+  unarchive:
+    src: /tmp/heketi-client.amd64.tar.gz
+    dest: /tmp/
+    remote_src: True
+
+- name: copy heketi-cli to /usr/local/bin
+  become: yes
+  copy:
+    src: /tmp/heketi-client/bin/heketi-cli
+    dest: /usr/local/bin
+    remote_src: True
+
 - name: retrieve gluster-pod IPs
   command: >
     kubectl get pods 
@@ -37,11 +55,7 @@
   become: yes
   template:
     src: topology.json
-    dest: "/etc/heketi/kubernetes/topology.json"
-    
-    
-    # heketi-cli -s http://10.44.0.1:8080 topology load --json=/etc/heketi/kubernetes/topology.json
-    
+    dest: "/etc/heketi/kubernetes/topology.json"  
 
 - name: retrieve heketi endpoint
   command: >
@@ -52,9 +66,10 @@
 - set_fact:
     endpoint: "{{ get_endpoint.stdout }}"
 
-- debug:
-    msg: "{{ endpoint }}"
-    
+- name: apply topology-file to heketi
+  command: >
+    heketi-cli -s http://{{ endpoint }} topology load --json=/etc/heketi/kubernetes/topology.json
+
 - name: render storage-class
   become: yes
   template:

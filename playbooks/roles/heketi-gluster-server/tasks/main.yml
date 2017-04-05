@@ -29,6 +29,8 @@
     kubectl apply -f
     /etc/glusterfs/kubernetes/glusterfs-daemonset.json
 
+# those below is not really needed - just for verifying everything is OK
+
 - name: wait for gluster DaemonSet to be Running
   command: >
     kubectl get pods 
@@ -49,6 +51,8 @@
   retries: 120
   delay: 5
 
+# even less needed
+
 - name: retrieve gluster-server IPs
   command: >
     kubectl get pods 
@@ -57,6 +61,13 @@
 
 - set_fact:
     enpoint_list: "[\"{{get_ips.stdout | replace(' ','\",\"')}}\"]"
+
+- name: retrieve gluster-server pod name
+  shell: >
+    kubectl get pods
+    -o jsonpath='{.items[?(@.spec.containers[*].name=="glusterfs")].metadata.name}' |
+    awk '{print $1;}' | tr -d '\n'
+  register: get_name
 
 - name: "gluster peer probe (gluster_side)"
   command: >
