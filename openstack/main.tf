@@ -72,7 +72,7 @@ module "edge" {
   secgroup_name = "${module.network.secgroup_name}"
   kubeadm_token = "${var.kubeadm_token}"
   bootstrap_file_name = "node.sh"
-  master_ip = "${element(module.master.ip_addresses, 0)}"
+  master_ip = "${element(module.master.local_ip_v4, 0)}"
 }
 
 module "node" {
@@ -91,5 +91,23 @@ module "node" {
   secgroup_name = "${module.network.secgroup_name}"
   kubeadm_token = "${var.kubeadm_token}"
   bootstrap_file_name = "node.sh"
-  master_ip = "${element(module.master.ip_addresses, 0)}"
+  master_ip = "${element(module.master.local_ip_v4, 0)}"
+}
+
+# Generate ansible inventory
+resource "null_resource" "generate-inventory" {
+
+  provisioner "local-exec" {
+    command =  "echo \"[Master]\" >> inventory"
+  }
+  provisioner "local-exec" {
+    command =  "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", module.master.hostnames, module.master.floating_ip))}\" >> inventory"
+  }
+
+  provisioner "local-exec" {
+    command =  "echo \"[master:vars]\" >> inventory"
+  }
+  provisioner "local-exec" {
+    command =  "echo 'edge_names=\"${lower(join(" ",formatlist("%s", module.edge.hostnames)))}\"' >> inventory"
+  }
 }

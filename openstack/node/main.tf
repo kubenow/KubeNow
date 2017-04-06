@@ -70,28 +70,14 @@ resource "openstack_compute_volume_attach_v2" "attach_extra_disk" {
 
 # TODO Export openstack_compute_volume_attach_v2.device (to be handed to heketi)
 
-# Generate ansible inventory
-resource "null_resource" "generate-inventory" {
-
-  provisioner "local-exec" {
-    command =  "echo \"[${ var.tags }]\" >> inventory"
-  }
-  
-  # Echo access ip:s
-  provisioner "local-exec" {
-    command =  "echo \"${var.assign_floating_ip ? join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", openstack_compute_instance_v2.instance.*.name, openstack_compute_floatingip_v2.floating_ip.*.address)) : "" }\" >> inventory"
-  }
-
-  provisioner "local-exec" {
-    command =  "echo \"[master:vars]\" >> inventory"
-  }
-
-  provisioner "local-exec" {
-    command =  "echo '${ var.tags }_names=\"${lower(join(" ",formatlist("%s", openstack_compute_instance_v2.instance.*.name)))}\"' >> inventory"
-  }
+output "local_ip_v4" {
+  value = ["${openstack_compute_instance_v2.instance.*.network.0.fixed_ip_v4}"]
 }
 
-# internal network ip-address
-output "ip_addresses" {
-  value = ["${openstack_compute_instance_v2.instance.*.network.0.fixed_ip_v4}"]
+output "floating_ip" {
+  value = ["${openstack_compute_floatingip_v2.floating_ip.*.address}"]
+}
+
+output "hostnames" {
+  value = ["${openstack_compute_instance_v2.instance.*.name}"]
 }
