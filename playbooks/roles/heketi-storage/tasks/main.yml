@@ -14,6 +14,7 @@
   copy:
     src: /tmp/heketi-client/bin/heketi-cli
     dest: /usr/local/bin
+    mode: 0755
     remote_src: True
 
 - name: retrieve gluster-pod IPs
@@ -52,7 +53,6 @@
     msg: "{{ combined_host_ip }}"
 
 - name: render topology
-  become: yes
   template:
     src: topology.json
     dest: "/etc/heketi/kubernetes/topology.json"  
@@ -67,6 +67,7 @@
     endpoint: "{{ get_endpoint.stdout }}"
 
 - name: apply topology-file to heketi
+  become: yes
   command: >
     heketi-cli -s http://{{ endpoint }} topology load --json=/etc/heketi/kubernetes/topology.json
 
