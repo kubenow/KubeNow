@@ -31,6 +31,15 @@ resource "google_compute_instance" "edge" {
     size = "${var.disk_size}"
     auto_delete = true
   }
+  
+  # optional extra disk
+  disk {
+    type = "local-ssd"
+    scratch = true
+  #  size = "${var.disk_size}"
+    device_name = "extra-disk"
+    auto_delete = true
+  }
 
   network_interface {
     network = "${var.network_name}"

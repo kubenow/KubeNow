@@ -37,43 +37,77 @@ module "network" {
 }
 
 module "master" {
-  source = "./master"
+  tags = "master"
+  count = "1"
+  extra_disk_size = "0"
+  
+  source = "./node"
+  flavor_name = "${var.master_flavor}"
+  assign_floating_ip = "true"
   name_prefix = "${var.cluster_prefix}"
   image_name = "${var.KuberNow_image}"
-  flavor_name = "${var.master_flavor}"
   flavor_id = "${var.master_flavor_id}"
   keypair_name = "${module.keypair.keypair_name}"
   network_name = "${module.network.network_name}"
   secgroup_name = "${module.network.secgroup_name}"
   floating_ip_pool = "${var.floating_ip_pool}"
   kubeadm_token = "${var.kubeadm_token}"
-}
-
-module "node" {
-  source = "./node"
-  name_prefix = "${var.cluster_prefix}"
-  image_name = "${var.KuberNow_image}"
-  flavor_name = "${var.node_flavor}"
-  flavor_id = "${var.node_flavor_id}"
-  keypair_name = "${module.keypair.keypair_name}"
-  network_name = "${module.network.network_name}"
-  secgroup_name = "${module.network.secgroup_name}"
-  kubeadm_token = "${var.kubeadm_token}"
-  master_ip = "${module.master.ip_address}"
-  count = "${var.node_count}"
+  bootstrap_file_name = "master.sh"
+  master_ip = ""
 }
 
 module "edge" {
-  source = "./edge"
-  name_prefix = "${var.cluster_prefix}"
-  image_name = "${var.KuberNow_image}"
+  tags = "edge"
+  extra_disk_size = "0"
+  
+  source = "./node"
+  count = "${var.edge_count}"
   flavor_name = "${var.edge_flavor}"
   flavor_id = "${var.edge_flavor_id}"
+  assign_floating_ip = "true"
+  name_prefix = "${var.cluster_prefix}"
+  image_name = "${var.KuberNow_image}"
   keypair_name = "${module.keypair.keypair_name}"
   network_name = "${module.network.network_name}"
   secgroup_name = "${module.network.secgroup_name}"
   kubeadm_token = "${var.kubeadm_token}"
-  floating_ip_pool = "${var.floating_ip_pool}"
-  master_ip = "${module.master.ip_address}"
-  count = "${var.edge_count}"
+  bootstrap_file_name = "node.sh"
+  master_ip = "${element(module.master.local_ip_v4, 0)}"
+}
+
+module "node" {
+  tags = "node"
+  extra_disk_size = "0"
+  
+  source = "./node"
+  count = "${var.node_count}"
+  flavor_name = "${var.node_flavor}"
+  flavor_id = "${var.node_flavor_id}"
+  assign_floating_ip = "false"
+  name_prefix = "${var.cluster_prefix}"
+  image_name = "${var.KuberNow_image}"
+  keypair_name = "${module.keypair.keypair_name}"
+  network_name = "${module.network.network_name}"
+  secgroup_name = "${module.network.secgroup_name}"
+  kubeadm_token = "${var.kubeadm_token}"
+  bootstrap_file_name = "node.sh"
+  master_ip = "${element(module.master.local_ip_v4, 0)}"
+}
+
+# Generate ansible inventory
+resource "null_resource" "generate-inventory" {
+
+  provisioner "local-exec" {
+    command =  "echo \"[Master]\" >> inventory"
+  }
+  provisioner "local-exec" {
+    command =  "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", module.master.hostnames, module.master.floating_ip))}\" >> inventory"
+  }
+
+  provisioner "local-exec" {
+    command =  "echo \"[master:vars]\" >> inventory"
+  }
+  provisioner "local-exec" {
+    command =  "echo 'edge_names=\"${lower(join(" ",formatlist("%s", module.edge.hostnames)))}\"' >> inventory"
+  }
 }
