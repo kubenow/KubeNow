@@ -1,0 +1,11 @@
+---
+- name: template phenomenal-pvc configuration
+  become: yes
+  template:
+    src: phenomenal-pvc.yml
+    dest: "/etc/heketi/kubernetes/phenomenal-pvc.yml"
+
+- name: create phenomenal-pvc
+  command: >
+    kubectl apply -f
+    /etc/heketi/kubernetes/phenomenal-pvc.yml

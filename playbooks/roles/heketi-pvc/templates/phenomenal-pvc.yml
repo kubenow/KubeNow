@@ -1,0 +1,15 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: galaxy-pvc
+  annotations:
+    volume.beta.kubernetes.io/storage-class: "gluster-heketi"
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 15Gi
+
+# TODO change claim name to phenomenal-claim
