@@ -52,7 +52,7 @@ module "master" {
   extra_disk_size = "0"
   
   source = "./node"
-  name_prefix = "${var.cluster_prefix}_master"
+  name_prefix = "${var.cluster_prefix}-master"
   flavor_name = "${var.master_flavor}"
   assign_floating_ip = "true"
   floating_ip_pool = "${var.floating_ip_pool}"
@@ -71,7 +71,7 @@ module "edge" {
   extra_disk_size = "0"
   
   source = "./node"
-  name_prefix = "${var.cluster_prefix}_edge"
+  name_prefix = "${var.cluster_prefix}-edge"
   count = "${var.edge_count}"
   flavor_name = "${var.edge_flavor}"
   flavor_id = "${var.edge_flavor_id}"
@@ -91,7 +91,7 @@ module "node" {
   extra_disk_size = "0"
   
   source = "./node"
-  name_prefix = "${var.cluster_prefix}_node"
+  name_prefix = "${var.cluster_prefix}-node"
   count = "${var.node_count}"
   flavor_name = "${var.node_flavor}"
   flavor_id = "${var.node_flavor_id}"
@@ -111,7 +111,7 @@ module "glusternode" {
   extra_disk_size = "200"
   
   source = "./node"
-  name_prefix = "${var.cluster_prefix}_glusternode"
+  name_prefix = "${var.cluster_prefix}-glusternode"
   count = "${var.glusternode_count}"
   flavor_name = "${var.glusternode_flavor}"
   flavor_id = "${var.glusternode_flavor_id}"
