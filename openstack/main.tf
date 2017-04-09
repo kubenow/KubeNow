@@ -138,7 +138,7 @@ module "cloudflare" {
   cloudflare_token = "${var.cloudflare_token}"
   cloudflare_domain = "${var.cloudflare_domain}"
   record_text = "*.${var.cluster_prefix}"
-  iplist = "${concat(module.master.floating_ip, module.edge.floating_ip)}"
+  iplist = "${concat(module.master.public_ip, module.edge.public_ip)}"
 }
 
 
@@ -155,7 +155,7 @@ resource "null_resource" "generate-inventory" {
     command =  "echo \"[master]\" > inventory"
   }
   provisioner "local-exec" {
-    command =  "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", module.master.hostnames, module.master.floating_ip))}\" >> inventory"
+    command =  "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", module.master.hostnames, module.master.public_ip))}\" >> inventory"
   }
   
   # Output some vars
