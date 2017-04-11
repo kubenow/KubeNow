@@ -13,6 +13,7 @@ variable assign_floating_ip { default=false }
 variable floating_ip_pool {} 
 variable bootstrap_file {}
 variable node_labels {}
+variable node_taints {}
 
 # Bootstrap
 data "template_file" "instance_bootstrap" {
@@ -21,6 +22,7 @@ data "template_file" "instance_bootstrap" {
     kubeadm_token = "${var.kubeadm_token}"
     master_ip = "${var.master_ip}"
     node_labels = "${var.node_labels}"
+    node_taints = "${var.node_taints}"
   }
 }
 
