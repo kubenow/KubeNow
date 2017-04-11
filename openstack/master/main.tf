@@ -49,6 +49,18 @@ resource "null_resource" "generate-inventory" {
 
 }
 
+# Upload all additional public keys to master node
+resource "null_resource" "upload_public_keys" {
+  provisioner "local-exec" {
+    command = "for key in ${path.cwd}/public_keys/*; do (cat $key;echo) | ssh -oStrictHostKeyChecking=no ubuntu@${openstack_compute_floatingip_v2.master_ip.0.address} 'cat >> .ssh/authorized_keys'; done"
+  	
+  	connection = {
+	  type = "ssh"
+	  timeout = "15m"
+  	}
+  }
+}
+
 output "ip_address" {
   value = "${openstack_compute_instance_v2.master.0.network.0.fixed_ip_v4}"
 }
