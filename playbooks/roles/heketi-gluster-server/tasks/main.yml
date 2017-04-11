@@ -9,13 +9,13 @@
 - name: copy gluster DaemonSet configuration
   become: yes
   copy:
-    src: glusterfs-daemonset.json
-    dest: "/etc/glusterfs/kubernetes/glusterfs-daemonset.json"
+    src: glusterfs-daemonset.yml
+    dest: "/etc/glusterfs/kubernetes/glusterfs-daemonset.yml"
 
 - name: start gluster DaemonSet
   command: >
     kubectl apply -f
-    /etc/glusterfs/kubernetes/glusterfs-daemonset.json
+    /etc/glusterfs/kubernetes/glusterfs-daemonset.yml
 
 # those below is not really needed - just for verifying everything is OK
 
