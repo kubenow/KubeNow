@@ -48,11 +48,12 @@ module "network" {
 
 module "master" {
   node_labels = "role=master,role=edge"
+  node_taints = ""
   count = "1"
   extra_disk_size = "0"
   
   source = "./node"
-  name_prefix = "${var.cluster_prefix}_master"
+  name_prefix = "${var.cluster_prefix}-master"
   flavor_name = "${var.master_flavor}"
   assign_floating_ip = "true"
   floating_ip_pool = "${var.floating_ip_pool}"
@@ -68,10 +69,11 @@ module "master" {
 
 module "edge" {
   node_labels = "role=edge"
+  node_taints = ""
   extra_disk_size = "0"
   
   source = "./node"
-  name_prefix = "${var.cluster_prefix}_edge"
+  name_prefix = "${var.cluster_prefix}-edge"
   count = "${var.edge_count}"
   flavor_name = "${var.edge_flavor}"
   flavor_id = "${var.edge_flavor_id}"
@@ -88,10 +90,11 @@ module "edge" {
 
 module "node" {
   node_labels = "role=node"
+  node_taints = ""
   extra_disk_size = "0"
   
   source = "./node"
-  name_prefix = "${var.cluster_prefix}_node"
+  name_prefix = "${var.cluster_prefix}-node"
   count = "${var.node_count}"
   flavor_name = "${var.node_flavor}"
   flavor_id = "${var.node_flavor_id}"
@@ -108,10 +111,11 @@ module "node" {
 
 module "glusternode" {
   node_labels = "storagenode=glusterfs"
+  node_taints = "dedicated=fileserver:NoSchedule"
   extra_disk_size = "200"
   
   source = "./node"
-  name_prefix = "${var.cluster_prefix}_glusternode"
+  name_prefix = "${var.cluster_prefix}-glusternode"
   count = "${var.glusternode_count}"
   flavor_name = "${var.glusternode_flavor}"
   flavor_id = "${var.glusternode_flavor_id}"
@@ -138,7 +142,7 @@ module "cloudflare" {
   cloudflare_token = "${var.cloudflare_token}"
   cloudflare_domain = "${var.cloudflare_domain}"
   record_text = "*.${var.cluster_prefix}"
-  iplist = "${concat(module.master.floating_ip, module.edge.floating_ip)}"
+  iplist = "${concat(module.master.public_ip, module.edge.public_ip)}"
 }
 
 
@@ -155,7 +159,7 @@ resource "null_resource" "generate-inventory" {
     command =  "echo \"[master]\" > inventory"
   }
   provisioner "local-exec" {
-    command =  "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", module.master.hostnames, module.master.floating_ip))}\" >> inventory"
+    command =  "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", module.master.hostnames, module.master.public_ip))}\" >> inventory"
   }
   
   # Output some vars
