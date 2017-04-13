@@ -3,7 +3,7 @@
 # Add labels to node key=value pairs separated by ','
 echo "Label nodes"
 echo "Label and taint nodes"
-sed -i 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--node-labels=${node_labels} --register-with-taints=${node_taints} |g' \
+sed -i 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--node-labels=${node_labels} |g' \
        /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 # reload and restart after systemd dropin edits
 systemctl daemon-reload
@@ -13,7 +13,7 @@ echo "Inititializing the master..."
 
 if [ -n "$api_advertise_addresses" ]
 then
-    kubeadm init --token ${kubeadm_token} --use-kubernetes-version=v1.6.1-00 --api-advertise-addresses=$api_advertise_addresses
+    kubeadm init --token ${kubeadm_token} --kubernetes-version=v1.6.1 --api-advertise-addresses=$api_advertise_addresses
 else
-    kubeadm init --token ${kubeadm_token} --use-kubernetes-version=v1.6.1-00
+    kubeadm init --token ${kubeadm_token} --kubernetes-version=v1.6.1
 fi
