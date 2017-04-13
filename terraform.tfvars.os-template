@@ -1,6 +1,6 @@
 # Cluster configuration
-cluster_prefix = "KubeNow" # Your cluster prefix
-KuberNow_image = "kubenow-v020" # Name of the image created with Packer
+cluster_prefix = "kubenow" # Your cluster prefix
+KubeNow_image = "kubenow-v020" # Name of the image created with Packer
 ssh_key = "~/.ssh/id_rsa.pub" # Path to your public SSH key to be used for ssh node access
 kubeadm_token = "your-kubeadm-token" # You can run generate_kubetoken.sh to create a valid token
 floating_ip_pool = "your-pool-name"
@@ -17,3 +17,12 @@ node_flavor = "your-node-flavor"
 # Edge configuration
 edge_count = "2"
 edge_flavor = "your-edge-flavor"
+
+# Gluster configuration
+glusternode_count = "0"
+glusternode_flavor = "your-glusternode-flavor"
+
+# Cloudflare DNS configuration (optional) leave token empty if you dont't want to use cloudflare
+cloudflare_email = "your-cloudflare-registered-email"
+cloudflare_token = ""
+cloudflare_domain = "your-domain.nu"
