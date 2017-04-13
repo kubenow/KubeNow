@@ -1,5 +1,6 @@
 variable name_prefix {}
 variable availability_zone {}
+variable aws_subnet_id { default = "" }
 
 
 resource "aws_vpc" "main" {
@@ -12,6 +13,8 @@ resource "aws_vpc" "main" {
 }
 
 resource "aws_subnet" "main" {
+  # create subnet only if not specified in var.aws_subnet_id
+  count = "${ aws_subnet_id == "" ? 1 : 0 }"
   vpc_id = "${aws_vpc.main.id}"
   cidr_block = "${aws_vpc.main.cidr_block}"
   availability_zone = "${var.availability_zone}"
@@ -46,7 +49,7 @@ resource "aws_main_route_table_association" "main" {
 }
 
 resource "aws_route_table_association" "main" {
-  subnet_id = "${aws_subnet.main.id}"
+  subnet_id = "${ aws_subnet_id == "" ? aws_subnet.main.id : aws_subnet_id}"
   route_table_id = "${aws_route_table.main.id}"
 }
 
@@ -94,7 +97,7 @@ resource "aws_security_group" "main" {
 }
 
 output "subnet_id" {
-  value = "${aws_subnet.main.id}"
+  value = "${ aws_subnet_id == "" ? aws_subnet.main.id : aws_subnet_id }"
 }
 
 output "security_group_id" {
