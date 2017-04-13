@@ -13,7 +13,7 @@ echo "Inititializing the master..."
 
 if [ -n "$api_advertise_addresses" ]
 then
-    kubeadm init --token ${kubeadm_token} --kubernetes-version=v1.6.1 --api-advertise-addresses=$api_advertise_addresses
+    kubeadm init --token ${kubeadm_token} --kubernetes-version=v1.5.2 --api-advertise-addresses=$api_advertise_addresses
 else
-    kubeadm init --token ${kubeadm_token} --kubernetes-version=v1.6.1
+    kubeadm init --token ${kubeadm_token} --kubernetes-version=v1.5.2
 fi
