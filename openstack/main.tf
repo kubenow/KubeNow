@@ -13,8 +13,10 @@ variable cloudflare_token { default="" }
 variable cloudflare_domain { default="" }
 
 # Master settings
+variable master_count { default = 1 }
 variable master_flavor {}
 variable master_flavor_id { default = ""}
+variable master_is_edge { default = "true" }
 
 # Nodes settings
 variable node_count {}
@@ -47,9 +49,9 @@ module "network" {
 }
 
 module "master" {
-  node_labels = "role=master,role=edge"
+  node_labels = "${var.master_is_edge ? "role=master,role=edge" : "role=master" }"
   node_taints = ""
-  count = "1"
+  count = "${var.master_count}"
   extra_disk_size = "0"
   
   source = "./node"
@@ -136,13 +138,15 @@ module "glusternode" {
 module "cloudflare" {
   # count values can not be dynamically computed, that's why using
   # var.edge_count and not length(iplist)
-  record_count = "${var.cloudflare_token == "" ? 0 : var.edge_count + 1}"
+  record_count = "${var.cloudflare_token == "" ? 0 : var.master_is_edge ? var.edge_count + var.master_count : var.edge_count}"
   source = "./cloudflare"
   cloudflare_email = "${var.cloudflare_email}"
   cloudflare_token = "${var.cloudflare_token}"
   cloudflare_domain = "${var.cloudflare_domain}"
   record_text = "*.${var.cluster_prefix}"
-  iplist = "${concat(module.master.public_ip, module.edge.public_ip)}"
+  # concat lists (record_count is limiting master_ip:s from being added to cloudflare if they are not supposed to)
+  # terraform interpolation is limited and can not return list in conditionals
+  iplist = "${concat(module.edge.public_ip, module.master.public_ip)}"
 }
 
 
@@ -158,6 +162,7 @@ resource "null_resource" "generate-inventory" {
   provisioner "local-exec" {
     command =  "echo \"[master]\" > inventory"
   }
+  # output the lists formated
   provisioner "local-exec" {
     command =  "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", module.master.hostnames, module.master.public_ip))}\" >> inventory"
   }
@@ -166,7 +171,7 @@ resource "null_resource" "generate-inventory" {
   provisioner "local-exec" {
     command =  "echo \"[master:vars]\" >> inventory"
   }
-  # Add an extra empty ("") element on list so it is never empty (e.g. if there are no glusternodes)
+  # Add an extra empty ("") element on list so it is never empty (i.e. if there are no glusternodes)
   provisioner "local-exec" {
     command =  "echo \"extra_disk_device=${element(concat(module.glusternode.extra_disk_device, list("")),0)}\" >> inventory"
   }
