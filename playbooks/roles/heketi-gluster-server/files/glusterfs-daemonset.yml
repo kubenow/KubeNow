@@ -3,30 +3,12 @@ kind: DaemonSet
 apiVersion: extensions/v1beta1
 metadata:
   name: glusterfs
+  namespace: storage-heketi
   labels:
     glusterfs: deployment
   annotations:
     description: GlusterFS Daemon Set
     tags: glusterfs
-    scheduler.alpha.kubernetes.io/tolerations: '[{"key":"dedicated", "value":"fileserver"}]'
-    scheduler.alpha.kubernetes.io/affinity: >
-          {
-            "nodeAffinity": {
-              "requiredDuringSchedulingIgnoredDuringExecution": {
-                "nodeSelectorTerms": [
-                  {
-                    "matchExpressions": [
-                      {
-                        "key": "dedicated",
-                        "operator": "Equal",
-                        "values": ["fileserver"]
-                      }
-                    ]
-                  }
-                ]
-              }
-            }
-          }
 spec:
   template:
     metadata:
@@ -34,6 +16,11 @@ spec:
       labels:
         glusterfs-node: daemonset
     spec:
+      tolerations: 
+      - key: "dedicated"
+        operator: "Equal"
+        value: "fileserver"
+        effect: "NoSchedule"
       nodeSelector:
         storagenode: glusterfs
       hostNetwork: true

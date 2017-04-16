@@ -19,7 +19,8 @@
 
 - name: retrieve gluster-pod IPs
   command: >
-    kubectl get pods 
+    kubectl get pods
+    --namespace=storage-heketi
     -o jsonpath='{.items[?(@.spec.containers[*].name=="glusterfs")].status.podIP}'
   register: get_ips
 
@@ -31,7 +32,8 @@
     
 - name: retrieve gluster-server nodenames
   command: >
-    kubectl get pods 
+    kubectl get pods
+    --namespace=storage-heketi
     -o jsonpath='{.items[?(@.spec.containers[*].name=="glusterfs")].spec.nodeName}'
   register: get_nodenames
 
@@ -52,7 +54,7 @@
 - debug:
     msg: "{{ combined_host_ip }}"
 
-# var extra_disk_device is specified in inventory
+# var extra_disk_device is specified in inventory file
 - name: render topology
   become: yes
   template:
@@ -62,6 +64,7 @@
 - name: retrieve heketi endpoint
   command: >
     kubectl get endpoints
+    --namespace=storage-heketi
     -o jsonpath='{.items[?(@.metadata.name=="heketi")].subsets[*].addresses[*].ip}:{.items[?(@.metadata.name=="heketi")].subsets[*].ports[*].port}'
   register: get_endpoint
 

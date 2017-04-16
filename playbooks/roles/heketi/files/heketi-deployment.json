@@ -3,17 +3,11 @@
   "apiVersion": "v1",
   "items": [
     {
-	  "kind": "ServiceAccount",
-      "apiVersion": "v1",
-      "metadata": {
-         "name": "heketi-service-account"
-      }
-    },
-    {
       "kind": "Secret",
       "apiVersion": "v1",
       "metadata": {
         "name": "heketi-db-backup",
+        "namespace": "storage-heketi",
         "labels": {
           "glusterfs": "heketi-db",
           "heketi": "db"
@@ -29,6 +23,7 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "heketi",
+        "namespace": "storage-heketi",
         "labels": {
           "glusterfs": "heketi-service",
           "deploy-heketi": "support"
@@ -55,6 +50,7 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "heketi",
+        "namespace": "storage-heketi",
         "labels": {
           "glusterfs": "heketi-deployment"
         },
@@ -83,6 +79,10 @@
                   {
                     "name": "HEKETI_EXECUTOR",
                     "value": "kubernetes"
+                  },
+                  {
+                    "name": "HEKETI_KUBE_NAMESPACE",
+                    "value": "storage-heketi"
                   },
                   {
                     "name": "HEKETI_FSTAB",
