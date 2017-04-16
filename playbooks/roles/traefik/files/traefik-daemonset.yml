@@ -13,6 +13,9 @@ spec:
         k8s-app: traefik-ingress-lb
         name: traefik-ingress-lb
     spec:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
       hostNetwork: true # workaround
       terminationGracePeriodSeconds: 60
       containers:
