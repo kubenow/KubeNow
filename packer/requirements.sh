@@ -37,10 +37,10 @@ sudo apt-get install -y \
   linux-image-extra-$(uname -r) \
   linux-image-extra-virtual \
   docker-engine=1.12.5-0~ubuntu-xenial \
-  kubelet=1.5.2-00 \
-  kubeadm=1.6.0-alpha.0-2074-a092d8e0f95f52-00 \
-  kubectl=1.5.2-00 \
-  kubernetes-cni=0.3.0.1-07a8a2-00
+  kubelet=1.6.1-00 \
+  kubeadm=1.6.1-00 \
+  kubectl=1.6.1-00 \
+  kubernetes-cni=0.5.1-00
 
 echo "Installing other requirements..."
 # APT requirements
@@ -56,7 +56,16 @@ HELM_TGZ=helm-v2.1.0-linux-amd64.tar.gz
 wget -P /tmp/ https://kubernetes-helm.storage.googleapis.com/$HELM_TGZ
 tar -xf /tmp/$HELM_TGZ -C /tmp/
 sudo mv /tmp/linux-amd64/helm /usr/local/bin/
+rm -R /tmp/linux-amd64/
+
+# Heketi
+HEKETI_TGZ=heketi-client-v4.0.0.linux.amd64.tar.gz
+wget -P /tmp/ https://github.com/heketi/heketi/releases/download/v4.0.0/$HEKETI_TGZ
+tar -xf /tmp/$HEKETI_TGZ -C /tmp/
+sudo mv /tmp/heketi-client/bin/heketi-cli /usr/local/bin/
+sudo chmod 0755 /usr/local/bin/heketi-cli
+rm -R /tmp/heketi-client/
 
 echo "Pulling required Docker images..."
-sudo docker pull \
-  kubenow/gluster-server:0.1.0
+#sudo docker pull \
+#  kubenow/gluster-server:0.1.0
