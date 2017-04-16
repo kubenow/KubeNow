@@ -37,7 +37,6 @@ variable glusternode_count {default = 0}
 variable glusternode_instance_type {}
 variable glusternode_disk_size {}
 
-
 # Provider
 provider "aws" {
   access_key = "${var.aws_access_key_id}" 
