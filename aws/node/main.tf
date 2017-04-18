@@ -66,7 +66,7 @@ resource "aws_ebs_volume" "extra_disk" {
 # Attach extra disk (if created) Disk attaches as /dev/
 resource "aws_volume_attachment" "attach_extra_disk" {
   count       = "${var.extra_disk_size > 0 ? var.count : 0}"
-  device_name = "/dev/sdh"
+  device_name = "/dev/xvdh"
   volume_id   = "${element(aws_ebs_volume.extra_disk.*.id, count.index)}"
   instance_id = "${element(aws_instance.instance.*.id, count.index)}"
 }
