@@ -49,6 +49,7 @@ sudo apt-get install -y \
   daemon \
   attr \
   glusterfs-client \
+  nfs-common \
   jq
 
 # Helm
