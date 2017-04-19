@@ -1,9 +1,11 @@
 #!/bin/bash
 
-# Add labels to node key=value pairs separated by ','
 echo "Label nodes"
-sed -i 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--node-labels=${node_labels} |g' \
+if [ -n "$node_labels" ]
+then
+    sed -i 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--node-labels=${node_labels} |g' \
        /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+fi
    
 echo "Taint nodes"    
 if [ -n "$node_taints" ]
