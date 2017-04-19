@@ -49,6 +49,7 @@ module "network" {
 
 module "master" {
   node_labels = "role=master,role=edge"
+  node_taints = ""
   count = "1"
   disk_size = "${var.master_disk_size}"
   extra_disk_size = "0"
@@ -68,6 +69,7 @@ module "master" {
 
 module "edge" {
   node_labels = "role=edge"
+  node_taints = ""
   count = "${var.edge_count}"
   disk_size = "${var.edge_disk_size}"
   extra_disk_size = "0"
@@ -87,6 +89,7 @@ module "edge" {
 
 module "node" {
   node_labels = "role=node"
+  node_taints = ""
   count = "${var.node_count}"
   disk_size = "${var.node_disk_size}"
   extra_disk_size = "0"
@@ -106,6 +109,7 @@ module "node" {
 
 module "glusternode" {
   node_labels = "storagenode=glusterfs"
+  node_taints = "dedicated=fileserver:NoSchedule"
   count = "${var.glusternode_count}"
   disk_size = "${var.glusternode_disk_size}"
   extra_disk_size = "200"
