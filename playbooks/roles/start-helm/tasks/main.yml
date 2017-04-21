@@ -1,6 +1,5 @@
 ---
 - name: start helm
-  become: yes
   command: helm init
 
 - name: "get tiller-deploy pod name"
