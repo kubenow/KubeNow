@@ -12,8 +12,8 @@ variable ssh_user { default = "ubuntu" }
 variable ssh_key {}
 
 # Cloudflare settings
-variable cloudflare_email { default="" }
-variable cloudflare_token { default="" }
+variable cloudflare_email { default="nothing" }
+variable cloudflare_token { default="nothing" }
 variable cloudflare_domain { default="" }
 
 # Master settings
@@ -156,13 +156,17 @@ module "glusternode" {
   master_ip = "${element(module.master.local_ip_v4, 0)}"
 }
 
-# set cloudflare record (optional): only if var.cloudflare_token != "" 
+#
+# The code below should be identical for all cloud providers
+#
+
+# set cloudflare record (optional): only if var.cloudflare_domain != "" 
 # currentlty this is always including master as edge - but instead should probably be called twice
 # once for master (if role=edge) and once for edges
 module "cloudflare" {
   # count values can not be dynamically computed, that's why using
   # var.edge_count and not length(iplist)
-  record_count = "${var.cloudflare_token == "" ? 0 : var.master_is_edge ? var.edge_count + var.master_count : var.edge_count}"
+  record_count = "${var.cloudflare_domain == "" ? 0 : var.master_is_edge ? var.edge_count + var.master_count : var.edge_count}"
   source = "./cloudflare"
   cloudflare_email = "${var.cloudflare_email}"
   cloudflare_token = "${var.cloudflare_token}"
@@ -172,7 +176,6 @@ module "cloudflare" {
   # terraform interpolation is limited and can not return list in conditionals
   iplist = "${concat(module.edge.public_ip, module.master.public_ip)}"
 }
-
 
 # Generate ansible inventory
 resource "null_resource" "generate-inventory" {
@@ -200,7 +203,7 @@ resource "null_resource" "generate-inventory" {
     command =  "echo \"extra_disk_device=${element(concat(module.glusternode.extra_disk_device, list("")),0)}\" >> inventory"
   }
   provisioner "local-exec" {
-    command =  "echo \"domain=${format("%s.%s", var.cluster_prefix, var.cloudflare_domain)}\" >> inventory"
+    command =  "echo \"domain=${ format("%s.%s", var.cluster_prefix, var.cloudflare_domain) }\" >> inventory"
   }
   provisioner "local-exec" {
     command =  "echo \"nodes_count=${1 + var.edge_count + var.node_count + var.glusternode_count} \" >> inventory"
