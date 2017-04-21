@@ -23,3 +23,13 @@ node_disk_size = "20" # Size in GB
 edge_count = "2"
 edge_flavor = "n1-standard-1"
 edge_disk_size = "20" # Size in GB
+
+# Gluster configuration
+glusternode_count = "0"
+glusternode_instance_type = "n1-standard-1"
+glusternode_disk_size = "20" # Size in GB
+
+# Cloudflare DNS configuration (optional) leave token empty if you dont't want to use cloudflare
+cloudflare_email = "your-cloudflare-registered-email"
+cloudflare_token = ""
+cloudflare_domain = "your-domain.nu"
