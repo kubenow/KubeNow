@@ -1,0 +1,60 @@
+---
+- name: create heketi yaml directory
+  become: yes
+  file:
+    path: /etc/heketi/kubernetes
+    state: directory
+    mode: 0755
+    
+- name: copy heketi namespace config
+  become: yes
+  copy:
+    src: storage-heketi-namespace.yml
+    dest: "/etc/heketi/kubernetes/storage-heketi-namespace.yml"
+
+- name: create namespace
+  command: >
+    kubectl apply -f
+    /etc/heketi/kubernetes/storage-heketi-namespace.yml
+    
+- name: copy heketi service account config
+  become: yes
+  copy:
+    src: heketi-service-account.yml
+    dest: "/etc/heketi/kubernetes/heketi-service-account.yml"
+
+- name: create namespace
+  command: >
+    kubectl apply -f
+    /etc/heketi/kubernetes/heketi-service-account.yml
+
+- name: copy heketi configuration
+  become: yes
+  copy:
+    src: heketi-deployment.json
+    dest: "/etc/heketi/kubernetes/heketi-deployment.json"
+
+- name: start heketi
+  command: >
+    kubectl apply -f
+    /etc/heketi/kubernetes/heketi-deployment.json
+
+- name: wait for heketi to be Running
+  command: >
+    kubectl get pods --namespace=storage-heketi
+    -o jsonpath='{.items[?(@.spec.containers[*].name=="heketi")].status.phase}'
+  register: get_phase
+  until: get_phase.stdout | match('^(Running\s)*Running$')
+  # Wait for 10 minutes
+  retries: 120
+  delay: 5
+
+- name: wait for heketi to be Ready
+  command: >
+    kubectl get pods --namespace=storage-heketi
+    -o jsonpath='{.items[?(@.spec.containers[*].name=="heketi")].status.containerStatuses[*].ready}'
+  register: get_is_ready
+  until: get_is_ready.stdout | match( '^(true\s)*true$' )
+  # Wait for 10 minutes
+  retries: 120
+  delay: 5

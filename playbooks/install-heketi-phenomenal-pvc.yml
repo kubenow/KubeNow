@@ -1,0 +1,5 @@
+- hosts: master
+  gather_facts: False
+  roles:
+    - { role: heketi-pvc, tags: [ 'heketi-glusterfs' ] }
+

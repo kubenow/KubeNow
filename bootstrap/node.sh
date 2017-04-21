@@ -1,25 +1,23 @@
 #!/bin/bash
 
-SLEEPTIME=5 # Sec
-MAX_TRY_CONNECT_TIME=600 # Sec
+echo "Label nodes"
+if [ -n "$node_labels" ]
+then
+    sed -i 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--node-labels=${node_labels} |g' \
+       /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+fi
+   
+echo "Taint nodes"    
+if [ -n "$node_taints" ]
+then
+    sed -i 's|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--register-with-taints=${node_taints} |g' \
+       /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+fi
 
-cumulative_wait_time=0
+# reload and restart after systemd dropin edits
+systemctl daemon-reload
+systemctl restart kubelet
+
 echo "Try to join master..."
-while [ $cumulative_wait_time -lt $MAX_TRY_CONNECT_TIME ] ; do
+kubeadm join --token ${kubeadm_token} "${master_ip}:6443"
 
-  # Try to join the master
-  kubeadm join --token ${kubeadm_token} ${master_ip}
-  # If join exit code was OK then exit loop
-  if [ $? -eq 0 ]; then
-    echo "Joinined the master..."
-    exit 0
-  fi
-
-  echo "Sleep $SLEEPTIME before trying to join master again..."
-  sleep $SLEEPTIME
-  (( cumulative_wait_time += SLEEPTIME ))
-
-done
-
-echo "Could not join to master in $MAX_TRY_CONNECT_TIME seconds" >&2
-exit 1
