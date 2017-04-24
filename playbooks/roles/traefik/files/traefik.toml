@@ -6,4 +6,4 @@ defaultEntryPoints = ["http","https"]
 # Web configuration backend
 ################################################################
 [web]
-address = ":8081"
+address = ":8080"

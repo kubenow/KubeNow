@@ -17,12 +17,3 @@ node_flavor = "your-node-flavor"
 # Edge configuration
 edge_count = "2"
 edge_flavor = "your-edge-flavor"
-
-# Gluster configuration
-glusternode_count = "0"
-glusternode_flavor = "your-glusternode-flavor"
-
-# Cloudflare DNS configuration (optional) leave token empty if you dont't want to use cloudflare
-cloudflare_email = "your-cloudflare-registered-email"
-cloudflare_token = ""
-cloudflare_domain = "your-domain.nu"

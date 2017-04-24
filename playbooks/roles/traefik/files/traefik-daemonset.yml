@@ -16,25 +16,25 @@ spec:
       hostNetwork: true # workaround
       terminationGracePeriodSeconds: 60
       containers:
-      - image: traefik:v1.2.1
+      - image: containous/traefik:v1.0.3
         name: traefik-ingress-lb
         imagePullPolicy: Always
         volumeMounts:
-          - mountPath: "/config"
-            name: "config"
+          - mountPath: /etc/traefik
+            name: traefik-volume
+            readOnly: false
         resources:
           requests:
             cpu: 1
             memory: 1G
         args:
         - --web
-        - --web.address=:8081
         - --kubernetes
-        - --configfile=/config/traefik.toml
+        - --configFile=/etc/traefik/traefik.toml
         - --logLevel=DEBUG
       volumes:
-      - name: config
-        configMap:
-          name: traefik-conf
+        - hostPath:
+            path: /etc/traefik
+          name: traefik-volume
       nodeSelector:
         role: edge

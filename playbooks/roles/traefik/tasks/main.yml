@@ -6,18 +6,11 @@
     state: directory
     mode: 0755
 
-- name: copy traefik config file
+- name: copy traefik configuration
   become: yes
   copy:
     src: traefik.toml
     dest: "/etc/traefik"
-
-- name: create configmap from traefik config file
-  command: >
-    kubectl create configmap
-    traefik-conf
-    --namespace=kube-system
-    --from-file=/etc/traefik/traefik.toml
 
 - name: copy traefik DaemonSet configuration
   become: yes
@@ -29,3 +22,4 @@
   command: >
     kubectl apply -f
     /etc/traefik/traefik-daemonset.yml
+  when: inventory_hostname in groups['master']

@@ -1,6 +1,6 @@
 # Cluster configuration
 cluster_prefix = "kubenow" # Your cluster prefix
-KubeNow_image = "kubenow-v020" # ID of the AMI previously created with Packer
+KubeNow_image_id = "xxxxx-xxxxx" # ID of the AMI previously created with Packer
 kubeadm_token = "your-kubeadm-token" # You can run generate_kubetoken.sh to create a valid token
 ssh_key = "~/.ssh/id_rsa.pub" # Path to your public SSH key (for ssh node access)
 aws_region = "eu-west-1" # Some region
@@ -23,13 +23,3 @@ node_disk_size = "10" # Size in GB
 edge_count = "2"
 edge_instance_type = "t2.medium"
 edge_disk_size = "10" # Size in GB
-
-# Gluster configuration
-glusternode_count = "0"
-glusternode_instance_type = "t2.medium"
-glusternode_disk_size = "10" # Size in GB
-
-# Cloudflare DNS configuration (optional) leave token empty if you dont't want to use cloudflare
-cloudflare_email = "your-cloudflare-registered-email"
-cloudflare_token = ""
-cloudflare_domain = "your-domain.nu"
