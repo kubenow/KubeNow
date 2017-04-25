@@ -1,6 +1,6 @@
 # Cluster settings
 variable cluster_prefix {}
-variable KubeNow_image {}
+variable kubenow_image {}
 variable ssh_key {}
 variable external_network_uuid {}
 variable dns_nameservers { default="8.8.8.8,8.8.4.4" }
@@ -22,14 +22,14 @@ variable edge_count {}
 variable edge_flavor {}
 variable edge_flavor_id { default = ""}
 
-# Upload ssh-key to be used for access to the nodes
+# Upload SSH key to OpenStack
 module "keypair" {
   source = "./keypair"
   public_key = "${var.ssh_key}"
   name_prefix = "${var.cluster_prefix}"
 }
 
-# Create a network (and security group) with an externally attached router
+# Network (here would be nice with condition)
 module "network" {
   source = "./network"
   external_net_uuid = "${var.external_network_uuid}"
@@ -38,31 +38,60 @@ module "network" {
 }
 
 module "master" {
-  node_labels = ""
-  node_taints = ""
-  count = "${var.master_count}"
-  extra_disk_size = "0"
-  
+  # Core settings
   source = "./node"
+  count = "${var.master_count}"
   name_prefix = "${var.cluster_prefix}-master"
   flavor_name = "${var.master_flavor}"
-  assign_floating_ip = "true"
-  floating_ip_pool = "${var.floating_ip_pool}"
-  image_name = "${var.KubeNow_image}"
   flavor_id = "${var.master_flavor_id}"
+  image_name = "${var.KubeNow_image}"
+  # SSH settings
   keypair_name = "${module.keypair.keypair_name}"
+  # Network settings
   network_name = "${module.network.network_name}"
   secgroup_name = "${module.network.secgroup_name}"
-  kubeadm_token = "${var.kubeadm_token}"
+  assign_floating_ip = "true"
+  floating_ip_pool = "${var.floating_ip_pool}"
+  # Disk settings
+  extra_disk_size = "0"
+  # Bootstrap settings
   bootstrap_file = "bootstrap/master.sh"
+  kubeadm_token = "${var.kubeadm_token}"
+  node_labels = ""
+  node_taints = ""
   master_ip = ""
+}
+
+module "node" {
+  # Core settings
+  source = "./node"
+  count = "${var.node_count}"
+  name_prefix = "${var.cluster_prefix}-node"
+  flavor_name = "${var.node_flavor}"
+  flavor_id = "${var.node_flavor_id}"
+  image_name = "${var.KubeNow_image}"
+  # SSH settings
+  keypair_name = "${module.keypair.keypair_name}"
+  # Network settings
+  network_name = "${module.network.network_name}"
+  secgroup_name = "${module.network.secgroup_name}"
+  assign_floating_ip = "false"
+  floating_ip_pool = ""
+  # Disk settings
+  extra_disk_size = "0"
+  # Bootstrap settings
+  bootstrap_file = "bootstrap/node.sh"
+  kubeadm_token = "${var.kubeadm_token}"
+  node_labels = "role=node"
+  node_taints = ""
+  master_ip = "${element(module.master.local_ip_v4, 0)}"
 }
 
 module "edge" {
   node_labels = "role=edge"
   node_taints = ""
   extra_disk_size = "0"
-  
+
   source = "./node"
   name_prefix = "${var.cluster_prefix}-edge"
   count = "${var.edge_count}"
@@ -79,42 +108,17 @@ module "edge" {
   master_ip = "${element(module.master.local_ip_v4, 0)}"
 }
 
-module "node" {
-  node_labels = "role=node"
-  node_taints = ""
-  extra_disk_size = "0"
-  
-  source = "./node"
-  name_prefix = "${var.cluster_prefix}-node"
-  count = "${var.node_count}"
-  flavor_name = "${var.node_flavor}"
-  flavor_id = "${var.node_flavor_id}"
-  assign_floating_ip = "false"
-  floating_ip_pool = ""
-  image_name = "${var.KubeNow_image}"
-  keypair_name = "${module.keypair.keypair_name}"
-  network_name = "${module.network.network_name}"
-  secgroup_name = "${module.network.secgroup_name}"
-  kubeadm_token = "${var.kubeadm_token}"
-  bootstrap_file = "bootstrap/node.sh"
-  master_ip = "${element(module.master.local_ip_v4, 0)}"
-}
-
-
-#
-# The code below should be identical for all cloud providers
-#
-
-# Generate ansible inventory
+# Generate Ansible inventory (identical for each cloud provider)
 resource "null_resource" "generate-inventory" {
 
-  # Changes to any node ip rewrites inventory
+  # Changes to any node IP trigger inventory rewrite
   triggers {
     master_ips = "${join(",", module.master.local_ip_v4)}"
     node_ips = "${join(",", module.node.local_ip_v4)}"
     edge_ips = "${join(",", module.edge.local_ip_v4)}"
   }
 
+  # Write master
   provisioner "local-exec" {
     command =  "echo \"[master]\" > inventory"
   }
@@ -122,7 +126,8 @@ resource "null_resource" "generate-inventory" {
   provisioner "local-exec" {
     command =  "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", module.master.hostnames, module.master.public_ip))}\" >> inventory"
   }
-  
+
+  # Write edges
   provisioner "local-exec" {
     command =  "echo \"[edge]\" >> inventory"
   }
@@ -130,13 +135,13 @@ resource "null_resource" "generate-inventory" {
   provisioner "local-exec" {
     command =  "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", module.edge.hostnames, module.edge.public_ip))}\" >> inventory"
   }
-  
-  # Output some vars
+
+  # Write other variables
   provisioner "local-exec" {
     command =  "echo \"[master:vars]\" >> inventory"
   }
-  
   provisioner "local-exec" {
     command =  "echo \"nodes_count=${1 + var.edge_count + var.node_count} \" >> inventory"
   }
+
 }
