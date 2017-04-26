@@ -63,11 +63,11 @@ install:
   - sudo pip install --upgrade pip
   - >
       sudo pip install
-        ansible==${ANSIBLE_VERSION}
-        dnspython
-        j2cli
-        shade
-        apache-libcloud
+      ansible==${ANSIBLE_VERSION}
+      dnspython
+      j2cli
+      shade
+      apache-libcloud
 
 before_script:
 
