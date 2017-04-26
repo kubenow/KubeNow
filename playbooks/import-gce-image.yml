@@ -4,13 +4,8 @@
   vars:
     timeout: 1800
     credentials_file: "{{ lookup('file', credentials_file_path) }}"
+    img_version: "v020"
   tasks:
-  - name: get latest KubeNow release (git describe --abbrev=0 --tags)
-    command: git describe --abbrev=0 --tags
-    register: git_describe
-  - name: "figure out latest version"
-    set_fact:
-      img_version: "v{{git_describe.stdout | replace('\n','') | replace('.', '')}}"
   - name: "set image facts"
     set_fact:
       img_name: "kubenow-{{img_version}}"
