@@ -89,4 +89,4 @@ script:
   - ansible-playbook playbooks/infra-test.yml
 
 after_script:
-  - terraform destroy $HOST_CLOUD
+  - terraform destroy -force $HOST_CLOUD
