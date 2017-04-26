@@ -43,7 +43,7 @@ module "master" {
   count = "1"
   name_prefix = "${var.cluster_prefix}-master"
   flavor_name = "${var.master_flavor}"
-  image_name = "${var.KubeNow_image}"
+  image_name = "${var.kubenow_image}"
   zone = "${var.gce_zone}"
   # SSH settings
   ssh_user = "${var.ssh_user}"
@@ -52,7 +52,7 @@ module "master" {
   network_name = "${module.network.network_name}"
   # Disk settings
   disk_size = "${var.master_disk_size}"
-  extra_disk_size = "0"
+  #extra_disk_size = "0"
   # Bootstrap settings
   bootstrap_file = "bootstrap/master.sh"
   kubeadm_token = "${var.kubeadm_token}"
@@ -63,11 +63,11 @@ module "master" {
 
 module "node" {
   # Core settings
-  source = "./node"
+  source = "./node-extra-disk"
   count = "${var.node_count}"
   name_prefix = "${var.cluster_prefix}-node"
   flavor_name = "${var.node_flavor}"
-  image_name = "${var.KubeNow_image}"
+  image_name = "${var.kubenow_image}"
   zone = "${var.gce_zone}"
   # SSH settings
   ssh_user = "${var.ssh_user}"
@@ -76,7 +76,7 @@ module "node" {
   network_name = "${module.network.network_name}"
   # Disk settings
   disk_size = "${var.node_disk_size}"
-  extra_disk_size = "0"
+  extra_disk_size = "10"
   # Bootstrap settings
   bootstrap_file = "bootstrap/node.sh"
   kubeadm_token = "${var.kubeadm_token}"
@@ -91,7 +91,7 @@ module "edge" {
   count = "${var.edge_count}"
   name_prefix = "${var.cluster_prefix}-edge"
   flavor_name = "${var.edge_flavor}"
-  image_name = "${var.KubeNow_image}"
+  image_name = "${var.kubenow_image}"
   zone = "${var.gce_zone}"
   # SSH settings
   ssh_user = "${var.ssh_user}"
@@ -100,7 +100,7 @@ module "edge" {
   network_name = "${module.network.network_name}"
   # Disk settings
   disk_size = "${var.edge_disk_size}"
-  extra_disk_size = "0"
+  #extra_disk_size = "0"
   # Bootstrap settings
   bootstrap_file = "bootstrap/node.sh"
   kubeadm_token = "${var.kubeadm_token}"
