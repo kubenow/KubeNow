@@ -49,6 +49,9 @@ before_install:
   # Get secrets
   - git submodule update --init --recursive
 
+  # Install ca-certificate
+  sudo apt-get install ca-certificates
+
 install:
 
   # Install Terraform
