@@ -59,9 +59,6 @@ install:
   - sudo unzip /tmp/terraform.zip -d /usr/bin
   - sudo chmod +x /usr/bin/terraform
 
-  # Install ca-certificate
-  - sudo apt-get install ca-certificates
-
   # Install Ansible and pip deps
   - sudo pip install --upgrade pip
   - >
