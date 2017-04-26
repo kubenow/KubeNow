@@ -15,13 +15,15 @@ branches:
     - /^documentation\/.*$/
 
 env:
-  - TERRAFORM_VERSION=0.7.8
-  - ANSIBLE_VERSION=2.2.0.0
-  - IMAGE_VERSION=v202
-  - AWS_AMI_ID=ami-30251456
-  - HOST_CLOUD=openstack
-  - HOST_CLOUD=gce
-  - HOST_CLOUD=aws
+  global:
+    - TERRAFORM_VERSION=0.7.8
+    - ANSIBLE_VERSION=2.2.0.0
+    - IMAGE_VERSION=v202
+    - AWS_AMI_ID=ami-30251456
+  matrix:
+    - HOST_CLOUD=openstack
+    - HOST_CLOUD=gce
+    - HOST_CLOUD=aws
 
 git:
   submodules: false
