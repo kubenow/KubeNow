@@ -100,3 +100,4 @@ script:
 
 after_script:
   - terraform destroy -force $HOST_CLOUD
+  - ansible-playbook playbooks/clean-cloudflare.yml
