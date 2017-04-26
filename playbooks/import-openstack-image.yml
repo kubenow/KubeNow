@@ -1,4 +1,4 @@
-# requires glance
+# requires shade
 - hosts: localhost
   gather_facts: False
   vars:
