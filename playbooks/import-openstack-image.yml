@@ -16,8 +16,8 @@
         - delete local image
     - name: "upload image to OpenStack"
       os_image:
-        name: {{ image_name }}
-        filename: /tmp/{{ image_name }}.qcow2
+        name: "{{ image_name }}"
+        filename: "/tmp/{{ image_name }}.qcow2"
         container_format: bare
         disk_format: qcow2
         state: present
@@ -25,5 +25,5 @@
   handlers:
     - name: delete local image
       file:
-        path: /tmp/{{ image_name }}.qcow2
+        path: "/tmp/{{ image_name }}.qcow2"
         state: absent
