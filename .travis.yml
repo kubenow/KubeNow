@@ -73,14 +73,15 @@ before_script:
 
   # Render Terraform configuration
   - >
-      env | j2 --format=env secrets-kubenow/tfvars/"$HOST_CLOUD".tfvars.j2 >
+      env | j2 --format=env test/secrets-kubenow/tfvars/"$HOST_CLOUD".tfvars.j2 >
       ./terraform.tfvars
 
 script:
   # AWS doesn't need image import
   - >
       if [ $HOST_CLOUD = 'openstack' ] || [ $HOST_CLOUD = 'gce' ]; then
-        ansible-playbook playbooks/import-"$HOST_CLOUD"-image.yml
+        ansible-playbook -e "credentials_file_path=test/secrets-kubenow/host_cloud/gce-key.json" \
+        playbooks/import-"$HOST_CLOUD"-image.yml
       fi
   - terraform get $HOST_CLOUD
   - terraform apply $HOST_CLOUD
