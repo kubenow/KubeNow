@@ -14,7 +14,7 @@
         dest: /tmp/{{ image_name }}.qcow2
       notify:
         - delete local image
-    - name: download file from a file path
+    - name: "upload image to OpenStack"
       os_image:
         name: {{ image_name }}
         filename: /tmp/{{ image_name }}.qcow2
