@@ -61,9 +61,13 @@ install:
 
   # Install Ansible and pip deps
   - sudo pip install --upgrade pip
-  - sudo pip install ansible==2.2.0.0
-  - sudo pip install dnspython
-  - sudo pip install j2cli
+  - >
+      sudo pip install
+        ansible==${ANSIBLE_VERSION}
+        dnspython
+        j2cli
+        shade
+        apache-libcloud
 
 before_script:
 
@@ -86,7 +90,7 @@ script:
   # AWS doesn't need image import
   - >
       if [ $HOST_CLOUD = 'openstack' ] || [ $HOST_CLOUD = 'gce' ]; then
-        ansible-playbook -e "credentials_file_path=$PWD/test/secrets-kubenow/host_cloud/gce-key.json" \
+        ansible-playbook -e "credentials_file_path=$PWD/test/secrets-kubenow/host_cloud/gce-key.json"
         playbooks/import-"$HOST_CLOUD"-image.yml
       fi
   - terraform get $HOST_CLOUD
