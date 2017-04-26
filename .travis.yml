@@ -18,7 +18,7 @@ env:
   global:
     - TERRAFORM_VERSION=0.7.8
     - ANSIBLE_VERSION=2.2.0.0
-    - IMAGE_VERSION=v202
+    - IMAGE_VERSION=v020
     - AWS_AMI_ID=ami-30251456
   matrix:
     - HOST_CLOUD=openstack
@@ -86,7 +86,6 @@ before_script:
       playbooks/roles/cloudflare/vars/conf.yml
 
 script:
-  - set -e # exit on first error
   # AWS doesn't need image import
   - >
       if [ $HOST_CLOUD = 'openstack' ] || [ $HOST_CLOUD = 'gce' ]; then
@@ -97,7 +96,6 @@ script:
   - terraform apply $HOST_CLOUD
   - ansible-playbook playbooks/install-core.yml
   - ansible-playbook playbooks/infra-test.yml
-  - set +e # run after_script even if error
 
 after_script:
   - terraform destroy -force $HOST_CLOUD
