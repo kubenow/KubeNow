@@ -6,17 +6,10 @@
   vars:
     cf_zone: uservices.cloud
   pre_tasks:
-    - name: get KubeNow version (git describe --tags --always)
-      command: git describe --tags --always
-      register: git_describe
-    - name: "set version name"
-      set_fact:
-        current_version: "v{{git_describe.stdout | replace('\n','') | replace('.', '')}}"
-    - name: "set keep_image flag"
-      set_fact:
-        keep_image: true
-      when: current_version | match("^v[0-9]{3}([ab][0-9]{1,}|rc[0-9]{1,})?$")
+    - name: import KubeNow image ({{host_cloud}})
+      command: ansible-playbook playbooks/import-{{host_cloud}}-image.yml
+      args:
+        chdir: "{{playbook_dir}}/.."
   roles:
-    - test-packer
     - test-terraform
     - test-core
