@@ -73,6 +73,9 @@ install:
       ndg-httpsclient
       pyasn1
 
+  # ca-certificates is needed for downloads to work properly
+  - sudo apt-get install ca-certificates
+
 before_script:
 
   # Source test environment
