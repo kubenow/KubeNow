@@ -89,7 +89,6 @@ before_script:
       playbooks/roles/cloudflare/vars/conf.yml
 
 script:
-  - set -e # exit on first error
   # AWS doesn't need image import
   - >
       if [ $HOST_CLOUD = 'openstack' ] || [ $HOST_CLOUD = 'gce' ]; then
