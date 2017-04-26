@@ -50,7 +50,7 @@ before_install:
   - git submodule update --init --recursive
 
   # Install ca-certificate
-  sudo apt-get install ca-certificates
+  - sudo apt-get install ca-certificates
 
 install:
 
