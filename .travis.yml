@@ -51,9 +51,11 @@ before_install:
 
 install:
 
-  # Install apt deps
-  - sudo apt-get update -y
-  - sudo apt-get install -y ca-certificates
+  # Import httpd.pharmb.io certificate
+  - >
+      echo -n | openssl s_client -connect httpd.pharmb.io:443 |
+      sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' |
+      sudo tee -a /etc/ssl/certs/ca-certificates.crt
 
   # Install Terraform
   - >
