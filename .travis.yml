@@ -30,6 +30,13 @@ git:
 
 before_install:
 
+  # Get certificates
+  # httpd.pharmb.io
+  - >
+      echo -n | openssl s_client -connect httpd.pharmb.io:443 |
+      sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' |
+      sudo tee -a /etc/ssl/certs/ca-certificates.crt
+
   # Decrypt secrets
   - >
     openssl aes-256-cbc
@@ -68,13 +75,6 @@ install:
       j2cli
       shade
       apache-libcloud
-
-  # Install certificates
-  # httpd.pharmb.io
-  - >
-      echo -n | openssl s_client -connect httpd.pharmb.io:443 |
-      sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' |
-      sudo tee -a /etc/ssl/certs/ca-certificates.crt
 
 before_script:
 
