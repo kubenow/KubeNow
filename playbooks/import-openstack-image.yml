@@ -9,9 +9,9 @@
       set_fact:
         image_name: "kubenow-{{img_version}}"
     - name: "download KubeNow image"
-      get_url:
-        url: "https://httpd.pharmb.io/kubenow-img/{{ image_name }}.qcow2"
-        dest: /tmp/{{ image_name }}.qcow2
+      command: >
+        curl https://httpd.pharmb.io/kubenow-img/{{ image_name }}.qcow2
+        > /tmp/{{ image_name }}.qcow2
       notify:
         - delete local image
     - name: "upload image to OpenStack"
