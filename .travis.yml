@@ -30,13 +30,6 @@ git:
 
 before_install:
 
-  # Get certificates
-  # httpd.pharmb.io
-  - >
-      echo -n | openssl s_client -connect httpd.pharmb.io:443 |
-      sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' |
-      sudo tee -a /etc/ssl/certs/ca-certificates.crt
-
   # Decrypt secrets
   - >
     openssl aes-256-cbc
@@ -57,6 +50,10 @@ before_install:
   - git submodule update --init --recursive
 
 install:
+
+  # Install apt deps
+  - apt-get update -y
+  - sudo apt-get install -y ca-certificates
 
   # Install Terraform
   - >
