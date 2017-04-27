@@ -52,7 +52,7 @@ before_install:
 install:
 
   # Install apt deps
-  - apt-get update -y
+  - sudo apt-get update -y
   - sudo apt-get install -y ca-certificates
 
   # Install Terraform
