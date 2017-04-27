@@ -1,6 +1,4 @@
 language: python # (Ansible)
-python:
-  - "3.6"
 
 sudo: required
 
