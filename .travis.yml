@@ -68,13 +68,6 @@ install:
       j2cli
       shade
       apache-libcloud
-      urllib3
-      pyopenssl
-      ndg-httpsclient
-      pyasn1
-
-  # ca-certificates is needed for downloads to work properly
-  - sudo apt-get install ca-certificates
 
 before_script:
 
