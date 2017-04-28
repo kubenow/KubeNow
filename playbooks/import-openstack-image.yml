@@ -17,6 +17,16 @@
         > /tmp/{{ image_name }}.qcow2
       notify:
         - delete local image
+      async: "{{timeout}}"
+      poll: 0
+      register: kubenow_download
+      when: openstack_image == None
+    - name: "wait for image download to be done"
+      async_status: jid={{ kubenow_download.ansible_job_id }}
+      register: download_status
+      until: download_status.finished
+      retries: "{{((timeout | int) / 60) | int}}"
+      delay: 60
       when: openstack_image == None
     - name: "upload image to OpenStack"
       os_image:
