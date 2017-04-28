@@ -97,6 +97,8 @@ script:
       if [ $HOST_CLOUD = 'openstack' ] || [ $HOST_CLOUD = 'gce' ]; then
         ansible-playbook \
         -i localhost \
+        # This fixes get_url SSL verification
+        -e ansible_python_interpreter=$PYBIN \
         -e "credentials_file_path=$PWD/test/secrets-kubenow/host_cloud/gce-key.json" \
         playbooks/import-"$HOST_CLOUD"-image.yml
       fi
