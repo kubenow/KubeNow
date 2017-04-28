@@ -65,7 +65,6 @@ install:
   - >
       sudo pip install
       ansible==${ANSIBLE_VERSION}
-      dnspython
       j2cli
 
 before_script:
