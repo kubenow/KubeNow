@@ -16,7 +16,6 @@ branches:
 
 env:
   global:
-    - PYBIN=/home/travis/virtualenv/python2.7.12/bin/python2.7
     - TERRAFORM_VERSION=0.7.8
     - ANSIBLE_VERSION=2.2.0.0
     - IMAGE_VERSION=v020
@@ -25,6 +24,12 @@ env:
     - HOST_CLOUD=openstack
     - HOST_CLOUD=gce
     - HOST_CLOUD=aws
+
+# This fixes get_url SSL verification
+matrix:
+  include:
+    - python: 2.7
+      env: PYBIN=/home/travis/virtualenv/python2.7.12/bin/python2.7
 
 git:
   submodules: false
@@ -96,7 +101,7 @@ script:
   - >
       if [ $HOST_CLOUD = 'openstack' ] || [ $HOST_CLOUD = 'gce' ]; then
         ansible-playbook \
-        -i localhost \
+        -i localhost \ # This fixes get_url SSL verification
         -e "credentials_file_path=$PWD/test/secrets-kubenow/host_cloud/gce-key.json" \
         playbooks/import-"$HOST_CLOUD"-image.yml
       fi
