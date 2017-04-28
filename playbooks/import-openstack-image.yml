@@ -1,12 +1,10 @@
+# requires shade
 - hosts: localhost
   gather_facts: False
   vars:
     img_version: "v020"
     timeout: 1800
   tasks:
-    - name: "ensure shade is installed"
-      pip:
-        name: shade
     - name: "set image facts"
       set_fact:
         image_name: "kubenow-{{img_version}}"

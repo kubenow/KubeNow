@@ -67,6 +67,8 @@ install:
       j2cli
       dnspython
       jmespath
+      apache-libcloud
+      shade
 
 before_script:
 

@@ -1,3 +1,4 @@
+# requires apache-libcloud
 - hosts: localhost
   gather_facts: False
   vars:
@@ -5,9 +6,6 @@
     credentials_file: "{{ lookup('file', credentials_file_path) }}"
     img_version: "v020"
   tasks:
-  - name: "ensure apache-libcloud is installed"
-    pip:
-      name: apache-libcloud
   - name: "set image facts"
     set_fact:
       img_name: "kubenow-{{img_version}}"
