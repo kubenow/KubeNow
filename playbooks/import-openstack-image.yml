@@ -13,7 +13,7 @@
     - name: "download KubeNow image"
       command: >
         curl https://httpd.pharmb.io/kubenow-img/{{ image_name }}.qcow2
-        /tmp/{{ image_name }}.qcow2
+        > /tmp/{{ image_name }}.qcow2
       notify:
         - delete local image
       async: "{{timeout}}"
