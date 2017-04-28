@@ -70,7 +70,7 @@ install:
 
   # This needs to be installed with PYBIN env
   - >
-      ansible -i localhost
+      ansible localhost
       -e ansible_python_interpreter=$PYBIN
       -m pip -a 'name=jmespath'
 
