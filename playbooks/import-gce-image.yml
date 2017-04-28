@@ -8,9 +8,9 @@
   - name: "ensure apache-libcloud is installed"
     pip:
       name: apache-libcloud
-  - name: "ensure dnspython is installed"
+  - name: "ensure jmespath is installed"
     pip:
-      name: dnspython
+      name: jmespath
   - name: "set image facts"
     set_fact:
       img_name: "kubenow-{{img_version}}"
