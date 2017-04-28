@@ -67,8 +67,6 @@ install:
       ansible==${ANSIBLE_VERSION}
       dnspython
       j2cli
-      shade
-      apache-libcloud
 
 before_script:
 
