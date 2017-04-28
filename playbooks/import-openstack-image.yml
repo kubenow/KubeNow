@@ -7,6 +7,10 @@
     - name: "ensure shade is installed"
       pip:
         name: shade
+    - name: "ensure urllib3 is updated"
+      pip:
+        name: urllib3
+        version: 1.21
     - name: "set image facts"
       set_fact:
         image_name: "kubenow-{{img_version}}"
