@@ -14,7 +14,7 @@
     - name: "download KubeNow image"
       command: >
         curl https://s3.amazonaws.com/kubenow-us-east-1/{{ image_name }}.qcow2
-        > /tmp/{{ image_name }}.qcow2
+        -o /tmp/{{ image_name }}.qcow2
       notify:
         - delete local image
       async: "{{timeout}}"
