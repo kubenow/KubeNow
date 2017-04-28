@@ -22,7 +22,7 @@
       register: download_status
       # loop until build finishes
       until: download_status.finished
-      retries: "{{(timeout | int) / 60}}" 
+      retries: "{{((timeout | int) / 60) | int}}" 
       delay: 60
     - name: "upload image to OpenStack"
       os_image:
