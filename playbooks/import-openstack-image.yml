@@ -15,7 +15,15 @@
       notify:
         - delete local image
       async: "{{timeout}}"
-      poll: 10
+      poll: 0
+      register: kubenow_download
+    - name: "wait for image download to be done"
+      async_status: jid={{ kubenow_download.ansible_job_id }}
+      register: download_status
+      # loop until build finishes
+      until: download_status.finished
+      retries: "{{(timeout | int) / 60}}" 
+      delay: 60
     - name: "upload image to OpenStack"
       os_image:
         name: "{{ image_name }}"
