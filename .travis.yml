@@ -70,6 +70,11 @@ install:
       shade
       apache-libcloud
 
+  # This fixes get_url SSL verification
+  - >
+      ansible all -i localhost, -c local -m setup -a 'filter=ansible_python'
+      -e ansible_python_interpreter=$PYBIN
+
 before_script:
 
   # Source test environment
