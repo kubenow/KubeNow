@@ -16,6 +16,7 @@ branches:
 
 env:
   global:
+    - PYBIN=/home/travis/virtualenv/python2.7.12/bin/python2.7
     - TERRAFORM_VERSION=0.7.8
     - ANSIBLE_VERSION=2.2.0.0
     - IMAGE_VERSION=v020

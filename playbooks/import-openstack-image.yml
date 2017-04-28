@@ -9,11 +9,13 @@
       set_fact:
         image_name: "kubenow-{{img_version}}"
     - name: "download KubeNow image"
-      command: >
-        curl https://httpd.pharmb.io/kubenow-img/{{ image_name }}.qcow2
-        > /tmp/{{ image_name }}.qcow2
+      get_url:
+        url: "https://httpd.pharmb.io/kubenow-img/{{ image_name }}.qcow2"
+        dest: /tmp/{{ image_name }}.qcow2
       notify:
         - delete local image
+      async: "{{timeout}}"
+      poll: 10
     - name: "upload image to OpenStack"
       os_image:
         name: "{{ image_name }}"
@@ -22,6 +24,8 @@
         disk_format: qcow2
         state: present
         timeout: "{{timeout}}"
+      async: "{{timeout}}"
+      poll: 10
   handlers:
     - name: delete local image
       file:
