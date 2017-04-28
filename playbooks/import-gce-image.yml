@@ -19,8 +19,8 @@
       GCE_EMAIL: "{{credentials_file | json_query('[client_email][0]')}}"
       GCE_PROJECT: "{{credentials_file | json_query('[project_id][0]')}}"
       GCE_CREDENTIALS_FILE_PATH: "{{credentials_file_path}}"
-      async: "{{timeout}}"
-      poll: 0
+    async: "{{timeout}}"
+    poll: 0
     register: kubenow_upload
   - name: "wait for image upload to be done"
     async_status: jid={{ kubenow_upload.ansible_job_id }}
