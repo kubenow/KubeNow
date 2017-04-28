@@ -66,6 +66,13 @@ install:
       sudo pip install
       ansible==${ANSIBLE_VERSION}
       j2cli
+      dnspython
+
+  # This needs to be installed with PYBIN env
+  - >
+      ansible -i localhost
+      -e ansible_python_interpreter=$PYBIN
+      -m pip -a 'name=jmespath'
 
 before_script:
 
