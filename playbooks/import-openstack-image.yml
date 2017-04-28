@@ -10,6 +10,9 @@
     - name: "set image facts"
       set_fact:
         image_name: "kubenow-{{img_version}}"
+    - name: "check if image is present in OpenStack"
+      os_image_facts:
+        image: "{{ image_name }}"
     - name: "download KubeNow image"
       command: >
         curl https://httpd.pharmb.io/kubenow-img/{{ image_name }}.qcow2
@@ -19,12 +22,14 @@
       async: "{{timeout}}"
       poll: 0
       register: kubenow_download
+      when: openstack_image !=null
     - name: "wait for image download to be done"
       async_status: jid={{ kubenow_download.ansible_job_id }}
       register: download_status
       until: download_status.finished
       retries: "{{((timeout | int) / 60) | int}}"
       delay: 60
+      when: openstack_image !=null
     - name: "upload image to OpenStack"
       os_image:
         name: "{{ image_name }}"
@@ -36,12 +41,14 @@
       async: "{{timeout}}"
       poll: 0
       register: kubenow_upload
+      when: openstack_image !=null
     - name: "wait for image upload to be done"
       async_status: jid={{ kubenow_upload.ansible_job_id }}
       register: upload_status
       until: upload_status.finished
       retries: "{{((timeout | int) / 60) | int}}"
       delay: 60
+      when: openstack_image !=null
   handlers:
     - name: delete local image
       file:
