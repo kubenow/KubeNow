@@ -14,6 +14,9 @@ variable network_name {}
 
 # Disk settings
 variable disk_size {}
+variable extra_disk_size { default=0 }
+variable extra_disk_type { default="pd-ssd" }
+variable extra_disk_name { default="extra-disk" }
 
 # Bootstrap settings
 variable bootstrap_file {}
@@ -33,7 +36,16 @@ data "template_file" "instance_bootstrap" {
   }
 }
 
-# Instance without extra disk
+# Create extra disk (always due to limitation with Terraform GCE modules)
+resource "google_compute_disk" "extra_standard_disk" {
+  count = "${var.count}"
+  name = "${var.name_prefix}-extra-${format("%03d", count.index)}"
+  type = "${var.extra_disk_type}"
+  zone = "${var.zone}"
+  size = "${var.extra_disk_size <= 0 ? 1 : var.extra_disk_size}"
+}
+
+# Instance with extra disk
 resource "google_compute_instance" "instance" {
   count = "${var.count}"
   name = "${var.name_prefix}-${format("%03d", count.index)}"
@@ -57,12 +69,18 @@ resource "google_compute_instance" "instance" {
     ssh_user = "${var.ssh_user}"
     user-data = "${data.template_file.instance_bootstrap.rendered}"
   }
-  
+
+  # Extra disk
+  disk {
+    disk = "${element(google_compute_disk.extra_standard_disk.*.name, count.index)}"
+    device_name = "${var.extra_disk_name}"
+    auto_delete = true
+  }
 }
 
 # Module outputs
 output "extra_disk_device" {
-  value = ["${list("none")}"]
+  value = ["${list("google-${var.extra_disk_name}")}"]
 }
 output "local_ip_v4" {
   value = ["${google_compute_instance.instance.*.network_interface.0.address}"]

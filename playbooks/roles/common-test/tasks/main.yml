@@ -1,10 +1,28 @@
-- name: "get edge labels"
+- name: "get edge labels from inventory group"
+  command: >
+    kubectl get nodes {{ groups['edge'] | join(' ') }}
+    -o jsonpath='{@..metadata.labels.role}'
+  register: edge_roles_group
+  when: edge_names is undefined
+
+- name: "set edge_roles from inventory group"
+  set_fact:
+    edge_roles: "{{ edge_roles_group.stdout }}"
+  when: edge_names is undefined
+
+- name: "get edge labels from inventory variable"
   command: >
     kubectl get nodes {{ edge_names }}
     -o jsonpath='{@..metadata.labels.role}'
-  register: get_edge_roles
+  register: edge_roles_var
+  when: edge_names is defined
+
+- name: "set edge_roles from inventory variable"
+  set_fact:
+    edge_roles: "{{ edge_roles_var.stdout }}"
+  when: edge_names is defined
 
 - name: "test edge labels"
   fail:
-    msg: "unexpected edge lables: {{get_edge_roles.stdout}}"
-  when: not (get_edge_roles.stdout | match('^(edge\s)*edge$'))
+    msg: "unexpected edge lables: {{edge_roles}}"
+  when: not (edge_roles | match('^(edge\s)*edge$'))

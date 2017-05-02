@@ -16,7 +16,7 @@ branches:
 
 env:
   global:
-    - TERRAFORM_VERSION=0.7.8
+    - TERRAFORM_VERSION=0.9.4
     - ANSIBLE_VERSION=2.2.0.0
     - IMAGE_VERSION=v020
     - AWS_AMI_ID=ami-30251456
