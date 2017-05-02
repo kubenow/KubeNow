@@ -55,7 +55,7 @@ resource "aws_instance" "instance" {
   }
 
   tags {
-    Name = "${var.name_prefix}-node-${format("%03d", count.index)}"
+    Name = "${var.name_prefix}-${format("%03d", count.index)}"
     sshUser = "${var.ssh_user}"
   }
 }
