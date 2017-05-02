@@ -99,7 +99,6 @@ module "edge" {
   network_name = "${module.network.network_name}"
   # Disk settings
   disk_size = "${var.edge_disk_size}"
-  #extra_disk_size = "0"
   # Bootstrap settings
   bootstrap_file = "bootstrap/node.sh"
   kubeadm_token = "${var.kubeadm_token}"
