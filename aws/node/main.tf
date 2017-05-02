@@ -46,6 +46,7 @@ resource "aws_instance" "instance" {
   key_name = "${var.ssh_keypair_name}"
   vpc_security_group_ids = ["${var.security_group_id}"]
   subnet_id = "${var.subnet_id}"
+  private_dns = "${var.name_prefix}-${format("%03d", count.index)}"
   user_data = "${data.template_file.instance_bootstrap.rendered}"
 
   root_block_device {
