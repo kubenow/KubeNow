@@ -12,6 +12,13 @@
   register: get_edge_roles
   when: edge_names is defined
 
+- name: "get roles from stdout"
+  set_fact:
+    edge_roles: get_edge_roles.stdout
+
+- name: "print roles"
+  debug: var=edge_roles
+
 - name: "test edge labels"
   fail:
     msg: "unexpected edge lables: {{get_edge_roles.stdout}}"
