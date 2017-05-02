@@ -1,6 +1,6 @@
 - name: "get edge labels"
   command: >
-    kubectl get nodes {{ edge_names }}
+    kubectl get nodes {{ groups['edge'] | join(' ') }}
     -o jsonpath='{@..metadata.labels.role}'
   register: get_edge_roles
 
