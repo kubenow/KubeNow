@@ -15,11 +15,8 @@
 - name: "get roles from stdout"
   set_fact:
     edge_roles: get_edge_roles.stdout
-
-- name: "print roles"
-  debug: var=edge_roles
-
+    
 - name: "test edge labels"
   fail:
-    msg: "unexpected edge lables: {{get_edge_roles.stdout}}"
-  when: not (get_edge_roles.stdout | match('^(edge\s)*edge$'))
+    msg: "unexpected edge lables: {{edge_roles}}"
+  when: not (edge_roles | match('^(edge\s)*edge$'))
