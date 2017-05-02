@@ -1,4 +1,0 @@
-- name: "terraform destroy {{host_cloud}}"
-  command: terraform destroy -force {{host_cloud}}
-  args:
-    chdir: "{{playbook_dir}}/.."
