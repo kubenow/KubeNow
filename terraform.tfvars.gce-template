@@ -1,6 +1,6 @@
 # Cluster configuration
 cluster_prefix = "kubenow" # Your cluster prefix
-KuberNow_image = "kubenow-v020" # Name of the image created with Packer
+kubenow_image = "kubenow-v020" # Name of the image created with Packer
 kubeadm_token = "your-kubeadm-token" # You can run generate_kubetoken.sh to create a valid token
 ssh_key = "~/.ssh/id_rsa.pub" # Path to your public SSH key (for ssh node access)
 
