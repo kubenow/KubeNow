@@ -62,7 +62,7 @@ module "master" {
 
 module "node" {
   # Core settings
-  source = "./node-extra-disk"
+  source = "./node"
   count = "${var.node_count}"
   name_prefix = "${var.cluster_prefix}-node"
   flavor_name = "${var.node_flavor}"
@@ -75,7 +75,6 @@ module "node" {
   network_name = "${module.network.network_name}"
   # Disk settings
   disk_size = "${var.node_disk_size}"
-  extra_disk_size = "10"
   # Bootstrap settings
   bootstrap_file = "bootstrap/node.sh"
   kubeadm_token = "${var.kubeadm_token}"
