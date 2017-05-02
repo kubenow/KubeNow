@@ -157,5 +157,9 @@ resource "null_resource" "generate-inventory" {
   provisioner "local-exec" {
     command =  "echo \"nodes_count=${1 + var.edge_count + var.node_count} \" >> inventory"
   }
+  provisioner "local-exec" {
+    # generates aws hostnames (e.g. ip-000-111-222-333) from ip-numbers
+    command =  "echo 'edge_names=\"${replace(join(" ",formatlist("ip-%s", module.edge.*.private_ip)),".","-")}\"' >> inventory"
+  }
 
 }

@@ -1,8 +1,16 @@
-- name: "get edge labels"
+- name: "get edge labels from inventory group"
   command: >
     kubectl get nodes {{ groups['edge'] | join(' ') }}
     -o jsonpath='{@..metadata.labels.role}'
   register: get_edge_roles
+  when: edge_names is undefined
+
+- name: "get edge labels from inventory variable"
+  command: >
+    kubectl get nodes {{ edge_names }}
+    -o jsonpath='{@..metadata.labels.role}'
+  register: get_edge_roles
+  when: edge_names is defined
 
 - name: "test edge labels"
   fail:
