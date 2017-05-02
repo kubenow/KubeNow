@@ -44,7 +44,7 @@ module "master" {
   name_prefix = "${var.cluster_prefix}-master"
   flavor_name = "${var.master_flavor}"
   flavor_id = "${var.master_flavor_id}"
-  image_name = "${var.KubeNow_image}"
+  image_name = "${var.kubenow_image}"
   # SSH settings
   keypair_name = "${module.keypair.keypair_name}"
   # Network settings
@@ -69,7 +69,7 @@ module "node" {
   name_prefix = "${var.cluster_prefix}-node"
   flavor_name = "${var.node_flavor}"
   flavor_id = "${var.node_flavor_id}"
-  image_name = "${var.KubeNow_image}"
+  image_name = "${var.kubenow_image}"
   # SSH settings
   keypair_name = "${module.keypair.keypair_name}"
   # Network settings
@@ -99,7 +99,7 @@ module "edge" {
   flavor_id = "${var.edge_flavor_id}"
   assign_floating_ip = "true"
   floating_ip_pool = "${var.floating_ip_pool}"
-  image_name = "${var.KubeNow_image}"
+  image_name = "${var.kubenow_image}"
   keypair_name = "${module.keypair.keypair_name}"
   network_name = "${module.network.network_name}"
   secgroup_name = "${module.network.secgroup_name}"
