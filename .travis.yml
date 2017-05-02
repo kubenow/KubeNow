@@ -15,11 +15,21 @@ branches:
     - /^documentation\/.*$/
 
 env:
-  - HOST_CLOUD=openstack
-  - HOST_CLOUD=gce
-  - HOST_CLOUD=aws
+  global:
+    - TERRAFORM_VERSION=0.7.8
+    - ANSIBLE_VERSION=2.2.0.0
+    - IMAGE_VERSION=v020
+    - AWS_AMI_ID=ami-30251456
+  matrix:
+    - HOST_CLOUD=openstack
+    - HOST_CLOUD=gce
+    - HOST_CLOUD=aws
+
+git:
+  submodules: false
 
 before_install:
+
   # Decrypt secrets
   - >
     openssl aes-256-cbc
@@ -28,62 +38,67 @@ before_install:
     -in test/secret.enc
     -out test/secret.tgz
     -d
+
   # Extract secrets
   - tar xzvf test/secret.tgz -C test
+
   # Add the keypair to the agent
   - eval "$(ssh-agent -s)"
   - ssh-add test/secret/kubenow-ci
+
   # Get secrets
-  - git clone git@github.com:mcapuccini/secrets-kubenow.git test/secrets-kubenow
+  - git submodule update --init --recursive
 
 install:
 
-  # INSTALL DEPS
-  # Install deps by HashiCorp
+  # Install Terraform
   - >
       curl
-      https://releases.hashicorp.com/packer/0.12.3/packer_0.12.3_linux_amd64.zip
-      > /tmp/packer.zip
-  - >
-      curl
-      https://releases.hashicorp.com/terraform/0.7.8/terraform_0.7.8_linux_amd64.zip
+      https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
       > /tmp/terraform.zip
-  - sudo unzip /tmp/packer.zip -d /usr/bin
   - sudo unzip /tmp/terraform.zip -d /usr/bin
-  - sudo chmod +x /usr/bin/packer
   - sudo chmod +x /usr/bin/terraform
-  # Install Ansible
-  - sudo pip install --upgrade pip
-  - sudo pip install ansible==2.2.0.0
-  # Install other deps
-  - sudo pip install dnspython
-  # Install OpenStack deps
-  - pip install python-glanceclient
-  # Install GCE deps
-  - export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
-  - >
-      echo "deb https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" |
-      sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-  - >
-      curl https://packages.cloud.google.com/apt/doc/apt-key.gpg |
-      sudo apt-key add -
-  - sudo apt-get update && sudo apt-get install google-cloud-sdk
-  # Install AWS deps
-  - sudo pip install awscli
 
-  # TEST ENV LOGIN
-  # Source CityCloud RC file
+  # Install Ansible and pip deps
+  - sudo pip install --upgrade pip
+  - >
+      sudo pip install
+      ansible==${ANSIBLE_VERSION}
+      j2cli
+      dnspython
+      jmespath
+      apache-libcloud
+      shade
+
+before_script:
+
+  # Source test environment
   - source test/secrets-kubenow/host_cloud/CityCloud.sh
-  # GCE login
-  - >
-      gcloud auth activate-service-account
-      12202776487-compute@developer.gserviceaccount.com
-      --key-file=test/secrets-kubenow/host_cloud/gce-key.json
-  - >
-      gcloud auth login 12202776487-compute@developer.gserviceaccount.com
-      --project phenomenal-1145 -q
-  # AWS login
   - source test/secrets-kubenow/host_cloud/aws.sh
 
+  # Render Terraform configuration
+  - >
+      env | j2 --format=env test/secrets-kubenow/tfvars/"$HOST_CLOUD".tfvars.j2 >
+      ./terraform.tfvars
+
+  # Render Cloudflare configuration
+  - >
+      env | j2 --format=env test/secrets-kubenow/cloudflare/conf.yml.j2 >
+      playbooks/roles/cloudflare/vars/conf.yml
+
 script:
-  - ansible-playbook -e "host_cloud=$HOST_CLOUD" test/integration-test.yml
+  # AWS doesn't need image import
+  - >
+      if [ $HOST_CLOUD = 'openstack' ] || [ $HOST_CLOUD = 'gce' ]; then
+        ansible-playbook \
+        -e "credentials_file_path=$PWD/test/secrets-kubenow/host_cloud/gce-key.json" \
+        playbooks/import-"$HOST_CLOUD"-image.yml
+      fi
+  - terraform get $HOST_CLOUD
+  - terraform apply $HOST_CLOUD
+  - ansible-playbook playbooks/install-core.yml
+  - ansible-playbook playbooks/infra-test.yml
+
+after_script:
+  - terraform destroy -force $HOST_CLOUD
+  - ansible-playbook playbooks/clean-cloudflare.yml

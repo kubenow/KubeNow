@@ -1,16 +1,11 @@
-# requires apache-libcloud (python)
+# requires apache-libcloud
 - hosts: localhost
   gather_facts: False
   vars:
     timeout: 1800
     credentials_file: "{{ lookup('file', credentials_file_path) }}"
+    img_version: "v020"
   tasks:
-  - name: get latest KubeNow release (git describe --abbrev=0 --tags)
-    command: git describe --abbrev=0 --tags
-    register: git_describe
-  - name: "figure out latest version"
-    set_fact:
-      img_version: "v{{git_describe.stdout | replace('\n','') | replace('.', '')}}"
   - name: "set image facts"
     set_fact:
       img_name: "kubenow-{{img_version}}"
@@ -24,3 +19,12 @@
       GCE_EMAIL: "{{credentials_file | json_query('[client_email][0]')}}"
       GCE_PROJECT: "{{credentials_file | json_query('[project_id][0]')}}"
       GCE_CREDENTIALS_FILE_PATH: "{{credentials_file_path}}"
+    async: "{{timeout}}"
+    poll: 0
+    register: kubenow_upload
+  - name: "wait for image upload to be done"
+    async_status: jid={{ kubenow_upload.ansible_job_id }}
+    register: upload_status
+    until: upload_status.finished
+    retries: "{{((timeout | int) / 60) | int}}"
+    delay: 60

@@ -1,69 +1,54 @@
-# requires glance
+# requires shade
 - hosts: localhost
   gather_facts: False
   vars:
-    
+    img_version: "v020"
+    timeout: 1800
   tasks:
-  
-    - name: check if glance is installed AND OpenStack environment vars credentials are set
-      shell: >
-        glance image-list
-      register: glance_check
-      failed_when: '"ID" not in glance_check.stdout'
-
-    - name: get latest KubeNow release (git describe --abbrev=0 --tags)
-      command: git describe --abbrev=0 --tags
-      register: git_describe
-      
-    - name: "figure out latest version"
-      set_fact:
-        img_version: "v{{git_describe.stdout | replace('\n','') | replace('.', '')}}"
-      when:
-        - img_version is undefined
-        
     - name: "set image facts"
       set_fact:
         image_name: "kubenow-{{img_version}}"
-
-    - name: "set url fact"
-      set_fact:
-        image_url: "https://httpd.pharmb.io/kubenow-img/{{ image_name }}.qcow2"
-    
-    - name: check if image {{ image_name }} is present in openstack teenancy
-      shell: >
-        glance image-list | grep -w {{ image_name }} | awk '{print $2}'
-      register: image_list_id
-      
-    - set_fact:
-        image_id: "{{ image_list_id.stdout }}"
-   
-    - name: upload image {{ image_name }} if not present ( url= {{ image_url }} )
-      shell: >
-        glance --os-image-api-version 1 image-create \
-              --copy-from "{{ image_url }}" \
-              --disk-format qcow2 \
-              --min-disk 20 \
-              --container-format bare \
-              --name {{ image_name }} \
-              --progress \
-              | grep -w id | awk '{print $4}'
-      register: image_upload
-      when:
-        - image_id == ""
-      
-      # if image was uploaded set new image_id
-    - set_fact:
-        image_id: "{{ image_upload.stdout }}"
-      when:
-        - image_upload.stdout is defined
-    
-    - name: wait until image status == "active"
-      shell: >
-        glance image-show {{ image_id }} | grep -w status | awk '{print $4}'
-      register: image_status
-      until:
-        - image_status.stdout == "active"
-      # Try for 60 minutes
-      retries: 600
-      delay: 6
-      failed_when: image_status.stdout == ""
+    - name: "check if image is present in OpenStack"
+      os_image_facts:
+        image: "{{ image_name }}"
+    - name: "download KubeNow image"
+      command: >
+        curl https://s3.amazonaws.com/kubenow-us-east-1/{{ image_name }}.qcow2
+        -o /tmp/{{ image_name }}.qcow2
+      notify:
+        - delete local image
+      async: "{{timeout}}"
+      poll: 0
+      register: kubenow_download
+      when: openstack_image == None
+    - name: "wait for image download to be done"
+      async_status: jid={{ kubenow_download.ansible_job_id }}
+      register: download_status
+      until: download_status.finished
+      retries: "{{((timeout | int) / 60) | int}}"
+      delay: 60
+      when: openstack_image == None
+    - name: "upload image to OpenStack"
+      os_image:
+        name: "{{ image_name }}"
+        filename: "/tmp/{{ image_name }}.qcow2"
+        container_format: bare
+        disk_format: qcow2
+        state: present
+        timeout: "{{timeout}}"
+      async: "{{timeout}}"
+      poll: 0
+      register: kubenow_upload
+      when: openstack_image == None
+    - name: "wait for image upload to be done"
+      async_status: jid={{ kubenow_upload.ansible_job_id }}
+      register: upload_status
+      until: upload_status.finished
+      retries: "{{((timeout | int) / 60) | int}}"
+      delay: 60
+      when: openstack_image == None
+  handlers:
+    - name: delete local image
+      file:
+        path: "/tmp/{{ image_name }}.qcow2"
+        state: absent
