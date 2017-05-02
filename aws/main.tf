@@ -53,7 +53,7 @@ module "master" {
   count = "${var.master_count}"
   name_prefix = "${var.cluster_prefix}-master"
   instance_type = "${var.master_instance_type}"
-  image_id = "${var.KubeNow_image_id}"
+  image_id = "${var.kubenow_image_id}"
   availability_zone = "${var.availability_zone}"
   # SSH settings
   ssh_user = "${var.ssh_user}"
@@ -78,7 +78,7 @@ module "node" {
   count = "${var.node_count}"
   name_prefix = "${var.cluster_prefix}-node"
   instance_type = "${var.node_instance_type}"
-  image_id = "${var.KubeNow_image_id}"
+  image_id = "${var.kubenow_image_id}"
   availability_zone = "${var.availability_zone}"
   # SSH settings
   ssh_user = "${var.ssh_user}"
@@ -103,7 +103,7 @@ module "edge" {
   count = "${var.edge_count}"
   name_prefix = "${var.cluster_prefix}-edge"
   instance_type = "${var.edge_instance_type}"
-  image_id = "${var.KubeNow_image_id}"
+  image_id = "${var.kubenow_image_id}"
   availability_zone = "${var.availability_zone}"
   # SSH settings
   ssh_user = "${var.ssh_user}"
