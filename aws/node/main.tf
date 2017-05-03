@@ -11,7 +11,7 @@ variable ssh_keypair_name {}
 
 # Network settings
 variable subnet_id {}
-variable security_group_id {}
+variable security_group_ids { type = "list" }
 
 # Disk settings
 variable disk_size {}
@@ -44,7 +44,7 @@ resource "aws_instance" "instance" {
   instance_type = "${var.instance_type}"
   associate_public_ip_address = true
   key_name = "${var.ssh_keypair_name}"
-  vpc_security_group_ids = ["${var.security_group_id}"]
+  vpc_security_group_ids = ["${var.security_group_ids}"]
   subnet_id = "${var.subnet_id}"
   user_data = "${data.template_file.instance_bootstrap.rendered}"
 

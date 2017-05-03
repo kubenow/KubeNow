@@ -1,6 +1,6 @@
 # Cluster settings
 variable cluster_prefix {}
-variable kubenow_image_id {}
+variable kubenow_image {}
 variable kubeadm_token {}
 
 variable aws_access_key_id {}
@@ -10,6 +10,11 @@ variable availability_zone {}
 
 variable ssh_user { default = "ubuntu" }
 variable ssh_key {}
+
+# Networking
+variable vpc_id {default = ""}
+variable subnet_id {default = ""}
+variable additional_sec_group_ids {type="list" default = []}
 
 # Master settings
 variable master_count { default = 1 }
@@ -40,11 +45,40 @@ module "keypair" {
   name_prefix = "${var.cluster_prefix}"
 }
 
-# Network (here would be nice with condition)
+# Networking - VPC
 module "vpc" {
+  vpc_id = "${var.vpc_id}"
+  name_prefix = "${var.cluster_prefix}"
   source = "./vpc"
+}
+
+# Networking - subnet
+module "subnet" {
+  subnet_id = "${var.subnet_id}"
+  vpc_id = "${module.vpc.id}"
   name_prefix = "${var.cluster_prefix}"
   availability_zone = "${var.availability_zone}"
+  source = "./subnet"
+}
+
+# Networking - sec-group
+module "security_group" {
+  name_prefix = "${var.cluster_prefix}"
+  vpc_id = "${module.vpc.id}"
+  source = "./security_group"
+}
+
+# Lookup image-id of kubenow-image
+data "aws_ami" "kubenow" {
+  most_recent = true
+  filter {
+    name   = "name"
+    values = ["${var.kubenow_image}"]
+  } 
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
 }
 
 module "master" {
@@ -53,14 +87,14 @@ module "master" {
   count = "${var.master_count}"
   name_prefix = "${var.cluster_prefix}-master"
   instance_type = "${var.master_instance_type}"
-  image_id = "${var.kubenow_image_id}"
+  image_id = "${data.aws_ami.kubenow.id}"
   availability_zone = "${var.availability_zone}"
   # SSH settings
   ssh_user = "${var.ssh_user}"
   ssh_keypair_name = "${module.keypair.keypair_name}"
   # Network settings
-  subnet_id = "${module.vpc.subnet_id}"
-  security_group_id = "${module.vpc.security_group_id}"
+  subnet_id = "${module.subnet.id}"
+  security_group_ids = "${concat(module.security_group.id, var.additional_sec_group_ids)}"
   # Disk settings
   disk_size = "${var.master_disk_size}"
   extra_disk_size = "0"
@@ -78,14 +112,14 @@ module "node" {
   count = "${var.node_count}"
   name_prefix = "${var.cluster_prefix}-node"
   instance_type = "${var.node_instance_type}"
-  image_id = "${var.kubenow_image_id}"
+  image_id = "${data.aws_ami.kubenow.id}"
   availability_zone = "${var.availability_zone}"
   # SSH settings
   ssh_user = "${var.ssh_user}"
   ssh_keypair_name = "${module.keypair.keypair_name}"
   # Network settings
-  subnet_id = "${module.vpc.subnet_id}"
-  security_group_id = "${module.vpc.security_group_id}"
+  subnet_id = "${module.subnet.id}"
+  security_group_ids = "${concat(module.security_group.id, var.additional_sec_group_ids)}"
   # Disk settings
   disk_size = "${var.node_disk_size}"
   extra_disk_size = "0"
@@ -103,14 +137,14 @@ module "edge" {
   count = "${var.edge_count}"
   name_prefix = "${var.cluster_prefix}-edge"
   instance_type = "${var.edge_instance_type}"
-  image_id = "${var.kubenow_image_id}"
+  image_id = "${data.aws_ami.kubenow.id}"
   availability_zone = "${var.availability_zone}"
   # SSH settings
   ssh_user = "${var.ssh_user}"
   ssh_keypair_name = "${module.keypair.keypair_name}"
   # Network settings
-  subnet_id = "${module.vpc.subnet_id}"
-  security_group_id = "${module.vpc.security_group_id}"
+  subnet_id = "${module.subnet.id}"
+  security_group_ids = "${concat(module.security_group.id, var.additional_sec_group_ids)}"
   # Disk settings
   disk_size = "${var.edge_disk_size}"
   extra_disk_size = "0"
