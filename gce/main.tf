@@ -55,8 +55,8 @@ module "master" {
   # Bootstrap settings
   bootstrap_file = "bootstrap/master.sh"
   kubeadm_token = "${var.kubeadm_token}"
-  node_labels = ""
-  node_taints = ""
+  node_labels = [""]
+  node_taints = [""]
   master_ip = ""
 }
 
@@ -78,8 +78,8 @@ module "node" {
   # Bootstrap settings
   bootstrap_file = "bootstrap/node.sh"
   kubeadm_token = "${var.kubeadm_token}"
-  node_labels = "role=node"
-  node_taints = ""
+  node_labels = ["role=node"]
+  node_taints = [""]
   master_ip = "${element(module.master.local_ip_v4, 0)}"
 }
 
@@ -101,8 +101,8 @@ module "edge" {
   # Bootstrap settings
   bootstrap_file = "bootstrap/node.sh"
   kubeadm_token = "${var.kubeadm_token}"
-  node_labels = "role=edge"
-  node_taints = ""
+  node_labels = ["role=edge"]
+  node_taints = [""]
   master_ip = "${element(module.master.local_ip_v4, 0)}"
 }
 

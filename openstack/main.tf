@@ -57,8 +57,8 @@ module "master" {
   # Bootstrap settings
   bootstrap_file = "bootstrap/master.sh"
   kubeadm_token = "${var.kubeadm_token}"
-  node_labels = ""
-  node_taints = ""
+  node_labels = [""]
+  node_taints = [""]
   master_ip = ""
 }
 
@@ -82,29 +82,33 @@ module "node" {
   # Bootstrap settings
   bootstrap_file = "bootstrap/node.sh"
   kubeadm_token = "${var.kubeadm_token}"
-  node_labels = "role=node"
-  node_taints = ""
+  node_labels = ["role=node"]
+  node_taints = [""]
   master_ip = "${element(module.master.local_ip_v4, 0)}"
 }
 
 module "edge" {
-  node_labels = "role=edge"
-  node_taints = ""
-  extra_disk_size = "0"
-
+  # Core settings
   source = "./node"
-  name_prefix = "${var.cluster_prefix}-edge"
   count = "${var.edge_count}"
+  name_prefix = "${var.cluster_prefix}-edge"
   flavor_name = "${var.edge_flavor}"
   flavor_id = "${var.edge_flavor_id}"
-  assign_floating_ip = "true"
-  floating_ip_pool = "${var.floating_ip_pool}"
   image_name = "${var.kubenow_image}"
+  # SSH settings
   keypair_name = "${module.keypair.keypair_name}"
+  # Network settings
   network_name = "${module.network.network_name}"
   secgroup_name = "${module.network.secgroup_name}"
-  kubeadm_token = "${var.kubeadm_token}"
+  assign_floating_ip = "true"
+  floating_ip_pool = "${var.floating_ip_pool}"
+   # Disk settings
+  extra_disk_size = "0"
+  # Bootstrap settings
   bootstrap_file = "bootstrap/node.sh"
+  kubeadm_token = "${var.kubeadm_token}"
+  node_labels = ["role=edge"]
+  node_taints = [""]
   master_ip = "${element(module.master.local_ip_v4, 0)}"
 }
 
