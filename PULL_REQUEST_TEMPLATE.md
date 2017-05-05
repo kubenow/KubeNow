@@ -36,4 +36,4 @@ Use the suggested format to facilitate issue closing.
 please add documentation for your feature (if applicable), and link the documentation changes. 
 Documentation PRs are to be sent to https://github.com/kubenow/docs.
 -->
-**Docs**: <!-- #X, #Y, ... #Z** -->
+**Docs**: <!-- #X, #Y, ... #Z -->
