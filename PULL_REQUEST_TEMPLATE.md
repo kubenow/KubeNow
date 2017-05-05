@@ -1,7 +1,7 @@
 <!-- 
-Thanks for sending a Pull Request (PR)! Please follow this template to facilitate the review/merge process. 
+Thanks for sending a Pull Request (PR)! Please use this template to facilitate the review/merge process. 
 
-WARNING!!! Make sure to fullfill the review criteria before submitting:
+WARNING!!! Make sure that the PR fullfills the review criteria before submitting:
 
 POSITIVES
 - Change has already been discussed and is known to committers (open an issue first otherwise)
@@ -36,4 +36,4 @@ Use the suggested format to facilitate issue closing.
 please add documentation for your feature (if applicable), and link the documentation changes. 
 Documentation PRs are to be sent to https://github.com/kubenow/docs.
 -->
-**Docs: #X, #Y, ... #Z**
+**Docs: <!-- #X, #Y, ... #Z** -->
