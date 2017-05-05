@@ -95,10 +95,10 @@ script:
         playbooks/import-"$HOST_CLOUD"-image.yml
       fi
   - terraform get $HOST_CLOUD
-  - terraform apply $HOST_CLOUD
+  - travis_retry terraform apply $HOST_CLOUD
   - ansible-playbook playbooks/install-core.yml
   - ansible-playbook playbooks/infra-test.yml
 
 after_script:
-  - terraform destroy -force $HOST_CLOUD
+  - travis_retry terraform destroy -force $HOST_CLOUD
   - ansible-playbook playbooks/clean-cloudflare.yml
