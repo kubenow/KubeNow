@@ -53,7 +53,7 @@ install:
 
   # Install Terraform
   - >
-      curl
+      travis_retry curl
       https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
       > /tmp/terraform.zip
   - sudo unzip /tmp/terraform.zip -d /usr/bin
