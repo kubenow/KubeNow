@@ -73,13 +73,34 @@ install:
 before_script:
 
   # Source test environment
+  - source test/secrets-kubenow/host_cloud/common.sh
   - source test/secrets-kubenow/host_cloud/CityCloud.sh
   - source test/secrets-kubenow/host_cloud/aws.sh
+  - source test/secrets-kubenow/host_cloud/gce.sh
 
   # Render Terraform configuration
+  # Common
   - >
-      env | j2 --format=env test/secrets-kubenow/tfvars/"$HOST_CLOUD".tfvars.j2 >
-      ./terraform.tfvars
+      if [ $HOST_CLOUD = 'openstack' ]; then
+        cp terraform.tfvars.os-template terraform.tfvars
+      else
+        cp terraform.tfvars.${HOST_CLOUD}-template terraform.tfvars
+      fi
+  - mkdir -p ~/.ssh/ && cp test/secret/kubenow-ci.pub ~/.ssh/id_rsa.pub
+  - sed -i -e "s/your-cluster-prefix/kubenow-ci-${TRAVIS_BUILD_NUMBER}/g" terraform.tfvars
+  - sed -i -e "s/your-kubeadm-token/${CI_KUBETOKEN}/g" terraform.tfvars
+  # AWS
+  - sed -i -e "s/your-acces-key-id/${AWS_ACCESS_KEY_ID}/g" terraform.tfvars
+  - sed -i -e "s/your-secret-access-key/${AWS_SECRET_ACCESS_KEY_SED}/g" terraform.tfvars
+  # GCE
+  - cp test/secrets-kubenow/host_cloud/gce-key.json ~/account_file.json
+  - sed -i -e "s/your_project_id/${GCE_PROJECT_ID}/g" terraform.tfvars
+  # OS
+  - sed -i -e "s/your-pool-name/${OS_POOL_NAME}/g" terraform.tfvars
+  - sed -i -e "s/external-net-uuid/${OS_EXTERNAL_NET_UUUID}/g" terraform.tfvars
+  - sed -i -e "s/your-master-flavor/${OS_MASTER_FLAVOR}/g" terraform.tfvars
+  - sed -i -e "s/your-node-flavor/${OS_NODE_FLAVOR}/g" terraform.tfvars
+  - sed -i -e "s/your-edge-flavor/${OS_EDGE_FLAVOR}/g" terraform.tfvars
 
   # Render Cloudflare configuration
   - >
