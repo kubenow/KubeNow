@@ -91,7 +91,7 @@ before_script:
   - sed -i -e "s/your-kubeadm-token/${CI_KUBETOKEN}/g" terraform.tfvars
   # AWS
   - sed -i -e "s/your-acces-key-id/${AWS_ACCESS_KEY_ID}/g" terraform.tfvars
-  - sed -i -e "s/your-secret-access-key/${AWS_SECRET_ACCESS_KEY}/g" terraform.tfvars
+  - sed -i -e "s/your-secret-access-key/${AWS_SECRET_ACCESS_KEY_SED}/g" terraform.tfvars
   # GCE
   - cp test/secrets-kubenow/host_cloud/gce-key.json ~/account_file.json
   - sed -i -e "s/your_project_id/${GCE_PROJECT_ID}/g" terraform.tfvars
