@@ -19,7 +19,6 @@ env:
     - TERRAFORM_VERSION=0.9.4
     - ANSIBLE_VERSION=2.2.0.0
     - IMAGE_VERSION=v020
-    - AWS_AMI_ID=ami-30251456
   matrix:
     - HOST_CLOUD=openstack
     - HOST_CLOUD=gce
