@@ -6,11 +6,11 @@
     state: directory
     mode: 0755
 
-- name: copy traefik configuration
+- name: render traefik configuration
   become: yes
-  copy:
-    src: traefik.toml
-    dest: "/etc/traefik"
+  template:
+    src: traefik.toml.j2
+    dest: "/etc/traefik/traefik.toml"
 
 - name: copy traefik DaemonSet configuration
   become: yes
