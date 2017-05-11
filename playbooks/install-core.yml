@@ -6,10 +6,6 @@
     - { role: start-helm, tags: [ 'minimal' ] }
     - { role: gluster-server, tags: [ 'glusterfs' ] }
     - { role: shared-volume, tags: [ 'glusterfs' ] }
-
-- hosts: all
-  gather_facts: False
-  roles:
     - { role: traefik, tags: [ 'traefik' ] }
 
 - hosts: edge
