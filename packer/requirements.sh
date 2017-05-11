@@ -34,7 +34,6 @@ sudo DEBIAN_FRONTEND=noninteractive \
 
 echo "Installing Kubernetes requirements..."
 sudo apt-get install -y \
-  linux-image-extra-$(uname -r) \
   linux-image-extra-virtual \
   docker-engine=1.12.5-0~ubuntu-xenial \
   kubelet=1.6.2-00 \
