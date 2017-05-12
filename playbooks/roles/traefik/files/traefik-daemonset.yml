@@ -34,8 +34,8 @@ spec:
             name: "config"
         resources:
           requests:
-            cpu: 1
-            memory: 1G
+            cpu: 100m
+            memory: 20Mi
         args:
         - --web
         - --web.address=:8081
