@@ -13,6 +13,7 @@ gce_zone = "europe-west1-b" # Some GCE zone
 # obs: too small flavors might cause diffuse errors on your installation
 master_flavor = "n1-standard-2"
 master_disk_size = "20" # Size in GB
+use_master_as_edge = "true"
 
 # Node configuration
 node_count = "3"
@@ -23,3 +24,9 @@ node_disk_size = "20" # Size in GB
 edge_count = "2"
 edge_flavor = "n1-standard-2"
 edge_disk_size = "20" # Size in GB
+
+# Cloudflare configuration (optional)
+use_cloudflare = "false"
+cloudflare_email = "your-cloudflare-email"
+cloudflare_token = "your-cloudflare-token"
+cloudflare_domain = "your-domain-name"

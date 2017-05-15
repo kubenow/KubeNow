@@ -13,6 +13,7 @@ aws_secret_access_key = "your-secret-access-key"
 # Master configuration
 master_instance_type = "t2.medium"
 master_disk_size = "10" # Size in GB
+use_master_as_edge = "true"
 
 # Node configuration
 node_count = "3"
@@ -23,3 +24,9 @@ node_disk_size = "10" # Size in GB
 edge_count = "2"
 edge_instance_type = "t2.medium"
 edge_disk_size = "10" # Size in GB
+
+# Cloudflare configuration (optional)
+use_cloudflare = "false"
+cloudflare_email = "your-cloudflare-email"
+cloudflare_token = "your-cloudflare-token"
+cloudflare_domain = "your-domain-name"
