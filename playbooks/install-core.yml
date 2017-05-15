@@ -7,8 +7,3 @@
     - { role: gluster-server, tags: [ 'glusterfs' ] }
     - { role: shared-volume, tags: [ 'glusterfs' ] }
     - { role: traefik, tags: [ 'traefik' ] }
-
-- hosts: edge
-  gather_facts: False
-  roles:
-    - { role: cloudflare, tags: [ 'cloudflare' ] }
