@@ -7,8 +7,4 @@
     - { role: gluster-server-test, tags: [ 'glusterfs' ] }
     - { role: shared-volume-test, tags: [ 'glusterfs' ] }
     - { role: traefik-test, tags: [ 'traefik' ] }
-
-- hosts: edge
-  gather_facts: False
-  roles:
-    - { role: cloudflare-test, tags: [ 'cloudflare' ] }
+    - { role: cloudflare-test, when: use_cloudflare == true, tags: [ 'cloudflare' ] }
