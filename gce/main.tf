@@ -11,6 +11,7 @@ variable gce_zone {}
 variable gce_credentials_file {}
 
 # Master settings
+variable master_count { default = 1 }
 variable master_flavor {}
 variable master_disk_size {}
 variable use_master_as_edge { default="true" }
