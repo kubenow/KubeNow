@@ -4,7 +4,7 @@
 
 - name: DNS query
   set_fact:
-    query_result: "{{lookup('dig', 'test.{{cf_subdomain}}.{{cf_zone}}', wantlist=True)}}"
+    query_result: "{{lookup('dig', 'test.{{domain}}', wantlist=True)}}"
 
 - name: fail if edge IP is not in query result
   fail:
