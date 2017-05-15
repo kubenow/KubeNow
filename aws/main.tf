@@ -20,7 +20,7 @@ variable additional_sec_group_ids {type="list" default = []}
 variable master_count { default = 1 }
 variable master_instance_type {}
 variable master_disk_size {}
-variable master_is_edge { default="true" }
+variable use_master_as_edge { default="true" }
 
 # Nodes settings
 variable node_count {}
@@ -102,7 +102,7 @@ module "master" {
   # Bootstrap settings
   bootstrap_file = "bootstrap/master.sh"
   kubeadm_token = "${var.kubeadm_token}"
-  node_labels = "${split(",", var.master_is_edge == "true" ? "role=edge" : "")}"
+  node_labels = "${split(",", var.use_master_as_edge == "true" ? "role=edge" : "")}"
   node_taints = [""]
   master_ip = ""
 }
