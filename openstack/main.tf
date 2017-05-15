@@ -23,6 +23,12 @@ variable edge_count {}
 variable edge_flavor {}
 variable edge_flavor_id { default = ""}
 
+# Cloudflare settings
+variable use_cloudflare { default="false" }
+variable cloudflare_email { default="nothing" }
+variable cloudflare_token { default="nothing" }
+variable cloudflare_domain { default="" }
+
 # Upload SSH key to OpenStack
 module "keypair" {
   source = "./keypair"
@@ -113,14 +119,31 @@ module "edge" {
   master_ip = "${element(module.master.local_ip_v4, 0)}"
 }
 
+#
+# The code below (from here to end) should be identical for all cloud providers
+#
+
+# set cloudflare record (optional)
+module "cloudflare" {
+  # count values can not be dynamically computed, that's why using
+  # var.edge_count and not length(iplist)
+  record_count = "${var.use_cloudflare != true ? 0 : var.master_is_edge == true ? var.edge_count + var.master_count : var.edge_count}"
+  source = "../common/cloudflare"
+  cloudflare_email = "${var.cloudflare_email}"
+  cloudflare_token = "${var.cloudflare_token}"
+  cloudflare_domain = "${var.cloudflare_domain}"
+  record_text = "*.${var.cluster_prefix}"
+  # concat lists (record_count is limiting master_ip:s from being added to cloudflare if var.master_is_edge=false)
+  # terraform interpolation is limited and can not return list in conditionals
+  iplist = "${concat(module.edge.public_ip, module.master.public_ip)}"
+}
+
 # Generate Ansible inventory (identical for each cloud provider)
 resource "null_resource" "generate-inventory" {
 
-  # Changes to any node IP trigger inventory rewrite
+  # Trigger rewrite of inventory, uuid() generates a random string everytime it is called
   triggers {
-    master_ips = "${join(",", module.master.local_ip_v4)}"
-    node_ips = "${join(",", module.node.local_ip_v4)}"
-    edge_ips = "${join(",", module.edge.local_ip_v4)}"
+    uuid = "${uuid()}"
   }
 
   # Write master
@@ -138,7 +161,11 @@ resource "null_resource" "generate-inventory" {
   }
   # output the lists formated
   provisioner "local-exec" {
-    command =  "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", concat(module.master.hostnames, module.edge.hostnames), concat(module.master.public_ip, module.edge.public_ip)))}\" >> inventory"
+    command =  "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", module.edge.hostnames, module.edge.public_ip))}\" >> inventory"
+  }
+  # only output if master is edge
+  provisioner "local-exec" {
+    command =  "echo \"${var.master_is_edge != true ? "" : join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", module.master.hostnames, module.master.public_ip))}\" >> inventory"
   }
 
   # Write other variables
@@ -147,6 +174,13 @@ resource "null_resource" "generate-inventory" {
   }
   provisioner "local-exec" {
     command =  "echo \"nodes_count=${1 + var.edge_count + var.node_count} \" >> inventory"
+  }
+  provisioner "local-exec" {
+    command =  "echo \"node_count=${var.node_count} \" >> inventory"
+  }
+  # If cloudflare domain is set, output that domain, otherwise output a nip.io domain (with the first edge ip)
+  provisioner "local-exec" {
+    command =  "echo \"domain=${ var.use_cloudflare == true ? format("%s.%s", var.cluster_prefix, var.cloudflare_domain) : format("%s.nip.io", element(concat(module.edge.public_ip, module.master.public_ip), 0))}\" >> inventory"
   }
 
 }
