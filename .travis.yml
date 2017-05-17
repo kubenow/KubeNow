@@ -90,7 +90,7 @@ before_script:
   - sed -i -e "s/use_cloudflare = \"false\"/use_cloudflare = \"true\"/g" terraform.tfvars
   - sed -i -e "s/your-cloudflare-email/${CI_CLOUDFLARE_EMAIL}/g" terraform.tfvars
   - sed -i -e "s/your-cloudflare-token/${CI_CLOUDFLARE_TOKEN}/g" terraform.tfvars
-  - sed -i -e "s/your-domain-name/${CI_CLOUDFLARE_NAME}/g" terraform.tfvars
+  - sed -i -e "s/your-domain-name/${CI_CLOUDFLARE_DOMAIN}/g" terraform.tfvars
   
   # AWS
   - sed -i -e "s/your-acces-key-id/${AWS_ACCESS_KEY_ID}/g" terraform.tfvars

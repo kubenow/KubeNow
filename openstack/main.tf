@@ -138,7 +138,7 @@ module "cloudflare" {
 # Generate Ansible inventory (identical for each cloud provider)
 resource "null_resource" "generate-inventory" {
 
-  # Trigger rewrite of inventory always, uuid() generates a random string everytime it is called
+  # Trigger rewrite of inventory, uuid() generates a random string everytime it is called
   triggers {
     uuid = "${uuid()}"
   }
@@ -149,11 +149,7 @@ resource "null_resource" "generate-inventory" {
   }
   # output the lists formated
   provisioner "local-exec" {
-    command =  "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", var.edge_hostnames, var.edge_public_ip))}\" >> inventory"
-  }
-  # only output if master is edge
-  provisioner "local-exec" {
-    command =  "echo \"${var.master_as_edge != true ? "" : join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", var.master_hostnames, var.master_public_ip))}\" >> inventory"
+    command =  "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", module.master.hostnames, module.master.public_ip))}\" >> inventory"
   }
 
   # Write edges
