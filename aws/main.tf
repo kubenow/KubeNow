@@ -163,14 +163,11 @@ module "edge" {
   master_ip = "${element(module.master.local_ip_v4, 0)}"
 }
 
-#
 # The code below (from here to end) should be identical for all cloud providers
-#
 
 # set cloudflare record (optional)
 module "cloudflare" {
-  # count values can not be dynamically computed, that's why using
-  # var.edge_count and not length(iplist)
+  # count values can not be dynamically computed, that's why we are using var.edge_count and not length(iplist)
   record_count = "${var.use_cloudflare != true ? 0 : var.master_as_edge == true ? var.edge_count + var.master_count : var.edge_count}"
   source = "../common/cloudflare"
   cloudflare_email = "${var.cloudflare_email}"
@@ -185,7 +182,7 @@ module "cloudflare" {
 # Generate Ansible inventory (identical for each cloud provider)
 resource "null_resource" "generate-inventory" {
 
-  # Trigger rewrite of inventory, uuid() generates a random string everytime it is called
+  # Trigger rewrite of inventory always, uuid() generates a random string everytime it is called
   triggers {
     uuid = "${uuid()}"
   }
@@ -220,7 +217,7 @@ resource "null_resource" "generate-inventory" {
     command =  "echo \"nodes_count=${1 + var.edge_count + var.node_count} \" >> inventory"
   }
   provisioner "local-exec" {
-    command =  "echo \"node_count=${var.node_count}\" >> inventory"
+    command =  "echo \"node_count=${var.node_count} \" >> inventory"
   }
   # If cloudflare domain is set, output that domain, otherwise output a nip.io domain (with the first edge ip)
   provisioner "local-exec" {

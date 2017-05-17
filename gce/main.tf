@@ -114,14 +114,11 @@ module "edge" {
   master_ip = "${element(module.master.local_ip_v4, 0)}"
 }
 
-#
 # The code below (from here to end) should be identical for all cloud providers
-#
 
 # set cloudflare record (optional)
 module "cloudflare" {
-  # count values can not be dynamically computed, that's why using
-  # var.edge_count and not length(iplist)
+  # count values can not be dynamically computed, that's why we are using var.edge_count and not length(iplist)
   record_count = "${var.use_cloudflare != true ? 0 : var.master_as_edge == true ? var.edge_count + var.master_count : var.edge_count}"
   source = "../common/cloudflare"
   cloudflare_email = "${var.cloudflare_email}"
@@ -136,7 +133,7 @@ module "cloudflare" {
 # Generate Ansible inventory (identical for each cloud provider)
 resource "null_resource" "generate-inventory" {
 
-  # Trigger rewrite of inventory, uuid() generates a random string everytime it is called
+  # Trigger rewrite of inventory always, uuid() generates a random string everytime it is called
   triggers {
     uuid = "${uuid()}"
   }
