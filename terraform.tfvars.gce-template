@@ -13,7 +13,7 @@ gce_zone = "europe-west1-b" # Some GCE zone
 # obs: too small flavors might cause diffuse errors on your installation
 master_flavor = "n1-standard-2"
 master_disk_size = "20" # Size in GB
-use_master_as_edge = "true"
+master_act_as_edge = "true"
 
 # Node configuration
 node_count = "3"

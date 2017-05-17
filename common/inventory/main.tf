@@ -2,7 +2,7 @@ variable master_hostnames { type="list" }
 variable master_public_ip { type="list" }
 variable edge_hostnames { type="list" }
 variable edge_public_ip { type="list" }
-variable use_master_as_edge {}
+variable master_act_as_edge {}
 variable edge_count {}
 variable node_count {}
 variable use_cloudflare {}
@@ -36,7 +36,7 @@ resource "null_resource" "generate-inventory" {
   }
   # only output if master is edge
   provisioner "local-exec" {
-    command =  "echo \"${var.use_master_as_edge != true ? "" : join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", var.master_hostnames, var.master_public_ip))}\" >> inventory"
+    command =  "echo \"${var.master_act_as_edge != true ? "" : join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", var.master_hostnames, var.master_public_ip))}\" >> inventory"
   }
 
   # Write other variables
