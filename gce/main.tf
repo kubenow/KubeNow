@@ -14,7 +14,7 @@ variable gce_credentials_file {}
 variable master_count { default = 1 }
 variable master_flavor {}
 variable master_disk_size {}
-variable use_master_as_edge { default="true" }
+variable master_act_as_edge { default="true" }
 
 # Nodes settings
 variable node_count {}
@@ -63,7 +63,7 @@ module "master" {
   # Bootstrap settings
   bootstrap_file = "bootstrap/master.sh"
   kubeadm_token = "${var.kubeadm_token}"
-  node_labels = "${split(",", var.use_master_as_edge == "true" ? "role=edge" : "")}"
+  node_labels = "${split(",", var.master_act_as_edge == "true" ? "role=edge" : "")}"
   node_taints = [""]
   master_ip = ""
 }
@@ -122,13 +122,13 @@ module "edge" {
 module "cloudflare" {
   # count values can not be dynamically computed, that's why using
   # var.edge_count and not length(iplist)
-  record_count = "${var.use_cloudflare != true ? 0 : var.use_master_as_edge == true ? var.edge_count + var.master_count : var.edge_count}"
+  record_count = "${var.use_cloudflare != true ? 0 : var.master_act_as_edge == true ? var.edge_count + var.master_count : var.edge_count}"
   source = "../common/cloudflare"
   cloudflare_email = "${var.cloudflare_email}"
   cloudflare_token = "${var.cloudflare_token}"
   cloudflare_domain = "${var.cloudflare_domain}"
   record_text = "*.${var.cluster_prefix}"
-  # concat lists (record_count is limiting master_ip:s from being added to cloudflare if var.use_master_as_edge=false)
+  # concat lists (record_count is limiting master_ip:s from being added to cloudflare if var.master_act_as_edge=false)
   # terraform interpolation is limited and can not return list in conditionals
   iplist = "${concat(module.edge.public_ip, module.master.public_ip)}"
 }
@@ -160,7 +160,7 @@ resource "null_resource" "generate-inventory" {
   }
   # only output if master is edge
   provisioner "local-exec" {
-    command =  "echo \"${var.use_master_as_edge != true ? "" : join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", module.master.hostnames, module.master.public_ip))}\" >> inventory"
+    command =  "echo \"${var.master_act_as_edge != true ? "" : join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", module.master.hostnames, module.master.public_ip))}\" >> inventory"
   }
 
   # Write other variables

@@ -9,7 +9,7 @@ external_network_uuid = "external-net-uuid" # The uuid of the external network i
 # Master configuration
 # obs: too small flavors might cause diffuse errors on your installation
 master_flavor = "your-master-flavor"
-use_master_as_edge = "true"
+master_act_as_edge = "true"
 
 # Node configuration
 node_count = "3"
