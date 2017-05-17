@@ -12,29 +12,39 @@ spec:
       labels:
         k8s-app: traefik-ingress-lb
         name: traefik-ingress-lb
+      annotations:
+        scheduler.alpha.kubernetes.io/tolerations: |
+          [
+            {
+              "key": "dedicated",
+              "operator": "Equal",
+              "value": "master",
+              "effect": "NoSchedule"
+            }
+          ]
     spec:
       hostNetwork: true # workaround
       terminationGracePeriodSeconds: 60
       containers:
-      - image: containous/traefik:v1.0.3
+      - image: traefik:v1.2.1
         name: traefik-ingress-lb
         imagePullPolicy: Always
         volumeMounts:
-          - mountPath: /etc/traefik
-            name: traefik-volume
-            readOnly: false
+          - mountPath: "/config"
+            name: "config"
         resources:
           requests:
-            cpu: 1
-            memory: 1G
+            cpu: 100m
+            memory: 20Mi
         args:
         - --web
+        - --web.address=:8081
         - --kubernetes
-        - --configFile=/etc/traefik/traefik.toml
+        - --configfile=/config/traefik.toml
         - --logLevel=DEBUG
       volumes:
-        - hostPath:
-            path: /etc/traefik
-          name: traefik-volume
+      - name: config
+        configMap:
+          name: traefik-conf
       nodeSelector:
         role: edge

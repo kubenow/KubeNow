@@ -11,6 +11,7 @@ variable kubeadm_token {}
 variable master_count { default = 1 }
 variable master_flavor {}
 variable master_flavor_id { default = ""}
+variable master_as_edge { default="true" }
 
 # Nodes settings
 variable node_count {}
@@ -57,7 +58,7 @@ module "master" {
   # Bootstrap settings
   bootstrap_file = "bootstrap/master.sh"
   kubeadm_token = "${var.kubeadm_token}"
-  node_labels = [""]
+  node_labels = "${split(",", var.master_as_edge == "true" ? "role=edge" : "")}"
   node_taints = [""]
   master_ip = ""
 }
@@ -137,7 +138,7 @@ resource "null_resource" "generate-inventory" {
   }
   # output the lists formated
   provisioner "local-exec" {
-    command =  "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", module.edge.hostnames, module.edge.public_ip))}\" >> inventory"
+    command =  "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", concat(module.master.hostnames, module.edge.hostnames), concat(module.master.public_ip, module.edge.public_ip)))}\" >> inventory"
   }
 
   # Write other variables
