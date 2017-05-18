@@ -34,13 +34,12 @@ sudo DEBIAN_FRONTEND=noninteractive \
 
 echo "Installing Kubernetes requirements..."
 sudo apt-get install -y \
-  linux-image-extra-$(uname -r) \
   linux-image-extra-virtual \
   docker-engine=1.12.5-0~ubuntu-xenial \
-  kubelet=1.5.2-00 \
-  kubeadm=1.6.0-alpha.0-2074-a092d8e0f95f52-00 \
-  kubectl=1.5.2-00 \
-  kubernetes-cni=0.3.0.1-07a8a2-00
+  kubelet=1.6.2-00 \
+  kubeadm=1.6.2-00 \
+  kubectl=1.6.2-00 \
+  kubernetes-cni=0.5.1-00
 
 echo "Installing other requirements..."
 # APT requirements
@@ -52,7 +51,7 @@ sudo apt-get install -y \
   jq
 
 # Helm
-HELM_TGZ=helm-v2.1.0-linux-amd64.tar.gz
+HELM_TGZ=helm-v2.4.1-linux-amd64.tar.gz
 wget -P /tmp/ https://kubernetes-helm.storage.googleapis.com/$HELM_TGZ
 tar -xf /tmp/$HELM_TGZ -C /tmp/
 sudo mv /tmp/linux-amd64/helm /usr/local/bin/
