@@ -23,6 +23,12 @@ variable edge_count {}
 variable edge_flavor {}
 variable edge_flavor_id { default = ""}
 
+# Glusternode settings
+variable glusternode_count {}
+variable glusternode_flavor {}
+variable glusternode_flavor_id { default = ""}
+variable glusternode_extra_disk_size {}
+
 # Cloudflare settings
 variable use_cloudflare { default="false" }
 variable cloudflare_email { default="nothing" }
@@ -119,6 +125,31 @@ module "edge" {
   master_ip = "${element(module.master.local_ip_v4, 0)}"
 }
 
+module "glusternode" {
+  # Core settings
+  source = "./node"
+  count = "${var.glusternode_count}"
+  name_prefix = "${var.cluster_prefix}-glusternode"
+  flavor_name = "${var.glusternode_flavor}"
+  flavor_id = "${var.glusternode_flavor_id}"
+  image_name = "${var.kubenow_image}"
+  # SSH settings
+  keypair_name = "${module.keypair.keypair_name}"
+  # Network settings
+  network_name = "${module.network.network_name}"
+  secgroup_name = "${module.network.secgroup_name}"
+  assign_floating_ip = "false"
+  floating_ip_pool = "${var.floating_ip_pool}"
+  # Disk settings
+  extra_disk_size = "${var.glusternode_extra_disk_size}"
+  # Bootstrap settings
+  bootstrap_file = "bootstrap/node.sh"
+  kubeadm_token = "${var.kubeadm_token}"
+  node_labels = ["storagenode=glusterfs"]
+  node_taints = [""] # dedicated=fileserver:NoSchedule
+  master_ip = "${element(module.master.local_ip_v4, 0)}"
+}
+
 # The code below (from here to end) should be identical for all cloud providers
 
 # set cloudflare record (optional)
@@ -170,10 +201,14 @@ resource "null_resource" "generate-inventory" {
     command =  "echo \"[master:vars]\" >> inventory"
   }
   provisioner "local-exec" {
-    command =  "echo \"nodes_count=${1 + var.edge_count + var.node_count} \" >> inventory"
+    command =  "echo \"nodes_count=${1 + var.edge_count + var.node_count + var.glusternode_count} \" >> inventory"
   }
   provisioner "local-exec" {
     command =  "echo \"node_count=${var.node_count} \" >> inventory"
+  }
+  # Add an extra empty ("") element on list so it is never empty (e.g. if there are no glusternodes)
+    provisioner "local-exec" {
+    command =  "echo \"extra_disk_device=${element(concat(module.glusternode.extra_disk_device, list("")),0)}\" >> inventory"
   }
   # If cloudflare domain is set, output that domain, otherwise output a nip.io domain (with the first edge ip)
   provisioner "local-exec" {
