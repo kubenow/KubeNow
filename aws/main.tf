@@ -219,7 +219,7 @@ resource "null_resource" "generate-inventory" {
   provisioner "local-exec" {
     command =  "echo \"node_count=${var.node_count} \" >> inventory"
   }
-  # If cloudflare domain is set, output that domain, otherwise output a nip.io domain (with the first edge ip)
+  # If cloudflare domain is set output that domain, otherwise output a nip.io domain (with the first edge ip)
   provisioner "local-exec" {
     command =  "echo \"domain=${ var.use_cloudflare == true ? format("%s.%s", var.cluster_prefix, var.cloudflare_domain) : format("%s.nip.io", element(concat(module.edge.public_ip, module.master.public_ip), 0))}\" >> inventory"
   }
