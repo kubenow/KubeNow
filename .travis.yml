@@ -87,6 +87,7 @@ before_script:
       fi
   - mkdir -p ~/.ssh/ && cp test/secret/kubenow-ci.pub ~/.ssh/id_rsa.pub
   - sed -i -e "s/your-cluster-prefix/kubenow-ci-${TRAVIS_BUILD_NUMBER}-${HOST_CLOUD}/g" terraform.tfvars
+  - sed -i -e "s/your-kubeadm-token/${CI_KUBETOKEN}/g" terraform.tfvars
   - sed -i -e "s/use_cloudflare = \"false\"/use_cloudflare = \"true\"/g" terraform.tfvars
   - sed -i -e "s/your-cloudflare-email/${CI_CLOUDFLARE_EMAIL}/g" terraform.tfvars
   - sed -i -e "s/your-cloudflare-token/${CI_CLOUDFLARE_TOKEN}/g" terraform.tfvars
