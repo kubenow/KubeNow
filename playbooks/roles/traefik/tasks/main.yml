@@ -12,6 +12,14 @@
     src: traefik.toml
     dest: "/etc/traefik"
 
+# delete first is a workaround until kubernetes support apply configmap --from-file
+- name: delete configmap (if it is already there)
+  command: >
+    kubectl delete configmap
+    traefik-conf
+    --ignore-not-found
+    --namespace=kube-system
+
 - name: create configmap from traefik config file
   command: >
     kubectl create configmap
