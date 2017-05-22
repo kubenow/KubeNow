@@ -9,6 +9,7 @@ external_network_uuid = "external-net-uuid" # The uuid of the external network i
 # Master configuration
 # obs: too small flavors might cause diffuse errors on your installation
 master_flavor = "your-master-flavor"
+master_as_edge = "true"
 
 # Node configuration
 node_count = "3"
@@ -17,3 +18,9 @@ node_flavor = "your-node-flavor"
 # Edge configuration
 edge_count = "2"
 edge_flavor = "your-edge-flavor"
+
+# Cloudflare configuration (optional)
+use_cloudflare = "false"
+cloudflare_email = "your-cloudflare-email"
+cloudflare_token = "your-cloudflare-token"
+cloudflare_domain = "your-domain-name"

@@ -90,7 +90,7 @@ output "public_ip" {
   value = ["${aws_instance.instance.*.public_ip}"]
 }
 output "hostnames" {
-  value = ["${aws_instance.instance.*.tags.Name}"]
+  value = ["${split(" ", replace(join(" ",formatlist("ip-%s", aws_instance.instance.*.private_ip)),".","-"))}"]
 }
 output "node_labels" {
   value = "${var.node_labels}"

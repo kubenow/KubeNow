@@ -9,18 +9,6 @@
     msg: "unexpected gluster-server ready status: {{get_ready_status.stdout}}"
   when: not (get_ready_statuses.stdout | match('^(true\s)*true$'))
 
-- name: "render node count"
-  local_action: >
-    shell
-    cat terraform.tfvars |
-    grep 'node_count' |
-    awk '{print $3;}' |
-    tr -d '"' |
-    awk '{s+=$1} END {print s}'
-  args:
-    chdir: "{{playbook_dir}}/.."
-  register: get_node_count
-
 - name: "get number of ready nodes"
   local_action: >
     shell
@@ -51,19 +39,19 @@
   fail:
     msg: >
       the number of ready glusterfs servers ({{get_ready_count.stdout}})
-      doesn't match the number of nodes ({{get_node_count.stdout}})
-  when: get_ready_count.stdout != get_node_count.stdout
+      doesn't match the number of nodes ({{node_count}})
+  when: "{{get_ready_count.stdout | int}} != node_count"
 
 - name: "match endpoint count with node count"
   fail:
     msg: >
       the number of glusterfs endpoints ({{get_endpoint_count.stdout}})
-      doesn't match the number of nodes ({{get_node_count.stdout}})
-  when: get_endpoint_count.stdout != get_node_count.stdout
+      doesn't match the number of nodes ({{node_count}})
+  when: "{{get_endpoint_count.stdout | int}} != node_count"
 
 - name: "match peer count with node count"
   fail:
     msg: >
       the number of glusterfs peers ({{get_peer_count.stdout}})
-      doesn't match the number of nodes ({{get_node_count.stdout}})
-  when: get_peer_count.stdout != get_node_count.stdout
+      doesn't match the number of nodes ({{node_count}})
+  when: "{{get_peer_count.stdout | int}} != node_count"
