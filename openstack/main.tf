@@ -64,7 +64,7 @@ module "master" {
   # Bootstrap settings
   bootstrap_file = "bootstrap/master.sh"
   kubeadm_token = "${var.kubeadm_token}"
-  node_labels = "${split(",", var.use_master_as_edge == "true" ? "role=edge" : "")}"
+  node_labels = "${split(",", var.master_as_edge == "true" ? "role=edge" : "")}"
   node_taints = [""]
   master_ip = ""
 }
