@@ -32,6 +32,12 @@ variable edge_count {}
 variable edge_instance_type {}
 variable edge_disk_size {}
 
+# Glusternode settings
+variable glusternode_count {}
+variable glusternode_instance_type {}
+variable glusternode_disk_size {}
+variable glusternode_extra_disk_size { default="200" }
+
 # Cloudflare settings
 variable use_cloudflare { default="false" }
 variable cloudflare_email { default="nothing" }
@@ -163,6 +169,31 @@ module "edge" {
   master_ip = "${element(module.master.local_ip_v4, 0)}"
 }
 
+module "glusternode" {
+  # Core settings
+  source = "./node"
+  count = "${var.glusternode_count}"
+  name_prefix = "${var.cluster_prefix}-glusternode"
+  instance_type = "${var.glusternode_instance_type}"
+  image_id = "${data.aws_ami.kubenow.id}"
+  availability_zone = "${var.availability_zone}"
+  # SSH settings
+  ssh_user = "${var.ssh_user}"
+  ssh_keypair_name = "${module.keypair.keypair_name}"
+  # Network settings
+  subnet_id = "${module.subnet.id}"
+  security_group_ids = "${concat(module.security_group.id, var.additional_sec_group_ids)}"
+  # Disk settings
+  disk_size = "${var.edge_disk_size}"
+  extra_disk_size = "${var.glusternode_extra_disk_size}"
+  # Bootstrap settings
+  bootstrap_file = "bootstrap/node.sh"
+  kubeadm_token = "${var.kubeadm_token}"
+  node_labels = ["storagenode=glusterfs"]
+  node_taints = [""] # dedicated=fileserver:NoSchedule
+  master_ip = "${element(module.master.local_ip_v4, 0)}"
+}
+
 # The code below (from here to end) should be identical for all cloud providers
 
 # set cloudflare record (optional)
@@ -200,9 +231,9 @@ resource "null_resource" "generate-inventory" {
   provisioner "local-exec" {
     command =  "echo \"[edge]\" >> inventory"
   }
-  # output the lists formated
+  # output the lists formated, slice list to make sure hostname- and ip-list have same length
   provisioner "local-exec" {
-    command =  "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", module.edge.hostnames, module.edge.public_ip))}\" >> inventory"
+    command =  "echo \"${var.edge_count == 0 ? "" : join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", slice(module.master.hostnames,0,var.edge_count), module.edge.public_ip))}\" >> inventory"
   }
   # only output if master is edge
   provisioner "local-exec" {
@@ -214,10 +245,14 @@ resource "null_resource" "generate-inventory" {
     command =  "echo \"[master:vars]\" >> inventory"
   }
   provisioner "local-exec" {
-    command =  "echo \"nodes_count=${1 + var.edge_count + var.node_count} \" >> inventory"
+    command =  "echo \"nodes_count=${1 + var.edge_count + var.node_count + var.glusternode_count} \" >> inventory"
   }
   provisioner "local-exec" {
     command =  "echo \"node_count=${var.node_count} \" >> inventory"
+  }
+  # Add an extra empty ("") element on list so it is never empty (e.g. if there are no glusternodes)
+    provisioner "local-exec" {
+    command =  "echo \"extra_disk_device=${element(concat(module.glusternode.extra_disk_device, list("")),0)}\" >> inventory"
   }
   # If cloudflare domain is set, output that domain, otherwise output a nip.io domain (with the first edge ip)
   provisioner "local-exec" {
