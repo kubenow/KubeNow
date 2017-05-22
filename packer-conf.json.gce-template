@@ -1,8 +1,0 @@
-
-{
-  "image_name": "kubenow-image",
-  "source_image_name": "some-ubuntu-xenial",
-  "account_file": "/path/to/credentials.json",
-  "zone": "some-gce-zone",
-  "project_id": "your-project-id"
-}
