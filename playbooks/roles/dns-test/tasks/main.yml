@@ -1,7 +1,4 @@
 ---
-- name: load vars
-  local_action: include_vars {{playbook_dir}}/roles/cloudflare/vars/conf.yml
-
 - name: DNS query
   set_fact:
     query_result: "{{lookup('dig', 'test.{{domain}}', wantlist=True)}}"

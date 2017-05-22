@@ -86,8 +86,13 @@ before_script:
         cp terraform.tfvars.${HOST_CLOUD}-template terraform.tfvars
       fi
   - mkdir -p ~/.ssh/ && cp test/secret/kubenow-ci.pub ~/.ssh/id_rsa.pub
-  - sed -i -e "s/your-cluster-prefix/kubenow-ci-${TRAVIS_BUILD_NUMBER}/g" terraform.tfvars
+  - sed -i -e "s/your-cluster-prefix/kubenow-ci-${TRAVIS_BUILD_NUMBER}-${HOST_CLOUD}/g" terraform.tfvars
   - sed -i -e "s/your-kubeadm-token/${CI_KUBETOKEN}/g" terraform.tfvars
+  - sed -i -e "s/use_cloudflare = \"false\"/use_cloudflare = \"true\"/g" terraform.tfvars
+  - sed -i -e "s/your-cloudflare-email/${CI_CLOUDFLARE_EMAIL}/g" terraform.tfvars
+  - sed -i -e "s/your-cloudflare-token/${CI_CLOUDFLARE_TOKEN}/g" terraform.tfvars
+  - sed -i -e "s/your-domain-name/${CI_CLOUDFLARE_DOMAIN}/g" terraform.tfvars
+  
   # AWS
   - sed -i -e "s/your-acces-key-id/${AWS_ACCESS_KEY_ID}/g" terraform.tfvars
   - sed -i -e "s/your-secret-access-key/${AWS_SECRET_ACCESS_KEY_SED}/g" terraform.tfvars
@@ -100,11 +105,6 @@ before_script:
   - sed -i -e "s/your-master-flavor/${OS_MASTER_FLAVOR}/g" terraform.tfvars
   - sed -i -e "s/your-node-flavor/${OS_NODE_FLAVOR}/g" terraform.tfvars
   - sed -i -e "s/your-edge-flavor/${OS_EDGE_FLAVOR}/g" terraform.tfvars
-
-  # Render Cloudflare configuration
-  - >
-      env | j2 --format=env test/secrets-kubenow/cloudflare/conf.yml.j2 >
-      playbooks/roles/cloudflare/vars/conf.yml
 
 script:
   # AWS doesn't need image import
@@ -121,4 +121,3 @@ script:
 
 after_script:
   - travis_retry terraform destroy -force $HOST_CLOUD
-  - ansible-playbook playbooks/clean-cloudflare.yml
