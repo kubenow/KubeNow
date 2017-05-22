@@ -7,4 +7,4 @@
     - { role: gluster-server-test, tags: [ 'glusterfs' ] }
     - { role: shared-volume-test, tags: [ 'glusterfs' ] }
     - { role: traefik-test, tags: [ 'traefik' ] }
-    - { role: dns-test, when: use_cloudflare == true, tags: [ 'cloudflare' ] }
+    - { role: dns-test, tags: [ 'minimal' ] }
