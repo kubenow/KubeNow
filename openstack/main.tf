@@ -146,6 +146,7 @@ module "generate-inventory" {
   edge_count = "${var.edge_count}"
   node_count = "${var.node_count}"
   cluster_prefix = "${var.cluster_prefix}"
+  use_cloudflare = "${var.use_cloudflare}"
   cloudflare_domain = "${var.cloudflare_domain}"
 }
 
