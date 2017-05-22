@@ -25,9 +25,9 @@ echo "Inititializing the master..."
 
 if [ -n "$api_advertise_addresses" ]
 then
-    kubeadm init --token ${kubeadm_token} --kubernetes-version=v1.6.2 --apiserver-advertise-address=$api_advertise_addresses
+    kubeadm init --token ${kubeadm_token} --kubernetes-version=v1.6.4 --apiserver-advertise-address=$api_advertise_addresses
 else
-    kubeadm init --token ${kubeadm_token} --kubernetes-version=v1.6.2
+    kubeadm init --token ${kubeadm_token} --kubernetes-version=v1.6.4
 fi
 
 # Copy kubernetes configuration created by kubeadm (admin.conf to .kube/config)
