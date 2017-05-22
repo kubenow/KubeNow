@@ -1,0 +1,42 @@
+---
+- name: create gluster kubenow yaml directory
+  become: yes
+  file:
+    path: /etc/glusterfs/kubernetes
+    state: directory
+    mode: 0755
+
+- name: copy gluster DaemonSet configuration
+  become: yes
+  copy:
+    src: glusterfs-daemonset.yml
+    dest: "/etc/glusterfs/kubernetes/glusterfs-daemonset.yml"
+
+- name: create gluster DaemonSet
+  command: >
+    kubectl apply -f
+    /etc/glusterfs/kubernetes/glusterfs-daemonset.yml
+
+# the plays below is not really needed - just for verifying everything is OK
+
+- name: wait for gluster DaemonSet to be Running
+  command: >
+    kubectl get pods
+    --namespace=storage-heketi
+    -o jsonpath='{.items[?(@.spec.containers[*].name=="glusterfs")].status.phase}'
+  register: get_phase
+  until: get_phase.stdout | match('^(Running\s)*Running$')
+  # Wait for 10 minutes
+  retries: 120
+  delay: 5
+
+- name: wait for gluster DaemonSet to be Ready
+  command: >
+    kubectl get pods
+    --namespace=storage-heketi
+    -o jsonpath='{.items[?(@.spec.containers[*].name=="glusterfs")].status.containerStatuses[*].ready}'
+  register: get_is_ready
+  until: get_is_ready.stdout | match( '^(true\s)*true$' )
+  # Wait for 10 minutes
+  retries: 120
+  delay: 5
