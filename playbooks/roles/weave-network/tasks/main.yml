@@ -15,4 +15,4 @@
 - name: start weave DaemonSet
   command: >
     kubectl apply -f
-    /etc/weave/yaml/weave-daemonset-k8s.yaml"
+    /etc/weave/yaml/weave-daemonset-k8s.yaml
