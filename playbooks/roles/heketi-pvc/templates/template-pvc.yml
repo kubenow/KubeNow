@@ -1,0 +1,15 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{name}}
+  annotations:
+    volume.beta.kubernetes.io/storage-class: "gluster-heketi"
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{storage}}
+
+# TODO change claim name to phenomenal-claim
