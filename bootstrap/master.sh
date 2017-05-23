@@ -21,6 +21,9 @@ fi
 systemctl daemon-reload
 systemctl restart kubelet
 
+# execute modprobe on node - workaround for heketi gluster
+modprobe dm_thin_pool
+
 echo "Inititializing the master..."
 
 if [ -n "$api_advertise_addresses" ]
