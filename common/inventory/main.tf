@@ -43,7 +43,7 @@ resource "null_resource" "generate-inventory" {
 
   # Write other variables
   provisioner "local-exec" {
-    command =  "echo \"[master:vars]\" >> inventory"
+    command =  "echo \"[all:vars]\" >> inventory"
   }
   provisioner "local-exec" {
     command =  "echo \"nodes_count=${1 + var.edge_count + var.node_count + var.glusternode_count} \" >> inventory"
