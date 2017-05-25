@@ -5,4 +5,4 @@
     - { role: weave-network-test, tags: [ 'minimal' ] }
     - { role: start-helm-test, tags: [ 'minimal' ] }
     - { role: traefik-test, tags: [ 'traefik' ] }
-    - { role: dns-test, when: use_cloudflare == true, tags: [ 'cloudflare' ] }
+    - { role: dns-test, tags: [ 'minimal' ] }
