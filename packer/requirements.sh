@@ -5,6 +5,9 @@ set -e
 
 echo "Ensure that APT works with HTTPS..."
 sudo apt-get update -y
+
+sudo apt-get upgrade -y
+
 sudo apt-get install -y \
   apt-transport-https \
   ca-certificates \
