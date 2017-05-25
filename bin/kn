@@ -11,7 +11,7 @@ Commands:
   ansible             run Ansible. More help: kubenow ansible --help
   ansible-playbook    run an Ansible playbook.
                       More help: kubenow ansible-playbook --help
-EOF)
+EOF )
 
 # Validate command
 if [ $# -eq 0 ]; then
