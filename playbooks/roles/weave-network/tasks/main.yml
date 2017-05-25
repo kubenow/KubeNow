@@ -1,3 +1,23 @@
 ---
 - name: install weave
   command: kubectl apply -f https://git.io/weave-kube
+
+# ready count could not be done with jsonpath and filter because of issue
+# https://github.com/kubernetes/kubernetes/issues/45546
+- name: "get desired pod count"
+  shell: >
+    kubectl get ds --all-namespaces
+    | grep weave-net
+    | awk '{print $3;}'
+  register: get_desired_count
+  
+- name: wait for weave DaemonSet to be Ready
+  shell: >
+    kubectl get ds --all-namespaces
+    | grep weave-net
+    | awk '{print $5;}'
+  register: get_ready_count
+  until: "{{get_desired_count.stdout | int}} == {{get_ready_count.stdout | int}}"
+  # Wait for 6 minutes
+  retries: 120
+  delay: 3
