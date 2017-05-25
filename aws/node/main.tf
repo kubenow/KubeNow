@@ -77,6 +77,7 @@ resource "aws_volume_attachment" "attach_extra_disk" {
   device_name = "/dev/xvdh"
   volume_id   = "${element(aws_ebs_volume.extra_disk.*.id, count.index)}"
   instance_id = "${element(aws_instance.instance.*.id, count.index)}"
+  force_detach = true
 }
 
 # Module outputs
