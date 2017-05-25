@@ -1,0 +1,57 @@
+#!/bin/bash
+
+#Usage
+USAGE=$(cat <<EOF
+Version: latest
+Usage: kubenow <command>
+Commands:
+  help                print this message
+  packer              run Packer. More help: kubenow packer --help
+  terraform           run Terraform. More help: kubenow terraform --help
+  ansible             run Ansible. More help: kubenow ansible --help
+  ansible-playbook    run an Ansible playbook.
+                      More help: kubenow ansible-playbook --help
+EOF)
+
+# Validate command
+if [ $# -eq 0 ]; then
+  >&2 echo "Error: no arguments supplied"
+  echo "$USAGE"
+  exit 1
+fi
+COMMAND=$1
+ALLOWED="help packer terraform ansible ansible-playbook"
+if [[ ! $ALLOWED =~ $COMMAND ]]; then
+  >&2 echo "Error: unrecognized command '$COMMAND'"
+  echo "$USAGE"
+  exit 1
+fi
+
+# Print help if required
+if [ "$COMMAND" = "help" ]; then
+  echo "$USAGE"
+  exit 0
+fi
+
+# Wrap docker run
+docker run --rm -it \
+  -v $PWD:/var/userdir \
+  -e "OS_USERNAME=$OS_USERNAME" \
+  -e "OS_PASSWORD=$OS_PASSWORD" \
+  -e "OS_AUTH_URL=$OS_AUTH_URL" \
+  -e "OS_USER_DOMAIN_ID=$OS_USER_DOMAIN_ID" \
+  -e "OS_DOMAIN_ID=$OS_DOMAIN_ID" \
+  -e "OS_REGION_NAME=$OS_REGION_NAME" \
+  -e "OS_PROJECT_ID=$OS_PROJECT_ID" \
+  -e "OS_TENANT_ID=$OS_TENANT_ID" \
+  -e "OS_TENANT_NAME=$OS_TENANT_NAME" \
+  -e "OS_AUTH_VERSION=$OS_AUTH_VERSION" \
+  kubenow/provisioners \
+  cp /var/userdir/terraform.tfvars ./ && \
+  cp -R /var/userdir/.terraform ./ && \
+  cp /var/userdir/terraform.tfstate ./ && \
+  cp /var/userdir/inventory ./ && \
+  $@ \
+  cp -R ./.terraform /var/userdir/ && \
+  cp ./terraform.tfstate /var/userdir/ && \
+  cp ./inventory /var/userdir/
