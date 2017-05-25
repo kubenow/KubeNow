@@ -2,16 +2,15 @@
 
 #Usage
 USAGE=$(cat <<EOF
-Version: latest
-Usage: kubenow <command>
+Usage: kn <command>
 Commands:
   help                print this message
-  packer              run Packer. More help: kubenow packer --help
-  terraform           run Terraform. More help: kubenow terraform --help
-  ansible             run Ansible. More help: kubenow ansible --help
+  init <DIR>          creates a new project in the supplied directory
+  terraform           run Terraform. More help: kn terraform --help
+  ansible             run Ansible. More help: kn ansible --help
   ansible-playbook    run an Ansible playbook.
-                      More help: kubenow ansible-playbook --help
-EOF )
+                      More help: kn ansible-playbook --help
+EOF)
 
 # Validate command
 if [ $# -eq 0 ]; then
@@ -20,7 +19,7 @@ if [ $# -eq 0 ]; then
   exit 1
 fi
 COMMAND=$1
-ALLOWED="help packer terraform ansible ansible-playbook"
+ALLOWED="help init terraform ansible ansible-playbook"
 if [[ ! $ALLOWED =~ $COMMAND ]]; then
   >&2 echo "Error: unrecognized command '$COMMAND'"
   echo "$USAGE"
@@ -30,6 +29,22 @@ fi
 # Print help if required
 if [ "$COMMAND" = "help" ]; then
   echo "$USAGE"
+  exit 0
+fi
+
+# Init command
+if [ "$COMMAND" = "init" ]; then
+  if [ $# -ne 2 ]; then
+    >&2 echo "Error: wrong number of argument for the init command"
+    echo "$USAGE"
+    exit 1
+  fi
+  INIT_DIR=$(cd $(dirname $2) && echo $PWD/$(basename $2))
+  mkdir -p $INIT_DIR
+  touch $INIT_DIR/inventory
+  docker run --rm -it -v $INIT_DIR:/var/userdir \
+    kubenow/provisioners \
+    'cp terraform.tfvars.*-template /var/userdir'
   exit 0
 fi
 
@@ -47,11 +62,11 @@ docker run --rm -it \
   -e "OS_TENANT_NAME=$OS_TENANT_NAME" \
   -e "OS_AUTH_VERSION=$OS_AUTH_VERSION" \
   kubenow/provisioners \
-  cp /var/userdir/terraform.tfvars ./ && \
+  'cp /var/userdir/terraform.tfvars ./ && \
   cp -R /var/userdir/.terraform ./ && \
   cp /var/userdir/terraform.tfstate ./ && \
   cp /var/userdir/inventory ./ && \
   $@ \
   cp -R ./.terraform /var/userdir/ && \
   cp ./terraform.tfstate /var/userdir/ && \
-  cp ./inventory /var/userdir/
+  cp ./inventory /var/userdir/'
