@@ -1,7 +1,7 @@
 # Cluster settings
 variable cluster_prefix {}
-variable kubenow_image {}
-variable ssh_key {}
+variable kubenow_image { default="kubenow-v020" }
+variable ssh_key { default="ssh_key.pub" }
 variable external_network_uuid {}
 variable dns_nameservers { default="8.8.8.8,8.8.4.4" }
 variable floating_ip_pool {}
@@ -19,9 +19,9 @@ variable node_flavor {}
 variable node_flavor_id { default = ""}
 
 # Edges settings
-variable edge_count {}
-variable edge_flavor {}
-variable edge_flavor_id { default = ""}
+variable edge_count { default=0 }
+variable edge_flavor { default="nothing" }
+variable edge_flavor_id { default="nothing" }
 
 # Cloudflare settings
 variable use_cloudflare { default="false" }
@@ -149,4 +149,3 @@ module "generate-inventory" {
   use_cloudflare = "${var.use_cloudflare}"
   cloudflare_domain = "${var.cloudflare_domain}"
 }
-
