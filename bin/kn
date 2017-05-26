@@ -56,7 +56,18 @@ if [ "$COMMAND" = "init" ]; then
   exit 0
 fi
 
+# Validate PWD
+if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ] ; then
+    >&2 echo "Error: ssh_key not found. Are you in the right directory?"
+    exit 1
+fi
+if [ ! -f terraform.tfvars ] ; then
+    >&2 echo "Error: terraform.tfvars not found. Please create one using the templates."
+    exit 1
+fi
+
 # Wrap docker run
+USR_COMMAND="$@"
 docker run --rm -it \
   -v $PWD:/var/userdir \
   -e "OS_USERNAME=$OS_USERNAME" \
@@ -75,7 +86,7 @@ docker run --rm -it \
   cp /var/userdir/terraform.tfstate ./ 2>/dev/null ;
   cp /var/userdir/inventory ./ 2>/dev/null ;
   /ssh_key* ./ 2>/dev/null ;
-  '"$@"' ;
+  '"$USR_COMMAND"' ;
   cp -R ./.terraform /var/userdir/ 2>/dev/null ;
   cp ./terraform.tfstate /var/userdir/ 2>/dev/null ;
   cp ./inventory /var/userdir/ 2>/dev/null'
