@@ -50,6 +50,7 @@ if [ "$COMMAND" = "init" ]; then
   mkdir -p $INIT_DIR
   # Copy templates
   docker run --rm -v $INIT_DIR:/var/userdir \
+    -e USER=$USER -u $UID \
     kubenow/provisioners \
     'cp templates/terraform.tfvars.*-template /var/userdir'
   # Generate and write kubetoken
@@ -75,6 +76,7 @@ fi
 # Wrap docker run
 USR_COMMAND="$@"
 docker run --rm -it \
+  -e USER=$USER -u $UID \
   -v $PWD:/var/userdir \
   -e "OS_USERNAME=$OS_USERNAME" \
   -e "OS_PASSWORD=$OS_PASSWORD" \
