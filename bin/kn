@@ -40,11 +40,19 @@ if [ "$COMMAND" = "init" ]; then
     exit 1
   fi
   INIT_DIR=$(cd $(dirname $2) && echo $PWD/$(basename $2))
+  echo "Initializing $INIT_DIR deployment directory..."
   mkdir -p $INIT_DIR
-  touch $INIT_DIR/inventory
-  docker run --rm -it -v $INIT_DIR:/var/userdir \
+  # Copy templates
+  docker run --rm -v $INIT_DIR:/var/userdir \
     kubenow/provisioners \
-    'cp terraform.tfvars.*-template /var/userdir'
+    'cp templates/terraform.tfvars.*-template /var/userdir'
+  # Generate and write kubetoken
+  tokenID=`docker run --rm kubenow/provisioners 'openssl rand -hex 3'`
+  tokenVal=`docker run --rm kubenow/provisioners 'openssl rand -hex 8'`
+  token="$tokenID.$tokenVal"
+  sed -i '' -e "s/your-kubeadm-token/${token}/g" $INIT_DIR/terraform.tfvars.*-template
+  # Generate SSH keys
+  ssh-keygen -t rsa -N '' -f $INIT_DIR/ssh_key
   exit 0
 fi
 
@@ -62,11 +70,12 @@ docker run --rm -it \
   -e "OS_TENANT_NAME=$OS_TENANT_NAME" \
   -e "OS_AUTH_VERSION=$OS_AUTH_VERSION" \
   kubenow/provisioners \
-  'cp /var/userdir/terraform.tfvars ./ && \
-  cp -R /var/userdir/.terraform ./ && \
-  cp /var/userdir/terraform.tfstate ./ && \
-  cp /var/userdir/inventory ./ && \
-  $@ \
-  cp -R ./.terraform /var/userdir/ && \
-  cp ./terraform.tfstate /var/userdir/ && \
-  cp ./inventory /var/userdir/'
+  'cp /var/userdir/terraform.tfvars ./ 2>/dev/null ;
+  cp -R /var/userdir/.terraform ./ 2>/dev/null ;
+  cp /var/userdir/terraform.tfstate ./ 2>/dev/null ;
+  cp /var/userdir/inventory ./ 2>/dev/null ;
+  /ssh_key* ./ 2>/dev/null ;
+  '"$@"' ;
+  cp -R ./.terraform /var/userdir/ 2>/dev/null ;
+  cp ./terraform.tfstate /var/userdir/ 2>/dev/null ;
+  cp ./inventory /var/userdir/ 2>/dev/null'
