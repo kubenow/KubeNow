@@ -34,12 +34,18 @@ fi
 
 # Init command
 if [ "$COMMAND" = "init" ]; then
+  # Validate
   if [ $# -ne 2 ]; then
     >&2 echo "Error: wrong number of argument for the init command"
     echo "$USAGE"
     exit 1
   fi
   INIT_DIR=$(cd $(dirname $2) && echo $PWD/$(basename $2))
+  if [ -f $INIT_DIR ] || [ -d $INIT_DIR ]; then
+    >&2 echo "Error: $INIT_DIR already exists"
+    exit 1
+  fi
+  # Init
   echo "Initializing $INIT_DIR deployment directory..."
   mkdir -p $INIT_DIR
   # Copy templates
