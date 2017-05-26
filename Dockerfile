@@ -1,4 +1,4 @@
-FROM python:alpine
+FROM python:2.7-alpine
 MAINTAINER "Marco Capuccini <marco.capuccini@it.uu.se>"
 
 # Provisioners versions

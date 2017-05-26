@@ -50,7 +50,6 @@ if [ "$COMMAND" = "init" ]; then
   mkdir -p $INIT_DIR
   # Copy templates
   docker run --rm -v $INIT_DIR:/var/userdir \
-    -e USER=$USER -u $UID:kubenow \
     kubenow/provisioners \
     'cp templates/terraform.tfvars.*-template /var/userdir'
   # Generate and write kubetoken
@@ -74,7 +73,6 @@ fi
 # Wrap docker run
 USR_COMMAND="$@"
 docker run --rm -it \
-  -e USER=$USER -u $UID:kubenow \
   -v $PWD:/var/userdir \
   -e "OS_USERNAME=$OS_USERNAME" \
   -e "OS_PASSWORD=$OS_PASSWORD" \
@@ -92,6 +90,7 @@ docker run --rm -it \
   cp /var/userdir/terraform.tfstate ./ 2>/dev/null ;
   cp /var/userdir/inventory ./ 2>/dev/null ;
   cp /var/userdir/ssh_key* ./ 2>/dev/null ;
+  eval `ssh-agent -s` &>/dev/null ; ssh-add ssh_key 2>/dev/null ;
   '"$USR_COMMAND"' ;
   cp -R ./.terraform /var/userdir/ 2>/dev/null ;
   cp ./terraform.tfstate /var/userdir/ 2>/dev/null ;
