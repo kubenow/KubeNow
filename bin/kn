@@ -54,9 +54,7 @@ if [ "$COMMAND" = "init" ]; then
     kubenow/provisioners \
     'cp templates/terraform.tfvars.*-template /var/userdir'
   # Generate and write kubetoken
-  tokenID=`docker run --rm kubenow/provisioners 'openssl rand -hex 3'`
-  tokenVal=`docker run --rm kubenow/provisioners 'openssl rand -hex 8'`
-  token="$tokenID.$tokenVal"
+  token=$(docker run --rm kubenow/provisioners 'echo `openssl rand -hex 3`.`openssl rand -hex 8`')
   sed -i '' -e "s/your-kubeadm-token/${token}/g" $INIT_DIR/terraform.tfvars.*-template
   # Generate SSH keys
   ssh-keygen -t rsa -N '' -f $INIT_DIR/ssh_key
