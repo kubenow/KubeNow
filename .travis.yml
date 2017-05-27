@@ -19,6 +19,8 @@ env:
     - TERRAFORM_VERSION=0.9.4
     - ANSIBLE_VERSION=2.2.0.0
     - IMAGE_VERSION=v020
+    - LIBCLOUD_VERSION=1.5.0
+    - ANSIBLE_LINT_VERSION=3.4.13
   matrix:
     - HOST_CLOUD=openstack
     - HOST_CLOUD=gce
@@ -27,33 +29,29 @@ env:
 git:
   submodules: false
 
+addons:
+  apt:
+    sources:
+      - debian-sid
+    packages:
+      - shellcheck
+
 before_install:
 
-  # Decrypt secrets
-  - >
-    openssl aes-256-cbc
-    -K $encrypted_92d825aa39d7_key
-    -iv $encrypted_92d825aa39d7_iv
-    -in test/secret.enc
-    -out test/secret.tgz
-    -d
-
-  # Extract secrets
-  - tar xzvf test/secret.tgz -C test
+  # Generate keypair
+  - mkdir -p keypair
+  - ssh-keygen -q -t rsa -N "" -f keypair/kubenow-ci
 
   # Add the keypair to the agent
   - eval "$(ssh-agent -s)"
-  - ssh-add test/secret/kubenow-ci
-
-  # Get secrets
-  - git submodule update --init --recursive
+  - ssh-add keypair/kubenow-ci
 
 install:
 
   # Install Terraform
   - >
       travis_retry curl
-      https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+      "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
       > /tmp/terraform.zip
   - sudo unzip /tmp/terraform.zip -d /usr/bin
   - sudo chmod +x /usr/bin/terraform
@@ -62,42 +60,38 @@ install:
   - sudo pip install --upgrade pip
   - >
       sudo pip install
-      ansible==${ANSIBLE_VERSION}
+      ansible=="${ANSIBLE_VERSION}"
       j2cli
       dnspython
       jmespath
-      apache-libcloud
+      backports.ssl_match_hostname
+      apache-libcloud=="${LIBCLOUD_VERSION}"
       shade
+      ansible-lint=="${ANSIBLE_LINT_VERSION}"
 
 before_script:
-
-  # Source test environment
-  - source test/secrets-kubenow/host_cloud/common.sh
-  - source test/secrets-kubenow/host_cloud/CityCloud.sh
-  - source test/secrets-kubenow/host_cloud/aws.sh
-  - source test/secrets-kubenow/host_cloud/gce.sh
 
   # Render Terraform configuration
   # Common
   - >
-      if [ $HOST_CLOUD = 'openstack' ]; then
+      if [ "$HOST_CLOUD" = 'openstack' ]; then
         cp terraform.tfvars.os-template terraform.tfvars
       else
-        cp terraform.tfvars.${HOST_CLOUD}-template terraform.tfvars
+        cp "terraform.tfvars.${HOST_CLOUD}-template" terraform.tfvars
       fi
-  - mkdir -p ~/.ssh/ && cp test/secret/kubenow-ci.pub ~/.ssh/id_rsa.pub
+  - mkdir -p "$HOME/.ssh/" && cp keypair/kubenow-ci.pub "$HOME/.ssh/id_rsa.pub"
   - sed -i -e "s/your-cluster-prefix/kubenow-ci-${TRAVIS_BUILD_NUMBER}-${HOST_CLOUD}/g" terraform.tfvars
   - sed -i -e "s/your-kubeadm-token/${CI_KUBETOKEN}/g" terraform.tfvars
-  - sed -i -e "s/use_cloudflare = \"false\"/use_cloudflare = \"true\"/g" terraform.tfvars
+  - sed -i -e 's/use_cloudflare = "false"/use_cloudflare = "true"/g' terraform.tfvars
   - sed -i -e "s/your-cloudflare-email/${CI_CLOUDFLARE_EMAIL}/g" terraform.tfvars
   - sed -i -e "s/your-cloudflare-token/${CI_CLOUDFLARE_TOKEN}/g" terraform.tfvars
   - sed -i -e "s/your-domain-name/${CI_CLOUDFLARE_DOMAIN}/g" terraform.tfvars
-  
+
   # AWS
   - sed -i -e "s/your-acces-key-id/${AWS_ACCESS_KEY_ID}/g" terraform.tfvars
-  - sed -i -e "s/your-secret-access-key/${AWS_SECRET_ACCESS_KEY_SED}/g" terraform.tfvars
+  - sed -i -e "s#your-secret-access-key#${AWS_SECRET_ACCESS_KEY}#g" terraform.tfvars
   # GCE
-  - cp test/secrets-kubenow/host_cloud/gce-key.json ~/account_file.json
+  - printf '%s\n' "$GCE_CREDENTIALS" > "$HOME/account_file.json"
   - sed -i -e "s/your_project_id/${GCE_PROJECT_ID}/g" terraform.tfvars
   # OS
   - sed -i -e "s/your-pool-name/${OS_POOL_NAME}/g" terraform.tfvars
@@ -106,18 +100,31 @@ before_script:
   - sed -i -e "s/your-node-flavor/${OS_NODE_FLAVOR}/g" terraform.tfvars
   - sed -i -e "s/your-edge-flavor/${OS_EDGE_FLAVOR}/g" terraform.tfvars
 
+  # Check code quality
+  # check Terraform
+  - terraform fmt common/cloudflare
+  - terraform fmt common/inventory
+  - terraform fmt "$HOST_CLOUD"
+  - git diff --exit-code # this will fail if terraform changed something
+  # check Ansible
+  # skip ANSIBLE0006: avoid using curl
+  # skip ANSIBLE0012: missing change_when on command/shell etc.
+  - ansible-lint -x ANSIBLE0006,ANSIBLE0012 playbooks/*.yml
+  # check Shell
+  - shellcheck $(find . -type f -name "*.sh")
+
 script:
   # AWS doesn't need image import
   - >
-      if [ $HOST_CLOUD = 'openstack' ] || [ $HOST_CLOUD = 'gce' ]; then
+      if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ]; then
         ansible-playbook \
-        -e "credentials_file_path=$PWD/test/secrets-kubenow/host_cloud/gce-key.json" \
+        -e "credentials_file_path=$HOME/account_file.json" \
         playbooks/import-"$HOST_CLOUD"-image.yml
       fi
-  - terraform get $HOST_CLOUD
-  - travis_retry terraform apply $HOST_CLOUD
+  - terraform get "$HOST_CLOUD"
+  - travis_retry terraform apply "$HOST_CLOUD"
   - ansible-playbook playbooks/install-core.yml
   - ansible-playbook playbooks/infra-test.yml
 
 after_script:
-  - travis_retry terraform destroy -force $HOST_CLOUD
+  - travis_retry terraform destroy -force "$HOST_CLOUD"
