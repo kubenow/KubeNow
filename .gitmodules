@@ -1,3 +1,0 @@
-[submodule "test/secrets-kubenow"]
-	path = test/secrets-kubenow
-	url = git@github.com:mcapuccini/secrets-kubenow.git
