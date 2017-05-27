@@ -14,12 +14,6 @@ branches:
     - /^docs\/.*$/
     - /^documentation\/.*$/
 
-# Please note that some additional and secret environment variables are defined in the travis web-ui
-#
-# Variable definition in the travis web-ui can be done with single quotes to avoid bash substitution
-# problems, e.g. field-name: GCE_JSON_CREDENTIALS and wrap content of value field in single quotes
-# 'contents-of-the-credentials-file'
-
 env:
   global:
     - TERRAFORM_VERSION=0.9.4
@@ -81,7 +75,7 @@ before_script:
   - sed -i -e "s/your-cloudflare-email/${CI_CLOUDFLARE_EMAIL}/g" terraform.tfvars
   - sed -i -e "s/your-cloudflare-token/${CI_CLOUDFLARE_TOKEN}/g" terraform.tfvars
   - sed -i -e "s/your-domain-name/${CI_CLOUDFLARE_DOMAIN}/g" terraform.tfvars
-  
+
   # AWS
   - sed -i -e "s/your-acces-key-id/${AWS_ACCESS_KEY_ID}/g" terraform.tfvars
   - sed -i -e "s#your-secret-access-key#${AWS_SECRET_ACCESS_KEY}#g" terraform.tfvars
