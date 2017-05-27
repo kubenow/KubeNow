@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Usage
-USAGE=$(cat <<EOF
+read -r -d '' USAGE << EOM
 Usage: kn <command>
 Commands:
   help                print this message
@@ -10,17 +10,17 @@ Commands:
   ansible             run Ansible. More help: kn ansible --help
   ansible-playbook    run an Ansible playbook.
                       More help: kn ansible-playbook --help
-EOF)
+EOM
 
 # Validate command
-if [ $# -eq 0 ]; then
+if [ "$#" -eq 0 ]; then
   >&2 echo "Error: no arguments supplied"
   echo "$USAGE"
   exit 1
 fi
-COMMAND=$1
+COMMAND="$1"
 ALLOWED="help init terraform ansible ansible-playbook"
-if [[ ! $ALLOWED =~ $COMMAND ]]; then
+if [[ ! "$ALLOWED" =~ $COMMAND ]]; then
   >&2 echo "Error: unrecognized command '$COMMAND'"
   echo "$USAGE"
   exit 1
@@ -35,28 +35,30 @@ fi
 # Init command
 if [ "$COMMAND" = "init" ]; then
   # Validate
-  if [ $# -ne 2 ]; then
+  if [ "$#" -ne 2 ]; then
     >&2 echo "Error: wrong number of argument for the init command"
     echo "$USAGE"
     exit 1
   fi
+  # shellcheck disable=SC2086,SC2046
   INIT_DIR=$(cd $(dirname $2) && echo $PWD/$(basename $2))
-  if [ -f $INIT_DIR ] || [ -d $INIT_DIR ]; then
+  if [ -f "$INIT_DIR" ] || [ -d "$INIT_DIR" ]; then
     >&2 echo "Error: $INIT_DIR already exists"
     exit 1
   fi
   # Init
   echo "Initializing $INIT_DIR deployment directory..."
-  mkdir -p $INIT_DIR
+  mkdir -p "$INIT_DIR"
   # Copy templates
-  docker run --rm -v $INIT_DIR:/var/userdir \
+  docker run --rm -v "$INIT_DIR":/var/userdir \
     kubenow/provisioners \
     'cp templates/terraform.tfvars.*-template /var/userdir'
   # Generate and write kubetoken
+  # shellcheck disable=SC2016
   token=$(docker run --rm kubenow/provisioners 'echo `openssl rand -hex 3`.`openssl rand -hex 8`')
-  sed -i '' -e "s/your-kubeadm-token/${token}/g" $INIT_DIR/terraform.tfvars.*-template
+  sed -i '' -e "s/your-kubeadm-token/${token}/g" "$INIT_DIR"/terraform.tfvars.*-template
   # Generate SSH keys
-  ssh-keygen -t rsa -N '' -f $INIT_DIR/ssh_key
+  ssh-keygen -t rsa -N '' -f "$INIT_DIR"/ssh_key
   exit 0
 fi
 
@@ -71,14 +73,16 @@ if [ ! -f terraform.tfvars ] ; then
 fi
 
 # If no version specified take stable
-if [ -z "$KUBENOW_VERSION" ];
+if [ -z "$KUBENOW_VERSION" ] ; then
   KUBENOW_VERSION="latest" # to be changed to stable after release
 fi
 
 # Wrap docker run
+# shellcheck disable=SC2124
 USR_COMMAND="$@"
+# shellcheck disable=SC2016
 docker run --rm -it \
-  -v $PWD:/var/userdir \
+  -v "$PWD":/var/userdir \
   -e "OS_USERNAME=$OS_USERNAME" \
   -e "OS_PASSWORD=$OS_PASSWORD" \
   -e "OS_AUTH_URL=$OS_AUTH_URL" \
