@@ -26,9 +26,6 @@ env:
     - HOST_CLOUD=gce
     - HOST_CLOUD=aws
 
-git:
-  submodules: false
-
 addons:
   apt:
     sources:
