@@ -30,7 +30,7 @@ git:
 before_install:
 
   # Generate keypair
-  - mkdir -p keypair/
+  - mkdir -p keypair
   - ssh-keygen -q -t rsa -N "" -f keypair/kubenow-ci
 
   # Add the keypair to the agent
