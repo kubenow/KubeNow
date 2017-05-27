@@ -94,4 +94,5 @@ docker run --rm -it \
   '"$USR_COMMAND"' ;
   cp -R ./.terraform /var/userdir/ 2>/dev/null ;
   cp ./terraform.tfstate /var/userdir/ 2>/dev/null ;
-  cp ./inventory /var/userdir/ 2>/dev/null'
+  cp ./inventory /var/userdir/ 2>/dev/null ;
+  chown -R '"$UID"' /var/userdir/'
