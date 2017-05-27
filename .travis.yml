@@ -17,7 +17,7 @@ branches:
 env:
   global:
     - TERRAFORM_VERSION=0.9.4
-    - ANSIBLE_VERSION=2.2.0.0
+    - ANSIBLE_VERSION=2.3.0.0
     - IMAGE_VERSION=v020
   matrix:
     - HOST_CLOUD=openstack
@@ -66,6 +66,7 @@ install:
       j2cli
       dnspython
       jmespath
+      backports.ssl_match_hostname
       apache-libcloud
       shade
 
@@ -92,7 +93,7 @@ before_script:
   - sed -i -e "s/your-cloudflare-email/${CI_CLOUDFLARE_EMAIL}/g" terraform.tfvars
   - sed -i -e "s/your-cloudflare-token/${CI_CLOUDFLARE_TOKEN}/g" terraform.tfvars
   - sed -i -e "s/your-domain-name/${CI_CLOUDFLARE_DOMAIN}/g" terraform.tfvars
-  
+
   # AWS
   - sed -i -e "s/your-acces-key-id/${AWS_ACCESS_KEY_ID}/g" terraform.tfvars
   - sed -i -e "s/your-secret-access-key/${AWS_SECRET_ACCESS_KEY_SED}/g" terraform.tfvars
