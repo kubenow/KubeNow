@@ -17,7 +17,7 @@ branches:
 env:
   global:
     - TERRAFORM_VERSION=0.9.4
-    - ANSIBLE_VERSION=2.2.0.0
+    - ANSIBLE_VERSION=2.3.0.0
     - IMAGE_VERSION=v020
   matrix:
     - HOST_CLOUD=openstack
@@ -55,6 +55,7 @@ install:
       j2cli
       dnspython
       jmespath
+      backports.ssl_match_hostname
       apache-libcloud
       shade
 
