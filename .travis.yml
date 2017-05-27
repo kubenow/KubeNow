@@ -57,7 +57,7 @@ install:
       dnspython
       jmespath
       backports.ssl_match_hostname
-      apache-libcloud="${LIBCLOUD_VERSION}"
+      apache-libcloud=="${LIBCLOUD_VERSION}"
       shade
 
 before_script:
