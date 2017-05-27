@@ -5,6 +5,7 @@ MAINTAINER "Marco Capuccini <marco.capuccini@it.uu.se>"
 ENV TERRAFORM_VERSION=0.9.5
 ENV TERRAFORM_SHA256SUM=0cbb5474c76d878fbc99e7705ce6117f4ea0838175c13b2663286a207e38d783
 ENV ANSIBLE_VERSION=2.2.0.0
+ENV LIBCLOUD_VERSION=1.5.0
 
 # Install APK deps
 RUN apk add --update \
@@ -23,7 +24,7 @@ RUN pip install \
   j2cli \
   dnspython \
   jmespath \
-  apache-libcloud \
+  apache-libcloud==$LIBCLOUD_VERSION \
   shade
 
 # Install Terraform
@@ -37,9 +38,6 @@ RUN curl https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform
 
 # Add KubeNow (and group)
 COPY . /opt/KubeNow
-RUN addgroup kubenow
-RUN chown :kubenow /opt/KubeNow
-RUN chmod g+w /opt/KubeNow
 WORKDIR /opt/KubeNow
 
 # Set entrypoint
