@@ -29,6 +29,13 @@ env:
 git:
   submodules: false
 
+addons:
+  apt:
+    sources:
+      - debian-sid
+    packages:
+      - shellcheck
+
 before_install:
 
   # Generate keypair
