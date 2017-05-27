@@ -10,7 +10,7 @@
     | grep weave-net
     | awk '{print $3;}'
   register: get_desired_count
-  
+
 - name: wait for weave DaemonSet to be Ready
   shell: >
     kubectl get ds --all-namespaces

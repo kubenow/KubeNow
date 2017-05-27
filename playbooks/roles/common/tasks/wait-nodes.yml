@@ -21,7 +21,8 @@
   when:
     - nodes_count is undefined
 
-- set_fact:
+- name: "set nodes_count fact"
+  set_fact:
     # +1 because master is also one node
     nodes_count: "{{(get_nodes_count.stdout | int) + 1}}"
   when:

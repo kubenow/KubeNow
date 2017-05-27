@@ -107,7 +107,9 @@ before_script:
   - terraform fmt "$HOST_CLOUD"
   - git diff --exit-code # this will fail if terraform changed something
   # check Ansible
-  - ansible-lint playbooks/*.yml
+  # skip ANSIBLE0006: avoid using curl
+  # skip ANSIBLE0012: missing change_when on command/shell etc.
+  - ansible-lint -x ANSIBLE0006,ANSIBLE0012 playbooks/*.yml
   # check Shell
   - shellcheck $(find . -type f -name "*.sh")
 
