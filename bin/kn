@@ -99,7 +99,7 @@ docker run --rm -it \
   cp /var/userdir/terraform.tfstate ./ 2>/dev/null ;
   cp /var/userdir/inventory ./ 2>/dev/null ;
   cp /var/userdir/ssh_key* ./ 2>/dev/null ;
-  cp /var/userdir/service-account.json ./  ;
+  cp /var/userdir/service-account.json ./ 2>/dev/null ;
   eval `ssh-agent -s` &>/dev/null ; ssh-add ssh_key 2>/dev/null ;
   '"$USR_COMMAND"' ; URS_COMMAND_STATUS=$? ;
   cp -R ./.terraform /var/userdir/ 2>/dev/null ;
