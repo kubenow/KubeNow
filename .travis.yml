@@ -101,7 +101,7 @@ before_script:
   - sed -i -e "s/your-node-flavor/${OS_NODE_FLAVOR}/g" terraform.tfvars
   - sed -i -e "s/your-edge-flavor/${OS_EDGE_FLAVOR}/g" terraform.tfvars
   # Enable edges
-  sed -i -e "s/# edge/edge/g" terraform.tfvars
+  - sed -i -e "s/# edge/edge/g" terraform.tfvars
   # Cloudflare
   - sed -i -e "s/# cloudflare/cloudflare/g" terraform.tfvars
   - sed -i -e "s/# use_cloudflare/use_cloudflare/g" terraform.tfvars
