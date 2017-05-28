@@ -76,7 +76,8 @@ install:
 before_script:
 
   # Init test deployment
-  - bin/kn init test-deployment && cd test-deployment
+  - bin/kn init test-deployment
+  - cd test-deployment
 
   # RENDER CONFIGURATION
   # Create terraform.tfvars
