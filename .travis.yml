@@ -39,9 +39,10 @@ jobs:
     # Test stage
     - stage: test
 
-      matrix:
-        exclude:
-          env: HOST_CLOUD=openstack HOST_CLOUD=gce HOST_CLOUD=aws
+      env:
+        - HOST_CLOUD=openstack
+        - HOST_CLOUD=gce
+        - HOST_CLOUD=aws
 
       before_install:
 
