@@ -35,10 +35,7 @@ addons:
 
 jobs:
   include:
-
-    # Test stage
-    - stage: Test on clouds
-
+    
       before_install:
 
         # Install code review tools
