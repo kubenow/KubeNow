@@ -21,7 +21,10 @@ env:
   global:
     - TERRAFORM_VERSION=0.9.4
     - ANSIBLE_LINT_VERSION=3.4.13
-
+  matrix:
+    - HOST_CLOUD=openstack
+    - HOST_CLOUD=gce
+    - HOST_CLOUD=aws
 
 addons:
   apt:
@@ -37,10 +40,8 @@ jobs:
     - stage: test
 
       matrix:
-        env:
-          - HOST_CLOUD=openstack
-          - HOST_CLOUD=gce
-          - HOST_CLOUD=aws
+        exclude:
+          env: HOST_CLOUD=openstack HOST_CLOUD=gce HOST_CLOUD=aws
 
       before_install:
 
