@@ -123,6 +123,11 @@ jobs:
     # Docker push stage
     - stage: Push container
       script:
+        # Exit if not in master
+        - >
+            if [ $TRAVIS_BRANCH != 'master' ]; then
+              exit 0
+            fi
         # Build and push Docker image (needs to be build again in this stage)
         - >
             if [ -z $TRAVIS_TAG ]; then
