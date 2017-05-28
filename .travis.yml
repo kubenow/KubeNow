@@ -109,7 +109,7 @@ script:
       fi
   # Deploy
   - ../bin/kn terraform get "$HOST_CLOUD"
-  - ../bin/kn travis_retry terraform apply "$HOST_CLOUD"
+  - travis_retry ../bin/kn terraform apply "$HOST_CLOUD"
   - ../bin/kn ansible-playbook playbooks/install-core.yml
   # Test
   - ../bin/kn ansible-playbook playbooks/infra-test.yml
