@@ -39,6 +39,11 @@ jobs:
     # Test stage
     - stage: test
 
+      env:
+        - HOST_CLOUD=openstack
+        - HOST_CLOUD=gce
+        - HOST_CLOUD=aws
+
       before_install:
 
         # Install code review tools
