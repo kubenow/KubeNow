@@ -122,6 +122,10 @@ jobs:
   include:
     # Docker push stage
     - stage: Push container
+      before_install: true
+      install: true
+      before_script: true
+      after_script: true
       script:
         # Exit if not in master
         - >
@@ -133,10 +137,10 @@ jobs:
         - >
             if [ -z $TRAVIS_TAG ]; then
               docker build -t kubenow/provisioners:current .
-              docker push kubenow/provisioners:$TRAVIS_TAG
-              docker push kubenow/provisioners:latest
+              docker push kubenow/provisioners:current
             else
               docker build -t kubenow/provisioners:$TRAVIS_TAG \
                 -t kubenow/provisioners:latest .
-              docker push kubenow/provisioners:current
+              docker push kubenow/provisioners:$TRAVIS_TAG
+              docker push kubenow/provisioners:latest
             fi
