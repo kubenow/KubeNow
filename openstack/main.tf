@@ -52,7 +52,7 @@ variable edge_flavor {
 }
 
 variable edge_flavor_id {
-  default = "nothing"
+  default = ""
 }
 
 # Cloudflare settings
