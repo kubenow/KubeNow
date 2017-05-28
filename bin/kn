@@ -74,7 +74,7 @@ fi
 
 # If no version specified take stable
 if [ -z "$KUBENOW_VERSION" ] ; then
-  KUBENOW_VERSION="latest" # to be changed to stable after release
+  KUBENOW_VERSION="latest"
 fi
 
 # Wrap docker run
@@ -99,9 +99,11 @@ docker run --rm -it \
   cp /var/userdir/terraform.tfstate ./ 2>/dev/null ;
   cp /var/userdir/inventory ./ 2>/dev/null ;
   cp /var/userdir/ssh_key* ./ 2>/dev/null ;
+  cp /var/userdir/service-account.json ./  ;
   eval `ssh-agent -s` &>/dev/null ; ssh-add ssh_key 2>/dev/null ;
-  '"$USR_COMMAND"' ;
+  '"$USR_COMMAND"' ; URS_COMMAND_STATUS=$? ;
   cp -R ./.terraform /var/userdir/ 2>/dev/null ;
   cp ./terraform.tfstate /var/userdir/ 2>/dev/null ;
   cp ./inventory /var/userdir/ 2>/dev/null ;
-  chown -R '"$UID"' /var/userdir/'
+  chown -R '"$UID"' /var/userdir/ ;
+  exit $URS_COMMAND_STATUS'
