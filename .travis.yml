@@ -37,10 +37,9 @@ jobs:
 
       # Test matrix
       env:
-        matrix:
-          - HOST_CLOUD=openstack
-          - HOST_CLOUD=gce
-          - HOST_CLOUD=aws
+        - HOST_CLOUD=openstack
+        - HOST_CLOUD=gce
+        - HOST_CLOUD=aws
 
       before_install:
 
