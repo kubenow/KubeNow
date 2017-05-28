@@ -37,10 +37,7 @@ jobs:
   include:
 
     # Test stage
-    - stage: test
-
-      env:
-        - HOST_CLOUD=
+    - stage: Test on clouds
 
       before_install:
 
