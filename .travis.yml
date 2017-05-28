@@ -65,7 +65,7 @@ install:
 
   # Build Docker image
   - >
-      if [ -z $TRAVIS_TAG ];
+      if [ -z $TRAVIS_TAG ]; then
         docker build -t kubenow/provisioners:current .
         export KUBENOW_VERSION=current
       else
