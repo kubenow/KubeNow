@@ -65,12 +65,12 @@ install:
 
   # Build Docker image
   - >
-      if [ -z $TRAVIS_TAG ]; then
-        docker build -t kubenow/provisioners:$TRAVIS_TAG \
-          -t kubenow/provisioners:latest .
-      else
+      if [ -z $TRAVIS_TAG ];
         docker build -t kubenow/provisioners:current .
         export KUBENOW_VERSION=current
+      else
+        docker build -t kubenow/provisioners:$TRAVIS_TAG \
+          -t kubenow/provisioners:latest .
       fi
 
 before_script:
