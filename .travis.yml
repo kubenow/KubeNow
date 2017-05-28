@@ -129,6 +129,7 @@ jobs:
               exit 0
             fi
         # Build and push Docker image (needs to be build again in this stage)
+        - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         - >
             if [ -z $TRAVIS_TAG ]; then
               docker build -t kubenow/provisioners:current .
