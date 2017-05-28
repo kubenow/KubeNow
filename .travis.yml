@@ -62,7 +62,7 @@ before_install:
   - shellcheck bin/*
 
 # Build Docker image
-install: docker build -t kubenow/provisioners:latest
+install: docker build -t kubenow/provisioners:latest .
 
 before_script:
 
