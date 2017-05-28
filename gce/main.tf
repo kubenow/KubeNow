@@ -1,20 +1,28 @@
 # Cluster settings
 variable cluster_prefix {}
 
-variable kubenow_image {}
+variable kubenow_image {
+  default = "kubenow-v020"
+}
+
 variable kubeadm_token {}
 
 variable ssh_user {
   default = "ubuntu"
 }
 
-variable ssh_key {}
+variable ssh_key {
+  default = "ssh_key.pub"
+}
 
 # Google credentials
 variable gce_project {}
 
 variable gce_zone {}
-variable gce_credentials_file {}
+
+variable gce_credentials_file {
+  default = "service-account.json"
+}
 
 # Master settings
 variable master_count {
@@ -35,10 +43,17 @@ variable node_flavor {}
 variable node_disk_size {}
 
 # Edges settings
-variable edge_count {}
+variable edge_count {
+  default = 0
+}
 
-variable edge_flavor {}
-variable edge_disk_size {}
+variable edge_flavor {
+  default = "nothing"
+}
+
+variable edge_disk_size {
+  default = "nothing"
+}
 
 # Cloudflare settings
 variable use_cloudflare {

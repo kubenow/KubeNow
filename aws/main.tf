@@ -1,7 +1,10 @@
 # Cluster settings
 variable cluster_prefix {}
 
-variable kubenow_image {}
+variable kubenow_image {
+  default = "kubenow-v020"
+}
+
 variable kubeadm_token {}
 
 variable aws_access_key_id {}
@@ -13,7 +16,9 @@ variable ssh_user {
   default = "ubuntu"
 }
 
-variable ssh_key {}
+variable ssh_key {
+  default = "ssh_key.pub"
+}
 
 # Networking
 variable vpc_id {
@@ -49,10 +54,17 @@ variable node_instance_type {}
 variable node_disk_size {}
 
 # Edges settings
-variable edge_count {}
+variable edge_count {
+  default = 0
+}
 
-variable edge_instance_type {}
-variable edge_disk_size {}
+variable edge_instance_type {
+  default = "nothing"
+}
+
+variable edge_disk_size {
+  default = "nothing"
+}
 
 # Cloudflare settings
 variable use_cloudflare {
