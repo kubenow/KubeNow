@@ -53,7 +53,6 @@ resource "null_resource" "generate-inventory" {
     command =  "echo \"${var.edge_count == 0 ? "" : join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", slice(module.master.hostnames,0,var.edge_count), module.edge.public_ip))}\" >> inventory"
   }
 
-
   # Write other variables
   provisioner "local-exec" {
     command = "echo \"[master:vars]\" >> inventory"
