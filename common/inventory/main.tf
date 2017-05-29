@@ -42,15 +42,15 @@ resource "null_resource" "generate-inventory" {
   provisioner "local-exec" {
     command = "echo \"[edge]\" >> inventory"
   }
-  
+
   # only output if master is edge
   provisioner "local-exec" {
     command = "echo \"${var.master_as_edge != true ? "" : join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", var.master_hostnames, var.master_public_ip))}\" >> inventory"
   }
-  
+
   # output the lists formated, slice list to make sure hostname- and ip-list have same length
   provisioner "local-exec" {
-    command =  "echo \"${var.edge_count == 0 ? "" : join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", slice(module.master.hostnames,0,var.edge_count), module.edge.public_ip))}\" >> inventory"
+    command = "echo \"${var.edge_count == 0 ? "" : join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", slice(module.master.hostnames,0,var.edge_count), module.edge.public_ip))}\" >> inventory"
   }
 
   # Write other variables
