@@ -1,0 +1,115 @@
+#!/bin/bash
+
+#Usage
+read -r -d '' USAGE << EOM
+Usage: kn <command>
+Commands:
+  help                print this message
+  init <DIR>          creates a new project in the supplied directory
+  terraform           run Terraform. More help: kn terraform --help
+  ansible             run Ansible. More help: kn ansible --help
+  ansible-playbook    run an Ansible playbook.
+                      More help: kn ansible-playbook --help
+EOM
+
+# Validate command
+if [ "$#" -eq 0 ]; then
+  >&2 echo "Error: no arguments supplied"
+  echo "$USAGE"
+  exit 1
+fi
+COMMAND="$1"
+ALLOWED="help init terraform ansible ansible-playbook"
+if [[ ! "$ALLOWED" =~ $COMMAND ]]; then
+  >&2 echo "Error: unrecognized command '$COMMAND'"
+  echo "$USAGE"
+  exit 1
+fi
+
+# Print help if required
+if [ "$COMMAND" = "help" ]; then
+  echo "$USAGE"
+  exit 0
+fi
+
+# Init command
+if [ "$COMMAND" = "init" ]; then
+  # Validate
+  if [ "$#" -ne 2 ]; then
+    >&2 echo "Error: wrong number of argument for the init command"
+    echo "$USAGE"
+    exit 1
+  fi
+  # shellcheck disable=SC2086,SC2046
+  INIT_DIR=$(cd $(dirname $2) && echo $PWD/$(basename $2))
+  if [ -f "$INIT_DIR" ] || [ -d "$INIT_DIR" ]; then
+    >&2 echo "Error: $INIT_DIR already exists"
+    exit 1
+  fi
+  # Init
+  echo "Initializing $INIT_DIR deployment directory..."
+  mkdir -p "$INIT_DIR"
+  # Copy templates
+  docker run --rm -v "$INIT_DIR":/var/userdir \
+    kubenow/provisioners \
+    'cp templates/terraform.tfvars.*-template /var/userdir'
+  # Generate and write kubetoken
+  # shellcheck disable=SC2016
+  token=$(docker run --rm kubenow/provisioners 'echo `openssl rand -hex 3`.`openssl rand -hex 8`')
+  sed -i '' -e "s/your-kubeadm-token/${token}/g" "$INIT_DIR"/terraform.tfvars.*-template
+  # Generate SSH keys
+  ssh-keygen -t rsa -N '' -f "$INIT_DIR"/ssh_key
+  exit 0
+fi
+
+# Validate PWD
+if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ] ; then
+    >&2 echo "Error: ssh_key not found. Are you in the right directory?"
+    exit 1
+fi
+if [ ! -f terraform.tfvars ] ; then
+    >&2 echo "Error: terraform.tfvars not found. Please create one using the templates."
+    exit 1
+fi
+
+# If no version specified take stable
+if [ -z "$KUBENOW_VERSION" ] ; then
+  KUBENOW_VERSION="latest"
+fi
+
+# Wrap docker run
+# this run the user command inside a Docker container that has all of the deps
+# for KubeNow satisfied. Before running all the needed statusa and conf files 
+# are copied inside the container, and copied back to the host machine afterwards.
+# To avoid permission problems we change the ownership of the files to UID after
+# running the user command. 
+
+# shellcheck disable=SC2124
+USR_COMMAND="$@"
+# shellcheck disable=SC2016
+docker run --rm -it \
+  -v "$PWD":/var/userdir \
+  -e "OS_USERNAME=$OS_USERNAME" \
+  -e "OS_PASSWORD=$OS_PASSWORD" \
+  -e "OS_AUTH_URL=$OS_AUTH_URL" \
+  -e "OS_USER_DOMAIN_ID=$OS_USER_DOMAIN_ID" \
+  -e "OS_DOMAIN_ID=$OS_DOMAIN_ID" \
+  -e "OS_REGION_NAME=$OS_REGION_NAME" \
+  -e "OS_PROJECT_ID=$OS_PROJECT_ID" \
+  -e "OS_TENANT_ID=$OS_TENANT_ID" \
+  -e "OS_TENANT_NAME=$OS_TENANT_NAME" \
+  -e "OS_AUTH_VERSION=$OS_AUTH_VERSION" \
+  kubenow/provisioners:$KUBENOW_VERSION \
+  'cp /var/userdir/terraform.tfvars ./ 2>/dev/null ;
+  cp -R /var/userdir/.terraform ./ 2>/dev/null ;
+  cp /var/userdir/terraform.tfstate ./ 2>/dev/null ;
+  cp /var/userdir/inventory ./ 2>/dev/null ;
+  cp /var/userdir/ssh_key* ./ 2>/dev/null ;
+  cp /var/userdir/service-account.json ./ 2>/dev/null ;
+  eval `ssh-agent -s` &>/dev/null ; ssh-add ssh_key 2>/dev/null ;
+  '"$USR_COMMAND"' ; URS_COMMAND_STATUS=$? ;
+  cp -R ./.terraform /var/userdir/ 2>/dev/null ;
+  cp ./terraform.tfstate /var/userdir/ 2>/dev/null ;
+  cp ./inventory /var/userdir/ 2>/dev/null ;
+  chown -R '"$UID"' /var/userdir/ ;
+  exit $URS_COMMAND_STATUS'

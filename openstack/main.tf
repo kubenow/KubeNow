@@ -1,8 +1,14 @@
 # Cluster settings
 variable cluster_prefix {}
 
-variable kubenow_image {}
-variable ssh_key {}
+variable kubenow_image {
+  default = "kubenow-v020"
+}
+
+variable ssh_key {
+  default = "ssh_key.pub"
+}
+
 variable external_network_uuid {}
 
 variable dns_nameservers {
@@ -37,9 +43,13 @@ variable node_flavor_id {
 }
 
 # Edges settings
-variable edge_count {}
+variable edge_count {
+  default = 0
+}
 
-variable edge_flavor {}
+variable edge_flavor {
+  default = "nothing"
+}
 
 variable edge_flavor_id {
   default = ""

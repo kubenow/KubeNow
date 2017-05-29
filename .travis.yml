@@ -2,6 +2,9 @@ language: python # (Ansible)
 
 sudo: required
 
+services:
+  - docker
+
 branches:
   except:
     - /^experimental\/.*$/
@@ -17,37 +20,22 @@ branches:
 env:
   global:
     - TERRAFORM_VERSION=0.9.4
-    - ANSIBLE_VERSION=2.2.0.0
-    - IMAGE_VERSION=v020
-    - LIBCLOUD_VERSION=1.5.0
     - ANSIBLE_LINT_VERSION=3.4.13
   matrix:
     - HOST_CLOUD=openstack
     - HOST_CLOUD=gce
     - HOST_CLOUD=aws
 
-git:
-  submodules: false
-
 addons:
   apt:
     sources:
       - debian-sid
     packages:
-      - shellcheck
+      - shellcheck # code review tool
 
 before_install:
 
-  # Generate keypair
-  - mkdir -p keypair
-  - ssh-keygen -q -t rsa -N "" -f keypair/kubenow-ci
-
-  # Add the keypair to the agent
-  - eval "$(ssh-agent -s)"
-  - ssh-add keypair/kubenow-ci
-
-install:
-
+  # Install code review tools
   # Install Terraform
   - >
       travis_retry curl
@@ -55,50 +43,9 @@ install:
       > /tmp/terraform.zip
   - sudo unzip /tmp/terraform.zip -d /usr/bin
   - sudo chmod +x /usr/bin/terraform
-
-  # Install Ansible and pip deps
+  # Install pip deps
   - sudo pip install --upgrade pip
-  - >
-      sudo pip install
-      ansible=="${ANSIBLE_VERSION}"
-      j2cli
-      dnspython
-      jmespath
-      backports.ssl_match_hostname
-      apache-libcloud=="${LIBCLOUD_VERSION}"
-      shade
-      ansible-lint=="${ANSIBLE_LINT_VERSION}"
-
-before_script:
-
-  # Render Terraform configuration
-  # Common
-  - >
-      if [ "$HOST_CLOUD" = 'openstack' ]; then
-        cp terraform.tfvars.os-template terraform.tfvars
-      else
-        cp "terraform.tfvars.${HOST_CLOUD}-template" terraform.tfvars
-      fi
-  - mkdir -p "$HOME/.ssh/" && cp keypair/kubenow-ci.pub "$HOME/.ssh/id_rsa.pub"
-  - sed -i -e "s/your-cluster-prefix/kubenow-ci-${TRAVIS_BUILD_NUMBER}-${HOST_CLOUD}/g" terraform.tfvars
-  - sed -i -e "s/your-kubeadm-token/${CI_KUBETOKEN}/g" terraform.tfvars
-  - sed -i -e 's/use_cloudflare = "false"/use_cloudflare = "true"/g' terraform.tfvars
-  - sed -i -e "s/your-cloudflare-email/${CI_CLOUDFLARE_EMAIL}/g" terraform.tfvars
-  - sed -i -e "s/your-cloudflare-token/${CI_CLOUDFLARE_TOKEN}/g" terraform.tfvars
-  - sed -i -e "s/your-domain-name/${CI_CLOUDFLARE_DOMAIN}/g" terraform.tfvars
-
-  # AWS
-  - sed -i -e "s/your-acces-key-id/${AWS_ACCESS_KEY_ID}/g" terraform.tfvars
-  - sed -i -e "s#your-secret-access-key#${AWS_SECRET_ACCESS_KEY}#g" terraform.tfvars
-  # GCE
-  - printf '%s\n' "$GCE_CREDENTIALS" > "$HOME/account_file.json"
-  - sed -i -e "s/your_project_id/${GCE_PROJECT_ID}/g" terraform.tfvars
-  # OS
-  - sed -i -e "s/your-pool-name/${OS_POOL_NAME}/g" terraform.tfvars
-  - sed -i -e "s/external-net-uuid/${OS_EXTERNAL_NET_UUUID}/g" terraform.tfvars
-  - sed -i -e "s/your-master-flavor/${OS_MASTER_FLAVOR}/g" terraform.tfvars
-  - sed -i -e "s/your-node-flavor/${OS_NODE_FLAVOR}/g" terraform.tfvars
-  - sed -i -e "s/your-edge-flavor/${OS_EDGE_FLAVOR}/g" terraform.tfvars
+  - sudo pip install ansible-lint=="${ANSIBLE_LINT_VERSION}"
 
   # Check code quality
   # check Terraform
@@ -112,19 +59,88 @@ before_script:
   - ansible-lint -x ANSIBLE0006,ANSIBLE0012 playbooks/*.yml
   # check Shell
   - shellcheck $(find . -type f -name "*.sh")
+  - shellcheck bin/*
+
+# Build Docker image
+install: docker build -t kubenow/provisioners:latest .
+
+before_script:
+
+  # Init test deployment
+  - bin/kn init test-deployment
+  - cd test-deployment
+
+  # RENDER CONFIGURATION
+  # Create terraform.tfvars
+  - >
+      if [ "$HOST_CLOUD" = 'openstack' ]; then
+        cp terraform.tfvars.os-template terraform.tfvars
+      else
+        cp "terraform.tfvars.${HOST_CLOUD}-template" terraform.tfvars
+      fi
+  # Common
+  - sed -i -e "s/your-cluster-prefix/kubenow-ci-${TRAVIS_BUILD_NUMBER}-${HOST_CLOUD}/g" terraform.tfvars
+  # AWS
+  - sed -i -e "s/your-acces-key-id/${AWS_ACCESS_KEY_ID}/g" terraform.tfvars
+  - sed -i -e "s#your-secret-access-key#${AWS_SECRET_ACCESS_KEY}#g" terraform.tfvars
+  # GCE
+  - printf '%s\n' "$GCE_CREDENTIALS" > "./service-account.json"
+  - sed -i -e "s/your_project_id/${GCE_PROJECT_ID}/g" terraform.tfvars
+  # OS
+  - sed -i -e "s/your-pool-name/${OS_POOL_NAME}/g" terraform.tfvars
+  - sed -i -e "s/external-net-uuid/${OS_EXTERNAL_NET_UUUID}/g" terraform.tfvars
+  - sed -i -e "s/your-master-flavor/${OS_MASTER_FLAVOR}/g" terraform.tfvars
+  - sed -i -e "s/your-node-flavor/${OS_NODE_FLAVOR}/g" terraform.tfvars
+  - sed -i -e "s/your-edge-flavor/${OS_EDGE_FLAVOR}/g" terraform.tfvars
+  # Enable edges
+  - sed -i -e "s/# edge/edge/g" terraform.tfvars
+  # Cloudflare
+  - sed -i -e "s/# cloudflare/cloudflare/g" terraform.tfvars
+  - sed -i -e "s/# use_cloudflare/use_cloudflare/g" terraform.tfvars
+  - sed -i -e "s/your-cloudflare-email/${CI_CLOUDFLARE_EMAIL}/g" terraform.tfvars
+  - sed -i -e "s/your-cloudflare-token/${CI_CLOUDFLARE_TOKEN}/g" terraform.tfvars
+  - sed -i -e "s/your-domain-name/${CI_CLOUDFLARE_DOMAIN}/g" terraform.tfvars
 
 script:
-  # AWS doesn't need image import
+  # Import image (AWS doesn't need it)
   - >
       if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ]; then
-        ansible-playbook \
-        -e "credentials_file_path=$HOME/account_file.json" \
-        playbooks/import-"$HOST_CLOUD"-image.yml
+        ../bin/kn ansible-playbook playbooks/import-"$HOST_CLOUD"-image.yml
       fi
-  - terraform get "$HOST_CLOUD"
-  - travis_retry terraform apply "$HOST_CLOUD"
-  - ansible-playbook playbooks/install-core.yml
-  - ansible-playbook playbooks/infra-test.yml
+  # Deploy
+  - ../bin/kn terraform get "$HOST_CLOUD"
+  - travis_retry ../bin/kn terraform apply "$HOST_CLOUD"
+  - ../bin/kn ansible-playbook playbooks/install-core.yml
+  # Test
+  - ../bin/kn ansible-playbook playbooks/infra-test.yml
 
 after_script:
-  - travis_retry terraform destroy -force "$HOST_CLOUD"
+  - travis_retry ../bin/kn terraform destroy -force "$HOST_CLOUD"
+  - travis_retry terraform destroy -force "$HOST_CLOUD" # in case there is some problem with kn
+
+jobs:
+  include:
+    # Docker push stage
+    - stage: Push container
+      before_install: true
+      install: true
+      before_script: true
+      after_script: true
+      script:
+        # Exit if not in master
+        - >
+            if [ $TRAVIS_BRANCH != 'master' ]; then
+              exit 0
+            fi
+        # Build and push Docker image (needs to be build again in this stage)
+        - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+        - >
+            if [ -z $TRAVIS_TAG ]; then
+              docker build -t kubenow/provisioners:current .
+              docker push kubenow/provisioners:current
+            else
+              docker build -t kubenow/provisioners:$TRAVIS_TAG \
+                -t kubenow/provisioners:latest .
+              docker push kubenow/provisioners:$TRAVIS_TAG
+              docker push kubenow/provisioners:latest
+            fi
