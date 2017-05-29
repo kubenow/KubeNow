@@ -78,6 +78,12 @@ if [ -z "$KUBENOW_VERSION" ] ; then
 fi
 
 # Wrap docker run
+# this run the user command inside a Docker container that has all of the deps
+# for KubeNow satisfied. Before running all the needed statusa and conf files 
+# are copied inside the container, and copied back to the host machine afterwards.
+# To avoid permission problems we change the ownership of the files to UID after
+# running the user command. 
+
 # shellcheck disable=SC2124
 USR_COMMAND="$@"
 # shellcheck disable=SC2016
