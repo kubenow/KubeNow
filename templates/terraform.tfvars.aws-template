@@ -24,10 +24,10 @@ node_disk_size = "10" # Size in GB
 # edge_disk_size = "10" # Size in GB
 
 # Gluster configuration
-glusternode_count = "2"
-glusternode_instance_type = "t2.medium"
-glusternode_disk_size = "10" # Size in GB
-glusternode_extra_disk_size = "200" # Size in GB
+# glusternode_count = "2"
+# glusternode_instance_type = "t2.medium"
+# glusternode_disk_size = "10" # Size in GB
+# glusternode_extra_disk_size = "200" # Size in GB
 
 # Cloudflare configuration (optional)
 # use_cloudflare = "true"

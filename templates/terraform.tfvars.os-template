@@ -17,6 +17,11 @@ node_flavor = "your-node-flavor"
 # edge_count = "2"
 # edge_flavor = "your-edge-flavor"
 
+# Gluster configuration
+# glusternode_count = "2"
+# glusternode_flavor = "your-glusternode-flavor"
+# glusternode_extra_disk_size = "200" # Size in GB
+
 # Cloudflare configuration (optional)
 # use_cloudflare = "true"
 # cloudflare_email = "your-cloudflare-email"
