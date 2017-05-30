@@ -82,6 +82,8 @@ USR_COMMAND="$*"
 docker run --rm -it \
   -v "$PWD":/var/userdir \
   -e "HOST_USR_UID=$UID" \
+  -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
+  -e "ANSIBLE_OPT=$ANSIBLE_OPT" \
   -e "OS_USERNAME=$OS_USERNAME" \
   -e "OS_PASSWORD=$OS_PASSWORD" \
   -e "OS_AUTH_URL=$OS_AUTH_URL" \

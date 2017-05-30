@@ -25,5 +25,7 @@ fi
 
 # Deploy
 terraform get -update "$HOST_CLOUD"
-terraform apply "$TERRAFORM_OPT" "$HOST_CLOUD"
-ansible-playbook "$ANSIBLE_OPT" playbooks/install-core.yml
+# shellcheck disable=SC2086
+terraform apply $TERRAFORM_OPT "$HOST_CLOUD"
+# shellcheck disable=SC2086
+ansible-playbook $ANSIBLE_OPT playbooks/install-core.yml
