@@ -33,6 +33,11 @@ if [ "$COMMAND" = "help" ]; then
   exit 0
 fi
 
+# If no version specified take stable
+if [ -z "$KUBENOW_VERSION" ] ; then
+  KUBENOW_VERSION="latest"
+fi
+
 # Init command
 if [ "$COMMAND" = "init" ]; then
   # Validate
@@ -66,11 +71,6 @@ if [ "$COMMAND" != "kubetoken" ]; then
   if [ ! -f terraform.tfvars ] ; then
       >&2 echo "Error: terraform.tfvars not found. Please create one using the templates."
       exit 1
-  fi
-
-  # If no version specified take stable
-  if [ -z "$KUBENOW_VERSION" ] ; then
-    KUBENOW_VERSION="latest"
   fi
 fi
 
