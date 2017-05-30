@@ -1,0 +1,28 @@
+#!/bin/ash
+# shellcheck shell=bash
+
+# Copy host PWD in container PWD
+cp /var/userdir/terraform.tfvars ./ 2>/dev/null
+cp -R /var/userdir/.terraform ./ 2>/dev/null
+cp /var/userdir/terraform.tfstate ./ 2>/dev/null
+cp /var/userdir/inventory ./ 2>/dev/null
+cp /var/userdir/ssh_key* ./ 2>/dev/null
+cp /var/userdir/service-account.json ./ 2>/dev/null
+
+# Setup SSH
+eval "$(ssh-agent -s)" &>/dev/null
+ssh-add ssh_key 2>/dev/null
+
+# Run user command
+"$@" ; URS_COMMAND_STATUS="$?"
+
+# Copy container PWD in host PWD
+cp -R ./.terraform /var/userdir/ 2>/dev/null
+cp ./terraform.tfstate /var/userdir/ 2>/dev/null
+cp ./inventory /var/userdir/ 2>/dev/null
+
+# Change ownership to host user
+chown -R "$HOST_USR_UID" /var/userdir/
+
+# Return user command status code
+exit "$URS_COMMAND_STATUS"

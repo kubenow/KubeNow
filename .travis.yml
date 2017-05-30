@@ -46,6 +46,8 @@ before_install:
   # Install pip deps
   - sudo pip install --upgrade pip
   - sudo pip install ansible-lint=="${ANSIBLE_LINT_VERSION}"
+  # Pull hadolint
+  - docker pull lukasmartinelli/hadolint
 
   # Check code quality
   # check Terraform
@@ -60,6 +62,8 @@ before_install:
   # check Shell
   - shellcheck $(find . -type f -name "*.sh")
   - shellcheck bin/*
+  # check Dockerfile
+  - docker run --rm -i lukasmartinelli/hadolint < Dockerfile
 
 # Build Docker image
 install: docker build -t kubenow/provisioners:latest .
