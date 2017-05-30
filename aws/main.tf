@@ -268,7 +268,6 @@ module "glusternode" {
   master_ip      = "${element(module.master.local_ip_v4, 0)}"
 }
 
-
 # The code below (from here to end) should be identical for all cloud providers
 
 # set cloudflare record (optional)

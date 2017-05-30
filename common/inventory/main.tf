@@ -72,7 +72,7 @@ resource "null_resource" "generate-inventory" {
   provisioner "local-exec" {
     command = "echo \"domain=${ var.use_cloudflare == true ? format("%s.%s", var.cluster_prefix, var.cloudflare_domain) : format("%s.nip.io", element(concat(var.edge_public_ip, var.master_public_ip), 0))}\" >> inventory"
   }
-  
+
   # Always output extra disk device
   provisioner "local-exec" {
     command = "echo \"extra_disk_device=${var.extra_disk_device}\" >> inventory"

@@ -200,7 +200,7 @@ module "glusternode" {
   network_name = "${module.network.network_name}"
 
   # Disk settings
-  disk_size = "${var.glusternode_disk_size}"
+  disk_size       = "${var.glusternode_disk_size}"
   extra_disk_size = "${var.glusternode_extra_disk_size}"
 
   # Bootstrap settings
