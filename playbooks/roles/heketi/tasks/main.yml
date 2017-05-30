@@ -5,28 +5,6 @@
     path: /etc/heketi/kubernetes
     state: directory
     mode: 0755
-    
-- name: copy heketi namespace config
-  become: yes
-  copy:
-    src: storage-heketi-namespace.yml
-    dest: "/etc/heketi/kubernetes/storage-heketi-namespace.yml"
-
-- name: create namespace
-  command: >
-    kubectl apply -f
-    /etc/heketi/kubernetes/storage-heketi-namespace.yml
-    
-- name: copy heketi service account config
-  become: yes
-  copy:
-    src: heketi-service-account.yml
-    dest: "/etc/heketi/kubernetes/heketi-service-account.yml"
-
-- name: create namespace
-  command: >
-    kubectl apply -f
-    /etc/heketi/kubernetes/heketi-service-account.yml
 
 - name: copy heketi configuration
   become: yes
