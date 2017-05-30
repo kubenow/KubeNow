@@ -2,7 +2,7 @@
 variable cluster_prefix {}
 
 variable kubenow_image {
-  default = "kubenow-v020"
+  default = "kubenow-v030-8-gf709877-current"
 }
 
 variable kubeadm_token {}
