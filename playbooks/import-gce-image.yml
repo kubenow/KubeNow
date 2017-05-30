@@ -3,9 +3,12 @@
   gather_facts: False
   vars:
     timeout: 1800
-    credentials_file: "{{ lookup('file', credentials_file_path) }}"
+    credentials_file_path: "{{playbook_dir}}/../service-account.json"
     img_version: "v020"
   tasks:
+  - name: "read credentials file"
+    set_fact:
+      credentials_file: "{{ lookup('file', credentials_file_path) }}"
   - name: "set image facts"
     set_fact:
       img_name: "kubenow-{{img_version}}"

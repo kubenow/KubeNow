@@ -11,7 +11,7 @@
       doesn't match the number of edge nodes ({{groups['edge'] | length}})
   when: "{{get_ready_count.stdout | int}} != {{groups['edge'] | length}}"
 
-- name: set cheese domain name 
+- name: set cheese domain name
   set_fact:
     cheese_domain_name: "{{domain}}"
 

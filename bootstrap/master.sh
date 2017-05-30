@@ -9,8 +9,8 @@ then
     sed -i "s|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--node-labels=$node_labels |g" \
        /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 fi
-   
-echo "Taint nodes"    
+
+echo "Taint nodes"
 if [ -n "$node_taints" ]
 then
     sed -i "s|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--register-with-taints=$node_taints |g" \
@@ -22,15 +22,18 @@ systemctl daemon-reload
 systemctl restart kubelet
 
 # execute modprobe on node - workaround for heketi gluster
+echo "Modprobe dm_thin_pool..."
 modprobe dm_thin_pool
 
 echo "Inititializing the master..."
 
-if [ -n "$api_advertise_addresses" ]
+if [ -n "$API_ADVERTISE_ADDRESSES" ]
 then
-    kubeadm init --token ${kubeadm_token} --kubernetes-version=v1.6.3 --apiserver-advertise-address=$api_advertise_addresses
+    # shellcheck disable=SC2154
+    kubeadm init --token "${kubeadm_token}" --use-kubernetes-version=v1.6.4 --api-advertise-address="$API_ADVERTISE_ADDRESSES"
 else
-    kubeadm init --token ${kubeadm_token} --kubernetes-version=v1.6.3
+    # shellcheck disable=SC2154
+    kubeadm init --token "${kubeadm_token}" --use-kubernetes-version=v1.6.4
 fi
 
 # Copy kubernetes configuration created by kubeadm (admin.conf to .kube/config)

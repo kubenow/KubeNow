@@ -37,4 +37,3 @@
   command: >
     kubectl apply -f
     /etc/traefik/traefik-daemonset.yml
-    

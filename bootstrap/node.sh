@@ -9,8 +9,8 @@ then
     sed -i "s|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--node-labels=$node_labels |g" \
        /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 fi
-   
-echo "Taint nodes"    
+
+echo "Taint nodes"
 if [ -n "$node_taints" ]
 then
     sed -i "s|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--register-with-taints=$node_taints |g" \
@@ -22,8 +22,9 @@ systemctl daemon-reload
 systemctl restart kubelet
 
 # execute modprobe on node - workaround for heketi gluster
+echo "Modprobe dm_thin_pool"
 modprobe dm_thin_pool
 
 echo "Try to join master..."
-kubeadm join --token ${kubeadm_token} "${master_ip}:6443"
-
+# shellcheck disable=SC2154
+kubeadm join --token "${kubeadm_token}" "${master_ip}:6443"

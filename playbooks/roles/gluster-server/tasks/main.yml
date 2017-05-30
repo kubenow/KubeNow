@@ -50,7 +50,8 @@
     -o jsonpath='{.items[?(@.spec.containers[*].name=="gluster-server")].status.podIP}'
   register: get_ips
 
-- set_fact:
+- name: "set enpoint_list fact"
+  set_fact:
     enpoint_list: "[\"{{get_ips.stdout | replace(' ','\",\"')}}\"]"
 
 - name: "gluster peer probe (gluster_side)"

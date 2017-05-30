@@ -1,10 +1,18 @@
-
 variable cloudflare_email {}
 variable cloudflare_token {}
 variable cloudflare_domain {}
-variable record_text { default="*" }
-variable record_count { default=0 }
-variable iplist { type="list" }
+
+variable record_text {
+  default = "*"
+}
+
+variable record_count {
+  default = 0
+}
+
+variable iplist {
+  type = "list"
+}
 
 # Configure the Cloudflare provider
 provider "cloudflare" {
