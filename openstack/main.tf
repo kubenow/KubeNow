@@ -216,7 +216,7 @@ module "glusternode" {
   bootstrap_file = "bootstrap/node.sh"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["storagenode=glusterfs"]
-  node_taints    = [""] # dedicated=fileserver:NoSchedule
+  node_taints    = [""]                                       # dedicated=fileserver:NoSchedule
   master_ip      = "${element(module.master.local_ip_v4, 0)}"
 }
 
