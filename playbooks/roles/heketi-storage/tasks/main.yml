@@ -1,22 +1,3 @@
-- name: install heketi-cli (TODO remove and move into requirements.sh)
-  get_url:
-    url: https://github.com/heketi/heketi/releases/download/v4.0.0/heketi-client-v4.0.0.linux.amd64.tar.gz
-    dest: /tmp/heketi-client.amd64.tar.gz
-
-- name: unpack heketi-cli
-  unarchive:
-    src: /tmp/heketi-client.amd64.tar.gz
-    dest: /tmp/
-    remote_src: True
-
-- name: copy heketi-cli to /usr/local/bin
-  become: yes
-  copy:
-    src: /tmp/heketi-client/bin/heketi-cli
-    dest: /usr/local/bin
-    mode: 0755
-    remote_src: True
-
 - name: retrieve gluster-pod IPs
   command: >
     kubectl get pods
@@ -54,7 +35,6 @@
 - debug:
     msg: "{{ combined_host_ip }}"
 
-# var extra_disk_device is specified in inventory file
 - name: render topology
   become: yes
   template:
