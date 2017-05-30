@@ -7,13 +7,13 @@
 #
 # delete first is a workaround until kubernetes support apply clusterrolebinding
 - name: "delete clusterrolebinding permissive-binding RBAC-workaround (if it already exists)"
-  shell: >
+  command: >
     kubectl delete
     --ignore-not-found
     clusterrolebinding permissive-binding
 
 - name: "create clusterrolebinding permissive-binding RBAC-workaround"
-  shell: >
+  command: >
     kubectl create clusterrolebinding permissive-binding
     --clusterrole=cluster-admin
     --user=admin

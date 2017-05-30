@@ -5,12 +5,10 @@
     -o jsonpath='{.items[?(@.spec.containers[*].name=="glusterfs")].status.podIP}'
   register: get_ips
 
-- set_fact:
+- name: set fact enpoint_list
+  set_fact:
     enpoint_list: "[\"{{get_ips.stdout | replace(' ','\",\"')}}\"]"
-    
-- debug:
-    msg: "{{ enpoint_list }}"
-    
+
 - name: retrieve gluster-server nodenames
   command: >
     kubectl get pods
@@ -18,12 +16,10 @@
     -o jsonpath='{.items[?(@.spec.containers[*].name=="glusterfs")].spec.nodeName}'
   register: get_nodenames
 
-- set_fact:
+- name: set fact host_list
+  set_fact:
     host_list: "[\"{{get_nodenames.stdout | replace(' ','\",\"')}}\"]"
 
-- debug:
-    msg: "{{ host_list }}"
-    
 - name: combine host-list with endpoint-list
   set_fact:
      combined_host_ip: "{{ combined_host_ip|default({})|combine({item.0: item.1}) }}"
@@ -32,14 +28,11 @@
     - "{{ enpoint_list }}"
   register: combined_host_ip
 
-- debug:
-    msg: "{{ combined_host_ip }}"
-
 - name: render topology
   become: yes
   template:
     src: topology.json
-    dest: "/etc/heketi/kubernetes/topology.json"  
+    dest: "/etc/heketi/kubernetes/topology.json"
 
 - name: retrieve heketi endpoint
   command: >
@@ -48,7 +41,8 @@
     -o jsonpath='{.items[?(@.metadata.name=="heketi")].subsets[*].addresses[*].ip}:{.items[?(@.metadata.name=="heketi")].subsets[*].ports[*].port}'
   register: get_endpoint
 
-- set_fact:
+- name: set fact endpoint
+  set_fact:
     endpoint: "{{ get_endpoint.stdout }}"
 
 - name: apply topology-file to heketi
@@ -60,9 +54,8 @@
   template:
     src: storage-class.yml
     dest: "/etc/heketi/kubernetes/storage-class.yml"
-    
+
 - name: create storage-class
   command: >
     kubectl apply -f
     /etc/heketi/kubernetes/storage-class.yml
-
