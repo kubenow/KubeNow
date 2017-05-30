@@ -11,18 +11,20 @@ if [ "$#" -eq 0 ]; then
   exit 1
 fi
 HOST_CLOUD="$1"
-ALLOWED="aws gce openstack"
-if [[ ! "$ALLOWED" =~ $HOST_CLOUD ]]; then
+if [ "$HOST_CLOUD" != 'openstack' ] && \
+  [ "$HOST_CLOUD" != 'gce' ] && \
+  [ "$HOST_CLOUD" != 'aws' ]; then
   >&2 echo "Error: unrecognized host cloud '$HOST_CLOUD'"
   echo "$USAGE"
   exit 1
 fi
 
+#Exit immediately if a command exits with a non-zero status
+set -e
 # Import image (AWS doesn't need it)
 if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ]; then
   ansible-playbook playbooks/import-"$HOST_CLOUD"-image.yml
 fi
-
 # Deploy
 terraform get -update "$HOST_CLOUD"
 # shellcheck disable=SC2086
