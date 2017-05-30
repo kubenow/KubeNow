@@ -14,7 +14,7 @@ eval "$(ssh-agent -s)" &>/dev/null
 ssh-add ssh_key 2>/dev/null
 
 # Run user command
-"$@" ; URS_COMMAND_STATUS="$?"
+sh -c "$@" ; URS_COMMAND_STATUS="$?"
 
 # Copy container PWD in host PWD
 cp -R ./.terraform /var/userdir/ 2>/dev/null
