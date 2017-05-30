@@ -6,6 +6,9 @@ Usage: kn <command>
 Commands:
   help                print this message
   init <DIR>          creates a new project in the supplied directory
+  apply <CLOUD>       apply configuration on the supplied cloud provider.
+                      CLOUD=<gce|aws|openstack>
+  destroy <CLOUD>     destroy deployment (CLOUD=<gce|aws|openstack>)
   terraform           run Terraform. More help: kn terraform --help
   ansible             run Ansible. More help: kn ansible --help
   ansible-playbook    run an Ansible playbook.
@@ -20,7 +23,7 @@ if [ "$#" -eq 0 ]; then
   exit 1
 fi
 COMMAND="$1"
-ALLOWED="help init terraform ansible ansible-playbook kubetoken"
+ALLOWED="help init terraform ansible ansible-playbook kubetoken apply destroy"
 if [[ ! "$ALLOWED" =~ $COMMAND ]]; then
   >&2 echo "Error: unrecognized command '$COMMAND'"
   echo "$USAGE"
