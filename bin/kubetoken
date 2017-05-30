@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/ash
+# shellcheck shell=bash
 # kube token format: 7fa96f.ddb39492a1894689
 # see https://github.com/kubernetes/kubernetes/blob/master/cmd/kubeadm/app/util/tokens.go
 tokenID=$(openssl rand -hex 3)
