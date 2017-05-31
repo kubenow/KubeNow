@@ -30,10 +30,10 @@ echo "Inititializing the master..."
 if [ -n "$API_ADVERTISE_ADDRESSES" ]
 then
     # shellcheck disable=SC2154
-    kubeadm init --token "${kubeadm_token}" --use-kubernetes-version=v1.6.4 --api-advertise-address="$API_ADVERTISE_ADDRESSES"
+    kubeadm init --token "${kubeadm_token}" --kubernetes-version=v1.6.4 --api-advertise-address="$API_ADVERTISE_ADDRESSES"
 else
     # shellcheck disable=SC2154
-    kubeadm init --token "${kubeadm_token}" --use-kubernetes-version=v1.6.4
+    kubeadm init --token "${kubeadm_token}" --kubernetes-version=v1.6.4
 fi
 
 # Copy kubernetes configuration created by kubeadm (admin.conf to .kube/config)
