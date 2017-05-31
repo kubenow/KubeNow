@@ -185,7 +185,7 @@ module "edge" {
 
 module "glusternode" {
   # Core settings
-  source      = "./node"
+  source      = "./node-extra-disk"
   count       = "${var.glusternode_count}"
   name_prefix = "${var.cluster_prefix}-glusternode"
   flavor_name = "${var.glusternode_flavor}"

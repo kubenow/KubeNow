@@ -33,8 +33,14 @@ variable extra_disk_name {
 variable bootstrap_file {}
 
 variable kubeadm_token {}
-variable node_labels {}
-variable node_taints {}
+
+variable node_labels {
+  type = "list"
+}
+
+variable node_taints {
+  type = "list"
+}
 
 variable master_ip {
   default = ""
@@ -47,8 +53,8 @@ data "template_file" "instance_bootstrap" {
   vars {
     kubeadm_token = "${var.kubeadm_token}"
     master_ip     = "${var.master_ip}"
-    node_labels   = "${var.node_labels}"
-    node_taints   = "${var.node_taints}"
+    node_labels   = "${join(",", var.node_labels)}"
+    node_taints   = "${join(",", var.node_taints)}"
   }
 }
 
