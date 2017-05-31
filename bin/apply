@@ -1,0 +1,33 @@
+#!/bin/ash
+# shellcheck shell=bash
+
+#Usage
+USAGE="Usage: kn apply <aws|gce|openstack>"
+
+# Validate command
+if [ "$#" -eq 0 ]; then
+  >&2 echo "Error: no arguments supplied"
+  echo "$USAGE"
+  exit 1
+fi
+HOST_CLOUD="$1"
+if [ "$HOST_CLOUD" != 'openstack' ] && \
+  [ "$HOST_CLOUD" != 'gce' ] && \
+  [ "$HOST_CLOUD" != 'aws' ]; then
+  >&2 echo "Error: unrecognized host cloud '$HOST_CLOUD'"
+  echo "$USAGE"
+  exit 1
+fi
+
+#Exit immediately if a command exits with a non-zero status
+set -e
+# Import image (AWS doesn't need it)
+if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ]; then
+  ansible-playbook playbooks/import-"$HOST_CLOUD"-image.yml
+fi
+# Deploy
+terraform get -update "$HOST_CLOUD"
+# shellcheck disable=SC2086
+terraform apply $TERRAFORM_OPT "$HOST_CLOUD"
+# shellcheck disable=SC2086
+ansible-playbook $ANSIBLE_OPT playbooks/install-core.yml
