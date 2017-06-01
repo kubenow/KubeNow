@@ -9,6 +9,8 @@ Commands:
   apply <CLOUD>       apply configuration on the supplied cloud provider.
                       CLOUD=<gce|aws|openstack>
   destroy <CLOUD>     destroy deployment (CLOUD=<gce|aws|openstack>)
+  kubectl             run kubectl on the master. More help: kn kubectl help
+  helm                run helm on the master. More help: kn helm help
   terraform           run Terraform. More help: kn terraform --help
   ansible             run Ansible. More help: kn ansible --help
   ansible-playbook    run an Ansible playbook.
@@ -23,7 +25,7 @@ if [ "$#" -eq 0 ]; then
   exit 1
 fi
 COMMAND="$1"
-ALLOWED="help init terraform ansible ansible-playbook kubetoken apply destroy"
+ALLOWED="help init terraform ansible ansible-playbook kubetoken apply destroy kubectl helm"
 echo "$ALLOWED" | grep "\b$COMMAND\b" > /dev/null
 if [ "$?" = "1" ]; then
   >&2 echo "Error: unrecognized command '$COMMAND'"
