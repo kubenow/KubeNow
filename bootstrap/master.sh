@@ -25,7 +25,7 @@ systemctl restart kubelet
 echo "Modprobe dm_thin_pool..."
 modprobe dm_thin_pool
 
-echo "Inititializing the master..."
+echo "Inititializing the master...."
 
 if [ -n "$API_ADVERTISE_ADDRESSES" ]
 then
