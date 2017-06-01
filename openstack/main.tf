@@ -206,7 +206,7 @@ module "glusternode" {
   # Network settings
   network_name       = "${module.network.network_name}"
   secgroup_name      = "${module.network.secgroup_name}"
-  assign_floating_ip = "true"
+  assign_floating_ip = "false"
   floating_ip_pool   = "${var.floating_ip_pool}"
 
   # Disk settings
