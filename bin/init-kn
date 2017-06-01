@@ -1,5 +1,4 @@
-#!/bin/ash
-# shellcheck shell=bash
+#!/bin/bash
 
 echo "Initializing $INIT_DIR deployment directory..."
 

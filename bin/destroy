@@ -1,5 +1,4 @@
-#!/bin/ash
-# shellcheck shell=bash
+#!/bin/bash
 
 #Usage
 USAGE="Usage: kn destroy <aws|gce|openstack>"

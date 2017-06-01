@@ -20,7 +20,8 @@ RUN apk add --update \
   linux-headers \
   libffi-dev \
   openssl-dev \
-  openssl
+  openssl \
+  bash
 
 # Install PIP deps
 RUN pip install \
