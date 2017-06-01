@@ -1,0 +1,6 @@
+- hosts: master
+  gather_facts: False
+  roles:
+    - { role: heketi, tags: [ 'heketi-glusterfs' ] }
+    - { role: heketi-gluster-server, tags: [ 'heketi-glusterfs' ] }
+    - { role: heketi-storage, tags: [ 'heketi-glusterfs' ] }

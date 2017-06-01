@@ -1,3 +1,38 @@
 ---
-- name: install weave
-  command: kubectl apply -f https://git.io/weave-kube
+- name: create weave yaml directory
+  become: yes
+  file:
+    path: /etc/weave/yaml/
+    state: directory
+    mode: 0755
+
+- name: copy weave DaemonSet file
+  become: yes
+  copy:
+    src: weave-daemonset-k8s-v1.9.5.yaml
+    dest: "/etc/weave/yaml/weave-daemonset-k8s.yaml"
+
+- name: start weave DaemonSet
+  command: >
+    kubectl apply -f
+    /etc/weave/yaml/weave-daemonset-k8s.yaml
+
+# ready count could not be done with jsonpath and filter because of issue
+# https://github.com/kubernetes/kubernetes/issues/45546
+- name: "get desired pod count"
+  shell: >
+    kubectl get ds --all-namespaces
+    | grep weave-net
+    | awk '{print $3;}'
+  register: get_desired_count
+
+- name: wait for weave DaemonSet to be Ready
+  shell: >
+    kubectl get ds --all-namespaces
+    | grep weave-net
+    | awk '{print $5;}'
+  register: get_ready_count
+  until: "{{get_desired_count.stdout | int}} == {{get_ready_count.stdout | int}}"
+  # Wait for 6 minutes
+  retries: 120
+  delay: 3

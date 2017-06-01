@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#Usage
+USAGE="Usage: kn destroy <aws|gce|openstack>"
+
+# Validate command
+if [ "$#" -eq 0 ]; then
+  >&2 echo "Error: no arguments supplied"
+  echo "$USAGE"
+  exit 1
+fi
+HOST_CLOUD="$1"
+if [ "$HOST_CLOUD" != 'openstack' ] && \
+  [ "$HOST_CLOUD" != 'gce' ] && \
+  [ "$HOST_CLOUD" != 'aws' ]; then
+  >&2 echo "Error: unrecognized host cloud '$HOST_CLOUD'"
+  echo "$USAGE"
+  exit 1
+fi
+
+# Destroy
+# shellcheck disable=SC2086
+terraform destroy $TERRAFORM_OPT "$HOST_CLOUD"

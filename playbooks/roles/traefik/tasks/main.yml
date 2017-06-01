@@ -6,11 +6,26 @@
     state: directory
     mode: 0755
 
-- name: copy traefik configuration
+- name: copy traefik config file
   become: yes
   copy:
     src: traefik.toml
     dest: "/etc/traefik"
+
+# delete first is a workaround until kubernetes support apply configmap --from-file
+- name: delete configmap (if it is already there)
+  command: >
+    kubectl delete configmap
+    traefik-conf
+    --ignore-not-found
+    --namespace=kube-system
+
+- name: create configmap from traefik config file
+  command: >
+    kubectl create configmap
+    traefik-conf
+    --namespace=kube-system
+    --from-file=/etc/traefik/traefik.toml
 
 - name: copy traefik DaemonSet configuration
   become: yes
@@ -22,4 +37,23 @@
   command: >
     kubectl apply -f
     /etc/traefik/traefik-daemonset.yml
-  when: inventory_hostname in groups['master']
+
+# ready count could not be done with jsonpath and filter because of issue
+# https://github.com/kubernetes/kubernetes/issues/45546
+- name: "get desired pod count"
+  shell: >
+    kubectl get ds --all-namespaces
+    | grep traefik-ingress-controller
+    | awk '{print $3;}'
+  register: get_desired_count
+
+- name: wait for DaemonSet to be Ready
+  shell: >
+    kubectl get ds --all-namespaces
+    | grep traefik-ingress-controller
+    | awk '{print $5;}'
+  register: get_ready_count
+  until: "{{get_desired_count.stdout | int}} == {{get_ready_count.stdout | int}}"
+  # Wait for 6 minutes
+  retries: 120
+  delay: 3

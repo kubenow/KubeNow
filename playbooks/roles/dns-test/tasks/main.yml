@@ -1,0 +1,9 @@
+---
+- name: DNS query
+  set_fact:
+    query_result: "{{lookup('dig', 'test.{{domain}}', wantlist=True)}}"
+
+- name: fail if edge IP is not in query result
+  fail:
+    msg: "{{ansible_ssh_host}} is not in the DNS query result: {{query_result}}"
+  when: "'{{ansible_ssh_host}}' not in query_result"
