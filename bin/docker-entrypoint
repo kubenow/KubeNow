@@ -1,5 +1,4 @@
-#!/bin/ash
-# shellcheck shell=bash
+#!/bin/bash
 
 # Copy host PWD in container PWD
 cp /var/userdir/terraform.tfvars ./ 2>/dev/null

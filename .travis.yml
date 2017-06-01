@@ -106,20 +106,13 @@ before_script:
   - sed -i -e "s/your-domain-name/${CI_CLOUDFLARE_DOMAIN}/g" terraform.tfvars
 
 script:
-  # Import image (AWS doesn't need it)
-  - >
-      if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ]; then
-        ../bin/kn ansible-playbook playbooks/import-"$HOST_CLOUD"-image.yml
-      fi
   # Deploy
-  - ../bin/kn terraform get "$HOST_CLOUD"
-  - travis_retry ../bin/kn terraform apply "$HOST_CLOUD"
-  - ../bin/kn ansible-playbook playbooks/install-core.yml
+  - travis_retry ../bin/kn apply "$HOST_CLOUD"
   # Test
   - ../bin/kn ansible-playbook playbooks/infra-test.yml
 
 after_script:
-  - travis_retry ../bin/kn terraform destroy -force "$HOST_CLOUD"
+  - export TERRAFORM_OPT="-force" && travis_retry ../bin/kn destroy "$HOST_CLOUD"
   - travis_retry terraform destroy -force "$HOST_CLOUD" # in case there is some problem with kn
 
 jobs:
