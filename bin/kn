@@ -24,7 +24,8 @@ if [ "$#" -eq 0 ]; then
 fi
 COMMAND="$1"
 ALLOWED="help init terraform ansible ansible-playbook kubetoken apply destroy"
-if [[ ! "$ALLOWED" =~ $COMMAND ]]; then
+echo $ALLOWED | grep "\b$COMMAND\b" > /dev/null
+if [ "$?" = "1" ]; then
   >&2 echo "Error: unrecognized command '$COMMAND'"
   echo "$USAGE"
   exit 1
