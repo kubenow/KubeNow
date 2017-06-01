@@ -295,7 +295,7 @@ module "generate-inventory" {
   master_as_edge    = "${var.master_as_edge}"
   edge_count        = "${var.edge_count}"
   node_count        = "${var.node_count}"
-  glusternode_count = "${var.node_count}"
+  glusternode_count = "${var.glusternode_count}"
   extra_disk_device = "${element(concat(module.glusternode.extra_disk_device, list("")),0)}"
   cluster_prefix    = "${var.cluster_prefix}"
   use_cloudflare    = "${var.use_cloudflare}"
