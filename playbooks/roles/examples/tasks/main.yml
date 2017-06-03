@@ -1,0 +1,11 @@
+- name: set cheese domain name
+  set_fact:
+    cheese_domain_name: "{{domain}}"
+
+- name: render cheese deployment
+  template:
+    src: cheese-deployment.yml.j2
+    dest: "/tmp/cheese-deployment.yml"
+
+- name: submit cheese deployment
+  command: kubectl apply -f /tmp/cheese-deployment.yml
