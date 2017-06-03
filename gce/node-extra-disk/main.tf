@@ -55,6 +55,7 @@ data "template_file" "instance_bootstrap" {
     master_ip     = "${var.master_ip}"
     node_labels   = "${join(",", var.node_labels)}"
     node_taints   = "${join(",", var.node_taints)}"
+    ssh_user      = "${var.ssh_user}"
   }
 }
 
