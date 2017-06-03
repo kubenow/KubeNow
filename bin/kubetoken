@@ -4,4 +4,4 @@
 tokenID=$(openssl rand -hex 3)
 tokenVal=$(openssl rand -hex 8)
 token="$tokenID.$tokenVal"
-echo "$token"
+printf '%s' "$token"
