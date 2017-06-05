@@ -37,9 +37,10 @@ else
 fi
 
 # Copy kubernetes configuration created by kubeadm (admin.conf to .kube/config)
+# shellcheck disable=SC2154
 SSH_USER="${ssh_user}"
 mkdir -p "/home/$SSH_USER/.kube/"
-chown $SSH_USER:$SSH_USER "/home/$SSH_USER/.kube/"
+chown "$SSH_USER":"$SSH_USER" "/home/$SSH_USER/.kube/"
 cp "/etc/kubernetes/admin.conf" "/home/$SSH_USER/.kube/config"
-chown $SSH_USER:$SSH_USER "/home/$SSH_USER/.kube/config"
+chown "$SSH_USER":"$SSH_USER" "/home/$SSH_USER/.kube/config"
 
