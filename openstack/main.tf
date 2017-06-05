@@ -5,6 +5,10 @@ variable kubenow_image {
   default = "kubenow-v030-8-gf709877-current"
 }
 
+variable ssh_user {
+  default = "ubuntu"
+}
+
 variable ssh_key {
   default = "ssh_key.pub"
 }
@@ -114,6 +118,7 @@ module "master" {
   image_name  = "${var.kubenow_image}"
 
   # SSH settings
+  ssh_user     = "${var.ssh_user}"
   keypair_name = "${module.keypair.keypair_name}"
 
   # Network settings
@@ -143,6 +148,7 @@ module "node" {
   image_name  = "${var.kubenow_image}"
 
   # SSH settings
+  ssh_user     = "${var.ssh_user}"
   keypair_name = "${module.keypair.keypair_name}"
 
   # Network settings
@@ -172,6 +178,7 @@ module "edge" {
   image_name  = "${var.kubenow_image}"
 
   # SSH settings
+  ssh_user     = "${var.ssh_user}"
   keypair_name = "${module.keypair.keypair_name}"
 
   # Network settings
@@ -201,6 +208,7 @@ module "glusternode" {
   image_name  = "${var.kubenow_image}"
 
   # SSH settings
+  ssh_user     = "${var.ssh_user}"
   keypair_name = "${module.keypair.keypair_name}"
 
   # Network settings
