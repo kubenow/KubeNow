@@ -37,20 +37,18 @@
   retries: 120
   delay: 3
 
-- name: "get desired kube-dns pod count"
+# wait for kube-dns containers are ready
+- name: "get kube-dns pod name"
   shell: >
-    kubectl get ds --all-namespaces
-    | grep kube-dns
-    | awk '{print $3;}'
-  register: get_desired_count_dns
+    kubectl get pods --namespace=kube-system |
+    grep kube-dns- |
+    awk '{print $1;}' |
+    tr -d '\n'
+  register: get_pod_name
 
-- name: wait for weave DaemonSet to be Ready
-  shell: >
-    kubectl get ds --all-namespaces
-    | grep kube-dns
-    | awk '{print $5;}'
-  register: get_ready_count_dns
-  until: "{{get_desired_count_dns.stdout | int}} == {{get_ready_count_dns.stdout | int}}"
-  # Wait for 6 minutes
-  retries: 120
-  delay: 3
+- name: "get kube-dns ready statuses"
+  command: >
+    kubectl get pods --namespace=kube-system {{get_pod_name.stdout}}
+    -o jsonpath='{.status.containerStatuses[*].ready}'
+  register: get_ready_statuses
+  until: (get_ready_statuses.stdout | match('^(true\s)*true$'))
