@@ -17,7 +17,7 @@
     kubectl apply -f
     /etc/weave/yaml/weave-daemonset-k8s.yaml
 
-# ready count could not be done with jsonpath and filter because of issue
+# Ready count could not be done with jsonpath and filter because of issue
 # https://github.com/kubernetes/kubernetes/issues/45546
 - name: "get desired weave pod count"
   shell: >
