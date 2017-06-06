@@ -39,15 +39,24 @@
     kubectl get endpoints
     --namespace=storage-heketi
     -o jsonpath='{.items[?(@.metadata.name=="heketi")].subsets[*].addresses[*].ip}:{.items[?(@.metadata.name=="heketi")].subsets[*].ports[*].port}'
-  register: get_endpoint
+  register: get_heketi_endpoint
 
-- name: set fact endpoint
+- name: set fact get_heketi_endpoint
   set_fact:
-    endpoint: "{{ get_endpoint.stdout }}"
+    heketi_endpoint: "{{ get_heketi_endpoint.stdout }}"
 
 - name: apply topology-file to heketi
   command: >
-    heketi-cli -s http://{{ endpoint }} topology load --json=/etc/heketi/kubernetes/topology.json
+    heketi-cli -s http://{{ heketi_endpoint }} topology load --json=/etc/heketi/kubernetes/topology.json
+
+- name: set fact glusternode_count
+  set_fact:
+    glusterpod_count: "{{ enpoint_list | length }}"
+
+# volumtype (replication factor): <VolumeDurability>:number eg. none:1, replicate:2, replicate:3 , disperse:???
+- name: set fact volumetype
+  set_fact:
+    volumetype: "{% if glusterpod_count == 1 %}none:1{% else %}replicate:{{ glusterpod_count }}{% endif %}"
 
 - name: render storage-class
   become: yes

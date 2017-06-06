@@ -9,7 +9,7 @@ kind: StorageClass
 metadata:
   name: gluster-heketi
   namespace: storage-heketi
-provisioner: kubernetes.io/glusterfs 
+provisioner: kubernetes.io/glusterfs
 parameters:
-  resturl: "http://{{ endpoint }}"
-  volumetype: "none:1"
+  resturl: "http://{{ heketi_endpoint }}"
+  volumetype: "{{ volumetype }}"
