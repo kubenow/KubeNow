@@ -52,3 +52,5 @@
     -o jsonpath='{.status.containerStatuses[*].ready}'
   register: get_ready_statuses
   until: (get_ready_statuses.stdout | match('^(true\s)*true$'))
+  retries: 120
+  delay: 3
