@@ -51,12 +51,12 @@
 
 - name: set fact glusternode_count
   set_fact:
-    glusterpod_count: "{{ (enpoint_list | length) | int }}"
+    glusterpod_count: "{{ enpoint_list | length }}"
 
 # volumtype (replication factor): <VolumeDurability>:number eg. none:1, replicate:2, replicate:3 , disperse:???
 - name: set fact volumetype
   set_fact:
-    volumetype: "{% if (glusterpod_count | int) == 1 %}none:1{% else %}replicate:{{ glusterpod_count }}{% endif %}"
+    volumetype: "{% if glusterpod_count == 1 %}none:1{% else %}replicate:{{ glusterpod_count }}{% endif %}"
 
 - name: render storage-class
   become: yes
