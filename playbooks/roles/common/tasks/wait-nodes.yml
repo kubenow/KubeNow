@@ -31,8 +31,8 @@
       grep -o 'Ready' | wc -l
     register: get_ready_nodes
     until: "{{get_ready_nodes.stdout | int}} == {{nodes_count | int}}"
-    # Wait for 15 minutes
-    retries: 180
+    # Wait for 10 minutes
+    retries: 120
     delay: 5
 
   rescue:
@@ -49,6 +49,6 @@
 
   - name: fail play
     fail:
-      msg: "All nodes have not joined the master"
+      msg: "All nodes have not joined the master within time limit, hopefully cloud init log above can help solving the issue"
 
 
