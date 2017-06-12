@@ -13,7 +13,7 @@
     set_fact:
       img_name: "kubenow-{{img_version}}"
       img_source: "https://storage.googleapis.com/kubenow-images/kubenow-{{img_version}}.tar.gz"
-  - name: "import GCE image"
+  - name: "import GCE image (if not present)"
     gce_img:
       name: "{{img_name}}"
       source: "{{img_source}}"
@@ -29,5 +29,5 @@
     async_status: jid={{ kubenow_upload.ansible_job_id }}
     register: upload_status
     until: upload_status.finished
-    retries: "{{((timeout | int) / 10) | int}}"
-    delay: 10
+    retries: "{{((timeout | int) / 5) | int}}"
+    delay: 5

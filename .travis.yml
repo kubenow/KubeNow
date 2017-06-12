@@ -110,6 +110,8 @@ script:
   - travis_retry ../bin/kn apply "$HOST_CLOUD"
   # Test
   - ../bin/kn ansible-playbook playbooks/infra-test.yml
+  - ../bin/kn kubectl get nodes # try to list nodes
+  - ../bin/kn helm list # try to helm list
 
 after_script:
   - export TERRAFORM_OPT="-force" && travis_retry ../bin/kn destroy "$HOST_CLOUD"
