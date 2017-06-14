@@ -72,6 +72,15 @@ variable cloudflare_domain {
   default = ""
 }
 
+variable cloudflare_proxied {
+  default = "false"
+}
+
+variable record_names {
+  type = "list"
+  default = ["*"]
+}
+
 # Upload SSH key to OpenStack
 module "keypair" {
   source      = "./keypair"
