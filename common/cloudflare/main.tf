@@ -25,10 +25,10 @@ provider "cloudflare" {
 # record count is length(var.record_names) * length(var.iplist)
 # with the arithmetic of / and % records with all combinations of var.iplist and var.record_names will be crated
 resource "cloudflare_record" "rec" {
-  count  = "${ var.record_count }"
-  domain = "${ var.cloudflare_domain }"
-  value  = "${ element(var.iplist, count.index / length(var.record_names) ) }"
-  name   = "${ element(var.record_names, count.index % length(var.record_names) ) }"
-  type   = "A"
-  proxied= "${ var.proxied }"
+  count   = "${ var.record_count }"
+  domain  = "${ var.cloudflare_domain }"
+  value   = "${ element(var.iplist, count.index / length(var.record_names) ) }"
+  name    = "${ element(var.record_names, count.index % length(var.record_names) ) }"
+  type    = "A"
+  proxied = "${ var.proxied }"
 }
