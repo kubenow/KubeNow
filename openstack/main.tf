@@ -193,11 +193,13 @@ module "cloudflare" {
   cloudflare_email  = "${var.cloudflare_email}"
   cloudflare_token  = "${var.cloudflare_token}"
   cloudflare_domain = "${var.cloudflare_domain}"
-  record_text       = "*.${var.cluster_prefix}"
 
-  # concat lists (record_count is limiting master_ip:s from being added to cloudflare if var.master_as_edge=false)
-  # terraform interpolation is limited and can not return list in conditionals
-  iplist = "${concat(module.edge.public_ip, module.master.public_ip)}"
+  # add cluster prefix to record names
+  record_names = "${formatlist("%s.%s", var.record_names, var.cluster_prefix)}"
+
+  # terraform interpolation is limited and can not return list in conditionals, workaround: first join to string, then split)
+  iplist  = "${split(",", var.master_as_edge == true ? join(",", concat(module.edge.public_ip, module.master.public_ip) ) : join(",", module.edge.public_ip) )}"
+  proxied = "${var.cloudflare_proxied}"
 }
 
 # Generate Ansible inventory (identical for each cloud provider)
