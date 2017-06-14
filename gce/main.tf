@@ -180,7 +180,7 @@ module "edge" {
 # set cloudflare record (optional)
 module "cloudflare" {
   # count values can not be dynamically computed, that's why we are using var.edge_count and not length(iplist)
-  record_count      = "${var.use_cloudflare != true ? 0 : var.master_as_edge == true ? var.edge_count + var.master_count : var.edge_count}"
+  record_count      = "${var.use_cloudflare != true ? 0 : var.master_as_edge == true ? (var.edge_count + var.master_count) * length(var.record_names) : var.edge_count * length(var.record_names)}"
   source            = "../common/cloudflare"
   cloudflare_email  = "${var.cloudflare_email}"
   cloudflare_token  = "${var.cloudflare_token}"
