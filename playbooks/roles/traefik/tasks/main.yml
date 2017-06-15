@@ -1,16 +1,14 @@
 ---
-- name: create traefik etc directory
-  become: yes
+- name: create traefik directory
   file:
-    path: /etc/traefik
+    path: ~/.kubernetes-yaml/traefik/
     state: directory
     mode: 0755
 
 - name: copy traefik config file
-  become: yes
   copy:
     src: traefik.toml
-    dest: "/etc/traefik"
+    dest: ~/.kubernetes-yaml/traefik/
 
 # delete first is a workaround until kubernetes support apply configmap --from-file
 - name: delete configmap (if it is already there)
@@ -25,18 +23,17 @@
     kubectl create configmap
     traefik-conf
     --namespace=kube-system
-    --from-file=/etc/traefik/traefik.toml
+    --from-file=$HOME/.kubernetes-yaml/traefik/traefik.toml
 
 - name: copy traefik DaemonSet configuration
-  become: yes
   copy:
     src: traefik-daemonset.yml
-    dest: "/etc/traefik"
+    dest: ~/.kubernetes-yaml/traefik/
 
 - name: start traefik DaemonSet
   command: >
     kubectl apply -f
-    /etc/traefik/traefik-daemonset.yml
+    $HOME/.kubernetes-yaml/traefik/traefik-daemonset.yml
 
 # ready count could not be done with jsonpath and filter because of issue
 # https://github.com/kubernetes/kubernetes/issues/45546
@@ -53,7 +50,7 @@
     | grep traefik-ingress-controller
     | awk '{print $5;}'
   register: get_ready_count
-  until: "{{get_desired_count.stdout | int}} == {{get_ready_count.stdout | int}}"
+  until: (get_desired_count.stdout | int) == (get_ready_count.stdout | int)
   # Wait for 6 minutes
   retries: 120
   delay: 3

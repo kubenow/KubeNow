@@ -1,11 +1,10 @@
 ---
 - name: template {{name}}-pvc
-  become: yes
   template:
     src: template-pvc.yml
-    dest: "/etc/heketi/kubernetes/pvc-{{name}}.yml"
+    dest: "~/.kubernetes-yaml/heketi/pvc-{{name}}.yml"
 
 - name: create {{name}}-pvc
   command: >
     kubectl apply -f
-    /etc/heketi/kubernetes/pvc-{{name}}.yml
+    ~/.kubernetes-yaml/heketi/pvc-{{name}}.yml
