@@ -76,7 +76,7 @@ variable cloudflare_proxied {
   default = "false"
 }
 
-variable record_names {
+variable cloudflare_record_texts {
   type    = "list"
   default = ["*"]
 }
