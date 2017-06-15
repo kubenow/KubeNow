@@ -1,21 +1,19 @@
 ---
 - name: create weave yaml directory
-  become: yes
   file:
-    path: /etc/weave/yaml/
+    path: ~/.kubernetes-yaml/weave/
     state: directory
     mode: 0755
 
 - name: copy weave DaemonSet file
-  become: yes
   copy:
     src: weave-daemonset-k8s-v1.9.5.yaml
-    dest: "/etc/weave/yaml/weave-daemonset-k8s.yaml"
+    dest: "~/.kubernetes-yaml/weave/weave-daemonset-k8s.yaml"
 
 - name: start weave DaemonSet
   command: >
     kubectl apply -f
-    /etc/weave/yaml/weave-daemonset-k8s.yaml
+    ~/.kubernetes-yaml/weave/weave-daemonset-k8s.yaml
 
 # Ready count could not be done with jsonpath and filter because of issue
 # https://github.com/kubernetes/kubernetes/issues/45546
@@ -32,7 +30,7 @@
     | grep weave-net
     | awk '{print $5;}'
   register: get_ready_count_weave
-  until: "{{get_desired_count_weave.stdout | int}} == {{get_ready_count_weave.stdout | int}}"
+  until: (get_desired_count_weave.stdout | int) == (get_ready_count_weave.stdout | int)
   # Wait for 6 minutes
   retries: 120
   delay: 3
