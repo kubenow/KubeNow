@@ -3,38 +3,62 @@
   local_action: wait_for
     host={{ ansible_ssh_host | default(inventory_hostname) }}
     port={{ ansible_port | default(22) }}
-    search_regex=OpenSSH
-    delay=10
+    state=started
+    delay=0
+    connect_timeout=1
     timeout=300
 
-- name: "render node count"
-  local_action: >
-    shell
-    cat terraform.tfvars |
-    grep '[node|edge]_count' |
-    awk '{print $3;}' |
-    tr -d '"' |
-    awk '{s+=$1} END {print s}'
-  args:
-    chdir: "{{playbook_dir}}/.."
-  register: get_nodes_count
-  when:
-    - nodes_count is undefined
+- name: "wait for server to respond on ssh port - second check"
+  local_action: wait_for
+    host={{ ansible_ssh_host | default(inventory_hostname) }}
+    port={{ ansible_port | default(22) }}
+    search_regex=OpenSSH
+    delay=0
+    connect_timeout=1
+    timeout=300
 
-- name: "set nodes_count fact"
-  set_fact:
-    # +1 because master is also one node
-    nodes_count: "{{(get_nodes_count.stdout | int) + 1}}"
-  when:
-    - nodes_count is undefined
+# if task in block fails - rescue and always output cloud-init log as debug info
+- block:
 
-- name: "wait for all nodes to join the master"
-  shell: >
-    kubectl get nodes
-    -o jsonpath='{.items[*].status.conditions[-1:].type}' |
-    grep -o 'Ready' | wc -l
-  register: get_ready_nodes
-  until: "{{get_ready_nodes.stdout | int}} == {{nodes_count | int}}"
-  # Wait for 5 minutes
-  retries: 60
-  delay: 5
+  - name: "wait until for cloud-init to finish on master"
+    shell: >
+      tail -1 /var/log/cloud-init-output.log | grep 'Cloud-init.*finished'
+    register: grep_init_finished
+    until: grep_init_finished.rc == 0
+    # Wait for 5 minutes
+    retries: 60
+    delay: 5
+
+  - name: "verify that master initialized ok"
+    shell: >
+      cat /var/log/cloud-init-output.log | grep 'Kubernetes master has initialized successfully'
+    register: grep_master_initialized
+    failed_when: grep_master_initialized.rc != 0
+
+  - name: "wait for all nodes to join the master"
+    shell: >
+      kubectl get nodes
+      -o jsonpath='{.items[*].status.conditions[-1:].type}' |
+      grep -o 'Ready' | wc -l
+    register: get_ready_nodes
+    until: (get_ready_nodes.stdout | int) == (nodes_count | int)
+    # Wait for 5 minutes
+    retries: 60
+    delay: 5
+
+  rescue:
+
+  - name: "get cloud-init log"
+    become: yes
+    command: >
+      cat /var/log/cloud-init-output.log
+    register: cloud_init_log
+
+  - name: print master cloud init log
+    debug:
+      msg: "{{ cloud_init_log.stdout }}"
+
+  # now fail when log output is printed
+  - name: fail play
+    fail:
+      msg: "Error in node init process, hopefully the master node cloud-init log above can help solving the issue"
