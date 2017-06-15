@@ -100,9 +100,10 @@ before_script:
   - sed -i -e "s/# edge/edge/g" terraform.tfvars
   # Cloudflare
   - sed -i -e "s/# use_cloudflare/use_cloudflare/g" terraform.tfvars
-  - sed -i -e '# cloudflare_email = "your-cloudflare-email"/cloudflare_email = "${CI_CLOUDFLARE_EMAIL}"/g" terraform.tfvars
-  - sed -i -e "# cloudflare_token = "your-cloudflare-token"/cloudflare_token = "${CI_CLOUDFLARE_TOKEN}"/g" terraform.tfvars
-  - sed -i -e "# cloudflare_domain = "your-domain-name"/cloudflare_domain = "${CI_CLOUDFLARE_DOMAIN}"/g" terraform.tfvars
+  - sed -i -e "s/# cloudflare_email = \"your-cloudflare-email\"/cloudflare_email = \"${CI_CLOUDFLARE_EMAIL}\"/g" terraform.tfvars
+  - sed -i -e "s/# cloudflare_token = \"your-cloudflare-token\"/# cloudflare_token = \"${CI_CLOUDFLARE_TOKEN}\"/g" terraform.tfvars
+  - sed -i -e "s/# cloudflare_domain = \"your-domain-name\"/# cloudflare_domain = \"${CI_CLOUDFLARE_DOMAIN}\"/g" terraform.tfvars
+
 
 script:
   # Deploy
