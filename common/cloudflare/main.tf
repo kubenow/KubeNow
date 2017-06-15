@@ -22,7 +22,7 @@ provider "cloudflare" {
   token = "${ var.cloudflare_token }"
 }
 
-# record count is length(var.record_names) * length(var.iplist)
+# record_count is length(var.record_names) * length(var.iplist)
 # with the arithmetic of / and % records with all combinations of var.iplist and var.record_names will be created
 resource "cloudflare_record" "rec" {
   count   = "${ var.record_count }"
