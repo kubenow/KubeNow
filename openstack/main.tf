@@ -188,14 +188,14 @@ module "edge" {
 # set cloudflare record (optional)
 module "cloudflare" {
   # count values can not be dynamically computed, that's why we are using var.edge_count and not length(iplist)
-  record_count      = "${var.use_cloudflare != true ? 0 : var.master_as_edge == true ? (var.edge_count + var.master_count) * length(var.record_names) : var.edge_count * length(var.record_names)}"
+  record_count      = "${var.use_cloudflare != true ? 0 : var.master_as_edge == true ? (var.edge_count + var.master_count) * length(var.cloudflare_record_texts) : var.edge_count * length(var.cloudflare_record_texts)}"
   source            = "../common/cloudflare"
   cloudflare_email  = "${var.cloudflare_email}"
   cloudflare_token  = "${var.cloudflare_token}"
   cloudflare_domain = "${var.cloudflare_domain}"
 
   # add cluster prefix to record names
-  record_names = "${formatlist("%s.%s", var.record_names, var.cluster_prefix)}"
+  cloudflare_record_texts = "${formatlist("%s.%s", var.cloudflare_record_texts, var.cluster_prefix)}"
 
   # terraform interpolation is limited and can not return list in conditionals, workaround: first join to string, then split)
   iplist  = "${split(",", var.master_as_edge == true ? join(",", concat(module.edge.public_ip, module.master.public_ip) ) : join(",", module.edge.public_ip) )}"
