@@ -35,6 +35,6 @@
     grep -o 'Ready' | wc -l
   register: get_ready_nodes
   until: "{{get_ready_nodes.stdout | int}} == {{nodes_count | int}}"
-  # Wait for 15 minutes
-  retries: 180
+  # Wait for 5 minutes
+  retries: 60
   delay: 5
