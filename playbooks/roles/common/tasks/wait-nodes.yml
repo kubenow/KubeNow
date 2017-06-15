@@ -49,7 +49,6 @@
   rescue:
 
   - name: "get cloud-init log"
-    become: yes
     command: >
       cat /var/log/cloud-init-output.log
     register: cloud_init_log
