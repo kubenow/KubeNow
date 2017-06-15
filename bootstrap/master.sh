@@ -1,7 +1,11 @@
 #!/bin/bash
 
-node_labels="${node_labels}"
-node_taints="${node_taints}"
+# Add hostname
+echo "127.0.0.1 $HOSTNAME" >> /etc/hosts
+
+# Taint and label
+node_labels=${node_labels}
+node_taints=${node_taints}
 
 echo "Label nodes"
 if [ -n "$node_labels" ]

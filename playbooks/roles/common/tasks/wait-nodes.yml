@@ -4,51 +4,37 @@
     host={{ ansible_ssh_host | default(inventory_hostname) }}
     port={{ ansible_port | default(22) }}
     search_regex=OpenSSH
-    delay=0
-    connect_timeout=1
-    timeout=360
+    delay=10
+    timeout=300
 
-- name: "get cloud-init log"
-  become: yes
-  command: >
-    cat /var/log/cloud-init-output.log
-  register: cloud_init_log
+- name: "render node count"
+  local_action: >
+    shell
+    cat terraform.tfvars |
+    grep '[node|edge]_count' |
+    awk '{print $3;}' |
+    tr -d '"' |
+    awk '{s+=$1} END {print s}'
+  args:
+    chdir: "{{playbook_dir}}/.."
+  register: get_nodes_count
+  when:
+    - nodes_count is undefined
 
-- name: create cloud init log message
+- name: "set nodes_count fact"
   set_fact:
-    cloud_init_msg: "{% if cloud_init_log.stdout.find('Using Kubernetes version') != -1 %}'Kubernetes master has started initialization successfully'{% else %}'Problem with init of master? {{ cloud_init_log.stdout}}'{% endif %}"
+    # +1 because master is also one node
+    nodes_count: "{{(get_nodes_count.stdout | int) + 1}}"
+  when:
+    - nodes_count is undefined
 
-- name: print master cloud init log message
-  debug:
-    msg: "{{ cloud_init_msg }}"
-
-- block:
-
-  - name: "wait for all nodes to join the master"
-    shell: >
-      kubectl get nodes
-      -o jsonpath='{.items[*].status.conditions[-1:].type}' |
-      grep -o 'Ready' | wc -l
-    register: get_ready_nodes
-    until: "{{get_ready_nodes.stdout | int}} == {{nodes_count | int}}"
-    # Wait for 10 minutes
-    retries: 120
-    delay: 5
-
-  rescue:
-
-  - name: "get cloud-init log"
-    become: yes
-    command: >
-      cat /var/log/cloud-init-output.log
-    register: cloud_init_log
-
-  - name: print master cloud init log
-    debug:
-      msg: "{{ cloud_init_log.stdout }}"
-
-  - name: fail play
-    fail:
-      msg: "All nodes have not joined the master within time limit, hopefully cloud init log above can help solving the issue"
-
-
+- name: "wait for all nodes to join the master"
+  shell: >
+    kubectl get nodes
+    -o jsonpath='{.items[*].status.conditions[-1:].type}' |
+    grep -o 'Ready' | wc -l
+  register: get_ready_nodes
+  until: "{{get_ready_nodes.stdout | int}} == {{nodes_count | int}}"
+  # Wait for 5 minutes
+  retries: 60
+  delay: 5
