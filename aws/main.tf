@@ -243,7 +243,7 @@ module "cloudflare" {
   cloudflare_domain = "${var.cloudflare_domain}"
 
   # add cluster prefix to record names
-  cloudflare_record_texts = "${formatlist("%s.%s", var.cloudflare_record_texts, var.cluster_prefix)}"
+  record_names = "${formatlist("%s.%s", var.cloudflare_record_texts, var.cluster_prefix)}"
 
   # terraform interpolation is limited and can not return list in conditionals, workaround: first join to string, then split)
   iplist  = "${split(",", var.master_as_edge == true ? join(",", concat(module.edge.public_ip, module.master.public_ip) ) : join(",", module.edge.public_ip) )}"
