@@ -7,7 +7,7 @@
     delay=0
     connect_timeout=1
     timeout=300
-    
+
 - name: "wait for server to respond on ssh port - second check"
   local_action: wait_for
     host={{ ansible_ssh_host | default(inventory_hostname) }}
@@ -60,3 +60,5 @@
 
   # now fail when log output is printed
   - name: fail play
+    fail:
+      msg: "Error in node init process, hopefully the master node cloud-init log above can help solving the issue"
