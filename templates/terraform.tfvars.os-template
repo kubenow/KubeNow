@@ -25,4 +25,4 @@ node_flavor = "your-node-flavor"
 
 # Cloudflare proxy (optional)
 # cloudflare_proxied = "true"
-# cloudflare_record_texts = ["record1","record2..."] # Warn: wildcards are not supported when using proxied records
+# cloudflare_record_texts = ["record1","record2",...] # Warn: wildcards are not supported when using proxied records
