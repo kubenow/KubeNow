@@ -13,7 +13,7 @@
 - name: create gluster DaemonSet
   command: >
     kubectl apply -f
-    ~/.kubernetes-yaml/glusterfs/glusterfs-daemonset.yml
+    $HOME/.kubernetes-yaml/glusterfs/glusterfs-daemonset.yml
 
 # the plays below is not really needed - just for verifying everything is OK
 

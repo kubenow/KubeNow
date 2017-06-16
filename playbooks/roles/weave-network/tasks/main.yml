@@ -13,7 +13,7 @@
 - name: start weave DaemonSet
   command: >
     kubectl apply -f
-    ~/.kubernetes-yaml/weave/weave-daemonset-k8s.yaml
+    $HOME/.kubernetes-yaml/weave/weave-daemonset-k8s.yaml
 
 # Ready count could not be done with jsonpath and filter because of issue
 # https://github.com/kubernetes/kubernetes/issues/45546

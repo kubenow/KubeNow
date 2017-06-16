@@ -46,7 +46,7 @@
 
 - name: apply topology-file to heketi
   command: >
-    heketi-cli -s http://{{ heketi_endpoint }} topology load --json=~/.kubernetes-yaml/heketi/topology.json
+    heketi-cli -s http://{{ heketi_endpoint }} topology load --json=$HOME/.kubernetes-yaml/heketi/topology.json
 
 - name: set fact glusternode_count
   set_fact:
@@ -65,4 +65,4 @@
 - name: create storage-class
   command: >
     kubectl apply -f
-    ~/.kubernetes-yaml/heketi/storage-class.yml
+    $HOME/.kubernetes-yaml/heketi/storage-class.yml

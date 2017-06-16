@@ -13,7 +13,7 @@
 - name: start heketi
   command: >
     kubectl apply -f
-    ~/.kubernetes-yaml/heketi/heketi-deployment.yml
+    $HOME/.kubernetes-yaml/heketi/heketi-deployment.yml
 
 - name: wait for heketi to be Running
   command: >

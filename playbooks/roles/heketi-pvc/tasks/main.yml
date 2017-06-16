@@ -7,4 +7,4 @@
 - name: create {{name}}-pvc
   command: >
     kubectl apply -f
-    ~/.kubernetes-yaml/heketi/pvc-{{name}}.yml
+    $HOME/.kubernetes-yaml/heketi/pvc-{{name}}.yml
