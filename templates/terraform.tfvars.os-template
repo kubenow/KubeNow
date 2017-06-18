@@ -27,3 +27,7 @@ node_flavor = "your-node-flavor"
 # cloudflare_email = "your-cloudflare-email"
 # cloudflare_token = "your-cloudflare-token"
 # cloudflare_domain = "your-domain-name"
+
+# Cloudflare proxy (optional)
+# cloudflare_proxied = "true"
+# cloudflare_record_texts = ["record1","record2",...] # Warn: wildcards are not supported when using proxied records
