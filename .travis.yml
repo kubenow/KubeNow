@@ -112,6 +112,7 @@ script:
   - ../bin/kn ansible-playbook playbooks/infra-test.yml
   - ../bin/kn kubectl get nodes # try to list nodes
   - ../bin/kn helm list # try to helm list
+  - ../bin/kn openstack --version # try to run an openstack command
 
 after_script:
   - export TERRAFORM_OPT="-force" && travis_retry ../bin/kn destroy "$HOST_CLOUD"
