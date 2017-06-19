@@ -1,0 +1,4 @@
+- hosts: master
+  gather_facts: False
+  roles:
+    - { role: shared-volume-test, tags: [ 'glusterfs' ] }

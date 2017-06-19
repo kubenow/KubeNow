@@ -110,6 +110,7 @@ script:
   - travis_retry ../bin/kn apply "$HOST_CLOUD"
   # Test
   - ../bin/kn ansible-playbook playbooks/infra-test.yml
+  - ../bin/kn ansible-playbook playbooks/infra-test-more.yml
   - ../bin/kn kubectl get nodes # try to list nodes
   - ../bin/kn helm list # try to helm list
   - ../bin/kn openstack --version # try to run an openstack command
