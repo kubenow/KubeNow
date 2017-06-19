@@ -96,8 +96,11 @@ before_script:
   - sed -i -e "s/your-master-flavor/${OS_MASTER_FLAVOR}/g" terraform.tfvars
   - sed -i -e "s/your-node-flavor/${OS_NODE_FLAVOR}/g" terraform.tfvars
   - sed -i -e "s/your-edge-flavor/${OS_EDGE_FLAVOR}/g" terraform.tfvars
+  - sed -i -e "s/your-glusternode-flavor/${OS_NODE_FLAVOR}/g" terraform.tfvars
   # Enable edges
   - sed -i -e "s/# edge/edge/g" terraform.tfvars
+  # Enable glusternodes
+  - sed -i -e "s/# glusternode/glusternode/g" terraform.tfvars
   # Cloudflare
   - sed -i -e "s/# use_cloudflare/use_cloudflare/g" terraform.tfvars
   - sed -i -e "s/# cloudflare_email = \"your-cloudflare-email\"/cloudflare_email = \"${CI_CLOUDFLARE_EMAIL}\"/g" terraform.tfvars
@@ -108,6 +111,7 @@ before_script:
 script:
   # Deploy
   - travis_retry ../bin/kn apply "$HOST_CLOUD"
+  - ../bin/kn ansible-playbook playbooks/install-heketi-gluster.yml
   # Test
   - ../bin/kn ansible-playbook playbooks/infra-test.yml
   - ../bin/kn ansible-playbook playbooks/infra-test-more.yml
