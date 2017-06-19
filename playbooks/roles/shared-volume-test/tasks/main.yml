@@ -14,7 +14,7 @@
   copy:
     src: read.yml
     dest: "~/.kubernetes-yaml/test/read.yml"
-    
+ 
 - name: copy test pvc
   copy:
     src: pvc.yml
