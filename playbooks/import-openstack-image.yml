@@ -2,7 +2,7 @@
 - hosts: localhost
   gather_facts: False
   vars:
-    img_version: "v030-8-gf709877-current"
+    img_version: "v031"
     timeout: 1800
   tasks:
     - name: "set image facts"
