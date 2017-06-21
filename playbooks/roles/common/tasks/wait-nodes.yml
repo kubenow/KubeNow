@@ -4,8 +4,7 @@
     host={{ ansible_ssh_host | default(inventory_hostname) }}
     port={{ ansible_port | default(22) }}
     state=started
-    delay=0
-    connect_timeout=1
+    connect_timeout=10
     timeout=300
 
 - name: "wait for server to respond on ssh port - second check"
@@ -13,8 +12,7 @@
     host={{ ansible_ssh_host | default(inventory_hostname) }}
     port={{ ansible_port | default(22) }}
     search_regex=OpenSSH
-    delay=0
-    connect_timeout=1
+    connect_timeout=10
     timeout=300
 
 # if task in block fails - rescue and always output cloud-init log as debug info
@@ -49,7 +47,6 @@
   rescue:
 
   - name: "get cloud-init log"
-    become: yes
     command: >
       cat /var/log/cloud-init-output.log
     register: cloud_init_log
