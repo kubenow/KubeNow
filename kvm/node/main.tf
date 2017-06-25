@@ -24,6 +24,7 @@ variable master_ip { default = "" }
 
 # Bootstrap
 data "template_file" "instance_bootstrap" {
+  count    = "${var.count > 0 ? 1 : 0}"
   template = "${file("${path.root}/../${ var.bootstrap_file }")}"
 
   vars {
@@ -37,6 +38,7 @@ data "template_file" "instance_bootstrap" {
 
 # Create cloud-init iso image
 resource "libvirt_cloudinit" "clouddrive" {
+  count              = "${var.count > 0 ? 1 : 0}"
   name               = "${var.name_prefix}-cloud-init.iso"
   ssh_authorized_key = "${file(var.ssh_key)}"
 
