@@ -1,2 +1,3 @@
 - include: wait-nodes.yml
 - include: workaround-RBAC.yml
+- { include: untaint_master.yml, when: nodes_count == 1 }
