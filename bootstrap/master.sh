@@ -40,7 +40,7 @@ else
     kubeadm init --token "${kubeadm_token}" --kubernetes-version=v1.6.4
 fi
 
-# Copy kubernetes configuration created by kubeadm (admin.conf to .kube/config)
+# Copy Kubernetes configuration created by kubeadm (admin.conf to .kube/config)
 # shellcheck disable=SC2154
 SSH_USER="${ssh_user}"
 mkdir -p "/home/$SSH_USER/.kube/"
