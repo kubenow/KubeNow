@@ -1,0 +1,3 @@
+- include: heketi-server.yml
+- include: gluster-daemonset.yml
+- include: storage-creation.yml

@@ -1,0 +1,85 @@
+- name: install heketi-cli (TODO remove and move into requirements.sh)
+  get_url:
+    url: https://github.com/heketi/heketi/releases/download/v4.0.0/heketi-client-v4.0.0.linux.amd64.tar.gz
+    dest: /tmp/heketi-client.amd64.tar.gz
+
+- name: unpack heketi-cli
+  unarchive:
+    src: /tmp/heketi-client.amd64.tar.gz
+    dest: /tmp/
+    remote_src: True
+
+- name: copy heketi-cli to /usr/local/bin
+  become: yes
+  copy:
+    src: /tmp/heketi-client/bin/heketi-cli
+    dest: /usr/local/bin
+    mode: 0755
+    remote_src: True
+
+- name: retrieve gluster-pod IPs
+  command: >
+    kubectl get pods 
+    -o jsonpath='{.items[?(@.spec.containers[*].name=="glusterfs")].status.podIP}'
+  register: get_ips
+
+- set_fact:
+    enpoint_list: "[\"{{get_ips.stdout | replace(' ','\",\"')}}\"]"
+    
+- debug:
+    msg: "{{ enpoint_list }}"
+    
+- name: retrieve gluster-server nodenames
+  command: >
+    kubectl get pods 
+    -o jsonpath='{.items[?(@.spec.containers[*].name=="glusterfs")].spec.nodeName}'
+  register: get_nodenames
+
+- set_fact:
+    host_list: "[\"{{get_nodenames.stdout | replace(' ','\",\"')}}\"]"
+
+- debug:
+    msg: "{{ host_list }}"
+    
+- name: combine host-list with endpoint-list
+  set_fact:
+     combined_host_ip: "{{ combined_host_ip|default({})|combine({item.0: item.1}) }}"
+  with_together:
+    - "{{ host_list }}"
+    - "{{ enpoint_list }}"
+  register: combined_host_ip
+
+- debug:
+    msg: "{{ combined_host_ip }}"
+
+# var extra_disk_device is specified in inventory
+- name: render topology
+  become: yes
+  template:
+    src: topology.json
+    dest: "/etc/heketi/kubernetes/topology.json"  
+
+- name: retrieve heketi endpoint
+  command: >
+    kubectl get endpoints
+    -o jsonpath='{.items[?(@.metadata.name=="heketi")].subsets[*].addresses[*].ip}:{.items[?(@.metadata.name=="heketi")].subsets[*].ports[*].port}'
+  register: get_endpoint
+
+- set_fact:
+    endpoint: "{{ get_endpoint.stdout }}"
+
+- name: apply topology-file to heketi
+  command: >
+    heketi-cli -s http://{{ endpoint }} topology load --json=/etc/heketi/kubernetes/topology.json
+
+- name: render storage-class
+  become: yes
+  template:
+    src: storage-class.yml
+    dest: "/etc/heketi/kubernetes/storage-class.yml"
+    
+- name: create storage-class
+  command: >
+    kubectl apply -f
+    /etc/heketi/kubernetes/storage-class.yml
+
