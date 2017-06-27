@@ -1,11 +1,12 @@
-#
 # parameters documented at https://github.com/kubernetes/kubernetes/tree/master/examples/persistent-volume-provisioning
-#
 apiVersion: storage.k8s.io/v1beta1
 kind: StorageClass
 metadata:
   name: gluster-heketi
-provisioner: kubernetes.io/glusterfs 
+  namespace: storage-heketi
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: kubernetes.io/glusterfs
 parameters:
-  resturl: "http://{{ endpoint }}"
-  volumetype: "replicate:2"
+  resturl: "http://{{ heketi_endpoint }}"
+  volumetype: "{{ volumetype }}"
