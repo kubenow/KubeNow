@@ -1,5 +1,0 @@
----
-- name: "untaint master if it is the only node"
-  command: >
-    kubectl taint nodes
-    --all node-role.kubernetes.io/master-
