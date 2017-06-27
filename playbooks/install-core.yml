@@ -5,6 +5,4 @@
     - { role: weave-network, tags: [ 'minimal' ] }
     - { role: start-helm, tags: [ 'minimal' ] }
     - { role: traefik, tags: [ 'traefik' ] }
-    - { role: heketi, tags: [ 'heketi-glusterfs' ] }
-    - { role: heketi-gluster-server, tags: [ 'heketi-glusterfs' ] }
-    - { role: heketi-storage, tags: [ 'heketi-glusterfs' ] }
+    - { role: heketi-gluster, tags: [ 'heketi-glusterfs' ] }

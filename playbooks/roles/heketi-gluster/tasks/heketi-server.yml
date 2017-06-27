@@ -8,7 +8,7 @@
 - name: copy heketi configuration
   copy:
     src: heketi-deployment.yml
-    dest: "~/.kubernetes-yaml/heketi/heketi-deployment.yml"
+    dest: "~/.kubernetes-yaml/heketi/heketi-server.yml"
 
 - name: start heketi
   command: >
