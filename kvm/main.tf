@@ -1,6 +1,7 @@
 # Cluster settings
 variable cluster_prefix {}
 
+variable kubenow_dir { default = "/tmp" } # to do fixme
 variable kubenow_image { default = "kubenow-v031.qcow2" } # to do fixme
 variable ssh_key { default = "ssh_key.pub"}
 variable ssh_user{ default = "ubuntu"}
@@ -53,7 +54,7 @@ resource "libvirt_network" "network" {
 # Create a template disk
 resource "libvirt_volume" "template_volume" {
   name   = "${var.cluster_prefix}-template-volume"
-  source = "/home/anders/projekt/phenomenal/kvm_test/${var.kubenow_image}"
+  source = "${var.kubenow_dir}/${var.kubenow_image}"
 }
 
 module "master" {
