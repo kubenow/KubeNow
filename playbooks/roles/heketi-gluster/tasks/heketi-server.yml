@@ -7,13 +7,13 @@
 
 - name: copy heketi configuration
   copy:
-    src: heketi-deployment.yml
+    src: heketi-server.yml
     dest: "~/.kubernetes-yaml/heketi/heketi-server.yml"
 
 - name: start heketi
   command: >
     kubectl apply -f
-    $HOME/.kubernetes-yaml/heketi/heketi-deployment.yml
+    $HOME/.kubernetes-yaml/heketi/heketi-server.yml
 
 - name: wait for heketi to be Running
   command: >
