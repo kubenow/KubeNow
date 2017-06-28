@@ -23,10 +23,11 @@ LOCAL_USERNAME=$(getent passwd $LOCAL_USER_ID | cut -d: -f1)
 GROUPNAME=$(getent group $LOCAL_PWD_GROUP_ID | cut -d: -f1)
 
 # add group to user
-addgroup user $GROUPNAME
+addgroup $LOCAL_USERNAME $GROUPNAME
 
-# exec command as new user 
+# exec command as new user
 # export HOME=/home/user
-exec su-exec user "$@"
+exec su-exec user "eval $(ssh-agent -s) ssh-add id_rsa && \"$@\""
+# exec su-exec user "$@"
 
 
