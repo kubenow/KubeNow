@@ -6,3 +6,4 @@
     - { role: start-helm-test, tags: [ 'minimal' ] }
     - { role: traefik-test, tags: [ 'traefik' ] }
     - { role: dns-test, tags: [ 'minimal' ] }
+    - { role: shared-volume-test, tags: [ 'glusterfs' ] }

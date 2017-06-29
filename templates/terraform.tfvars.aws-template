@@ -10,23 +10,23 @@ aws_secret_access_key = "your-secret-access-key"
 
 # Master configuration
 master_instance_type = "t2.medium"
-master_disk_size = "10" # Size in GB
+master_disk_size = "20" # Size in GB
 master_as_edge = "true"
 
 # Node configuration
 node_count = "3"
 node_instance_type = "t2.medium"
-node_disk_size = "10" # Size in GB
+node_disk_size = "20" # Size in GB
 
 # Edge configuration (optional)
 # edge_count = "2"
 # edge_instance_type = "t2.medium"
-# edge_disk_size = "10" # Size in GB
+# edge_disk_size = "20" # Size in GB
 
 # Gluster configuration
-# glusternode_count = "2"
+# glusternode_count = "1"
 # glusternode_instance_type = "t2.medium"
-# glusternode_disk_size = "10" # Size in GB
+# glusternode_disk_size = "20" # Size in GB
 # glusternode_extra_disk_size = "200" # Size in GB
 
 # Cloudflare configuration (optional)
