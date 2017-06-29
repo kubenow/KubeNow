@@ -2,7 +2,11 @@
 variable cluster_prefix {}
 
 variable kubenow_image {
-  default = "kubenow-v020"
+  default = "kubenow-v031"
+}
+
+variable ssh_user {
+  default = "ubuntu"
 }
 
 variable ssh_key {
@@ -53,6 +57,23 @@ variable edge_flavor {
 
 variable edge_flavor_id {
   default = ""
+}
+
+# Glusternode settings
+variable glusternode_count {
+  default = 0
+}
+
+variable glusternode_flavor {
+  default = "nothing"
+}
+
+variable glusternode_flavor_id {
+  default = ""
+}
+
+variable glusternode_extra_disk_size {
+  default = "200"
 }
 
 # Cloudflare settings
@@ -106,6 +127,7 @@ module "master" {
   image_name  = "${var.kubenow_image}"
 
   # SSH settings
+  ssh_user     = "${var.ssh_user}"
   keypair_name = "${module.keypair.keypair_name}"
 
   # Network settings
@@ -135,6 +157,7 @@ module "node" {
   image_name  = "${var.kubenow_image}"
 
   # SSH settings
+  ssh_user     = "${var.ssh_user}"
   keypair_name = "${module.keypair.keypair_name}"
 
   # Network settings
@@ -164,6 +187,7 @@ module "edge" {
   image_name  = "${var.kubenow_image}"
 
   # SSH settings
+  ssh_user     = "${var.ssh_user}"
   keypair_name = "${module.keypair.keypair_name}"
 
   # Network settings
@@ -179,6 +203,36 @@ module "edge" {
   bootstrap_file = "bootstrap/node.sh"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["role=edge"]
+  node_taints    = [""]
+  master_ip      = "${element(module.master.local_ip_v4, 0)}"
+}
+
+module "glusternode" {
+  # Core settings
+  source      = "./node"
+  count       = "${var.glusternode_count}"
+  name_prefix = "${var.cluster_prefix}-glusternode"
+  flavor_name = "${var.glusternode_flavor}"
+  flavor_id   = "${var.glusternode_flavor_id}"
+  image_name  = "${var.kubenow_image}"
+
+  # SSH settings
+  ssh_user     = "${var.ssh_user}"
+  keypair_name = "${module.keypair.keypair_name}"
+
+  # Network settings
+  network_name       = "${module.network.network_name}"
+  secgroup_name      = "${module.network.secgroup_name}"
+  assign_floating_ip = "false"
+  floating_ip_pool   = "${var.floating_ip_pool}"
+
+  # Disk settings
+  extra_disk_size = "${var.glusternode_extra_disk_size}"
+
+  # Bootstrap settings
+  bootstrap_file = "bootstrap/node.sh"
+  kubeadm_token  = "${var.kubeadm_token}"
+  node_labels    = ["storagenode=glusterfs"]
   node_taints    = [""]
   master_ip      = "${element(module.master.local_ip_v4, 0)}"
 }
@@ -212,6 +266,8 @@ module "generate-inventory" {
   master_as_edge    = "${var.master_as_edge}"
   edge_count        = "${var.edge_count}"
   node_count        = "${var.node_count}"
+  glusternode_count = "${var.glusternode_count}"
+  extra_disk_device = "${element(concat(module.glusternode.extra_disk_device, list("")),0)}"
   cluster_prefix    = "${var.cluster_prefix}"
   use_cloudflare    = "${var.use_cloudflare}"
   cloudflare_domain = "${var.cloudflare_domain}"

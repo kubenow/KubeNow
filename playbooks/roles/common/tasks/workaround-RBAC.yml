@@ -1,0 +1,21 @@
+---
+#
+# This playbook is creating a permissive RBAC clusterrolebinding to make kubernetes
+# run like v1.5 (pre RBAC - control) This workaround is giving developers time
+# to adapt to 1.6, and then after a time we can remove and apply all fixes
+# that will be done to support RBAC
+#
+# delete first is a workaround until kubernetes support apply clusterrolebinding
+- name: "delete clusterrolebinding permissive-binding RBAC-workaround (if it already exists)"
+  command: >
+    kubectl delete
+    --ignore-not-found
+    clusterrolebinding permissive-binding
+
+- name: "create clusterrolebinding permissive-binding RBAC-workaround"
+  command: >
+    kubectl create clusterrolebinding permissive-binding
+    --clusterrole=cluster-admin
+    --user=admin
+    --user=kubelet
+    --group=system:serviceaccounts

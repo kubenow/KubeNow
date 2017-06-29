@@ -2,7 +2,7 @@
 - hosts: localhost
   gather_facts: False
   vars:
-    img_version: "v020"
+    img_version: "v031"
     timeout: 1800
   tasks:
     - name: "set image facts"
@@ -25,8 +25,8 @@
       async_status: jid={{ kubenow_download.ansible_job_id }}
       register: download_status
       until: download_status.finished
-      retries: "{{((timeout | int) / 60) | int}}"
-      delay: 60
+      retries: "{{((timeout | int) / 10) | int}}"
+      delay: 10
       when: openstack_image == None
     - name: "upload image to OpenStack"
       os_image:
@@ -44,8 +44,8 @@
       async_status: jid={{ kubenow_upload.ansible_job_id }}
       register: upload_status
       until: upload_status.finished
-      retries: "{{((timeout | int) / 60) | int}}"
-      delay: 60
+      retries: "{{((timeout | int) / 10) | int}}"
+      delay: 10
       when: openstack_image == None
   handlers:
     - name: delete local image

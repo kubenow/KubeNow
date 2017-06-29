@@ -7,6 +7,8 @@ variable flavor_id {}
 variable image_name {}
 
 # SSH settings
+variable ssh_user {}
+
 variable keypair_name {}
 
 # Network settings
@@ -51,6 +53,7 @@ data "template_file" "instance_bootstrap" {
     master_ip     = "${var.master_ip}"
     node_labels   = "${join(",", var.node_labels)}"
     node_taints   = "${join(",", var.node_taints)}"
+    ssh_user      = "${var.ssh_user}"
   }
 }
 

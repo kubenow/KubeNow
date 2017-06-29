@@ -4,7 +4,6 @@
     - { role: common-test, tags: [ 'minimal' ] }
     - { role: weave-network-test, tags: [ 'minimal' ] }
     - { role: start-helm-test, tags: [ 'minimal' ] }
-    - { role: gluster-server-test, tags: [ 'glusterfs' ] }
-    - { role: shared-volume-test, tags: [ 'glusterfs' ] }
     - { role: traefik-test, tags: [ 'traefik' ] }
     - { role: dns-test, tags: [ 'minimal' ] }
+    - { role: shared-volume-test, tags: [ 'glusterfs' ] }

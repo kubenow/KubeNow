@@ -4,7 +4,7 @@
   vars:
     timeout: 1800
     credentials_file_path: "{{playbook_dir}}/../service-account.json"
-    img_version: "v020"
+    img_version: "v031"
   tasks:
   - name: "read credentials file"
     set_fact:

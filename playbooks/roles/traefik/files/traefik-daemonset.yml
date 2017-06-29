@@ -12,21 +12,14 @@ spec:
       labels:
         k8s-app: traefik-ingress-lb
         name: traefik-ingress-lb
-      annotations:
-        scheduler.alpha.kubernetes.io/tolerations: |
-          [
-            {
-              "key": "dedicated",
-              "operator": "Equal",
-              "value": "master",
-              "effect": "NoSchedule"
-            }
-          ]
     spec:
       hostNetwork: true # workaround
       terminationGracePeriodSeconds: 60
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
       containers:
-      - image: traefik:v1.2.1
+      - image: traefik:v1.3.1
         name: traefik-ingress-lb
         imagePullPolicy: Always
         volumeMounts:

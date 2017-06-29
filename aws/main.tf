@@ -2,7 +2,7 @@
 variable cluster_prefix {}
 
 variable kubenow_image {
-  default = "kubenow-v020"
+  default = "kubenow-v031"
 }
 
 variable kubeadm_token {}
@@ -64,6 +64,23 @@ variable edge_instance_type {
 
 variable edge_disk_size {
   default = "nothing"
+}
+
+# Glusternode settings
+variable glusternode_count {
+  default = 0
+}
+
+variable glusternode_instance_type {
+  default = "nothing"
+}
+
+variable glusternode_disk_size {
+  default = "nothing"
+}
+
+variable glusternode_extra_disk_size {
+  default = "200"
 }
 
 # Cloudflare settings
@@ -231,6 +248,35 @@ module "edge" {
   master_ip      = "${element(module.master.local_ip_v4, 0)}"
 }
 
+module "glusternode" {
+  # Core settings
+  source            = "./node"
+  count             = "${var.glusternode_count}"
+  name_prefix       = "${var.cluster_prefix}-glusternode"
+  instance_type     = "${var.glusternode_instance_type}"
+  image_id          = "${data.aws_ami.kubenow.id}"
+  availability_zone = "${var.availability_zone}"
+
+  # SSH settings
+  ssh_user         = "${var.ssh_user}"
+  ssh_keypair_name = "${module.keypair.keypair_name}"
+
+  # Network settings
+  subnet_id          = "${module.subnet.id}"
+  security_group_ids = "${concat(module.security_group.id, var.additional_sec_group_ids)}"
+
+  # Disk settings
+  disk_size       = "${var.glusternode_disk_size}"
+  extra_disk_size = "${var.glusternode_extra_disk_size}"
+
+  # Bootstrap settings
+  bootstrap_file = "bootstrap/node.sh"
+  kubeadm_token  = "${var.kubeadm_token}"
+  node_labels    = ["storagenode=glusterfs"]
+  node_taints    = [""]
+  master_ip      = "${element(module.master.local_ip_v4, 0)}"
+}
+
 # The code below (from here to end) should be identical for all cloud providers
 
 # set cloudflare record (optional)
@@ -260,6 +306,8 @@ module "generate-inventory" {
   master_as_edge    = "${var.master_as_edge}"
   edge_count        = "${var.edge_count}"
   node_count        = "${var.node_count}"
+  glusternode_count = "${var.glusternode_count}"
+  extra_disk_device = "${element(concat(module.glusternode.extra_disk_device, list("")),0)}"
   cluster_prefix    = "${var.cluster_prefix}"
   use_cloudflare    = "${var.use_cloudflare}"
   cloudflare_domain = "${var.cloudflare_domain}"

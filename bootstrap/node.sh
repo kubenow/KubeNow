@@ -25,6 +25,10 @@ fi
 systemctl daemon-reload
 systemctl restart kubelet
 
+# execute modprobe on node - workaround for heketi gluster
+echo "Modprobe dm_thin_pool"
+modprobe dm_thin_pool
+
 echo "Try to join master..."
 # shellcheck disable=SC2154
-kubeadm join --token "${kubeadm_token}" "${master_ip}"
+kubeadm join --token "${kubeadm_token}" "${master_ip}:6443"
