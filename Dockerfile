@@ -46,11 +46,10 @@ RUN curl "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terrafor
     rm -f "terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
 
 # Add libvirt plugin to Terraform
-RUN mkdir "/lib
+RUN mkdir "/terraform_plugins/"
 RUN curl "https://github.com/andersla/terraform-provider-libvirt/blob/develop/andersla/bin/terraform-provider-libvirt" \
-         -o "/bin
-
-
+         -o "/terraform_plugins/terraform-provider-libvirt"
+RUN echo "providers { libvirt = /terraform_plugins/terraform-provider-libvirt }" > "/.terraformrc"
 
 # Add KubeNow (and group)
 COPY . /opt/KubeNow

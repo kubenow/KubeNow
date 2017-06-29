@@ -81,11 +81,17 @@ if [ "$COMMAND" != "kubetoken" ]; then
   fi
 fi
 
+echo "Hello:-)"
+
+LOCAL_PWD_GROUP_ID=$(ls -nd "$PWD" | awk '{print $4;}')
+
 # Wrap docker run
 USR_COMMAND="$*"
 docker run --rm -it \
   -v "$PWD":/var/userdir \
   -e "HOST_USR_UID=$UID" \
+  -e "LOCAL_USER_ID=$UID" \
+  -e "LOCAL_PWD_GROUP_ID=$LOCAL_PWD_GROUP_ID" \
   -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
   -e "ANSIBLE_OPT=$ANSIBLE_OPT" \
   --env-file <(env | grep OS_) \

@@ -8,7 +8,7 @@ fi
 
 # create user with $LOCAL_USER_ID if it doesn't exists
 if [[ ! $(id -u $LOCAL_USER_ID > /dev/null 2>&1) ]]; then
-  adduser -s /bin/bash -u $USER_ID -D user
+  adduser -s /bin/bash -h /home/user -u $LOCAL_USER_ID -D user
 fi
 
 # create group with $LOCAL_PWD_GROUP_ID if it doesnt exist
@@ -20,14 +20,26 @@ fi
 LOCAL_USERNAME=$(getent passwd $LOCAL_USER_ID | cut -d: -f1)
 
 # get groupname with $LOCAL_PWD_GROUP_ID
-GROUPNAME=$(getent group $LOCAL_PWD_GROUP_ID | cut -d: -f1)
+GROUPNAME=$(getent group "$LOCAL_PWD_GROUP_ID" | cut -d: -f1)
 
 # add group to user
-addgroup $LOCAL_USERNAME $GROUPNAME
+addgroup "$LOCAL_USERNAME" "$GROUPNAME"
+
+# copy terraform config to user home
+USER_HOME=$(getent passwd "$LOCAL_USERNAME" | cut -d: -f6)
+cp /.terraformrc "$USER_HOME"
+
+#su-exec user sh -c "set"
+
+#su-exec user sh -c "nohup eval $(ssh-agent -s)"
+
+#su-exec user sh -c "ssh-add id_rsa"
+
+#su-exec user sh -c "set"
 
 # exec command as new user
 # export HOME=/home/user
-exec su-exec user "eval $(ssh-agent -s) ssh-add id_rsa && \"$@\""
+sh -c "eval $(ssh-agent -s); ssh-add id_rsa ; ls -la" # "$@"
 # exec su-exec user "$@"
 
 
