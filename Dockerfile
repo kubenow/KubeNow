@@ -54,7 +54,7 @@ RUN echo "providers { libvirt = /terraform_plugins/terraform-provider-libvirt }"
 # Add KubeNow (and group)
 COPY . /opt/KubeNow
 RUN cp /opt/KubeNow/bin/* /bin
-WORKDIR /opt/KubeNow
+WORKDIR /var/userdir
 
 # Set entrypoint
 ENTRYPOINT ["/opt/KubeNow/bin/docker-entrypoint"]

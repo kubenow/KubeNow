@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Usage
-USAGE="Usage: kn apply <aws|gce|openstack>"
+USAGE="Usage: kn apply <aws|gce|openstack|kvm>"
 
 # Validate command
 if [ "$#" -eq 0 ]; then
@@ -21,9 +21,7 @@ fi
 
 #Exit immediately if a command exits with a non-zero status
 set -e
-# Setup SSH
-eval "$(ssh-agent -s)" &>/dev/null
-ssh-add ssh_key 2>/dev/null
+
 # Import image (AWS doesn't need it)
 if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ]; then
   ansible-playbook playbooks/import-"$HOST_CLOUD"-image.yml

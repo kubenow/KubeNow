@@ -39,7 +39,7 @@ cp /.terraformrc "$USER_HOME"
 
 # exec command as new user
 # export HOME=/home/user
-sh -c "eval $(ssh-agent -s); ssh-add id_rsa ; ls -la" # "$@"
+exec su-exec other-user ssh-agent sh -c 'ssh-add ssh_key; apply kvm; "$@"' -- "$@"
 # exec su-exec user "$@"
 
 
