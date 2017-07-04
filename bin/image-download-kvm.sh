@@ -3,11 +3,11 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-IMG_VERSION="v031-8-g1c0a93b-test"
-IMAGE_NAME="kubenow-$IMG_VERSION"
-FILE_NAME="$IMAGE_NAME.qcow2"
-IMAGE_BUCKET_URL="https://s3.eu-central-1.amazonaws.com/kubenow-eu-frankfurt"
-LOCAL_DIR="$HOME/.kubenow"
+IMG_VERSION=${KN_IMG_VERSION:="v031-8-g1c0a93b-test"}
+IMAGE_NAME=${KN_IMAGE_NAME:="kubenow-$IMG_VERSION"}
+FILE_NAME=${KN_FILE_NAME:="$IMAGE_NAME.qcow2"}
+IMAGE_BUCKET_URL=${KN_IMAGE_BUCKET_URL:="https://s3.eu-central-1.amazonaws.com/kubenow-eu-frankfurt"}
+LOCAL_DIR=${KN_LOCAL_DIR:="$HOME/.kubenow"}
 
 # check if image is present locally already (then also verify md5 sum)
 if [ -e "$LOCAL_DIR/$FILE_NAME" ] && [ -e "$LOCAL_DIR/$FILE_NAME.md5" ]; then
