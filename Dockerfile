@@ -1,9 +1,9 @@
-FROM python:2.7-alpine
-MAINTAINER "Marco Capuccini <marco.capuccini@it.uu.se>"
+FROM python:2.7-alpine3.6
+MAINTAINER "Anders Larsson <anders.larsson@icm.uu.se>"
 
 # Provisioners versions
-ENV TERRAFORM_VERSION=0.9.8
-ENV TERRAFORM_SHA256SUM=f951885f4e15deb4cf66f3b199964e3e74a0298bb46c9fe42e105df2ebcf3d16
+ENV TERRAFORM_VERSION=0.9.4
+ENV TERRAFORM_SHA256SUM=cc1cffee3b82820b7f049bb290b841762ee920aef3cf4d95382cc7ea01135707
 ENV ANSIBLE_VERSION=2.3.1.0
 ENV LIBCLOUD_VERSION=1.5.0
 ENV J2CLI_VERSION=0.3.1.post0
@@ -24,7 +24,10 @@ RUN apk add --update --no-cache \
   openssl \
   bash \
   su-exec \
-  apache2-utils
+  apache2-utils \
+  libvirt \
+  libvirt-dev \
+  cdrkit
 
 # Install PIP deps
 RUN pip install \
@@ -33,8 +36,7 @@ RUN pip install \
   dnspython=="$DNSPYTHON_VERSION" \
   jmespath=="$JMESPATH_VERSION" \
   apache-libcloud=="$LIBCLOUD_VERSION" \
-  shade=="$SHADE_VERSION" \
-  python-openstackclient=="$OPENSTACKCLIENT_VERSION"
+  shade=="$SHADE_VERSION"
 
 # Install Terraform
 RUN curl "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" > \
@@ -45,17 +47,17 @@ RUN curl "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terrafor
     unzip "terraform_${TERRAFORM_VERSION}_linux_amd64.zip" -d /bin && \
     rm -f "terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
 
-# Add libvirt plugin to Terraform
-RUN mkdir "/terraform_plugins/"
-RUN curl "https://raw.githubusercontent.com/andersla/terraform-provider-libvirt/develop/andersla/bin/terraform-provider-libvirt" \
-         -o "/terraform_plugins/terraform-provider-libvirt"
-RUN chmod 777 "/terraform_plugins/terraform-provider-libvirt"
-RUN echo 'providers { libvirt = "/terraform_plugins/terraform-provider-libvirt" }' > "/.terraformrc"
+# Build and install terraform-libvirt plugin
+RUN apk add --update --no-cache pkgconfig go && \
+    go get github.com/dmacvicar/terraform-provider-libvirt && \
+    cp $HOME/go/bin/terraform-provider-libvirt /bin && \
+    apk del go && \
+    rm -rf $HOME/go
 
 # Add KubeNow (and group)
 COPY . /opt/KubeNow
 RUN cp /opt/KubeNow/bin/* /bin
-WORKDIR /var/userdir
+WORKDIR /opt/KubeNow
 
 # Set entrypoint
 ENTRYPOINT ["/opt/KubeNow/bin/docker-entrypoint"]
