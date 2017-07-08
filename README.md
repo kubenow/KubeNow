@@ -12,6 +12,8 @@ kn apply <aws|gce|openstack>
 kn helm install my-app-package
 ```
 
+:warining: `kn` CLI is not documented yet.
+
 ## Table of Contents
 
 - [Architecture](#architecture)
@@ -36,6 +38,8 @@ In a KubeNow cluster there are 3 instance types:
 - **node**: it runs a Kubernetes node and it hosts application services.
 - **edge**: it is a specialized kind of node with a public IP associated, it acts as an ingress controller proxying from the Internet to the application services. It can run application services as well. Edge nodes are optional.
 - **glusternode**: it is a specialized kind of node that runs only a GlusterFS server. One or more *glusternodes* can be used to provide distributed storage for the application services. Glusternodes are optional.
+
+**Cloudflare** can be optionally used to setup DNS records and SSL/TSL (HTTPS) encryption.
 
 ## Manifesto
 
@@ -79,6 +83,6 @@ Want to try KubeNow? You can get started following the tutorials in the document
 ### Storage
 - [x] GlusterFS
 
-### HTTPS
+### SSL/TSL (HTTPS)
 - [x] Cloudflare
 - [ ] Let's Encrypt
