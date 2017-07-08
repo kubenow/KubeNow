@@ -12,7 +12,7 @@ kn apply <aws|gce|openstack>
 kn helm install my-app-package
 ```
 
-:warining: `kn` CLI is not documented yet.
+:warning: `kn` CLI is not documented yet.
 
 ## Table of Contents
 
