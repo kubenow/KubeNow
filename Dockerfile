@@ -22,7 +22,9 @@ RUN apk add --update --no-cache \
   libffi-dev \
   openssl-dev \
   openssl \
-  bash
+  bash \
+  su-exec \
+  apache2-utils
 
 # Install PIP deps
 RUN pip install \

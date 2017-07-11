@@ -5,3 +5,4 @@
     - { role: weave-network, tags: [ 'minimal' ] }
     - { role: start-helm, tags: [ 'minimal' ] }
     - { role: traefik, tags: [ 'traefik' ] }
+    - { role: heketi-gluster, tags: [ 'heketi-glusterfs' ] }

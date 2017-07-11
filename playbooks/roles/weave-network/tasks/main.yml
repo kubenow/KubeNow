@@ -1,19 +1,6 @@
 ---
-- name: create weave yaml directory
-  file:
-    path: ~/.kubernetes-yaml/weave/
-    state: directory
-    mode: 0755
-
-- name: copy weave DaemonSet file
-  copy:
-    src: weave-daemonset-k8s-v1.9.5.yaml
-    dest: "~/.kubernetes-yaml/weave/weave-daemonset-k8s.yaml"
-
-- name: start weave DaemonSet
-  command: >
-    kubectl apply -f
-    $HOME/.kubernetes-yaml/weave/weave-daemonset-k8s.yaml
+- name: "install weave"
+  command: kubectl apply -f https://github.com/weaveworks/weave/releases/download/v1.9.8/weave-daemonset-k8s-1.6.yaml
 
 # Ready count could not be done with jsonpath and filter because of issue
 # https://github.com/kubernetes/kubernetes/issues/45546

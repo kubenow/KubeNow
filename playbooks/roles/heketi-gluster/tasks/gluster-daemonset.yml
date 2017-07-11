@@ -1,5 +1,5 @@
 ---
-- name: create gluster kubenow yaml directory
+- name: create gluster KubeNow yaml directory
   file:
     path: "~/.kubernetes-yaml/glusterfs/"
     state: directory
@@ -14,8 +14,6 @@
   command: >
     kubectl apply -f
     $HOME/.kubernetes-yaml/glusterfs/glusterfs-daemonset.yml
-
-# the plays below is not really needed - just for verifying everything is OK
 
 - name: wait for gluster DaemonSet to be Running
   command: >

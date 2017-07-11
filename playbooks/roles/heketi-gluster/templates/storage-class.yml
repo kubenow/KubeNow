@@ -1,9 +1,4 @@
-#
 # parameters documented at https://github.com/kubernetes/kubernetes/tree/master/examples/persistent-volume-provisioning
-#
-# volumtype: "<VolumeDurability>:number"
-# ex: none:1, replicate:2, replicate:3 , disperse:???
-#
 apiVersion: storage.k8s.io/v1beta1
 kind: StorageClass
 metadata:
