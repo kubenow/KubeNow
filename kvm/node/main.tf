@@ -45,9 +45,9 @@ resource "libvirt_cloudinit" "clouddrive" {
   # create a cloud config yaml
   user_data = <<EOF
 write_files:
-  - content: |
-${data.template_file.instance_bootstrap.rendered}
-    path: /tmp/bootstrap.sh
+  - path: /tmp/bootstrap.sh
+    encoding: base64
+    content: "${base64encode(data.template_file.instance_bootstrap.rendered)}"
     permissions: '755'
 runcmd:
   - /tmp/bootstrap.sh

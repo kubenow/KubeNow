@@ -77,7 +77,7 @@ module "master" {
   extra_disk_size = "0"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/master-kvm.sh"
+  bootstrap_file = "bootstrap/master.sh"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = "${split(",", var.master_as_edge == "true" ? "role=edge" : "")}"
   node_taints    = [""]
@@ -104,7 +104,7 @@ module "node" {
   extra_disk_size = "0"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/node-kvm.sh"
+  bootstrap_file = "bootstrap/node.sh"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["role=node"]
   node_taints    = [""]
@@ -131,7 +131,7 @@ module "edge" {
   extra_disk_size = "0"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/node-kvm.sh"
+  bootstrap_file = "bootstrap/node.sh"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["role=edge"]
   node_taints    = [""]
@@ -158,7 +158,7 @@ module "glusternode" {
   extra_disk_size = "${var.glusternode_extra_disk_size}"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/node-kvm.sh"
+  bootstrap_file = "bootstrap/node.sh"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["storagenode=glusterfs"]
   node_taints    = [""]
