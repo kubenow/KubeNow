@@ -22,20 +22,4 @@
   retries: 120
   delay: 3
 
-# wait for kube-dns containers are ready
-- name: "get kube-dns pod name"
-  shell: >
-    kubectl get pods --namespace=kube-system |
-    grep kube-dns- |
-    awk '{print $1;}' |
-    tr -d '\n'
-  register: get_pod_name
-
-- name: "get kube-dns ready statuses"
-  command: >
-    kubectl get pods --namespace=kube-system {{get_pod_name.stdout}}
-    -o jsonpath='{.status.containerStatuses[*].ready}'
-  register: get_ready_statuses
-  until: (get_ready_statuses.stdout | match('^(true\s)*true$'))
-  retries: 120
-  delay: 3
+# TODO maybe wait for kube-dns containers are ready

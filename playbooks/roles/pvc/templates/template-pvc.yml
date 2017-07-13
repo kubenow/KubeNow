@@ -9,3 +9,6 @@ spec:
   resources:
     requests:
       storage: {{storage}}
+{% if storage_class_name is defined %}
+  storageClassName: {{ storage_class_name }}
+{% endif %}
