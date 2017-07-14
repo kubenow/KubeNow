@@ -1,14 +1,16 @@
 - name: create mountpath on node
   become: yes
+  become-method: su
   command: >
     mkdir "/mnt/data"
 
 - name: mount hostdir on node
   become: yes
+  become-method: su
   command: >
     mount -t 9p -o trans=virtio,version=9p2000.L,rw data /mnt/data
 
-- name: creatie yaml directory
+- name: create yaml directory
   file:
     path: "~/.kubernetes-yaml/shared-vol-hostpath/"
     state: directory
