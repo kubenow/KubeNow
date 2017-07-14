@@ -6,9 +6,9 @@
 
 - name: render shared-volume-nfs configuration
   template:
-    src: shared-volume-nfs.yaml
-    dest: "~/.kubernetes-yaml/shared-vol-nfs/shared-volume-nfs.yaml"
+    src: shared-volume-nfs.yml
+    dest: "~/.kubernetes-yaml/shared-vol-nfs/shared-volume-nfs.yml"
 
 - name: create local-shared-volume (Kubernetes side)
   command: >
-    kubectl apply -f "$HOME/.kubernetes-yaml/shared-vol-nfs/shared-volume-nfs.yaml"
+    kubectl apply -f "$HOME/.kubernetes-yaml/shared-vol-nfs/shared-volume-nfs.yml"
