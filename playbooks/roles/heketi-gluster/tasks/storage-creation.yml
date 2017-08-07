@@ -29,33 +29,40 @@
   register: combined_host_ip
 
 - name: render topology
-  become: yes
   template:
     src: topology.json
-    dest: "/etc/heketi/kubernetes/topology.json"
+    dest: "~/.kubernetes-yaml/heketi/topology.json"
 
 - name: retrieve heketi endpoint
   command: >
     kubectl get endpoints
     --namespace=storage-heketi
     -o jsonpath='{.items[?(@.metadata.name=="heketi")].subsets[*].addresses[*].ip}:{.items[?(@.metadata.name=="heketi")].subsets[*].ports[*].port}'
-  register: get_endpoint
+  register: get_heketi_endpoint
 
-- name: set fact endpoint
+- name: set fact get_heketi_endpoint
   set_fact:
-    endpoint: "{{ get_endpoint.stdout }}"
+    heketi_endpoint: "{{ get_heketi_endpoint.stdout }}"
 
 - name: apply topology-file to heketi
   command: >
-    heketi-cli -s http://{{ endpoint }} topology load --json=/etc/heketi/kubernetes/topology.json
+    heketi-cli -s http://{{ heketi_endpoint }} topology load --json=$HOME/.kubernetes-yaml/heketi/topology.json
+
+- name: set fact glusternode_count
+  set_fact:
+    glusterpod_count: "{{ (enpoint_list | length) | int }}"
+
+# volumtype (replication factor): <VolumeDurability>:number eg. none:1, replicate:2, replicate:3 , disperse:???
+- name: set fact volumetype
+  set_fact:
+    volumetype: "{% if (glusterpod_count | int) == 1 %}none:1{% else %}replicate:{{ glusterpod_count }}{% endif %}"
 
 - name: render storage-class
-  become: yes
   template:
     src: storage-class.yml
-    dest: "/etc/heketi/kubernetes/storage-class.yml"
+    dest: "~/.kubernetes-yaml/heketi/storage-class.yml"
 
 - name: create storage-class
   command: >
     kubectl apply -f
-    /etc/heketi/kubernetes/storage-class.yml
+    $HOME/.kubernetes-yaml/heketi/storage-class.yml

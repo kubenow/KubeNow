@@ -1,0 +1,15 @@
+---
+- name: create pvc yaml directory
+  file:
+    path: ~/.kubernetes-yaml/pvc/
+    state: directory
+    mode: 0755
+- name: template {{name}}-pvc
+  template:
+    src: template-pvc.yml
+    dest: "~/.kubernetes-yaml/pvc/pvc-{{name}}.yml"
+
+- name: create {{name}}-pvc
+  command: >
+    kubectl apply -f
+    $HOME/.kubernetes-yaml/pvc/pvc-{{name}}.yml

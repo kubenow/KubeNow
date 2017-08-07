@@ -7,6 +7,8 @@ variable flavor_id {}
 variable image_name {}
 
 # SSH settings
+variable ssh_user {}
+
 variable keypair_name {}
 
 # Network settings

@@ -1,7 +1,11 @@
 #!/bin/bash
 
-node_labels="${node_labels}"
-node_taints="${node_taints}"
+# Add hostname
+echo "127.0.0.1 $HOSTNAME" >> /etc/hosts
+
+# Taint and label
+node_labels=${node_labels}
+node_taints=${node_taints}
 
 echo "Label nodes"
 if [ -n "$node_labels" ]
@@ -36,10 +40,11 @@ else
     kubeadm init --token "${kubeadm_token}" --kubernetes-version=v1.6.4
 fi
 
-# Copy kubernetes configuration created by kubeadm (admin.conf to .kube/config)
+# Copy Kubernetes configuration created by kubeadm (admin.conf to .kube/config)
+# shellcheck disable=SC2154
 SSH_USER="${ssh_user}"
 mkdir -p "/home/$SSH_USER/.kube/"
-chown $SSH_USER:$SSH_USER "/home/$SSH_USER/.kube/"
+chown "$SSH_USER":"$SSH_USER" "/home/$SSH_USER/.kube/"
 cp "/etc/kubernetes/admin.conf" "/home/$SSH_USER/.kube/config"
-chown $SSH_USER:$SSH_USER "/home/$SSH_USER/.kube/config"
+chown "$SSH_USER":"$SSH_USER" "/home/$SSH_USER/.kube/config"
 

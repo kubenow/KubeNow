@@ -23,7 +23,7 @@ node_disk_size = "20" # Size in GB
 # edge_disk_size = "20" # Size in GB
 
 # Gluster configuration
-# glusternode_count = "2"
+# glusternode_count = "1"
 # glusternode_flavor = "n1-standard-2"
 # glusternode_disk_size = "20" # Size in GB
 # glusternode_extra_disk_size = "200" # Size in GB
@@ -33,3 +33,7 @@ node_disk_size = "20" # Size in GB
 # cloudflare_email = "your-cloudflare-email"
 # cloudflare_token = "your-cloudflare-token"
 # cloudflare_domain = "your-domain-name"
+
+# Cloudflare proxy (optional)
+# cloudflare_proxied = "true"
+# cloudflare_record_texts = ["record1","record2",...] # Warn: wildcards are not supported when using proxied records

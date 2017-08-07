@@ -2,7 +2,11 @@
 variable cluster_prefix {}
 
 variable kubenow_image {
-  default = "kubenow-v030-8-gf709877-current"
+  default = "kubenow-v031"
+}
+
+variable ssh_user {
+  default = "ubuntu"
 }
 
 variable ssh_key {
@@ -89,6 +93,15 @@ variable cloudflare_domain {
   default = ""
 }
 
+variable cloudflare_proxied {
+  default = "false"
+}
+
+variable cloudflare_record_texts {
+  type    = "list"
+  default = ["*"]
+}
+
 # Upload SSH key to OpenStack
 module "keypair" {
   source      = "./keypair"
@@ -114,6 +127,7 @@ module "master" {
   image_name  = "${var.kubenow_image}"
 
   # SSH settings
+  ssh_user     = "${var.ssh_user}"
   keypair_name = "${module.keypair.keypair_name}"
 
   # Network settings
@@ -143,6 +157,7 @@ module "node" {
   image_name  = "${var.kubenow_image}"
 
   # SSH settings
+  ssh_user     = "${var.ssh_user}"
   keypair_name = "${module.keypair.keypair_name}"
 
   # Network settings
@@ -172,6 +187,7 @@ module "edge" {
   image_name  = "${var.kubenow_image}"
 
   # SSH settings
+  ssh_user     = "${var.ssh_user}"
   keypair_name = "${module.keypair.keypair_name}"
 
   # Network settings
@@ -201,6 +217,7 @@ module "glusternode" {
   image_name  = "${var.kubenow_image}"
 
   # SSH settings
+  ssh_user     = "${var.ssh_user}"
   keypair_name = "${module.keypair.keypair_name}"
 
   # Network settings
@@ -216,7 +233,7 @@ module "glusternode" {
   bootstrap_file = "bootstrap/node.sh"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["storagenode=glusterfs"]
-  node_taints    = [""]                                       # dedicated=fileserver:NoSchedule
+  node_taints    = [""]
   master_ip      = "${element(module.master.local_ip_v4, 0)}"
 }
 
@@ -225,16 +242,18 @@ module "glusternode" {
 # set cloudflare record (optional)
 module "cloudflare" {
   # count values can not be dynamically computed, that's why we are using var.edge_count and not length(iplist)
-  record_count      = "${var.use_cloudflare != true ? 0 : var.master_as_edge == true ? var.edge_count + var.master_count : var.edge_count}"
+  record_count      = "${var.use_cloudflare != true ? 0 : var.master_as_edge == true ? (var.edge_count + var.master_count) * length(var.cloudflare_record_texts) : var.edge_count * length(var.cloudflare_record_texts)}"
   source            = "../common/cloudflare"
   cloudflare_email  = "${var.cloudflare_email}"
   cloudflare_token  = "${var.cloudflare_token}"
   cloudflare_domain = "${var.cloudflare_domain}"
-  record_text       = "*.${var.cluster_prefix}"
 
-  # concat lists (record_count is limiting master_ip:s from being added to cloudflare if var.master_as_edge=false)
-  # terraform interpolation is limited and can not return list in conditionals
-  iplist = "${concat(module.edge.public_ip, module.master.public_ip)}"
+  # add cluster prefix to record names
+  record_names = "${formatlist("%s.%s", var.cloudflare_record_texts, var.cluster_prefix)}"
+
+  # terraform interpolation is limited and can not return list in conditionals, workaround: first join to string, then split)
+  iplist  = "${split(",", var.master_as_edge == true ? join(",", concat(module.edge.public_ip, module.master.public_ip) ) : join(",", module.edge.public_ip) )}"
+  proxied = "${var.cloudflare_proxied}"
 }
 
 # Generate Ansible inventory (identical for each cloud provider)

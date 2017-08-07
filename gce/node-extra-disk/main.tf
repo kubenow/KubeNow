@@ -103,7 +103,7 @@ resource "google_compute_instance" "instance" {
 
 # Module outputs
 output "extra_disk_device" {
-  value = ["${list("google-${var.extra_disk_name}")}"]
+  value = ["${list("/dev/disk/by-id/google-${var.extra_disk_name}")}"]
 }
 
 output "local_ip_v4" {

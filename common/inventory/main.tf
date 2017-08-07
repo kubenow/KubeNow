@@ -51,13 +51,14 @@ resource "null_resource" "generate-inventory" {
   }
 
   # output the lists formated, slice list to make sure hostname and ip-list have same length
+  # provisioner output can not be empty string - therefore output space when edge_count == 0
   provisioner "local-exec" {
-    command = "echo \"${var.edge_count == 0 ? "" : join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", slice(var.edge_hostnames,0,var.edge_count), var.edge_public_ip))}\" >> inventory"
+    command = "echo \"${var.edge_count == 0 ? " " : join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", slice(var.edge_hostnames,0,var.edge_count), var.edge_public_ip))}\" >> inventory"
   }
 
   # Write other variables
   provisioner "local-exec" {
-    command = "echo \"[master:vars]\" >> inventory"
+    command = "echo \"[all:vars]\" >> inventory"
   }
 
   provisioner "local-exec" {

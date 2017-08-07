@@ -1,0 +1,57 @@
+---
+- name: create test yaml directory
+  file:
+    path: "~/.kubernetes-yaml/test/"
+    state: directory
+    mode: 0755
+
+- name: copy test write job
+  copy:
+    src: write.yml
+    dest: "~/.kubernetes-yaml/test/write.yml"
+
+- name: copy test read job
+  copy:
+    src: read.yml
+    dest: "~/.kubernetes-yaml/test/read.yml"
+
+- name: copy test pvc
+  copy:
+    src: pvc.yml
+    dest: "~/.kubernetes-yaml/test/pvc.yml"
+
+- name: request pvc
+  command: >
+    kubectl apply -f "$HOME/.kubernetes-yaml/test/pvc.yml"
+
+- name: submit write job
+  command: >
+    kubectl apply -f "$HOME/.kubernetes-yaml/test/write.yml"
+
+- name: wait for write job
+  command: >
+    kubectl get jobs
+    -o jsonpath='{@.items[?(@.metadata.labels.job-name=="write")].status.succeeded}'
+  register: get_write_success
+  until:
+    - "get_write_success.rc == 0"
+    - "(get_write_success.stdout | int) == 1"
+  # Wait for 5 minutes
+  retries: 60
+  delay: 5
+
+- name: submit read job
+  command: >
+    kubectl apply -f "$HOME/.kubernetes-yaml/test/read.yml"
+
+- name: wait for read job
+  command: >
+    kubectl get jobs
+    -o jsonpath='{@.items[?(@.metadata.labels.job-name=="read")].status.succeeded}'
+  register: get_read_success
+  until:
+    - "get_read_success.rc == 0"
+    - "(get_read_success.stdout | int) == 1"
+  # Wait for 5 minutes
+  retries: 60
+  delay: 5
