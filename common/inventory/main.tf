@@ -22,6 +22,7 @@ variable extra_disk_device {}
 variable use_cloudflare {}
 variable cluster_prefix {}
 variable cloudflare_domain {}
+variable ssh_user {}
 
 # Generate Ansible inventory (identical for each cloud provider)
 resource "null_resource" "generate-inventory" {
@@ -37,7 +38,7 @@ resource "null_resource" "generate-inventory" {
 
   # output the lists formated
   provisioner "local-exec" {
-    command = "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", var.master_hostnames, var.master_public_ip))}\" >> inventory"
+    command = "echo \"${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=${var.ssh_user}", var.master_hostnames, var.master_public_ip))}\" >> inventory"
   }
 
   # Write edges
@@ -47,13 +48,13 @@ resource "null_resource" "generate-inventory" {
 
   # only output if master is edge
   provisioner "local-exec" {
-    command = "echo \"${var.master_as_edge != true ? "" : join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", var.master_hostnames, var.master_public_ip))}\" >> inventory"
+    command = "echo \"${var.master_as_edge != true ? "" : join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=${var.ssh_user}", var.master_hostnames, var.master_public_ip))}\" >> inventory"
   }
 
   # output the lists formated, slice list to make sure hostname and ip-list have same length
   # provisioner output can not be empty string - therefore output space when edge_count == 0
   provisioner "local-exec" {
-    command = "echo \"${var.edge_count == 0 ? " " : join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=ubuntu", slice(var.edge_hostnames,0,var.edge_count), var.edge_public_ip))}\" >> inventory"
+    command = "echo \"${var.edge_count == 0 ? " " : join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=${var.ssh_user}", slice(var.edge_hostnames,0,var.edge_count), var.edge_public_ip))}\" >> inventory"
   }
 
   # Write other variables
