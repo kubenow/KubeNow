@@ -13,6 +13,7 @@ variable master_count { default = 1 }
 variable master_vcpu { default = 2 }
 variable master_memory { default = 1024 }
 variable master_as_edge { default = "true" }
+variable master_extra_disk_size { default = "200" }
 
 # Nodes settings
 variable node_count { default = 0 }
