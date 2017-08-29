@@ -1,8 +1,9 @@
 - name: create mountpath on node
   become: yes
   become-method: su
-  command: >
-    mkdir "/mnt/data"
+  file:
+    path: "/mnt/data"
+    state: directory
 
 - name: mount hostdir on node
   become: yes
