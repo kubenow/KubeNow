@@ -12,7 +12,7 @@ LOCAL_DIR=${KN_LOCAL_DIR:="$HOME/.kubenow"}
 # check if image is present locally already (then also verify md5 sum)
 if [ -e "$LOCAL_DIR/$FILE_NAME" ] && [ -e "$LOCAL_DIR/$FILE_NAME.md5" ]; then
   echo "Check md5 sum"
-  md5only=$(cat "$LOCAL_DIR/$FILE_NAME.md5" | awk '{ print $1 }')
+  md5only=$( cut -f1 -d ' ' "$LOCAL_DIR/$FILE_NAME.md5")
   if md5sum -c <<< "$md5only  $LOCAL_DIR/$FILE_NAME"; then
     echo "File exists, checksum is OK. Exit"
     exit 0
@@ -26,7 +26,7 @@ response=$(curl "$IMAGE_BUCKET_URL/$FILE_NAME" \
              --connect-timeout 30 \
              --max-time 1800 \
              --head \
-             --write-out %{http_code} \
+             --write-out "%{http_code}" \
              --silent \
              --output /dev/null)
 
@@ -42,7 +42,7 @@ fi
 
 echo "Downloading image to local dir $LOCAL_DIR"
 
-mkdir -p $LOCAL_DIR
+mkdir -p "$LOCAL_DIR"
 curl "$IMAGE_BUCKET_URL/$FILE_NAME" \
      -o "$LOCAL_DIR/$FILE_NAME" \
      --connect-timeout 30 \
@@ -55,7 +55,7 @@ curl "$IMAGE_BUCKET_URL/$FILE_NAME.md5" \
      --max-time 1800
 
 echo "Check md5 sum"
-md5only=$(cat "$LOCAL_DIR/$FILE_NAME.md5" | awk '{ print $1 }')
+md5only=$( cut -f1 -d ' ' "$LOCAL_DIR/$FILE_NAME.md5")
 if md5sum -c <<< "$md5only  $LOCAL_DIR/$FILE_NAME"; then
   echo "Checksum is OK"
 else
@@ -66,3 +66,4 @@ fi
 echo "Cleaning up old KuneNow images in local folder"
 # find and rm all images (and md5 files) but not current one
 find "$LOCAL_DIR" -name 'kubenow-*.qcow*' ! -name "$FILE_NAME*" -exec rm {} \;
+
