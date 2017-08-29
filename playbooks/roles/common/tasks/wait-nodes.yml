@@ -19,10 +19,10 @@
 - block:
 
   - name: "wait until for cloud-init to finish on master"
-    shell: >
-      tail -1 /var/log/cloud-init-output.log | grep 'Cloud-init.*finished'
-    register: grep_init_finished
-    until: grep_init_finished.rc == 0
+    stat:
+      path: /run/cloud-init/result.json
+    register: stat_result
+    until: stat_result.stat.exists == True
     # Wait for 5 minutes
     retries: 60
     delay: 5
