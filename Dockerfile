@@ -50,9 +50,9 @@ RUN curl "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terrafor
 # Build and install terraform-libvirt plugin
 RUN apk add --update --no-cache pkgconfig go && \
     go get github.com/dmacvicar/terraform-provider-libvirt && \
-    cp $HOME/go/bin/terraform-provider-libvirt /bin && \
+    cp "$HOME/go/bin/terraform-provider-libvirt" /bin && \
     apk del go && \
-    rm -rf $HOME/go
+    rm -rf "$HOME/go"
 
 # Add KubeNow (and group)
 COPY . /opt/KubeNow
