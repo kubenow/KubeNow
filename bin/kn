@@ -45,6 +45,9 @@ if [ -z "$KUBENOW_VERSION" ] ; then
   KUBENOW_VERSION="latest"
 fi
 
+# shellcheck disable=SC2012
+LOCAL_PWD_GROUP_ID=$(ls -nd "$PWD" | awk '{print $4;}')
+
 # Init command
 if [ "$COMMAND" = "init" ]; then
   # Validate
@@ -64,6 +67,11 @@ if [ "$COMMAND" = "init" ]; then
   docker run --rm -it \
     -v "$INIT_DIR":/var/userdir \
     -e "HOST_USR_UID=$UID" \
+    -e "LOCAL_USER_ID=$UID" \
+    -e "LOCAL_PWD_GROUP_ID=$LOCAL_PWD_GROUP_ID" \
+    -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
+    -e "ANSIBLE_OPT=$ANSIBLE_OPT" \
+    --env-file <(env | grep OS_) \
     kubenow/provisioners:"$KUBENOW_VERSION" \
     "init-kn"
   exit "$?"
@@ -80,9 +88,6 @@ if [ "$COMMAND" != "kubetoken" ]; then
       exit 1
   fi
 fi
-
-# shellcheck disable=SC2012
-LOCAL_PWD_GROUP_ID=$(ls -nd "$PWD" | awk '{print $4;}')
 
 # Wrap docker run
 USR_COMMAND="$*"

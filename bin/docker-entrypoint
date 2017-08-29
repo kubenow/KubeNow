@@ -1,7 +1,8 @@
 #!/bin/bash
 
+
 # Add and run as local user if LOCAL_USER_ID is passed in at runtime
-if [ -z $LOCAL_USER_ID ]; then
+if [ -z "$LOCAL_USER_ID" ]; then
   echo "LOCAL_USER_ID must be specified when running this container, exiting."
   exit 1
 fi
@@ -39,7 +40,7 @@ cp /.terraformrc "$USER_HOME"
 
 # exec command as new user
 # export HOME=/home/user
-exec su-exec other-user ssh-agent sh -c 'ssh-add ssh_key; apply kvm; "$@"' -- "$@"
+exec su-exec other-user ssh-agent sh -c 'ssh-add ssh_key; "$@"' -- "$@"
 # exec su-exec user "$@"
 
 
