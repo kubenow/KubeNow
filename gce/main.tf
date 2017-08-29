@@ -256,6 +256,3 @@ module "generate-inventory" {
   use_cloudflare    = "${var.use_cloudflare}"
   cloudflare_domain = "${var.cloudflare_proxied == true ? var.cloudflare_domain : format("%s.%s", var.cluster_prefix, var.cloudflare_domain)}"
 }
-
-                                                                                                                                                                     276,0-1       Bot
-
