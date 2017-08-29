@@ -81,8 +81,6 @@ if [ "$COMMAND" != "kubetoken" ]; then
   fi
 fi
 
-echo "Hello:-)"
-
 # shellcheck disable=SC2012
 LOCAL_PWD_GROUP_ID=$(ls -nd "$PWD" | awk '{print $4;}')
 
