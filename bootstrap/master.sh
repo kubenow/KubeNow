@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# OBS This file has to be indented 6 spaces to fit into cloud config yaml
-# as inline bash file
-
 # Add hostname
 echo "127.0.0.1 $HOSTNAME" >> /etc/hosts
 
