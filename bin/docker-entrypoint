@@ -7,17 +7,17 @@ if [ -z "$LOCAL_USER_ID" ]; then
 fi
 
 # create user with $LOCAL_USER_ID if it doesn't exists
-if [[ ! $(id -u $LOCAL_USER_ID > /dev/null 2>&1) ]]; then
-  adduser -s /bin/bash -h /home/user -u $LOCAL_USER_ID -D user
+if [[ ! $(id -u "$LOCAL_USER_ID" > /dev/null 2>&1) ]]; then
+  adduser -s /bin/bash -h /home/user -u "$LOCAL_USER_ID" -D user
 fi
 
 # create group with $LOCAL_PWD_GROUP_ID if it doesnt exist
-if [[ ! $(getent group $LOCAL_PWD_GROUP_ID > /dev/null 2>&1) ]]; then
-  addgroup -g $LOCAL_PWD_GROUP_ID agroup
+if [[ ! $(getent group "$LOCAL_PWD_GROUP_ID" > /dev/null 2>&1) ]]; then
+  addgroup -g "$LOCAL_PWD_GROUP_ID" agroup
 fi
 
 # get username with $LOCAL_USER_ID
-LOCAL_USERNAME=$(getent passwd $LOCAL_USER_ID | cut -d: -f1)
+LOCAL_USERNAME=$(getent passwd "$LOCAL_USER_ID" | cut -d: -f1)
 
 # get groupname with $LOCAL_PWD_GROUP_ID
 GROUPNAME=$(getent group "$LOCAL_PWD_GROUP_ID" | cut -d: -f1)
