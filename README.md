@@ -7,11 +7,7 @@
 KubeNow is a cloud agnostic platform for microservices, based on Docker and Kubernetes. Other than lighting-fast Kubernetes operations, KubeNow helps you in lifting your final application configuring DNS records and distributed storage. Once you have defined your application as a Helm package, you can lift it running 3 commands:
 
 ```bash
-export PATH=$PATH:/path/KubeNow/bin
 kn init my-awesome-deployment
-cd my-awesome-deployment
-mv terraform.tfvars.aws-template terraform.tfvars
-# Edit terraform.tfvars
 kn apply <aws|gce|openstack>
 kn helm install my-app-package
 ```
