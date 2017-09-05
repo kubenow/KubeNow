@@ -1,2 +1,8 @@
 #!/bin/bash
+
+# Setup SSH
+eval "$(ssh-agent -s)" &>/dev/null
+ssh-add ssh_key 2>/dev/null
+
+# exec as ansible command
 ansible master -a "kubectl $*" | tail -n +2

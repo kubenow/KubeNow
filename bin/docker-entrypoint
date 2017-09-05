@@ -1,27 +1,36 @@
 #!/bin/bash
 
-# Copy host PWD in container PWD
-cp /var/userdir/terraform.tfvars ./ 2>/dev/null
-cp -R /var/userdir/.terraform ./ 2>/dev/null
-cp /var/userdir/terraform.tfstate ./ 2>/dev/null
-cp /var/userdir/inventory ./ 2>/dev/null
-cp /var/userdir/ssh_key* ./ 2>/dev/null
-cp /var/userdir/service-account.json ./ 2>/dev/null
+# Add and run as local user if LOCAL_USER_ID is passed in at runtime
+if [ -z "$LOCAL_USER_ID" ]; then
+  echo "LOCAL_USER_ID must be specified when running this container, exiting."
+  exit 1
+fi
 
-# Setup SSH
-eval "$(ssh-agent -s)" &>/dev/null
-ssh-add ssh_key 2>/dev/null
+# create user with $LOCAL_USER_ID if it doesn't exists
+if [[ ! $(id -u $LOCAL_USER_ID > /dev/null 2>&1) ]]; then
+  adduser -s /bin/bash -h /home/user -u $LOCAL_USER_ID -D user
+fi
 
-# Run user command
-sh -c "$@" ; URS_COMMAND_STATUS="$?"
 
-# Copy container PWD in host PWD
-cp -R ./.terraform /var/userdir/ 2>/dev/null
-cp ./terraform.tfstate /var/userdir/ 2>/dev/null
-cp ./inventory /var/userdir/ 2>/dev/null
+# create groups with $LOCAL_GROUP_IDS and add them to user
+for group_id in $LOCAL_GROUP_IDS; do
 
-# Change ownership to host user
-chown -R "$HOST_USR_UID" /var/userdir/
+  # create group with $group_id if it doesnt exist
+  test="$(getent group $group_id > /dev/null 2>&1)"
+  if [[ $? != 0 ]] ; then
+    addgroup -g "$group_id" "group$group_id"
+  fi
 
-# Return user command status code
-exit "$URS_COMMAND_STATUS"
+  # get username with $LOCAL_USER_ID
+  LOCAL_USERNAME=$(getent passwd $LOCAL_USER_ID | cut -d: -f1)
+
+  # get groupname with $group_id
+  GROUPNAME=$(getent group $group_id | cut -d: -f1)
+
+  # add group to user
+  addgroup "$LOCAL_USERNAME" "$GROUPNAME"
+
+done
+
+# exec su-exec user ssh-agent sh -c 'ssh-add ssh_key; "$@"' -- "$@"
+su-exec user ssh-agent wrapper "$@"
