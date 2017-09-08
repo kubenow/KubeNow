@@ -3,6 +3,7 @@ variable count {}
 variable name_prefix {}
 variable vcpu {}
 variable memory {}
+variable volume_pool {}
 
 # SSH settings
 variable ssh_key {}
@@ -41,6 +42,7 @@ resource "libvirt_cloudinit" "clouddrive" {
   count              = "${var.count > 0 ? 1 : 0}"
   name               = "${var.name_prefix}-cloud-init.iso"
   ssh_authorized_key = "${file(var.ssh_key)}"
+  pool               = "${var.volume_pool}"
 
   # create a cloud config yaml
   user_data = <<EOF
@@ -59,6 +61,7 @@ resource "libvirt_volume" "volume" {
   count          = "${var.count}"
   name           = "${var.name_prefix}-vol-${format("%03d", count.index)}"
   base_volume_id = "${var.template_vol_id}"
+  pool           = "${var.volume_pool}"
 }
 
 # Create instances

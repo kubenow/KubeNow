@@ -8,6 +8,8 @@ variable ssh_user{ default = "ubuntu"}
 
 variable kubeadm_token {}
 
+variable volume_pool  { default = "default" }
+
 # Master settings
 variable master_count { default = 1 }
 variable master_vcpu { default = 2 }
@@ -56,6 +58,7 @@ resource "libvirt_network" "network" {
 resource "libvirt_volume" "template_volume" {
   name   = "${var.cluster_prefix}-template-volume"
   source = "${var.kubenow_dir}/${var.kubenow_image}"
+  pool   = "${var.volume_pool}"
 }
 
 module "master" {
@@ -66,6 +69,7 @@ module "master" {
   vcpu            = "${var.master_vcpu}"
   memory          = "${var.master_memory}"
   template_vol_id = "${libvirt_volume.template_volume.id}"
+  volume_pool     = "${var.volume_pool}"
 
   # Network settings
   network_id = "${libvirt_network.network.id}"
@@ -93,6 +97,7 @@ module "node" {
   vcpu            = "${var.node_vcpu}"
   memory          = "${var.node_memory}"
   template_vol_id = "${libvirt_volume.template_volume.id}"
+  volume_pool     = "${var.volume_pool}"
 
   # Network settings
   network_id = "${libvirt_network.network.id}"
@@ -120,6 +125,7 @@ module "edge" {
   vcpu            = "${var.edge_vcpu}"
   memory          = "${var.edge_memory}"
   template_vol_id = "${libvirt_volume.template_volume.id}"
+  volume_pool     = "${var.volume_pool}"
 
   # Network settings
   network_id = "${libvirt_network.network.id}"
@@ -147,6 +153,7 @@ module "glusternode" {
   vcpu            = "${var.glusternode_vcpu}"
   memory          = "${var.glusternode_memory}"
   template_vol_id = "${libvirt_volume.template_volume.id}"
+  volume_pool     = "${var.volume_pool}"
 
   # Network settings
   network_id = "${libvirt_network.network.id}"
