@@ -10,6 +10,9 @@ variable kubeadm_token {}
 
 variable volume_pool  { default = "default" }
 
+variable network_mode  { default = "nat" }
+variable bridge_name { default = "br0" }
+
 # Master settings
 variable master_count { default = 1 }
 variable master_vcpu { default = 2 }
@@ -49,7 +52,8 @@ provider "libvirt" {
 # Network
 resource "libvirt_network" "network" {
   name = "${var.cluster_prefix}-network"
-  mode = "nat"
+  mode = "${var.network_mode}"
+#  bridge = "${var.bridge_name}"
   domain = "k8s.local"
   addresses = ["10.0.0.0/16"]
 }
@@ -79,7 +83,7 @@ module "master" {
   # TO DO configure port rules in firewall
 
   # Disk settings
-  extra_disk_size = "0"
+  extra_disk_size = "${var.master_extra_disk_size}"
 
   # Bootstrap settings
   bootstrap_file = "bootstrap/master.sh"

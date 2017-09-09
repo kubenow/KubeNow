@@ -1,4 +1,8 @@
 - hosts: master
   gather_facts: False
+  vars:
+    device:   "/dev/vdb"
+    mnt_path: "/mnt/data"
+    fstype:   "ext4"
   roles:
     - { role: shared-volume-hostpath, tags: [ 'shared-vol-hostpath' ] }

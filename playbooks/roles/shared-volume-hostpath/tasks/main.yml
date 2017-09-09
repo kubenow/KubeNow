@@ -1,15 +1,33 @@
+- name: partition device
+  become: yes
+  parted:
+    device: "{{ device }}"
+    number: 1
+    state: present
+
+- name: create partition name
+  set_fact:
+    partition: "{{ device }}1"
+
+- name: format device
+  become: yes
+  filesystem:
+    fstype: "{{ fstype }}"
+    dev: "{{ partition }}"
+
 - name: create mountpath on node
   become: yes
-  become-method: su
   file:
-    path: "/mnt/data"
+    path: "{{ mnt_path }}"
     state: directory
 
-- name: mount hostdir on node
+- name: mount
   become: yes
-  become-method: su
-  command: >
-    mount -t 9p -o trans=virtio,version=9p2000.L,rw data /mnt/data
+  mount:
+    path: "{{ mnt_path }}"
+    src: "{{ partition }}"
+    fstype: "{{ fstype }}"
+    state: mounted
 
 - name: create yaml directory
   file:

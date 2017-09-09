@@ -8,8 +8,8 @@ metadata:
 spec:
   storageClassName: manual
   capacity:
-    storage: "{{ vol_size }}Gi"
+    storage: {{ vol_size }}
   accessModes:
     - ReadWriteMany
   hostPath:
-    path: "{{ mnt_path }}"
+    path: "{{ host_path }}"

@@ -56,12 +56,20 @@ runcmd:
 EOF
 }
 
-# Create volume
-resource "libvirt_volume" "volume" {
+# Create root volume
+resource "libvirt_volume" "root_volume" {
   count          = "${var.count}"
   name           = "${var.name_prefix}-vol-${format("%03d", count.index)}"
   base_volume_id = "${var.template_vol_id}"
   pool           = "${var.volume_pool}"
+}
+
+# Create extra volume
+resource "libvirt_volume" "extra_disk" {
+  count = "${var.count}"
+  name  = "${var.name_prefix}-extra-vol-${format("%03d", count.index)}"
+  size  = "${var.extra_disk_size * 1024 * 1024 * 1024}"
+  pool  = "${var.volume_pool}"
 }
 
 # Create instances
@@ -73,9 +81,14 @@ resource "libvirt_domain" "instance" {
 
   cloudinit   = "${libvirt_cloudinit.clouddrive.id}"
 
-  disk {
-    volume_id = "${element(libvirt_volume.volume.*.id, count.index)}"
-  }
+  disk = [
+    {
+      volume_id = "${element(libvirt_volume.root_volume.*.id, count.index)}"
+    },
+    {
+      volume_id = "${element(libvirt_volume.extra_disk.*.id, count.index)}"
+    }
+  ]
 
   network_interface {
     hostname       = "${var.name_prefix}-${format("%03d", count.index)}"
@@ -100,7 +113,7 @@ resource "libvirt_domain" "instance" {
 
 # Module outputs
 output "extra_disk_device" {
-  value = ["none"]
+  value = ["/dev/vdb"]
 }
 
 output "local_ip_v4" {
