@@ -28,7 +28,8 @@ HOSTNAME = "#{CLUSTER_PREFIX}-master-01"
 ANSIBLE_HOST = "localhost"
 NODES_COUNT = 1
 MASTER_BOOTSTRAP_FILE = File.expand_path("#{KUBENOW_DIR}/bootstrap/master.sh")
-PRIVATE_KEY_PATH = File.absolute_path(".vagrant/machines/default/#{PROVIDER}/private_key")
+VM_PATH = File.absolute_path(".vagrant/machines/default/#{PROVIDER}")
+PRIVATE_KEY_PATH = "#{VM_PATH}/private_key"
 
 #
 # generate inventory
@@ -63,9 +64,34 @@ Vagrant.configure("2") do |config|
   config.vm.box = "kubenow/kubenow"
   config.vm.box_version = "0.0.6"
   config.vm.hostname = HOSTNAME
+
+  # memory
   config.vm.provider :virtualbox do |vb|
     vb.memory = MASTER_MEMORY
     vb.cpus = MASTER_CPUS
+  end
+
+  # extra disk
+  config.vm.provider :virtualbox do |vb|
+
+    size = 10240
+    disk_file = VM_PATH + "/disk1.vmdk"
+
+    if ARGV[0] == "up" && ! File.exist?(disk_file)
+       vb.customize [
+            'createhd',
+            '--filename', disk_file,
+            '--format', 'VDI',
+            '--size', size
+            ]
+       vb.customize [
+            'storageattach', :id,
+            '--storagectl', 'SATA Controller', # The name may vary
+            '--port', 1, '--device', 0,
+            '--type', 'hdd', '--medium',
+            disk_file
+            ]
+    end
   end
 
   # fix for bento version 2.3.2 = kubenow base image
