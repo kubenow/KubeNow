@@ -14,12 +14,12 @@ spec:
         name: traefik-ingress-lb
     spec:
       hostNetwork: true # workaround
-      terminationGracePeriodSeconds: 60
+      terminationGracePeriodSeconds: 120
       tolerations:
       - key: node-role.kubernetes.io/master
         effect: NoSchedule
       containers:
-      - image: traefik:v1.3.5
+      - image: traefik:v1.3.8
         name: traefik-ingress-lb
         imagePullPolicy: Always
         volumeMounts:
