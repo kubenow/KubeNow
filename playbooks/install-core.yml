@@ -3,6 +3,7 @@
   roles:
     - { role: common, tags: [ 'minimal' ] }
     - { role: weave-network, tags: [ 'minimal' ] }
+    - { role: wait-kube-dns, tags: [ 'minimal' ] }
     - { role: start-helm, tags: [ 'minimal' ] }
     - { role: traefik, tags: [ 'traefik' ] }
     - { role: heketi-gluster, tags: [ 'heketi-glusterfs' ] }

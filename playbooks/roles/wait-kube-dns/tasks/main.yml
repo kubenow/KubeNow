@@ -1,0 +1,20 @@
+
+# Ready count could not be done with jsonpath and filter because of issue
+# https://github.com/kubernetes/kubernetes/issues/45546
+- name: "get desired kube-proxy pod count"
+  shell: >
+    kubectl get ds --all-namespaces
+    | grep kube-proxy
+    | awk '{print $3;}'
+  register: get_desired_count_proxy
+
+- name: wait for kube-proxy DaemonSet to be Ready
+  shell: >
+    kubectl get ds --all-namespaces
+    | grep kube-proxy
+    | awk '{print $5;}'
+  register: get_ready_count_proxy
+  until: (get_desired_count_proxy.stdout | int) == (get_ready_count_proxy.stdout | int)
+  # Wait for 10 minutes
+  retries: 200
+  delay: 3
