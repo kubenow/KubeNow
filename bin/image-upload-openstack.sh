@@ -42,8 +42,7 @@ fi
 # if it didn't exist then upload it
 if [ -z "$image_id" ]; then
   echo "Uploading image"
-  timeout 1800s \
-    glance image-create \
+  glance image-create \
       --file "/tmp/$FILE_NAME" \
       --disk-format qcow2 \
       --min-disk 20 \
