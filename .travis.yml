@@ -20,7 +20,7 @@ branches:
 env:
   global:
     - TERRAFORM_VERSION=0.9.4
-    - ANSIBLE_LINT_VERSION=3.4.13
+    - ANSIBLE_LINT_VERSION=3.4.15
   matrix:
     - HOST_CLOUD=openstack
     - HOST_CLOUD=gce
