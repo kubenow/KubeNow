@@ -1,20 +1,23 @@
-
-# Ready count could not be done with jsonpath and filter because of issue
-# https://github.com/kubernetes/kubernetes/issues/45546
-- name: "get desired kube-proxy pod count"
-  shell: >
-    kubectl get ds --all-namespaces
-    | grep kube-proxy
-    | awk '{print $3;}'
-  register: get_desired_count_proxy
-
-- name: wait for kube-proxy DaemonSet to be Ready
-  shell: >
-    kubectl get ds --all-namespaces
-    | grep kube-proxy
-    | awk '{print $5;}'
-  register: get_ready_count_proxy
-  until: (get_desired_count_proxy.stdout | int) == (get_ready_count_proxy.stdout | int)
+  
+# Testing kube-proxy if pod is ready
+- name: "get kube-dns ready status"
+  command: >
+    kubectl get pods -l k8s-app=kube-proxy --namespace=kube-system
+    -o jsonpath='{.items[*].status.containerStatuses[*].ready}'
+  register: get_is_ready
+  until: get_is_ready.stdout | match( '^(true\s)*true$' )
   # Wait for 10 minutes
-  retries: 200
-  delay: 3
+  retries: 120
+  delay: 5
+
+
+# Testing kube-dns if pod is ready
+- name: "get kube-dns ready status"
+  command: >
+    kubectl get pods -l k8s-app=kube-dns --namespace=kube-system
+    -o jsonpath='{.items[*].status.containerStatuses[*].ready}'
+  register: get_is_ready
+  until: get_is_ready.stdout | match( '^(true\s)*true$' )
+  # Wait for 10 minutes
+  retries: 120
+  delay: 5
