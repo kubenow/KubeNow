@@ -100,5 +100,6 @@ docker run --rm -it \
   -e "OS_TENANT_ID=$OS_TENANT_ID" \
   -e "OS_TENANT_NAME=$OS_TENANT_NAME" \
   -e "OS_AUTH_VERSION=$OS_AUTH_VERSION" \
+  -e "OS_IDENTITY_API_VERSION=$OS_AUTH_VERSION" \
   kubenow/provisioners:"$KUBENOW_VERSION" \
   "$USR_COMMAND"
