@@ -2,7 +2,7 @@
   gather_facts: False
   roles:
     - { role: common-test, tags: [ 'minimal' ] }
-    - { role: weave-network-test, tags: [ 'minimal' ] }
+   # - { role: weave-network-test, tags: [ 'minimal' ] }
     - { role: wait-kube-dns, tags: [ 'minimal' ] }
     - { role: start-helm-test, tags: [ 'minimal' ] }
     - { role: traefik-test, tags: [ 'traefik' ] }
