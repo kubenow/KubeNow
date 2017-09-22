@@ -92,7 +92,7 @@ before_script:
   - sed -i -e "s/your_project_id/${GCE_PROJECT_ID}/g" terraform.tfvars
   # OS
   - sed -i -e "s/your-pool-name/${OS_POOL_NAME}/g" terraform.tfvars
-  - sed -i -e "s/external-net-uuid/${OS_EXTERNAL_NET_UUUID}/g" terraform.tfvars
+  - sed -i -e "s/external-net-uuid/${OS_EXTERNAL_NET_UUID}/g" terraform.tfvars
   - sed -i -e "s/your-master-flavor/${OS_MASTER_FLAVOR}/g" terraform.tfvars
   - sed -i -e "s/your-node-flavor/${OS_NODE_FLAVOR}/g" terraform.tfvars
   - sed -i -e "s/your-edge-flavor/${OS_EDGE_FLAVOR}/g" terraform.tfvars
