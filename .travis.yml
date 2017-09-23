@@ -139,8 +139,8 @@ jobs:
         - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         - >
             if [ -z $TRAVIS_TAG ]; then
-              docker build -t kubenow/provisioners:current .
-              docker push kubenow/provisioners:current
+              docker build -t kubenow/provisioners:master .
+              docker push kubenow/provisioners:master
             else
               docker build -t kubenow/provisioners:$TRAVIS_TAG \
                 -t kubenow/provisioners:latest .
