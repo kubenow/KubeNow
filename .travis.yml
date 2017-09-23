@@ -130,18 +130,13 @@ jobs:
       before_script: true
       after_script: true
       script:
-        # Exit if not in master
-        - >
-            if [ $TRAVIS_BRANCH != 'master' ]; then
-              exit 0
-            fi
         # Build and push Docker image (needs to be build again in this stage)
         - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         - >
             if [ -z $TRAVIS_TAG ]; then
               docker build -t kubenow/provisioners:master .
               docker push kubenow/provisioners:master
-            else
+            elif [ $TRAVIS_BRANCH != 'master' ]; then
               docker build -t kubenow/provisioners:$TRAVIS_TAG \
                 -t kubenow/provisioners:latest .
               docker push kubenow/provisioners:$TRAVIS_TAG
