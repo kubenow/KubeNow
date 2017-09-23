@@ -12,8 +12,6 @@ kn apply <aws|gce|openstack>
 kn helm install my-app-package
 ```
 
-:warning: **kn** CLI is not documented yet.
-
 ## Table of Contents
 
 - [Architecture](#architecture)
