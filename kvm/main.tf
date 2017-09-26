@@ -35,6 +35,9 @@ variable glusternode_count { default = 0 }
 variable glusternode_vcpu { default = 2 }
 variable glusternode_memory { default = 1024 }
 variable glusternode_extra_disk_size { default = "200" }
+variable gluster_volumetype {
+  default = "none:1"
+}
 
 # Cloudflare settings
 variable use_cloudflare { default = "false" }
@@ -189,26 +192,28 @@ module "cloudflare" {
   cloudflare_domain = "${var.cloudflare_domain}"
 
   # add cluster prefix to record names
-  record_names = "${formatlist("%s.%s", var.cloudflare_record_texts, var.cluster_prefix)}"
+  # terraform interpolation is limited and can not return list in conditionals, workaround: first join to string, then split
+  record_names = "${split(",", var.cloudflare_proxied == true ? join(",", formatlist("%s-%s", var.cloudflare_record_texts, var.cluster_prefix) ) : join(",", formatlist("%s.%s", var.cloudflare_record_texts, var.cluster_prefix)))}"
 
-  # terraform interpolation is limited and can not return list in conditionals, workaround: first join to string, then split)
+  # terraform interpolation is limited and can not return list in conditionals, workaround: first join to string, then split
   iplist  = "${split(",", var.master_as_edge == true ? join(",", concat(module.edge.public_ip, module.master.public_ip) ) : join(",", module.edge.public_ip) )}"
   proxied = "${var.cloudflare_proxied}"
 }
 
 # Generate Ansible inventory (identical for each cloud provider)
 module "generate-inventory" {
-  source            = "../common/inventory"
-  master_hostnames  = "${module.master.hostnames}"
-  master_public_ip  = "${module.master.public_ip}"
-  edge_hostnames    = "${module.edge.hostnames}"
-  edge_public_ip    = "${module.edge.public_ip}"
-  master_as_edge    = "${var.master_as_edge}"
-  edge_count        = "${var.edge_count}"
-  node_count        = "${var.node_count}"
-  glusternode_count = "${var.glusternode_count}"
-  extra_disk_device = "${element(concat(module.glusternode.extra_disk_device, list("")),0)}"
-  cluster_prefix    = "${var.cluster_prefix}"
-  use_cloudflare    = "${var.use_cloudflare}"
-  cloudflare_domain = "${var.cloudflare_domain}"
+  source             = "../common/inventory"
+  master_hostnames   = "${module.master.hostnames}"
+  master_public_ip   = "${module.master.public_ip}"
+  edge_hostnames     = "${module.edge.hostnames}"
+  edge_public_ip     = "${module.edge.public_ip}"
+  master_as_edge     = "${var.master_as_edge}"
+  edge_count         = "${var.edge_count}"
+  node_count         = "${var.node_count}"
+  glusternode_count  = "${var.glusternode_count}"
+  gluster_volumetype = "${var.gluster_volumetype}"
+  extra_disk_device  = "${element(concat(module.glusternode.extra_disk_device, list("")),0)}"
+  cluster_prefix     = "${var.cluster_prefix}"
+  use_cloudflare     = "${var.use_cloudflare}"
+  cloudflare_domain  = "${var.cloudflare_proxied == true ? var.cloudflare_domain : format("%s.%s", var.cluster_prefix, var.cloudflare_domain)}"
 }
