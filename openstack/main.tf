@@ -2,7 +2,7 @@
 variable cluster_prefix {}
 
 variable kubenow_image {
-  default = "kubenow-v031"
+  default = "kubenow-v031-25-gc4d0d78-test"
 }
 
 variable ssh_user {

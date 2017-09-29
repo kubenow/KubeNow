@@ -2,7 +2,7 @@
 variable cluster_prefix {}
 
 variable kubenow_dir { default = "/tmp" } # to do fixme
-variable kubenow_image { default = "kubenow-v031.qcow2" } # to do fixme
+variable kubenow_image { default = "kubenow-v031-25-gc4d0d78-test.qcow2" } # to do fixme
 variable ssh_key { default = "ssh_key.pub"}
 variable ssh_user{ default = "ubuntu"}
 
