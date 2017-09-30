@@ -13,7 +13,7 @@ IMAGE_BUCKET_URL="https://s3.us-east-1.amazonaws.com/kubenow-us-east-1"
 # check if image is present already
 echo "List images available in OpenStack..."
 image_list="$(glance image-list)"
-image_id="$(printf '%s' "$image_list" | grep -w "$IMAGE_NAME" | awk -F "|" '{print $2;}' | tr -d '[:space:]')"
+image_id="$(printf '%s' "$image_list" | grep -w "$IMAGE_NAME " | awk -F "|" '{print $2;}' | tr -d '[:space:]')"
 
 # if it doesn't exist then download it
 if [ -z "$image_id" ]; then
@@ -56,7 +56,7 @@ fi
 echo "Verify md5 of present/uploaded image..."
 echo "List images available in OpenStack..."
 image_list="$(glance image-list)"
-image_id="$(printf '%s' "$image_list" | grep -w "$IMAGE_NAME" | awk -F "|" '{print $2;}' | tr -d '[:space:]')"
+image_id="$(printf '%s' "$image_list" | grep -w "$IMAGE_NAME " | awk -F "|" '{print $2;}' | tr -d '[:space:]')"
 
 # Get checksum of uploaded file
 image_details="$(glance image-show "$image_id")"
