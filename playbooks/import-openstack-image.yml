@@ -13,7 +13,7 @@
         image: "{{ image_name }}"
     - name: "download KubeNow image"
       command: >
-        curl https://s3.eu-central-1.amazonaws.com/kubenow-eu-frankfurt/{{ image_name }}.qcow2
+        curl https://s3.eu-central-1.amazonaws.com/kubenow-eu-central-1/{{ image_name }}.qcow2
         -o /tmp/{{ image_name }}.qcow2
       notify:
         - delete local image
