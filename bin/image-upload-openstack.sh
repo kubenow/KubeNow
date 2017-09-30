@@ -4,7 +4,7 @@
 # (but allow for the error trap)
 set -e
 
-IMG_VERSION="v031-25-gc4d0d78-test"
+IMG_VERSION="v031-26-g8b8c758-test"
 IMAGE_NAME="kubenow-$IMG_VERSION"
 FILE_NAME="$IMAGE_NAME.qcow2"
 #IMAGE_BUCKET_URL="https://s3.eu-central-1.amazonaws.com/kubenow-eu-central-1"
