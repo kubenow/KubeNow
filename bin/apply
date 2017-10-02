@@ -25,7 +25,7 @@ if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ]; then
   ansible-playbook playbooks/import-"$HOST_CLOUD"-image.yml
 fi
 # Deploy
-terraform get -update "$HOST_CLOUD"
+terraform init "$HOST_CLOUD"
 # shellcheck disable=SC2086
 terraform apply $TERRAFORM_OPT "$HOST_CLOUD"
 # shellcheck disable=SC2086
