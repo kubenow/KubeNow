@@ -34,7 +34,7 @@ echo "Inititializing the master...."
 if [ -n "$API_ADVERTISE_ADDRESSES" ]
 then
     # shellcheck disable=SC2154
-    kubeadm init --token "${kubeadm_token}" --kubernetes-version=v1.6.4 --api-advertise-address="$API_ADVERTISE_ADDRESSES"
+    kubeadm init --token "${kubeadm_token}" --kubernetes-version=v1.7.5 --api-advertise-address="$API_ADVERTISE_ADDRESSES"
 else
     # shellcheck disable=SC2154
     kubeadm init --token "${kubeadm_token}" --kubernetes-version=v1.6.4
