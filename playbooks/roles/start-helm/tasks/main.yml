@@ -21,4 +21,4 @@
   delay: 5
 
 - name: "add KubeNow Helm repository"
-  command: helm repo add charts https://kubenow.github.io/helm-charts/
+  command: helm repo add kubenow https://kubenow.github.io/helm-charts/
