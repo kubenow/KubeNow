@@ -103,8 +103,7 @@ variable cloudflare_record_texts {
 }
 
 # Provider
-provider "openstack" {
-}
+provider "openstack" {}
 
 # Upload SSH key to OpenStack
 module "keypair" {

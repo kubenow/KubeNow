@@ -1,9 +1,9 @@
-FROM python:2.7-alpine
+FROM python:2.7-alpine3.6
 MAINTAINER "Marco Capuccini <marco.capuccini@it.uu.se>"
 
 # Provisioners versions
-ENV TERRAFORM_VERSION=0.10.5
-ENV TERRAFORM_SHA256SUM=acec7133ffa00da385ca97ab015b281c6e90e99a41076ede7025a4c78425e09f
+ENV TERRAFORM_VERSION=0.10.7
+ENV TERRAFORM_SHA256SUM=8fb5f587fcf67fd31d547ec53c31180e6ab9972e195905881d3dddb8038c5a37
 ENV ANSIBLE_VERSION=2.3.1.0
 ENV LIBCLOUD_VERSION=1.5.0
 ENV J2CLI_VERSION=0.3.1.post0
@@ -46,25 +46,43 @@ RUN curl "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terrafor
     rm -f "terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
 
 # Install select Terraform plugins
-ENV PLUGIN_OSTACK=0.2.2
-ENV PLUGIN_GCE=0.1.3
+ENV PLUGIN_OPENSTACK=0.2.2
+ENV PLUGIN_GOOGLE=0.1.3
 ENV PLUGIN_AWS=1.0.0
+ENV PLUGIN_NULL=1.0.0
+ENV PLUGIN_CLOUDFLARE=0.1.0
+ENV PLUGIN_TEMPLATE=1.0.0
 
 RUN mkdir -p /terraform_plugins
-RUN curl "https://releases.hashicorp.com/terraform-provider-openstack/${PLUGIN_OSTACK}/terraform-provider-openstack_${PLUGIN_OSTACK}_linux_amd64.zip" > \
-    "terraform-provider-openstack_${PLUGIN_OSTACK}_linux_amd64.zip" && \
-    unzip "terraform-provider-openstack_${PLUGIN_OSTACK}_linux_amd64.zip" -d /terraform_plugins/ && \
-    rm -f "terraform-provider-openstack_${PLUGIN_OSTACK}_linux_amd64.zip" 
+RUN curl "https://releases.hashicorp.com/terraform-provider-openstack/${PLUGIN_OPENSTACK}/terraform-provider-openstack_${PLUGIN_OPENSTACK}_linux_amd64.zip" > \
+    "terraform-provider-openstack_${PLUGIN_OPENSTACK}_linux_amd64.zip" && \
+    unzip "terraform-provider-openstack_${PLUGIN_OPENSTACK}_linux_amd64.zip" -d /terraform_plugins/ && \
+    rm -f "terraform-provider-openstack_${PLUGIN_OPENSTACK}_linux_amd64.zip" 
 
-RUN curl "https://releases.hashicorp.com/terraform-provider-google/${PLUGIN_GCE}/terraform-provider-google_${PLUGIN_GCE}_linux_amd64.zip" > \
-    "terraform-provider-google${PLUGIN_GCE}_linux_amd64.zip" && \
-    unzip "terraform-provider-google${PLUGIN_GCE}_linux_amd64.zip" -d /terraform_plugins/ && \
-    rm -f "terraform-provider-google${PLUGIN_GCE}_linux_amd64.zip" 
+RUN curl "https://releases.hashicorp.com/terraform-provider-google/${PLUGIN_GOOGLE}/terraform-provider-google_${PLUGIN_GOOGLE}_linux_amd64.zip" > \
+    "terraform-provider-google${PLUGIN_GOOGLE}_linux_amd64.zip" && \
+    unzip "terraform-provider-google${PLUGIN_GOOGLE}_linux_amd64.zip" -d /terraform_plugins/ && \
+    rm -f "terraform-provider-google${PLUGIN_GOOGLE}_linux_amd64.zip" 
 
 RUN curl "https://releases.hashicorp.com/terraform-provider-aws/${PLUGIN_AWS}/terraform-provider-aws_${PLUGIN_AWS}_linux_amd64.zip" > \
     "terraform-provider-aws_${PLUGIN_AWS}_linux_amd64.zip" && \
     unzip "terraform-provider-aws_${PLUGIN_AWS}_linux_amd64.zip" -d /terraform_plugins/ && \
     rm -f "terraform-provider-aws_${PLUGIN_AWS}_linux_amd64.zip" 
+
+RUN curl "https://releases.hashicorp.com/terraform-provider-null/${PLUGIN_NULL}/terraform-provider-null_${PLUGIN_NULL}_linux_amd64.zip" > \
+    "terraform-provider-null_${PLUGIN_NULL}_linux_amd64.zip" && \
+    unzip "terraform-provider-null_${PLUGIN_NULL}_linux_amd64.zip" -d /terraform_plugins/ && \
+    rm -f "terraform-provider-null_${PLUGIN_NULL}_linux_amd64.zip" 
+    
+RUN curl "https://releases.hashicorp.com/terraform-provider-cloudflare/${PLUGIN_CLOUDFLARE}/terraform-provider-cloudflare_${PLUGIN_CLOUDFLARE}_linux_amd64.zip" > \
+    "terraform-provider-cloudflare_${PLUGIN_CLOUDFLARE}_linux_amd64.zip" && \
+    unzip "terraform-provider-cloudflare_${PLUGIN_CLOUDFLARE}_linux_amd64.zip" -d /terraform_plugins/ && \
+    rm -f "terraform-provider-cloudflare_${PLUGIN_CLOUDFLARE}_linux_amd64.zip" 
+
+RUN curl "https://releases.hashicorp.com/terraform-provider-template/${PLUGIN_TEMPLATE}/terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" > \
+    "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" && \
+    unzip "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" -d /terraform_plugins/ && \
+    rm -f "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" 
 
 # Add KubeNow (and group)
 COPY . /opt/KubeNow
