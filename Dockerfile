@@ -45,6 +45,27 @@ RUN curl "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terrafor
     unzip "terraform_${TERRAFORM_VERSION}_linux_amd64.zip" -d /bin && \
     rm -f "terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
 
+# Install select Terraform plugins
+ENV PLUGIN_OSTACK=0.2.2
+ENV PLUGIN_GCE=0.1.3
+ENV PLUGIN_AWS=1.0.0
+
+RUN mkdir -p /terraform_plugins
+RUN curl "https://releases.hashicorp.com/terraform-provider-openstack/${PLUGIN_OSTACK}/terraform-provider-openstack_${PLUGIN_OSTACK}_linux_amd64.zip" > \
+    "terraform-provider-openstack_${PLUGIN_OSTACK}_linux_amd64.zip" && \
+    unzip "terraform-provider-openstack_${PLUGIN_OSTACK}_linux_amd64.zip" -d /terraform_plugins/ && \
+    rm -f "terraform-provider-openstack_${PLUGIN_OSTACK}_linux_amd64.zip" 
+
+RUN curl "https://releases.hashicorp.com/terraform-provider-google/${PLUGIN_GCE}/terraform-provider-google_${PLUGIN_GCE}_linux_amd64.zip" > \
+    "terraform-provider-google${PLUGIN_GCE}_linux_amd64.zip" && \
+    unzip "terraform-provider-google${PLUGIN_GCE}_linux_amd64.zip" -d /terraform_plugins/ && \
+    rm -f "terraform-provider-google${PLUGIN_GCE}_linux_amd64.zip" 
+
+RUN curl "https://releases.hashicorp.com/terraform-provider-aws/${PLUGIN_AWS}/terraform-provider-aws_${PLUGIN_AWS}_linux_amd64.zip" > \
+    "terraform-provider-aws_${PLUGIN_AWS}_linux_amd64.zip" && \
+    unzip "terraform-provider-aws_${PLUGIN_AWS}_linux_amd64.zip" -d /terraform_plugins/ && \
+    rm -f "terraform-provider-aws_${PLUGIN_AWS}_linux_amd64.zip" 
+
 # Add KubeNow (and group)
 COPY . /opt/KubeNow
 RUN cp /opt/KubeNow/bin/* /bin
