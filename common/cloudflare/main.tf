@@ -18,8 +18,9 @@ variable proxied {}
 
 # Configure the Cloudflare provider
 provider "cloudflare" {
-  email = "${ var.cloudflare_email }"
-  token = "${ var.cloudflare_token }"
+  version = "0.1.0"
+  email   = "${ var.cloudflare_email }"
+  token   = "${ var.cloudflare_token }"
 }
 
 # record_count is length(var.record_names) * length(var.iplist)

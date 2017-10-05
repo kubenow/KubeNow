@@ -102,6 +102,11 @@ variable cloudflare_record_texts {
   default = ["*"]
 }
 
+# Provider
+provider "openstack" {
+  version = "0.2.2"
+}
+
 # Upload SSH key to OpenStack
 module "keypair" {
   source      = "./keypair"
