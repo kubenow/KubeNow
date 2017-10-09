@@ -76,9 +76,12 @@ resource "google_compute_instance" "instance" {
   zone           = "${var.zone}"
   can_ip_forward = false
 
-  disk {
-    image       = "${var.image_name}"
-    size        = "${var.disk_size}"
+  boot_disk {
+    initialize_params {
+      image = "${var.image_name}"
+      size  = "${var.disk_size}"
+    }
+
     auto_delete = true
   }
 
@@ -94,10 +97,9 @@ resource "google_compute_instance" "instance" {
   }
 
   # Extra disk
-  disk {
-    disk        = "${element(google_compute_disk.extra_standard_disk.*.name, count.index)}"
+  attached_disk {
+    source      = "${element(google_compute_disk.extra_standard_disk.*.self_link, count.index)}"
     device_name = "${var.extra_disk_name}"
-    auto_delete = true
   }
 }
 
