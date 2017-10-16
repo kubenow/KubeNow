@@ -18,6 +18,7 @@ variable master_as_edge {}
 variable edge_count {}
 variable node_count {}
 variable glusternode_count {}
+variable gluster_volumetype {}
 variable extra_disk_device {}
 variable use_cloudflare {}
 variable cluster_prefix {}
@@ -74,5 +75,15 @@ resource "null_resource" "generate-inventory" {
   # Always output extra disk device
   provisioner "local-exec" {
     command = "echo \"extra_disk_device=${var.extra_disk_device}\" >> inventory"
+  }
+
+  # Always output glusternode count
+  provisioner "local-exec" {
+    command = "echo \"glusternode_count=${var.glusternode_count}\" >> inventory"
+  }
+
+  # Always output gluster_volumetype
+  provisioner "local-exec" {
+    command = "echo \"gluster_volumetype=${var.gluster_volumetype}\" >> inventory"
   }
 }

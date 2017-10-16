@@ -72,6 +72,10 @@ variable glusternode_extra_disk_size {
   default = "200"
 }
 
+variable gluster_volumetype {
+  default = "none:1"
+}
+
 # Cloudflare settings
 variable use_cloudflare {
   default = "false"
@@ -241,18 +245,19 @@ module "cloudflare" {
 
 # Generate Ansible inventory (identical for each cloud provider)
 module "generate-inventory" {
-  source            = "../common/inventory"
-  master_hostnames  = "${module.master.hostnames}"
-  master_public_ip  = "${module.master.public_ip}"
-  edge_hostnames    = "${module.edge.hostnames}"
-  edge_public_ip    = "${module.edge.public_ip}"
-  master_as_edge    = "${var.master_as_edge}"
-  edge_count        = "${var.edge_count}"
-  node_count        = "${var.node_count}"
-  glusternode_count = "${var.glusternode_count}"
-  extra_disk_device = "${element(concat(module.glusternode.extra_disk_device, list("")),0)}"
-  cluster_prefix    = "${var.cluster_prefix}"
-  use_cloudflare    = "${var.use_cloudflare}"
-  cloudflare_domain = "${var.cloudflare_domain}"
-  ssh_user          = "${var.ssh_user}"
+  source             = "../common/inventory"
+  master_hostnames   = "${module.master.hostnames}"
+  master_public_ip   = "${module.master.public_ip}"
+  edge_hostnames     = "${module.edge.hostnames}"
+  edge_public_ip     = "${module.edge.public_ip}"
+  master_as_edge     = "${var.master_as_edge}"
+  edge_count         = "${var.edge_count}"
+  node_count         = "${var.node_count}"
+  glusternode_count  = "${var.glusternode_count}"
+  gluster_volumetype = "${var.gluster_volumetype}"
+  extra_disk_device  = "${element(concat(module.glusternode.extra_disk_device, list("")),0)}"
+  cluster_prefix     = "${var.cluster_prefix}"
+  use_cloudflare     = "${var.use_cloudflare}"
+  cloudflare_domain  = "${var.cloudflare_domain}"
+  ssh_user           = "${var.ssh_user}"
 }
