@@ -23,7 +23,7 @@ kn helm install my-app-package
 Deploying a KubeNow cluster you will get:
 
  - A Kubernetes cluster up and running in ~10 minutes (provisioned with [kubeadm](http://kubernetes.io/docs/getting-started-guides/kubeadm/))
- - [Weave](https://www.weave.works/) networking
+ - [Flannel](https://github.com/coreos/flannel) networking
  - [Traefik](https://traefik.io/) HTTP reverse proxy and load balancer
  - [Cloudflare](https://www.cloudflare.com/) dynamic DNS configuration
  - [GlusterFS](https://www.gluster.org/) distributed file system
@@ -74,7 +74,7 @@ Want to try KubeNow? You can get started following the tutorials in the document
 - [x] Traefik
 
 ### Networking
-- [x] Weave
+- [x] Flannel
 
 ### Big Data Frameworks
 - [ ] Spark
