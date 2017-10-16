@@ -97,8 +97,11 @@ before_script:
   - sed -i -e "s/your-node-flavor/${OS_NODE_FLAVOR}/g" terraform.tfvars
   - sed -i -e "s/your-edge-flavor/${OS_EDGE_FLAVOR}/g" terraform.tfvars
   - sed -i -e "s/your-glusternode-flavor/${OS_NODE_FLAVOR}/g" terraform.tfvars
-  # Enable edges
-  - sed -i -e "s/# edge/edge/g" terraform.tfvars
+  # Enable edges (if anything but OpenStack, since floating ip is very scarce on SNIC)
+  - >
+      if [[ "$HOST_CLOUD" != 'openstack' ]]; then
+        sed -i -e "s/# edge/edge/g" terraform.tfvars
+      fi
   # Enable glusternodes
   - sed -i -e "s/# glusternode/glusternode/g" terraform.tfvars
   # Cloudflare
