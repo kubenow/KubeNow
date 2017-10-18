@@ -63,8 +63,6 @@ if [ -z "$image_details" ]; then
                                        --query [].name \
                                        --output tsv |
                                        grep "/$IMAGE_NAME/.*vhd")
-  
-  echo "$SRC_CONTAINER/$file_name_vhd"
 
   echo "Start asynchronous file copy of image def file"
   echo az storage blob copy start --account-name "$storage_account" \
