@@ -63,7 +63,7 @@ before_install:
   - shellcheck $(find . -type f -name "*.sh")
   - shellcheck bin/*
   # check Dockerfile
-  - docker run --rm -i lukasmartinelli/hadolint < Dockerfile
+  - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 - < Dockerfile
 
 # Build Docker image
 install: docker build -t kubenow/provisioners:latest .
