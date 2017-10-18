@@ -11,6 +11,14 @@ ENV DNSPYTHON_VERSION=1.15.0
 ENV JMESPATH_VERSION=0.9.3
 ENV SHADE_VERSION=1.21.0
 ENV OPENSTACKCLIENT_VERSION=3.11.0
+# Terraform plugin versions
+ENV PLUGIN_OPENSTACK=0.2.2
+ENV PLUGIN_GOOGLE=0.1.3
+ENV PLUGIN_AWS=1.0.0
+ENV PLUGIN_AZURERM=0.2.2
+ENV PLUGIN_NULL=1.0.0
+ENV PLUGIN_CLOUDFLARE=0.1.0
+ENV PLUGIN_TEMPLATE=1.0.0
 
 # Install deps
 RUN apt-get update -y && apt-get install -y \
@@ -44,15 +52,7 @@ RUN curl "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terrafor
     unzip "terraform_${TERRAFORM_VERSION}_linux_amd64.zip" -d /bin && \
     rm -f "terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
 
-# Install select Terraform plugins
-ENV PLUGIN_OPENSTACK=0.2.2
-ENV PLUGIN_GOOGLE=0.1.3
-ENV PLUGIN_AWS=1.0.0
-ENV PLUGIN_AZURERM=0.2.2
-ENV PLUGIN_NULL=1.0.0
-ENV PLUGIN_CLOUDFLARE=0.1.0
-ENV PLUGIN_TEMPLATE=1.0.0
-
+# Install Terraform plugins that are used
 RUN mkdir -p /terraform_plugins
 RUN curl "https://releases.hashicorp.com/terraform-provider-openstack/${PLUGIN_OPENSTACK}/terraform-provider-openstack_${PLUGIN_OPENSTACK}_linux_amd64.zip" > \
     "terraform-provider-openstack_${PLUGIN_OPENSTACK}_linux_amd64.zip" && \
