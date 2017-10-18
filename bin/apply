@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Usage
-USAGE="Usage: kn apply <aws|gce|openstack>"
+USAGE="Usage: kn apply <aws|gce|azure|openstack>"
 
 # Validate command
 if [ "$#" -eq 0 ]; then
@@ -12,6 +12,7 @@ fi
 HOST_CLOUD="$1"
 if [ "$HOST_CLOUD" != 'openstack' ] && \
   [ "$HOST_CLOUD" != 'gce' ] && \
+  [ "$HOST_CLOUD" != 'azure' ] && \
   [ "$HOST_CLOUD" != 'aws' ]; then
   >&2 echo "Error: unrecognized host cloud '$HOST_CLOUD'"
   echo "$USAGE"
@@ -23,6 +24,8 @@ set -e
 # Import image (AWS doesn't need it)
 if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ]; then
   ansible-playbook playbooks/import-"$HOST_CLOUD"-image.yml
+elif [ "$HOST_CLOUD" = 'azure' ]; then
+  bin/image-create-azure.sh
 fi
 # Deploy
 terraform init --plugin-dir=/terraform_plugins "$HOST_CLOUD"

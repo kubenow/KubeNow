@@ -1,4 +1,4 @@
-FROM python:2.7-alpine3.6
+FROM ubuntu:xenial-20171006
 MAINTAINER "Marco Capuccini <marco.capuccini@it.uu.se>"
 
 # Provisioners versions
@@ -12,19 +12,18 @@ ENV JMESPATH_VERSION=0.9.3
 ENV SHADE_VERSION=1.21.0
 ENV OPENSTACKCLIENT_VERSION=3.11.0
 
-# Install APK deps
-RUN apk add --update --no-cache \
+# Install deps
+RUN apt-get update -y && apt-get install -y \
+  curl \
+  apt-transport-https \
   git \
   curl \
-  openssh \
-  build-base \
-  linux-headers \
+  bc \
   libffi-dev \
-  openssl-dev \
   openssl \
-  bash \
-  su-exec \
-  apache2-utils
+  unzip \
+  python-pip \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install PIP deps
 RUN pip install \
@@ -49,6 +48,7 @@ RUN curl "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terrafor
 ENV PLUGIN_OPENSTACK=0.2.2
 ENV PLUGIN_GOOGLE=0.1.3
 ENV PLUGIN_AWS=1.0.0
+ENV PLUGIN_AZURERM=0.2.2
 ENV PLUGIN_NULL=1.0.0
 ENV PLUGIN_CLOUDFLARE=0.1.0
 ENV PLUGIN_TEMPLATE=1.0.0
@@ -69,6 +69,11 @@ RUN curl "https://releases.hashicorp.com/terraform-provider-aws/${PLUGIN_AWS}/te
     unzip "terraform-provider-aws_${PLUGIN_AWS}_linux_amd64.zip" -d /terraform_plugins/ && \
     rm -f "terraform-provider-aws_${PLUGIN_AWS}_linux_amd64.zip" 
 
+RUN curl "https://releases.hashicorp.com/terraform-provider-azurerm/${PLUGIN_AZURERM}/terraform-provider-azurerm_${PLUGIN_AZURERM}_linux_amd64.zip" > \
+    "terraform-provider-azurerm_${PLUGIN_AZURERM}_linux_amd64.zip" && \
+    unzip "terraform-provider-azurerm_${PLUGIN_AZURERM}_linux_amd64.zip" -d /terraform_plugins/ && \
+    rm -f "terraform-provider-azurerm_${PLUGIN_AZURERM}_linux_amd64.zip" 
+
 RUN curl "https://releases.hashicorp.com/terraform-provider-null/${PLUGIN_NULL}/terraform-provider-null_${PLUGIN_NULL}_linux_amd64.zip" > \
     "terraform-provider-null_${PLUGIN_NULL}_linux_amd64.zip" && \
     unzip "terraform-provider-null_${PLUGIN_NULL}_linux_amd64.zip" -d /terraform_plugins/ && \
@@ -83,6 +88,13 @@ RUN curl "https://releases.hashicorp.com/terraform-provider-template/${PLUGIN_TE
     "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" && \
     unzip "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" -d /terraform_plugins/ && \
     rm -f "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" 
+
+# Install Azure cli
+RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | \
+    tee /etc/apt/sources.list.d/azure-cli.list
+RUN apt-key adv --keyserver packages.microsoft.com --recv-keys 417A0893
+RUN apt-get update -y && apt-get install -y azure-cli \
+            && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Add KubeNow (and group)
 COPY . /opt/KubeNow

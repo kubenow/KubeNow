@@ -67,6 +67,7 @@ Want to try KubeNow? You can get started following the tutorials in the document
 - [x] OpenStack
 - [x] Google Cloud Platform
 - [x] Amazon Web Services
+- [x] Microsoft Azure
 - [ ] Local
 - [ ] Bare Metal
 
