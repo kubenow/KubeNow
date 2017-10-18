@@ -52,22 +52,18 @@ if [ -z "$image_details" ]; then
                               --output "$CMD_OUTPUT_FMT"
 
   echo "Get uri of files to copy"
-  #file_name_json=$(az storage blob list --account-name kubenow \
-  #                                      --container-name system \
-  #                                      --query [].name \
-  #                                      --output tsv |
-  #                                      grep "/$IMAGE_NAME/.*json")
-  #
-  file_name_json=Microsoft.Compute/Images/kubenow-v040b1/kubenow-osDisk.c3da9c0c-645b-4c74-8849-f55622a76a6b.json
+  file_name_json=$(az storage blob list --account-name kubenow \
+                                        --container-name system \
+                                        --query [].name \
+                                        --output tsv |
+                                        grep "/$IMAGE_NAME/.*json")
 
-  #file_name_vhd=$(az storage blob list --account-name kubenow \
-  #                                     --container-name system \
-  #                                     --query [].name \
-  #                                     --output tsv |
-  #                                     grep "/$IMAGE_NAME/.*vhd")
-  #
-  file_name_vhd=Microsoft.Compute/Images/kubenow-v040b1/kubenow-osDisk.c3da9c0c-645b-4c74-8849-f55622a76a6b.vhd
-
+  file_name_vhd=$(az storage blob list --account-name kubenow \
+                                       --container-name system \
+                                       --query [].name \
+                                       --output tsv |
+                                       grep "/$IMAGE_NAME/.*vhd")
+  
   echo "$SRC_CONTAINER/$file_name_vhd"
 
   echo "Start asynchronous file copy of image def file"
