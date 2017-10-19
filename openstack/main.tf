@@ -282,4 +282,3 @@ module "generate-inventory" {
   cloudflare_domain  = "${var.cloudflare_proxied == true ? var.cloudflare_domain : format("%s.%s", var.cluster_prefix, var.cloudflare_domain)}"
   ssh_user           = "${var.ssh_user}"
 }
-
