@@ -65,7 +65,7 @@ if [ -z "$image_details" ]; then
                                        grep "/$IMAGE_NAME/.*vhd")
 
   echo "Start asynchronous file copy of image def file"
-  echo az storage blob copy start --account-name "$storage_account" \
+  az storage blob copy start --account-name "$storage_account" \
                              --destination-blob "$file_name_json" \
                              --destination-container kubenow-images \
                              --source-uri "$SRC_CONTAINER/$file_name_json" \
