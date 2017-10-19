@@ -17,6 +17,7 @@ Commands:
                       More help: kn ansible-playbook --help
   openstack           run a command against you Openstack provider: More help: kn openstack help
   kubetoken           generate and print a kubeadm token
+  az                  run Microsoft Azure CLI: More help: kn az help
 EOM
 
 # Validate command
@@ -26,7 +27,7 @@ if [ "$#" -eq 0 ]; then
   exit 1
 fi
 COMMAND="$1"
-ALLOWED="help init terraform ansible ansible-playbook kubetoken apply destroy kubectl helm openstack"
+ALLOWED="help init terraform ansible ansible-playbook kubetoken apply destroy kubectl helm openstack az"
 echo "$ALLOWED" | grep "\b$COMMAND\b" > /dev/null
 if [ "$?" = "1" ]; then
   >&2 echo "Error: unrecognized command '$COMMAND'"
