@@ -81,7 +81,7 @@ before_script:
   - echo 1
   - printf "%s" "$TRAVIS_SSH_KEY_PRIV"
   - printf "%s" "$TRAVIS_SSH_KEY_PUB"
-  - echo 2
+  - echo 2b
   - cat ssh_key
   - cat ssh_key.pub
 
