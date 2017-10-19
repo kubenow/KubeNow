@@ -76,14 +76,8 @@ before_script:
   - cd test-deployment
   
   # Overwrite ssh-key for debug purposes
-  - printf "%s" "$TRAVIS_SSH_KEY_PRIV" > ssh_key
-  - printf "%s" "$TRAVIS_SSH_KEY_PUB" > ssh_key.pub
-  - echo 1
-  - printf "%s" "$TRAVIS_SSH_KEY_PRIV"
-  - printf "%s" "$TRAVIS_SSH_KEY_PUB"
-  - echo 2b
-  - cat ssh_key
-  - cat ssh_key.pub
+  - echo -e "$TRAVIS_SSH_KEY_PRIV" > ssh_key
+  - echo -e "$TRAVIS_SSH_KEY_PUB" > ssh_key.pub
 
   # RENDER CONFIGURATION
   # Create terraform.tfvars
