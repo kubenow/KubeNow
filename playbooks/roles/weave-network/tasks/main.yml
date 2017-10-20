@@ -1,6 +1,6 @@
 ---
 - name: "install weave"
-  command: kubectl apply -f https://github.com/weaveworks/weave/releases/download/v1.9.8/weave-daemonset-k8s-1.6.yaml
+  command: kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.0.4/weave-daemonset-k8s-1.6.yaml
 
 # Ready count could not be done with jsonpath and filter because of issue
 # https://github.com/kubernetes/kubernetes/issues/45546

@@ -20,7 +20,7 @@ branches:
 env:
   global:
     - TERRAFORM_VERSION=0.9.4
-    - ANSIBLE_LINT_VERSION=3.4.13
+    - ANSIBLE_LINT_VERSION=3.4.15
   matrix:
     - HOST_CLOUD=openstack
     - HOST_CLOUD=gce
@@ -63,7 +63,7 @@ before_install:
   - shellcheck $(find . -type f -name "*.sh")
   - shellcheck bin/*
   # check Dockerfile
-  - docker run --rm -i lukasmartinelli/hadolint < Dockerfile
+  - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 - < Dockerfile
 
 # Build Docker image
 install: docker build -t kubenow/provisioners:latest .
@@ -92,7 +92,7 @@ before_script:
   - sed -i -e "s/your_project_id/${GCE_PROJECT_ID}/g" terraform.tfvars
   # OS
   - sed -i -e "s/your-pool-name/${OS_POOL_NAME}/g" terraform.tfvars
-  - sed -i -e "s/external-net-uuid/${OS_EXTERNAL_NET_UUUID}/g" terraform.tfvars
+  - sed -i -e "s/external-net-uuid/${OS_EXTERNAL_NET_UUID}/g" terraform.tfvars
   - sed -i -e "s/your-master-flavor/${OS_MASTER_FLAVOR}/g" terraform.tfvars
   - sed -i -e "s/your-node-flavor/${OS_NODE_FLAVOR}/g" terraform.tfvars
   - sed -i -e "s/your-edge-flavor/${OS_EDGE_FLAVOR}/g" terraform.tfvars
@@ -130,18 +130,13 @@ jobs:
       before_script: true
       after_script: true
       script:
-        # Exit if not in master
-        - >
-            if [ $TRAVIS_BRANCH != 'master' ]; then
-              exit 0
-            fi
         # Build and push Docker image (needs to be build again in this stage)
         - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         - >
-            if [ -z $TRAVIS_TAG ]; then
-              docker build -t kubenow/provisioners:current .
-              docker push kubenow/provisioners:current
-            else
+            if [ $TRAVIS_BRANCH == 'master' ]; then
+              docker build -t kubenow/provisioners:master .
+              docker push kubenow/provisioners:master
+            elif [ ! -z $TRAVIS_TAG ]; then
               docker build -t kubenow/provisioners:$TRAVIS_TAG \
                 -t kubenow/provisioners:latest .
               docker push kubenow/provisioners:$TRAVIS_TAG

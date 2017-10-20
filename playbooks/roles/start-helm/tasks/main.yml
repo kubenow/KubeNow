@@ -19,3 +19,6 @@
   until: tiller_ready_status.stdout | match( '^(true\s)*true$' )
   retries: 120
   delay: 5
+
+- name: "add KubeNow Helm repository"
+  command: helm repo add kubenow https://kubenow.github.io/helm-charts/
