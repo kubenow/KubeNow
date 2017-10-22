@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Usage
-USAGE="Usage: kn apply <aws|gce|openstack|kvm>"
+USAGE="Usage: kn apply <aws|gce|openstack>"
 
 # Validate command
 if [ "$#" -eq 0 ]; then
@@ -12,7 +12,6 @@ fi
 HOST_CLOUD="$1"
 if [ "$HOST_CLOUD" != 'openstack' ] && \
   [ "$HOST_CLOUD" != 'gce' ] && \
-  [ "$HOST_CLOUD" != 'kvm' ] && \
   [ "$HOST_CLOUD" != 'aws' ]; then
   >&2 echo "Error: unrecognized host cloud '$HOST_CLOUD'"
   echo "$USAGE"
