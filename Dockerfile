@@ -100,7 +100,6 @@ RUN apt-get update -y && apt-get install -y azure-cli \
 
 # Add KubeNow (and group)
 COPY . /opt/KubeNow
-WORKDIR /opt/KubeNow
 
 # Set entrypoint
 ENTRYPOINT ["/opt/KubeNow/bin/docker-entrypoint"]
