@@ -52,7 +52,6 @@ USER_DIR="$PWD"
 USER_DIR_DOCKER="/var/userdir"
 # This is mainly for development where a local kubenow-dir will
 # be mounted on top of the kubenow dir in docker image
-KUBENOW_DIR="/home/anders/phenomenal/KubeNow_1.6.x"
 if [ -n "$KUBENOW_DIR" ] ; then
   KUBENOW_DIR_DOCKER="/opt/KubeNow"
   OPTIONAL_KUBENOW_DIR_MNT="-v $KUBENOW_DIR:$KUBENOW_DIR_DOCKER"
