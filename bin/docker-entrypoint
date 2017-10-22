@@ -50,9 +50,8 @@ for arg in "$@"; do
 done
 
 # enter kubenow user config path
-cd "/var/userdir"
+cd "/var/userdir" || exit 1
 
 # run command as above created user via ssh-wrapper script that adds the
 # ssh-agent to this execution environment
 gosu user sh -c "ssh-wrapper $recited_cmd"
-
