@@ -27,6 +27,8 @@ RUN apt-get update -y && apt-get install -y \
   git \
   curl \
   bc \
+  jq \
+  gosu \
   libffi-dev \
   openssl \
   unzip \
@@ -57,37 +59,37 @@ RUN mkdir -p /terraform_plugins
 RUN curl "https://releases.hashicorp.com/terraform-provider-openstack/${PLUGIN_OPENSTACK}/terraform-provider-openstack_${PLUGIN_OPENSTACK}_linux_amd64.zip" > \
     "terraform-provider-openstack_${PLUGIN_OPENSTACK}_linux_amd64.zip" && \
     unzip "terraform-provider-openstack_${PLUGIN_OPENSTACK}_linux_amd64.zip" -d /terraform_plugins/ && \
-    rm -f "terraform-provider-openstack_${PLUGIN_OPENSTACK}_linux_amd64.zip" 
+    rm -f "terraform-provider-openstack_${PLUGIN_OPENSTACK}_linux_amd64.zip"
 
 RUN curl "https://releases.hashicorp.com/terraform-provider-google/${PLUGIN_GOOGLE}/terraform-provider-google_${PLUGIN_GOOGLE}_linux_amd64.zip" > \
     "terraform-provider-google${PLUGIN_GOOGLE}_linux_amd64.zip" && \
     unzip "terraform-provider-google${PLUGIN_GOOGLE}_linux_amd64.zip" -d /terraform_plugins/ && \
-    rm -f "terraform-provider-google${PLUGIN_GOOGLE}_linux_amd64.zip" 
+    rm -f "terraform-provider-google${PLUGIN_GOOGLE}_linux_amd64.zip"
 
 RUN curl "https://releases.hashicorp.com/terraform-provider-aws/${PLUGIN_AWS}/terraform-provider-aws_${PLUGIN_AWS}_linux_amd64.zip" > \
     "terraform-provider-aws_${PLUGIN_AWS}_linux_amd64.zip" && \
     unzip "terraform-provider-aws_${PLUGIN_AWS}_linux_amd64.zip" -d /terraform_plugins/ && \
-    rm -f "terraform-provider-aws_${PLUGIN_AWS}_linux_amd64.zip" 
+    rm -f "terraform-provider-aws_${PLUGIN_AWS}_linux_amd64.zip"
 
 RUN curl "https://releases.hashicorp.com/terraform-provider-azurerm/${PLUGIN_AZURERM}/terraform-provider-azurerm_${PLUGIN_AZURERM}_linux_amd64.zip" > \
     "terraform-provider-azurerm_${PLUGIN_AZURERM}_linux_amd64.zip" && \
     unzip "terraform-provider-azurerm_${PLUGIN_AZURERM}_linux_amd64.zip" -d /terraform_plugins/ && \
-    rm -f "terraform-provider-azurerm_${PLUGIN_AZURERM}_linux_amd64.zip" 
+    rm -f "terraform-provider-azurerm_${PLUGIN_AZURERM}_linux_amd64.zip"
 
 RUN curl "https://releases.hashicorp.com/terraform-provider-null/${PLUGIN_NULL}/terraform-provider-null_${PLUGIN_NULL}_linux_amd64.zip" > \
     "terraform-provider-null_${PLUGIN_NULL}_linux_amd64.zip" && \
     unzip "terraform-provider-null_${PLUGIN_NULL}_linux_amd64.zip" -d /terraform_plugins/ && \
-    rm -f "terraform-provider-null_${PLUGIN_NULL}_linux_amd64.zip" 
-    
+    rm -f "terraform-provider-null_${PLUGIN_NULL}_linux_amd64.zip"
+
 RUN curl "https://releases.hashicorp.com/terraform-provider-cloudflare/${PLUGIN_CLOUDFLARE}/terraform-provider-cloudflare_${PLUGIN_CLOUDFLARE}_linux_amd64.zip" > \
     "terraform-provider-cloudflare_${PLUGIN_CLOUDFLARE}_linux_amd64.zip" && \
     unzip "terraform-provider-cloudflare_${PLUGIN_CLOUDFLARE}_linux_amd64.zip" -d /terraform_plugins/ && \
-    rm -f "terraform-provider-cloudflare_${PLUGIN_CLOUDFLARE}_linux_amd64.zip" 
+    rm -f "terraform-provider-cloudflare_${PLUGIN_CLOUDFLARE}_linux_amd64.zip"
 
 RUN curl "https://releases.hashicorp.com/terraform-provider-template/${PLUGIN_TEMPLATE}/terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" > \
     "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" && \
     unzip "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" -d /terraform_plugins/ && \
-    rm -f "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" 
+    rm -f "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip"
 
 # Install Azure cli
 RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | \
@@ -98,7 +100,6 @@ RUN apt-get update -y && apt-get install -y azure-cli \
 
 # Add KubeNow (and group)
 COPY . /opt/KubeNow
-RUN cp /opt/KubeNow/bin/* /bin
 WORKDIR /opt/KubeNow
 
 # Set entrypoint
