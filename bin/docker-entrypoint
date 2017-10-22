@@ -44,7 +44,7 @@ done
 # when swiching user
 export PATH="/opt/KubeNow/bin:$PATH"
 
-# recite arguments (because user commands are passed via the ssh-wrapper)
+# re-cite arguments (because user commands are passed via the ssh-wrapper)
 for arg in "$@"; do
   recited_cmd="$recited_cmd \"$arg\""
 done
