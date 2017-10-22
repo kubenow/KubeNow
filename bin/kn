@@ -94,7 +94,7 @@ if [ "$COMMAND" = "init" ]; then
     "$@"
 else
   # Validate PWD
-  if [ "$COMMAND" != "kubetoken" ]; then
+  if [[ "$COMMAND" != "kubetoken" && "$COMMAND" != "bash" ]]; then
     if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ] ; then
         >&2 echo "Error: ssh_key not found. Are you in the right directory?"
         exit 1
