@@ -1,4 +1,10 @@
 #!/bin/bash
+#
+# To get correct file permissions on files mounted as docker volumes,
+# this script primarily creates a user inside the Docker-image that
+# has the same user id as the user executing docker on the host. Also
+# all group-ids from the host-user are added to this user.
+#
 
 # Add and run as local user if LOCAL_USER_ID is passed in at runtime
 if [ -z "$LOCAL_USER_ID" ]; then
@@ -8,9 +14,11 @@ fi
 
 # create user with $LOCAL_USER_ID if it doesn't exists
 if [[ ! $(id -u $LOCAL_USER_ID > /dev/null 2>&1) ]]; then
-  adduser -s /bin/bash -h /home/user -u $LOCAL_USER_ID -D user
+  adduser --quiet --shell /bin/bash \
+          --home /home/user \
+          --uid $LOCAL_USER_ID \
+          --disabled-password --gecos "" user
 fi
-
 
 # create groups with $LOCAL_GROUP_IDS and add them to user
 for group_id in $LOCAL_GROUP_IDS; do
@@ -18,7 +26,7 @@ for group_id in $LOCAL_GROUP_IDS; do
   # create group with $group_id if it doesnt exist
   test="$(getent group $group_id > /dev/null 2>&1)"
   if [[ $? != 0 ]] ; then
-    addgroup -g "$group_id" "group$group_id"
+    addgroup --quiet --gid "$group_id" "group$group_id"
   fi
 
   # get username with $LOCAL_USER_ID
@@ -28,9 +36,23 @@ for group_id in $LOCAL_GROUP_IDS; do
   GROUPNAME=$(getent group $group_id | cut -d: -f1)
 
   # add group to user
-  addgroup "$LOCAL_USERNAME" "$GROUPNAME"
+  adduser --quiet "$LOCAL_USERNAME" "$GROUPNAME" > /dev/null 2>&1
 
 done
 
-# exec su-exec user ssh-agent sh -c 'ssh-add ssh_key; "$@"' -- "$@"
-su-exec user ssh-agent wrapper "$@"
+# add kubenow bin path (works with gosu - environment variables are kept
+# when swiching user
+export PATH="/opt/KubeNow/bin:$PATH"
+
+# recite arguments (because user commands are passed via the ssh-wrapper)
+for arg in "$@"; do
+  recited_cmd="$recited_cmd \"$arg\""
+done
+
+# enter kubenow user config path
+cd "/var/userdir"
+
+# run command as above created user via ssh-wrapper script that adds the
+# ssh-agent to this execution environment
+gosu user sh -c "ssh-wrapper $recited_cmd"
+
