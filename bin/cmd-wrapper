@@ -1,4 +1,0 @@
-#!/bin/bash
-
-ssh-add ssh_key;
-
