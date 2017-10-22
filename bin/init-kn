@@ -3,13 +3,16 @@
 echo "Initializing $INIT_DIR deployment directory..."
 
 # Copy templates
-cp templates/terraform.tfvars.*-template /var/userdir
+cp /opt/KubeNow/templates/terraform.tfvars.*-template .
+
+# Copy ansible.cfg
+cp /opt/KubeNow/ansible.cfg .
 
 # Generate and write kubetoken
 tokenID=$(openssl rand -hex 3)
 tokenVal=$(openssl rand -hex 8)
 token="$tokenID.$tokenVal"
-sed -i '' -e "s/your-kubeadm-token/${token}/g" /var/userdir/terraform.tfvars.*-template
+sed -i '' -e "s/your-kubeadm-token/${token}/g" terraform.tfvars.*-template
 
 # Generate SSH keys
-ssh-keygen -t rsa -N '' -f /var/userdir/ssh_key
+ssh-keygen -t rsa -N '' -f ssh_key
