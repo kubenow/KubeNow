@@ -71,7 +71,7 @@ LOCAL_GROUP_IDS="$(id -G)"
 # Init command
 if [ "$COMMAND" = "init" ]; then
   # Validate
-  if [ "$#" -ne 2 ]; then
+  if [ "$#" -ne 3 ]; then
     >&2 echo "Error: wrong number of argument for the init command"
     echo "$USAGE"
     exit 1
