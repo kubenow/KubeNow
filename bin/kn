@@ -27,6 +27,7 @@ if [ "$#" -eq 0 ]; then
   echo "$USAGE"
   exit 1
 fi
+
 COMMAND="$1"
 ALLOWED="help init terraform ansible ansible-playbook kubetoken apply destroy kubectl helm openstack ssh bash"
 echo "$ALLOWED" | grep "\b$COMMAND\b" > /dev/null
@@ -61,14 +62,14 @@ fi
 # Replace ssh to ssh-kn (if that is the command)
 first="$1"; shift; set -- "${first/ssh/ssh-kn}" "$@"
 
-# Replace init to init-kn (if that is the command)
+# Replace init to init-kn
 first="$1"; shift; set -- "${first/init/init-kn}" "$@"
 
 # Get all local user group id:s (to be added to user inside docker-image)
 LOCAL_GROUP_IDS="$(id -G)"
 
 # Init command
-if [ "$COMMAND" = "init-kn" ]; then
+if [ "$COMMAND" = "init" ]; then
   # Validate
   if [ "$#" -ne 2 ]; then
     >&2 echo "Error: wrong number of argument for the init command"
@@ -90,7 +91,7 @@ if [ "$COMMAND" = "init-kn" ]; then
     -e "LOCAL_USER_ID=$UID" \
     -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
     kubenow/provisioners:"$KUBENOW_VERSION" \
-    "$*"
+    "$@"
 else
   # Validate PWD
   if [ "$COMMAND" != "kubetoken" ]; then
