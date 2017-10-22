@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 #Usage
@@ -18,6 +17,8 @@ Commands:
                       More help: kn ansible-playbook --help
   openstack           run a command against you Openstack provider: More help: kn openstack help
   kubetoken           generate and print a kubeadm token
+  ssh <host>          ssh to <host> defined in ansible inventory file, default <host> is master
+  bash                run an interactive bash promt in the kubenow provisioners docker-image
 EOM
 
 # Validate command
@@ -27,7 +28,7 @@ if [ "$#" -eq 0 ]; then
   exit 1
 fi
 COMMAND="$1"
-ALLOWED="help init terraform ansible ansible-playbook kubetoken apply destroy kubectl helm openstack"
+ALLOWED="help init terraform ansible ansible-playbook kubetoken apply destroy kubectl helm openstack ssh bash"
 echo "$ALLOWED" | grep "\b$COMMAND\b" > /dev/null
 if [ "$?" = "1" ]; then
   >&2 echo "Error: unrecognized command '$COMMAND'"
@@ -46,10 +47,34 @@ if [ -z "$KUBENOW_VERSION" ] ; then
   KUBENOW_VERSION="latest"
 fi
 
+# Set directories to be mounted in docker
+USER_DIR="$PWD"
+USER_DIR_DOCKER="/var/userdir"
+KUBENOW_CONFIG_DIR="$HOME/.kubenow"
+KUBENOW_CONFIG_DIR_DOCKER="/opt/.kubenow"
+# This is mainly for development where a local kubenow-dir will
+# be mounted on top of the kubenow dir in docker image
+KUBENOW_DIR="/home/anders/phenomenal/KubeNow_1.6.x"
+if [ -n "$KUBENOW_DIR" ] ; then
+  KUBENOW_DIR_DOCKER="/opt/KubeNow"
+  OPTIONAL_KUBENOW_DIR_MNT="-v $KUBENOW_DIR:$KUBENOW_DIR_DOCKER"
+  echo "** Using local KubeNow directory: $KUBENOW_DIR **"
+fi
+
+# Create .kubenow config dir on host if not there
+mkdir -p "$KUBENOW_CONFIG_DIR"
+
+# Replace ssh to ssh-kn (if that is the command)
+first="$1"; shift; set -- "${first/ssh/ssh-kn}" "$@"
+
+# Replace init to init-kn (if that is the command)
+first="$1"; shift; set -- "${first/init/init-kn}" "$@"
+
+# Get all local user group id:s (to be added to user inside docker-image)
 LOCAL_GROUP_IDS="$(id -G)"
 
 # Init command
-if [ "$COMMAND" = "init" ]; then
+if [ "$COMMAND" = "init-kn" ]; then
   # Validate
   if [ "$#" -ne 2 ]; then
     >&2 echo "Error: wrong number of argument for the init command"
@@ -62,42 +87,44 @@ if [ "$COMMAND" = "init" ]; then
     >&2 echo "Error: $INIT_DIR already exists"
     exit 1
   fi
-  # Wrap docker run
+
   mkdir -p "$INIT_DIR"
+
+  # Wrap docker run
   docker run --rm -it \
     -v "$INIT_DIR":/var/userdir \
-    -e "HOST_USR_UID=$UID" \
+    -e "LOCAL_USER_ID=$UID" \
+    -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
+    kubenow/provisioners:"$KUBENOW_VERSION" \
+    "$*"
+else
+  # Validate PWD
+  if [ "$COMMAND" != "kubetoken" ]; then
+    if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ] ; then
+        >&2 echo "Error: ssh_key not found. Are you in the right directory?"
+        exit 1
+    fi
+    if [ ! -f terraform.tfvars ] ; then
+        >&2 echo "Error: terraform.tfvars not found. Please create one using the templates."
+        exit 1
+    fi
+  fi
+
+  # Wrap docker run
+  docker run --rm -it \
+    -v "$USER_DIR:$USER_DIR_DOCKER" \
+    $OPTIONAL_KUBENOW_DIR_MNT \
+    -v "$KUBENOW_CONFIG_DIR:$KUBENOW_CONFIG_DIR_DOCKER" \
     -e "LOCAL_USER_ID=$UID" \
     -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
     -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
     -e "ANSIBLE_OPT=$ANSIBLE_OPT" \
     --env-file <(env | grep OS_) \
+    --env-file <(env | grep TF_) \
+    --env-file <(env | grep GOOGLE_) \
+    --env-file <(env | grep AWS_) \
+    --env-file <(env | grep ARM_) \
+    --env-file <(env | grep KUBENOW_) \
     kubenow/provisioners:"$KUBENOW_VERSION" \
-    "init-kn"
-  exit "$?"
+    "$@"
 fi
-
-# Validate PWD
-if [ "$COMMAND" != "kubetoken" ]; then
-  if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ] ; then
-      >&2 echo "Error: ssh_key not found. Are you in the right directory?"
-      exit 1
-  fi
-  if [ ! -f terraform.tfvars ] ; then
-      >&2 echo "Error: terraform.tfvars not found. Please create one using the templates."
-      exit 1
-  fi
-fi
-
-# Wrap docker run
-USR_COMMAND="$*"
-docker run --rm -it \
-  -v "$PWD":/var/userdir \
-  -e "HOST_USR_UID=$UID" \
-  -e "LOCAL_USER_ID=$UID" \
-  -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
-  -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
-  -e "ANSIBLE_OPT=$ANSIBLE_OPT" \
-  --env-file <(env | grep OS_) \
-  kubenow/provisioners:"$KUBENOW_VERSION" \
-  "$USR_COMMAND"
