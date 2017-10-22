@@ -59,9 +59,6 @@ if [ -n "$KUBENOW_DIR" ] ; then
   echo "** Using local KubeNow directory: $KUBENOW_DIR **"
 fi
 
-# Create .kubenow config dir on host if not there
-mkdir -p "$KUBENOW_CONFIG_DIR"
-
 # Replace ssh to ssh-kn (if that is the command)
 first="$1"; shift; set -- "${first/ssh/ssh-kn}" "$@"
 
@@ -109,6 +106,7 @@ else
   fi
 
   # Wrap docker run
+  # shellcheck disable=SC2086
   docker run --rm -it \
     -v "$USER_DIR:$USER_DIR_DOCKER" \
     $OPTIONAL_KUBENOW_DIR_MNT \

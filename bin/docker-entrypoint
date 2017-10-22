@@ -13,10 +13,10 @@ if [ -z "$LOCAL_USER_ID" ]; then
 fi
 
 # create user with $LOCAL_USER_ID if it doesn't exists
-if [[ ! $(id -u $LOCAL_USER_ID > /dev/null 2>&1) ]]; then
+if [[ ! $(id -u "$LOCAL_USER_ID" > /dev/null 2>&1) ]]; then
   adduser --quiet --shell /bin/bash \
           --home /home/user \
-          --uid $LOCAL_USER_ID \
+          --uid "$LOCAL_USER_ID" \
           --disabled-password --gecos "" user
 fi
 
@@ -24,16 +24,16 @@ fi
 for group_id in $LOCAL_GROUP_IDS; do
 
   # create group with $group_id if it doesnt exist
-  test="$(getent group $group_id > /dev/null 2>&1)"
-  if [[ $? != 0 ]] ; then
+  test="$(getent group "$group_id")"
+  if [ -z "$test" ] ; then
     addgroup --quiet --gid "$group_id" "group$group_id"
   fi
 
   # get username with $LOCAL_USER_ID
-  LOCAL_USERNAME=$(getent passwd $LOCAL_USER_ID | cut -d: -f1)
+  LOCAL_USERNAME=$(getent passwd "$LOCAL_USER_ID" | cut -d: -f1)
 
   # get groupname with $group_id
-  GROUPNAME=$(getent group $group_id | cut -d: -f1)
+  GROUPNAME=$(getent group "$group_id" | cut -d: -f1)
 
   # add group to user
   adduser --quiet "$LOCAL_USERNAME" "$GROUPNAME" > /dev/null 2>&1
