@@ -58,7 +58,7 @@ Want to try KubeNow? You can get started following the tutorials in the document
 **latest:** [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=latest)](http://kubenow.readthedocs.io/en/latest/?badge=latest)
 
 ## Donate
-You can support KubeNow throug [Patreon](patreon.com/kubenow), more information available at https://patreon.com/kubenow.
+You can support KubeNow throug [Patreon](https://patreon.com/kubenow), more information available at https://patreon.com/kubenow.
 
 ## Roadmap
 
