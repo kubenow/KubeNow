@@ -97,6 +97,14 @@ variable cloudflare_domain {
   default = ""
 }
 
+variable cloudflare_domain {
+  default = ""
+}
+
+variable cloudflare_subdomain {
+  default = ""
+}
+
 variable cloudflare_proxied {
   default = "false"
 }
@@ -255,10 +263,11 @@ module "cloudflare" {
   cloudflare_token  = "${var.cloudflare_token}"
   cloudflare_domain = "${var.cloudflare_domain}"
 
-  # add cluster prefix to record names
-  record_names = "${formatlist("%s.%s", var.cloudflare_record_texts, var.cluster_prefix)}"
+  # add optional subdomain to record names
+  # terraform interpolation is limited and can not return list in conditionals, workaround: first join to string, then split
+  record_names = "${split(",", var.cloudflare_subdomain != "" ? join(",", formatlist("%s.%s", var.cloudflare_record_texts, var.cloudflare_subdomain)) : join(",", var.cloudflare_record_texts ) )}"
 
-  # terraform interpolation is limited and can not return list in conditionals, workaround: first join to string, then split)
+  # terraform interpolation is limited and can not return list in conditionals, workaround: first join to string, then split
   iplist  = "${split(",", var.master_as_edge == true ? join(",", concat(module.edge.public_ip, module.master.public_ip) ) : join(",", module.edge.public_ip) )}"
   proxied = "${var.cloudflare_proxied}"
 }
@@ -278,6 +287,6 @@ module "generate-inventory" {
   extra_disk_device  = "${element(concat(module.glusternode.extra_disk_device, list("")),0)}"
   cluster_prefix     = "${var.cluster_prefix}"
   use_cloudflare     = "${var.use_cloudflare}"
-  cloudflare_domain  = "${var.cloudflare_domain}"
+  cloudflare_domain  = "${var.cloudflare_subdomain == "" ? var.cloudflare_domain : format("%s.%s", var.cloudflare_subdomain, var.cloudflare_domain)}"
   ssh_user           = "${var.ssh_user}"
 }

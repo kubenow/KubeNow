@@ -54,15 +54,12 @@ USER_DIR_DOCKER="/var/userdir"
 # This is mainly for development where a local kubenow-dir will
 # be mounted on top of the kubenow dir in docker image
 if [ -n "$KUBENOW_DIR" ] ; then
-  KUBENOW_DIR_DOCKER="/opt/KubeNow"
-  OPTIONAL_KUBENOW_DIR_MNT="-v $KUBENOW_DIR:$KUBENOW_DIR_DOCKER"
+  OPTIONAL_KUBENOW_DIR_MNT="-v $KUBENOW_DIR:/opt/KubeNow"
   echo "** Using local KubeNow directory: $KUBENOW_DIR **"
 fi
 
-# Replace ssh to ssh-kn (if that is the command)
+# Command name replacement
 first="$1"; shift; set -- "${first/ssh/ssh-kn}" "$@"
-
-# Replace init to init-kn
 first="$1"; shift; set -- "${first/init/init-kn}" "$@"
 
 # Get all local user group id:s (to be added to user inside docker-image)
@@ -88,6 +85,7 @@ if [ "$COMMAND" = "init" ]; then
   # Wrap docker run
   docker run --rm -it \
     -v "$INIT_DIR":/var/userdir \
+    $OPTIONAL_KUBENOW_DIR_MNT \
     -e "LOCAL_USER_ID=$UID" \
     -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
     kubenow/provisioners:"$KUBENOW_VERSION" \

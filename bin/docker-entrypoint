@@ -3,12 +3,12 @@
 # To get correct file permissions on files mounted as docker volumes,
 # this script primarily creates a user inside the Docker-container that
 # has the same user id as the user executing docker on the host. Also
-# all group-ids from the host-user are added to this user.
+# all groupIDs from the host users are added to this user.
 #
 
 # Add and run as local user if LOCAL_USER_ID is passed in at runtime
 if [ -z "$LOCAL_USER_ID" ]; then
-  echo "LOCAL_USER_ID must be specified when running this container, exiting."
+  echo "LOCAL_USER_ID must be set in the environment when running this container, exiting."
   exit 1
 fi
 
@@ -40,7 +40,7 @@ for group_id in $LOCAL_GROUP_IDS; do
 
 done
 
-# add kubenow bin path (works with gosu - environment variables are kept
+# add KubeNow bin path (works with gosu - environment variables are kept
 # when swiching user
 export PATH="/opt/KubeNow/bin:$PATH"
 
@@ -49,9 +49,9 @@ for arg in "$@"; do
   recited_cmd="$recited_cmd \"$arg\""
 done
 
-# enter kubenow user config path
+# enter KubeNow user config path
 cd "/var/userdir" || exit 1
 
 # run command as above created user via ssh-wrapper script that adds the
 # ssh-agent to this execution environment
-gosu user sh -c "ssh-wrapper $recited_cmd"
+gosu user sh -c "ssh-agent-wrapper $recited_cmd"

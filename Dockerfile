@@ -98,7 +98,7 @@ RUN apt-key adv --keyserver packages.microsoft.com --recv-keys 417A0893
 RUN apt-get update -y && apt-get install -y azure-cli \
             && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Add KubeNow (and group)
+# Add KubeNow
 COPY . /opt/KubeNow
 
 # Set entrypoint
