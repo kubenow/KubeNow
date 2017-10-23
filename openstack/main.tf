@@ -97,10 +97,6 @@ variable cloudflare_domain {
   default = ""
 }
 
-variable cloudflare_domain {
-  default = ""
-}
-
 variable cloudflare_subdomain {
   default = ""
 }
