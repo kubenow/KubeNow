@@ -265,7 +265,7 @@ module "cloudflare" {
 
   # add optional subdomain to record names
   # terraform interpolation is limited and can not return list in conditionals, workaround: first join to string, then split
-  record_names = "${split(",", var.cloudflare_subdomain != "" ? join(",", formatlist("%s.%s", var.cloudflare_record_texts, var.subdomain)) : join(",", var.cloudflare_record_texts ) )}"
+  record_names = "${split(",", var.cloudflare_subdomain != "" ? join(",", formatlist("%s.%s", var.cloudflare_record_texts, var.cloudflare_subdomain)) : join(",", var.cloudflare_record_texts ) )}"
 
   # terraform interpolation is limited and can not return list in conditionals, workaround: first join to string, then split
   iplist  = "${split(",", var.master_as_edge == true ? join(",", concat(module.edge.public_ip, module.master.public_ip) ) : join(",", module.edge.public_ip) )}"
