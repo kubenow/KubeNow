@@ -83,6 +83,7 @@ if [ "$COMMAND" = "init" ]; then
   mkdir -p "$INIT_DIR"
 
   # Wrap docker run
+  # shellcheck disable=SC2086
   docker run --rm -it \
     -v "$INIT_DIR":/var/userdir \
     $OPTIONAL_KUBENOW_DIR_MNT \
