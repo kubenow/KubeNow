@@ -1,2 +1,4 @@
 #!/bin/bash
+
+# exec as ansible command
 ansible master -a "kubectl $*" | tail -n +2

@@ -20,13 +20,14 @@ fi
 
 #Exit immediately if a command exits with a non-zero status
 set -e
+
 # Import image (AWS doesn't need it)
 if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ]; then
-  ansible-playbook playbooks/import-"$HOST_CLOUD"-image.yml
+  ansible-playbook -e "credentials_file_path=$PWD/service-account.json" /opt/KubeNow/playbooks/import-"$HOST_CLOUD"-image.yml
 fi
 # Deploy
-terraform init --plugin-dir=/terraform_plugins "$HOST_CLOUD"
+terraform init --plugin-dir=/terraform_plugins "/opt/KubeNow/$HOST_CLOUD"
 # shellcheck disable=SC2086
-terraform apply $TERRAFORM_OPT "$HOST_CLOUD"
+terraform apply $TERRAFORM_OPT "/opt/KubeNow/$HOST_CLOUD"
 # shellcheck disable=SC2086
-ansible-playbook $ANSIBLE_OPT playbooks/install-core.yml
+ansible-playbook $ANSIBLE_OPT "/opt/KubeNow/playbooks/install-core.yml"
