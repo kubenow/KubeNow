@@ -10,7 +10,6 @@ SRC_CONTAINER="https://kubenow.blob.core.windows.net/system"
 TF_VARS_FILE=${1:-terraform.tfvars}
 
 # Get vars from tfvars-file
-# ARM_CLIENT_ID=$(json2hcl -reverse < "$TF_VARS_FILE" | jq --raw-output '.client_id')
 ARM_CLIENT_ID=$(grep "client_id" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
 ARM_CLIENT_SECRET=$(grep "client_secret" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
 ARM_TENANT_ID=$(grep "tenant_id" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')

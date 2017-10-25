@@ -1,26 +1,3 @@
-#
-# azurerm_storage_account.stor: name can only consist of lowercase letters and numbers,
-# and must be between 3 and 24 characters long
-#
-#variable "disk_storage_account_type" {
-#  description = "Defines the type of storage account to be created. Valid options are Standard_LRS, Standard_ZRS, Standard_GRS, Standard_RAGRS, Premium_LRS. Changing this is sometimes valid - see the Azure documentation for more information on which types of accounts can be converted into other types."
-#  default     = "Standard_LRS"
-#}
-#variable "storage_account_name" {
-#  default     = ""
-#}
-
-## create or use specified storage account
-#module "storage_account" {
-#  source               = "./storage_account"
-#  storage_account_name = "${var.storage_account_name}"
-#  storage_account_type = "${var.storage_account_type}"
-#  name_prefix          = "${var.cluster_prefix}"
-#  resource_group_name  = "${azurerm_resource_group.rg.name}"
-#  location             = "${var.location}"
-#  name_prefix          = "${var.cluster_prefix}-master"
-#}
-
 variable storage_account_name {}
 variable storage_account_type {}
 variable resource_group_name {}
