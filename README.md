@@ -8,7 +8,7 @@ KubeNow is a cloud agnostic platform for microservices, based on Docker and Kube
 
 ```bash
 kn init my-awesome-deployment
-kn apply <aws|gce|openstack>
+kn apply <aws|gce|openstack|azure>
 kn helm install my-app-package
 ```
 
