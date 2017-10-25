@@ -262,7 +262,6 @@ module "generate-inventory" {
   gluster_volumetype = "${var.gluster_volumetype}"
   extra_disk_device  = "${element(concat(module.glusternode.extra_disk_device, list("")),0)}"
   cluster_prefix     = "${var.cluster_prefix}"
-  use_cloudflare     = "${var.use_cloudflare}"
-  cloudflare_domain  = "${var.cloudflare_subdomain == "" ? var.cloudflare_domain : format("%s.%s", var.cloudflare_subdomain, var.cloudflare_domain)}"
+  domain             = "${ var.use_cloudflare == true ? module.cloudflare.domain_and_subdomain) : format("%s.nip.io", element(concat(var.edge_public_ip, var.master_public_ip), 0))}"
   ssh_user           = "${var.ssh_user}"
 }
