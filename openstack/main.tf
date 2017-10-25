@@ -2,7 +2,7 @@
 variable cluster_prefix {}
 
 variable kubenow_image {
-  default = "kubenow-v031-26-g8b8c758-test"
+  default = "kubenow-v040b1"
 }
 
 variable ssh_user {
@@ -97,6 +97,10 @@ variable cloudflare_domain {
   default = ""
 }
 
+variable cloudflare_subdomain {
+  default = ""
+}
+
 variable cloudflare_proxied {
   default = "false"
 }
@@ -105,6 +109,9 @@ variable cloudflare_record_texts {
   type    = "list"
   default = ["*"]
 }
+
+# Provider
+provider "openstack" {}
 
 # Upload SSH key to OpenStack
 module "keypair" {
@@ -246,15 +253,16 @@ module "glusternode" {
 # set cloudflare record (optional)
 module "cloudflare" {
   # count values can not be dynamically computed, that's why we are using var.edge_count and not length(iplist)
-  record_count      = "${var.use_cloudflare != true ? 0 : var.master_as_edge == true ? (var.edge_count + var.master_count) * length(var.cloudflare_record_texts) : var.edge_count * length(var.cloudflare_record_texts)}"
-  source            = "../common/cloudflare"
-  cloudflare_email  = "${var.cloudflare_email}"
-  cloudflare_token  = "${var.cloudflare_token}"
-  cloudflare_domain = "${var.cloudflare_domain}"
+  record_count         = "${var.use_cloudflare != true ? 0 : var.master_as_edge == true ? (var.edge_count + var.master_count) * length(var.cloudflare_record_texts) : var.edge_count * length(var.cloudflare_record_texts)}"
+  source               = "../common/cloudflare"
+  cloudflare_email     = "${var.cloudflare_email}"
+  cloudflare_token     = "${var.cloudflare_token}"
+  cloudflare_domain    = "${var.cloudflare_domain}"
+  cloudflare_subdomain = "${var.cloudflare_subdomain}"
 
-  # add cluster prefix to record names
+  # add optional subdomain to record names
   # terraform interpolation is limited and can not return list in conditionals, workaround: first join to string, then split
-  record_names = "${split(",", var.cloudflare_proxied == true ? join(",", formatlist("%s-%s", var.cloudflare_record_texts, var.cluster_prefix) ) : join(",", formatlist("%s.%s", var.cloudflare_record_texts, var.cluster_prefix)))}"
+  record_names = "${split(",", var.cloudflare_subdomain != "" ? join(",", formatlist("%s.%s", var.cloudflare_record_texts, var.cloudflare_subdomain)) : join(",", var.cloudflare_record_texts ) )}"
 
   # terraform interpolation is limited and can not return list in conditionals, workaround: first join to string, then split
   iplist  = "${split(",", var.master_as_edge == true ? join(",", concat(module.edge.public_ip, module.master.public_ip) ) : join(",", module.edge.public_ip) )}"
@@ -264,18 +272,22 @@ module "cloudflare" {
 # Generate Ansible inventory (identical for each cloud provider)
 module "generate-inventory" {
   source             = "../common/inventory"
+  cluster_prefix     = "${var.cluster_prefix}"
+  domain             = "${ var.use_cloudflare == true ? module.cloudflare.domain_and_subdomain : format("%s.nip.io", element(concat(module.edge.public_ip, module.master.public_ip), 0))}"
+  ssh_user           = "${var.ssh_user}"
   master_hostnames   = "${module.master.hostnames}"
   master_public_ip   = "${module.master.public_ip}"
-  edge_hostnames     = "${module.edge.hostnames}"
-  edge_public_ip     = "${module.edge.public_ip}"
+  master_private_ip  = "${module.master.local_ip_v4}"
   master_as_edge     = "${var.master_as_edge}"
   edge_count         = "${var.edge_count}"
+  edge_hostnames     = "${module.edge.hostnames}"
+  edge_public_ip     = "${module.edge.public_ip}"
+  edge_private_ip    = "${module.edge.local_ip_v4}"
   node_count         = "${var.node_count}"
+  node_hostnames     = "${module.node.hostnames}"
+  node_public_ip     = "${module.node.public_ip}"
+  node_private_ip    = "${module.node.local_ip_v4}"
   glusternode_count  = "${var.glusternode_count}"
   gluster_volumetype = "${var.gluster_volumetype}"
   extra_disk_device  = "${element(concat(module.glusternode.extra_disk_device, list("")),0)}"
-  cluster_prefix     = "${var.cluster_prefix}"
-  use_cloudflare     = "${var.use_cloudflare}"
-  cloudflare_domain  = "${var.cloudflare_proxied == true ? var.cloudflare_domain : format("%s.%s", var.cluster_prefix, var.cloudflare_domain)}"
-  ssh_user           = "${var.ssh_user}"
 }
