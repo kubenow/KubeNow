@@ -1,2 +1,4 @@
 #!/bin/bash
+
+# exec as ansible command
 ansible master -a "helm $*" | tail -n +2

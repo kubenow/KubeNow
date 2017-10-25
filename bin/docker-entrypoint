@@ -1,27 +1,57 @@
 #!/bin/bash
+#
+# To get correct file permissions on files mounted as docker volumes,
+# this script primarily creates a user inside the Docker-container that
+# has the same user id as the user executing docker on the host. Also
+# all groupIDs from the host users are added to this user.
+#
 
-# Copy host PWD in container PWD
-cp /var/userdir/terraform.tfvars ./ 2>/dev/null
-cp -R /var/userdir/.terraform ./ 2>/dev/null
-cp /var/userdir/terraform.tfstate ./ 2>/dev/null
-cp /var/userdir/inventory ./ 2>/dev/null
-cp /var/userdir/ssh_key* ./ 2>/dev/null
-cp /var/userdir/service-account.json ./ 2>/dev/null
+# Add and run as local user if LOCAL_USER_ID is passed in at runtime
+if [ -z "$LOCAL_USER_ID" ]; then
+  echo "LOCAL_USER_ID must be set in the environment when running this container, exiting."
+  exit 1
+fi
 
-# Setup SSH
-eval "$(ssh-agent -s)" &>/dev/null
-ssh-add ssh_key 2>/dev/null
+# create user with $LOCAL_USER_ID if it doesn't exists
+if [[ ! $(id -u "$LOCAL_USER_ID" > /dev/null 2>&1) ]]; then
+  adduser --quiet --shell /bin/bash \
+          --home /home/user \
+          --uid "$LOCAL_USER_ID" \
+          --disabled-password --gecos "" user
+fi
 
-# Run user command
-sh -c "$@" ; URS_COMMAND_STATUS="$?"
+# create groups with $LOCAL_GROUP_IDS and add them to user
+for group_id in $LOCAL_GROUP_IDS; do
 
-# Copy container PWD in host PWD
-cp -R ./.terraform /var/userdir/ 2>/dev/null
-cp ./terraform.tfstate /var/userdir/ 2>/dev/null
-cp ./inventory /var/userdir/ 2>/dev/null
+  # create group with $group_id if it doesnt exist
+  test="$(getent group "$group_id")"
+  if [ -z "$test" ] ; then
+    addgroup --quiet --gid "$group_id" "group$group_id"
+  fi
 
-# Change ownership to host user
-chown -R "$HOST_USR_UID" /var/userdir/
+  # get username with $LOCAL_USER_ID
+  LOCAL_USERNAME=$(getent passwd "$LOCAL_USER_ID" | cut -d: -f1)
 
-# Return user command status code
-exit "$URS_COMMAND_STATUS"
+  # get groupname with $group_id
+  GROUPNAME=$(getent group "$group_id" | cut -d: -f1)
+
+  # add group to user
+  adduser --quiet "$LOCAL_USERNAME" "$GROUPNAME" > /dev/null 2>&1
+
+done
+
+# add KubeNow bin path (works with gosu - environment variables are kept
+# when swiching user
+export PATH="/opt/KubeNow/bin:$PATH"
+
+# re-cite arguments (because user commands are passed via the ssh-wrapper)
+for arg in "$@"; do
+  recited_cmd="$recited_cmd \"$arg\""
+done
+
+# enter KubeNow user config path
+cd "/var/userdir" || exit 1
+
+# run command as above created user via ssh-wrapper script that adds the
+# ssh-agent to this execution environment
+gosu user sh -c "ssh-agent-wrapper $recited_cmd"

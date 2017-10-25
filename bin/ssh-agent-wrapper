@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Setup SSH
+eval "$(ssh-agent -s)" &>/dev/null
+ssh-add ssh_key 2>/dev/null
+
+"$@"

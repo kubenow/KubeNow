@@ -34,6 +34,7 @@ node_disk_size = "20" # Size in GB
 # cloudflare_email = "your-cloudflare-email"
 # cloudflare_token = "your-cloudflare-token"
 # cloudflare_domain = "your-domain-name"
+# cloudflare_subdomain = "your-subdomain-name"
 
 # Cloudflare proxy (optional)
 # cloudflare_proxied = "true"
