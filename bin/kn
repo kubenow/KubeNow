@@ -123,26 +123,3 @@ else
     kubenow/provisioners:"$KUBENOW_VERSION" \
     "$@"
 fi
-
-# Wrap docker run
-USR_COMMAND="$*"
-docker run --rm -it \
-  -v "$PWD":/var/userdir \
-  -e "HOST_USR_UID=$UID" \
-  -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
-  -e "ANSIBLE_OPT=$ANSIBLE_OPT" \
-  -e "OS_USERNAME=$OS_USERNAME" \
-  -e "OS_PASSWORD=$OS_PASSWORD" \
-  -e "OS_AUTH_URL=$OS_AUTH_URL" \
-  -e "OS_USER_DOMAIN_ID=$OS_USER_DOMAIN_ID" \
-  -e "OS_USER_DOMAIN_NAME=$OS_USER_DOMAIN_NAME" \
-  -e "OS_DOMAIN_ID=$OS_DOMAIN_ID" \
-  -e "OS_DOMAIN_NAME=$OS_DOMAIN_NAME" \
-  -e "OS_REGION_NAME=$OS_REGION_NAME" \
-  -e "OS_PROJECT_ID=$OS_PROJECT_ID" \
-  -e "OS_TENANT_ID=$OS_TENANT_ID" \
-  -e "OS_TENANT_NAME=$OS_TENANT_NAME" \
-  -e "OS_AUTH_VERSION=$OS_AUTH_VERSION" \
-  -e "OS_IDENTITY_API_VERSION=$OS_AUTH_VERSION" \
-  kubenow/provisioners:"$KUBENOW_VERSION" \
-  "$USR_COMMAND"
