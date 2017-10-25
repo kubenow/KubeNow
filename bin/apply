@@ -26,7 +26,7 @@ set -e
 if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ]; then
   ansible-playbook -e "credentials_file_path=$PWD/service-account.json" /opt/KubeNow/playbooks/import-"$HOST_CLOUD"-image.yml
 elif [ "$HOST_CLOUD" = 'azure' ]; then
-  bin/image-create-azure.sh
+  /opt/KubeNow/bin/image-create-azure.sh
 fi
 # Deploy
 terraform init --plugin-dir=/terraform_plugins "/opt/KubeNow/$HOST_CLOUD"
