@@ -290,11 +290,12 @@ module "glusternode" {
 # set cloudflare record (optional)
 module "cloudflare" {
   # count values can not be dynamically computed, that's why we are using var.edge_count and not length(iplist)
-  record_count      = "${var.use_cloudflare != true ? 0 : var.master_as_edge == true ? (var.edge_count + var.master_count) * length(var.cloudflare_record_texts) : var.edge_count * length(var.cloudflare_record_texts)}"
-  source            = "../common/cloudflare"
-  cloudflare_email  = "${var.cloudflare_email}"
-  cloudflare_token  = "${var.cloudflare_token}"
-  cloudflare_domain = "${var.cloudflare_domain}"
+  record_count         = "${var.use_cloudflare != true ? 0 : var.master_as_edge == true ? (var.edge_count + var.master_count) * length(var.cloudflare_record_texts) : var.edge_count * length(var.cloudflare_record_texts)}"
+  source               = "../common/cloudflare"
+  cloudflare_email     = "${var.cloudflare_email}"
+  cloudflare_token     = "${var.cloudflare_token}"
+  cloudflare_domain    = "${var.cloudflare_domain}"
+  cloudflare_subdomain = "${var.cloudflare_subdomain}"
 
   # add optional subdomain to record names
   # terraform interpolation is limited and can not return list in conditionals, workaround: first join to string, then split
