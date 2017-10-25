@@ -4,11 +4,10 @@
 # (but allow for the error trap)
 set -e
 
-IMG_VERSION="v031-26-g8b8c758-test"
+[ -n "${IMG_VERSION}" ] && IMG_VERSION="v040b1"
 IMAGE_NAME="kubenow-$IMG_VERSION"
 FILE_NAME="$IMAGE_NAME.qcow2"
-#IMAGE_BUCKET_URL="https://s3.eu-central-1.amazonaws.com/kubenow-eu-central-1"
-IMAGE_BUCKET_URL="https://s3.us-east-1.amazonaws.com/kubenow-us-east-1"
+IMAGE_BUCKET_URL="https://s3.eu-central-1.amazonaws.com/kubenow-eu-central-1"
 
 # check if image is present already
 echo "List images available in OpenStack..."

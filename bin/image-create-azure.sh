@@ -3,17 +3,17 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-IMG_VERSION="v040b1"
+[ -n "${IMG_VERSION}" ] && IMG_VERSION="v040b1"
 IMAGE_NAME="kubenow-$IMG_VERSION"
 RESOURCE_GROUP="kubenow-images-rg"
 SRC_CONTAINER="https://kubenow.blob.core.windows.net/system"
 TF_VARS_FILE=${1:-terraform.tfvars}
 
 # Get vars from tfvars-file
-ARM_CLIENT_ID=$(grep "client_id" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
-ARM_CLIENT_SECRET=$(grep "client_secret" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
-ARM_TENANT_ID=$(grep "tenant_id" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
-LOCATION=$(grep "location" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
+[ -n "${ARM_CLIENT_ID}" ] && ARM_CLIENT_ID=$(grep "client_id" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
+[ -n "${ARM_CLIENT_SECRET}" ] && ARM_CLIENT_SECRET=$(grep "client_secret" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
+[ -n "${ARM_TENANT_ID}" ] && ARM_TENANT_ID=$(grep "tenant_id" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
+[ -n "${ARM_LOCATION}" ] && ARM_LOCATION=$(grep "location" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
 
 CMD_OUTPUT_FMT="table"
 
@@ -31,7 +31,7 @@ if [ -z "$image_details" ]; then
   echo "Image is not present in this subscription - will create"
 
   echo "Create resource-group (if not there already)"
-  az group create --location "$LOCATION" \
+  az group create --location "$ARM_LOCATION" \
                   --name "$RESOURCE_GROUP" \
                   --output "$CMD_OUTPUT_FMT"
 
