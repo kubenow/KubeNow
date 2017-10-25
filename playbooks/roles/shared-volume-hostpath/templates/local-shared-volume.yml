@@ -1,0 +1,15 @@
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: shared-volume-hostpath
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: "{{ vol_size }}Gi"
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "{{ mnt_path }}"

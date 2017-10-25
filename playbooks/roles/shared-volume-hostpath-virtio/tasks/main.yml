@@ -1,0 +1,25 @@
+- name: create mountpath on node
+  become: yes
+  file:
+    path: "/mnt/data"
+    state: directory
+
+- name: mount hostdir on node
+  become: yes
+  command: >
+    mount -t 9p -o trans=virtio,version=9p2000.L,rw data /mnt/data
+
+- name: create yaml directory
+  file:
+    path: "~/.kubernetes-yaml/shared-vol-hostpath-virtio/"
+    state: directory
+    mode: 0755
+
+- name: render local-shared-volume configuration
+  template:
+    src: local-shared-volume.yml
+    dest: "~/.kubernetes-yaml/shared-vol-hostpath-virtio/local-shared-volume.yaml"
+
+- name: create local-shared-volume (Kubernetes side)
+  command: >
+    kubectl apply -f "$HOME/.kubernetes-yaml/shared-vol-hostpath-virtio/local-shared-volume.yaml"
