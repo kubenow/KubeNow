@@ -42,7 +42,8 @@ RUN pip install \
   dnspython=="$DNSPYTHON_VERSION" \
   jmespath=="$JMESPATH_VERSION" \
   apache-libcloud=="$LIBCLOUD_VERSION" \
-  shade=="$SHADE_VERSION"
+  shade=="$SHADE_VERSION" \
+  python-openstackclient=="$OPENSTACKCLIENT_VERSION"
 
 # Install Terraform
 RUN curl "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" > \
