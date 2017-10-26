@@ -3,7 +3,7 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-IMG_VERSION=${KN_IMG_VERSION:="v031-26-g8b8c758-test"}
+IMG_VERSION=${KN_IMG_VERSION:="v040b1"}
 IMAGE_NAME=${KN_IMAGE_NAME:="kubenow-$IMG_VERSION"}
 FILE_NAME=${KN_FILE_NAME:="$IMAGE_NAME.qcow2"}
 IMAGE_BUCKET_URL=${KN_IMAGE_BUCKET_URL:="https://s3.eu-central-1.amazonaws.com/kubenow-eu-central-1"}

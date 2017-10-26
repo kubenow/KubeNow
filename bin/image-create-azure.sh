@@ -10,10 +10,10 @@ SRC_CONTAINER="https://kubenow.blob.core.windows.net/system"
 TF_VARS_FILE=${1:-terraform.tfvars}
 
 # Get vars from tfvars-file
-[ -n "${ARM_CLIENT_ID}" ] && ARM_CLIENT_ID=$(grep "client_id" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
-[ -n "${ARM_CLIENT_SECRET}" ] && ARM_CLIENT_SECRET=$(grep "client_secret" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
-[ -n "${ARM_TENANT_ID}" ] && ARM_TENANT_ID=$(grep "tenant_id" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
-[ -n "${ARM_LOCATION}" ] && ARM_LOCATION=$(grep "location" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
+[ -z "${ARM_CLIENT_ID}" ] && ARM_CLIENT_ID=$(grep "client_id" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
+[ -z "${ARM_CLIENT_SECRET}" ] && ARM_CLIENT_SECRET=$(grep "client_secret" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
+[ -z "${ARM_TENANT_ID}" ] && ARM_TENANT_ID=$(grep "tenant_id" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
+[ -z "${ARM_LOCATION}" ] && ARM_LOCATION=$(grep "location" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
 
 CMD_OUTPUT_FMT="table"
 
