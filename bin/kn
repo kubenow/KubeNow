@@ -19,6 +19,7 @@ Commands:
   kubetoken           generate and print a kubeadm token
   ssh <host>          ssh to <host> defined in ansible inventory file, default <host> is master
   bash                run an interactive bash promt in the kubenow provisioners docker-image
+  az                  run Microsoft Azure CLI: More help: kn az help
 EOM
 
 # Validate command
@@ -29,7 +30,7 @@ if [ "$#" -eq 0 ]; then
 fi
 
 COMMAND="$1"
-ALLOWED="help init terraform ansible ansible-playbook kubetoken apply destroy kubectl helm openstack ssh bash"
+ALLOWED="help init terraform ansible ansible-playbook kubetoken apply destroy kubectl helm openstack az ssh bash"
 echo "$ALLOWED" | grep "\b$COMMAND\b" > /dev/null
 if [ "$?" = "1" ]; then
   >&2 echo "Error: unrecognized command '$COMMAND'"

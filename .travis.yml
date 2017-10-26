@@ -25,6 +25,7 @@ env:
     - HOST_CLOUD=openstack
     - HOST_CLOUD=gce
     - HOST_CLOUD=aws
+    - HOST_CLOUD=azure
 
 addons:
   apt:
@@ -94,6 +95,11 @@ before_script:
   # GCE
   - printf '%s\n' "$GCE_CREDENTIALS" > "./service-account.json"
   - sed -i -e "s/your_project_id/${GCE_PROJECT_ID}/g" terraform.tfvars
+  # AZURE
+  - sed -i -e "s/your-subscription_id/${AZURE_SUBSCRIPTION_ID}/g" terraform.tfvars
+  - sed -i -e "s/your-client_id/${AZURE_CLIENT_ID}/g" terraform.tfvars
+  - sed -i -e "s/your-client_secret/${AZURE_CLIENT_SECRET}/g" terraform.tfvars
+  - sed -i -e "s/your-tenant_id/${AZURE_TENANT_ID}/g" terraform.tfvars
   # OS
   - sed -i -e "s/your-pool-name/${OS_POOL_NAME}/g" terraform.tfvars
   - sed -i -e "s/external-net-uuid/${OS_EXTERNAL_NET_UUID}/g" terraform.tfvars
