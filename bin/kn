@@ -103,6 +103,10 @@ else
         >&2 echo "Error: terraform.tfvars not found. Please create one using the templates."
         exit 1
     fi
+    if [ ! -f ansible.cfg ] ; then
+        >&2 echo "Error: ansible.cfg not found. Are you in the right directory?"
+        exit 1
+    fi
   fi
 
   # Wrap docker run
