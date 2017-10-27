@@ -49,6 +49,8 @@ if [ -z "$KUBENOW_VERSION" ] ; then
   KUBENOW_VERSION="latest"
 fi
 
+echo "Using KubeNow docker-image tag: $KUBENOW_VERSION"
+
 # Set directories to be mounted in docker
 USER_DIR="$PWD"
 USER_DIR_DOCKER="/var/userdir"

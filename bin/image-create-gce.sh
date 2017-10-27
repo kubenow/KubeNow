@@ -15,7 +15,7 @@ IMAGE_NAME="kubenow-$IMG_VERSION"
 echo "Login"
 gcloud auth activate-service-account --key-file="$GCE_ACCOUNT_FILE_PATH"
 
-project_id="$(jq -r .project_id < $GCE_ACCOUNT_FILE_PATH)"
+project_id=$(jq -r .project_id < "$GCE_ACCOUNT_FILE_PATH")
 gcloud config set project "$project_id"
 
 echo "Check if image exists already"

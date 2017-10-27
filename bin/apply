@@ -24,7 +24,7 @@ set -e
 
 # Import image (AWS doesn't need it)
 if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ] || [ "$HOST_CLOUD" = 'gce' ]; then
-  export GCE_ACCOUNT_FILE_PATH="credentials_file_path=$PWD/service-account.json"
+  export GCE_ACCOUNT_FILE_PATH="$PWD/service-account.json"
   export TF_VARS_FILE="$PWD/terraform.tfvars"
   /opt/KubeNow/bin/image-create-"$HOST_CLOUD".sh
 fi
