@@ -12,7 +12,8 @@ cp /opt/KubeNow/ansible.cfg .
 tokenID=$(openssl rand -hex 3)
 tokenVal=$(openssl rand -hex 8)
 token="$tokenID.$tokenVal"
-sed -i '' -e "s/your-kubeadm-token/${token}/g" terraform.tfvars.*-template
+
+sed -i "s/your-kubeadm-token/${token}/g" terraform.tfvars.*-template
 
 # Generate SSH keys
 ssh-keygen -t rsa -N '' -f ssh_key

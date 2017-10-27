@@ -1,3 +1,9 @@
+variable cluster_prefix {}
+variable ssh_user {}
+variable domain {}
+
+variable master_as_edge {}
+
 variable master_hostnames {
   type = "list"
 }
@@ -5,6 +11,12 @@ variable master_hostnames {
 variable master_public_ip {
   type = "list"
 }
+
+variable master_private_ip {
+  type = "list"
+}
+
+variable edge_count {}
 
 variable edge_hostnames {
   type = "list"
@@ -14,16 +26,27 @@ variable edge_public_ip {
   type = "list"
 }
 
-variable master_as_edge {}
-variable edge_count {}
+variable edge_private_ip {
+  type = "list"
+}
+
 variable node_count {}
+
+variable node_hostnames {
+  type = "list"
+}
+
+variable node_public_ip {
+  type = "list"
+}
+
+variable node_private_ip {
+  type = "list"
+}
+
 variable glusternode_count {}
 variable gluster_volumetype {}
 variable extra_disk_device {}
-variable use_cloudflare {}
-variable cluster_prefix {}
-variable cloudflare_domain {}
-variable ssh_user {}
 
 # Generate Ansible inventory (identical for each cloud provider)
 resource "null_resource" "generate-inventory" {
@@ -69,7 +92,7 @@ resource "null_resource" "generate-inventory" {
 
   # If cloudflare domain is set, output that domain, otherwise output a nip.io domain (with the first edge ip)
   provisioner "local-exec" {
-    command = "echo \"domain=${ var.use_cloudflare == true ? format("%s.%s", var.cluster_prefix, var.cloudflare_domain) : format("%s.nip.io", element(concat(var.edge_public_ip, var.master_public_ip), 0))}\" >> inventory"
+    command = "echo \"domain=${ var.domain }\" >> inventory"
   }
 
   # Always output extra disk device

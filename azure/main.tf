@@ -5,12 +5,17 @@ variable kubenow_image {
   default = "kubenow-v040b1"
 }
 
+variable image_resource_group {
+  default = "kubenow-images-rg"
+}
+
 variable kubeadm_token {}
 
-variable aws_access_key_id {}
-variable aws_secret_access_key {}
-variable aws_region {}
-variable availability_zone {}
+variable subscription_id {}
+variable client_id {}
+variable client_secret {}
+variable tenant_id {}
+variable location {}
 
 variable ssh_user {
   default = "ubuntu"
@@ -20,28 +25,12 @@ variable ssh_key {
   default = "ssh_key.pub"
 }
 
-# Networking
-variable vpc_id {
-  default = ""
-}
-
-variable subnet_id {
-  default = ""
-}
-
-variable additional_sec_group_ids {
-  type = "list"
-
-  default = []
-}
-
 # Master settings
 variable master_count {
   default = 1
 }
 
-variable master_instance_type {}
-variable master_disk_size {}
+variable master_vm_size {}
 
 variable master_as_edge {
   default = "true"
@@ -50,19 +39,14 @@ variable master_as_edge {
 # Nodes settings
 variable node_count {}
 
-variable node_instance_type {}
-variable node_disk_size {}
+variable node_vm_size {}
 
 # Edges settings
 variable edge_count {
   default = 0
 }
 
-variable edge_instance_type {
-  default = "nothing"
-}
-
-variable edge_disk_size {
+variable edge_vm_size {
   default = "nothing"
 }
 
@@ -71,7 +55,7 @@ variable glusternode_count {
   default = 0
 }
 
-variable glusternode_instance_type {
+variable glusternode_vm_size {
   default = "nothing"
 }
 
@@ -118,77 +102,56 @@ variable cloudflare_record_texts {
 }
 
 # Provider
-provider "aws" {
-  access_key = "${var.aws_access_key_id}"
-  secret_key = "${var.aws_secret_access_key}"
-  region     = "${var.aws_region}"
+provider "azurerm" {
+  subscription_id = "${var.subscription_id}"
+  client_id       = "${var.client_id}"
+  client_secret   = "${var.client_secret}"
+  tenant_id       = "${var.tenant_id}"
 }
 
-# Upload ssh-key to be used for access to the nodes
-module "keypair" {
-  source      = "./keypair"
-  public_key  = "${var.ssh_key}"
-  name_prefix = "${var.cluster_prefix}"
+# Data-lookup, subscriptin_id etc.
+data "azurerm_client_config" "current" {}
+
+# Resource-group
+resource "azurerm_resource_group" "rg" {
+  name     = "${var.cluster_prefix}-rg"
+  location = "${var.location}"
 }
 
-# Networking - VPC
-module "vpc" {
-  vpc_id      = "${var.vpc_id}"
-  name_prefix = "${var.cluster_prefix}"
-  source      = "./vpc"
-}
-
-# Networking - subnet
-module "subnet" {
-  subnet_id         = "${var.subnet_id}"
-  vpc_id            = "${module.vpc.id}"
-  name_prefix       = "${var.cluster_prefix}"
-  availability_zone = "${var.availability_zone}"
-  source            = "./subnet"
-}
-
-# Networking - sec-group
+# Security-group
 module "security_group" {
-  name_prefix = "${var.cluster_prefix}"
-  vpc_id      = "${module.vpc.id}"
-  source      = "./security_group"
+  source              = "./security_group"
+  name_prefix         = "${var.cluster_prefix}"
+  location            = "${var.location}"
+  resource_group_name = "${azurerm_resource_group.rg.name}"
 }
 
-# Lookup image-id of kubenow-image
-data "aws_ami" "kubenow" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["${var.kubenow_image}"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
+# Network (here would be nice with condition)
+module "network" {
+  source              = "./network"
+  resource_group_name = "${azurerm_resource_group.rg.name}"
+  location            = "${var.location}"
+  name_prefix         = "${var.cluster_prefix}"
 }
 
 module "master" {
   # Core settings
-  source            = "./node"
-  count             = "${var.master_count}"
-  name_prefix       = "${var.cluster_prefix}-master"
-  instance_type     = "${var.master_instance_type}"
-  image_id          = "${data.aws_ami.kubenow.id}"
-  availability_zone = "${var.availability_zone}"
+  source              = "./node"
+  count               = "${var.master_count}"
+  name_prefix         = "${var.cluster_prefix}-master"
+  vm_size             = "${var.master_vm_size}"
+  resource_group_name = "${azurerm_resource_group.rg.name}"
+  image_id            = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${var.image_resource_group}/providers/Microsoft.Compute/images/${var.kubenow_image}"
+  location            = "${var.location}"
 
   # SSH settings
-  ssh_user         = "${var.ssh_user}"
-  ssh_keypair_name = "${module.keypair.keypair_name}"
+  ssh_user = "${var.ssh_user}"
+  ssh_key  = "${var.ssh_key}"
 
   # Network settings
-  subnet_id          = "${module.subnet.id}"
-  security_group_ids = "${concat(module.security_group.id, var.additional_sec_group_ids)}"
-
-  # Disk settings
-  disk_size       = "${var.master_disk_size}"
-  extra_disk_size = "0"
+  subnet_id          = "${module.network.subnet_id}"
+  assign_floating_ip = "true"
+  security_group_id  = "${module.security_group.id}"
 
   # Bootstrap settings
   bootstrap_file = "bootstrap/master.sh"
@@ -200,24 +163,22 @@ module "master" {
 
 module "node" {
   # Core settings
-  source            = "./node"
-  count             = "${var.node_count}"
-  name_prefix       = "${var.cluster_prefix}-node"
-  instance_type     = "${var.node_instance_type}"
-  image_id          = "${data.aws_ami.kubenow.id}"
-  availability_zone = "${var.availability_zone}"
+  source              = "./node"
+  count               = "${var.node_count}"
+  name_prefix         = "${var.cluster_prefix}-node"
+  vm_size             = "${var.node_vm_size}"
+  resource_group_name = "${azurerm_resource_group.rg.name}"
+  image_id            = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${var.image_resource_group}/providers/Microsoft.Compute/images/${var.kubenow_image}"
+  location            = "${var.location}"
 
   # SSH settings
-  ssh_user         = "${var.ssh_user}"
-  ssh_keypair_name = "${module.keypair.keypair_name}"
+  ssh_user = "${var.ssh_user}"
+  ssh_key  = "${var.ssh_key}"
 
   # Network settings
-  subnet_id          = "${module.subnet.id}"
-  security_group_ids = "${concat(module.security_group.id, var.additional_sec_group_ids)}"
-
-  # Disk settings
-  disk_size       = "${var.node_disk_size}"
-  extra_disk_size = "0"
+  subnet_id          = "${module.network.subnet_id}"
+  assign_floating_ip = "false"
+  security_group_id  = "${module.security_group.id}"
 
   # Bootstrap settings
   bootstrap_file = "bootstrap/node.sh"
@@ -229,24 +190,22 @@ module "node" {
 
 module "edge" {
   # Core settings
-  source            = "./node"
-  count             = "${var.edge_count}"
-  name_prefix       = "${var.cluster_prefix}-edge"
-  instance_type     = "${var.edge_instance_type}"
-  image_id          = "${data.aws_ami.kubenow.id}"
-  availability_zone = "${var.availability_zone}"
+  source              = "./node"
+  count               = "${var.edge_count}"
+  name_prefix         = "${var.cluster_prefix}-edge"
+  vm_size             = "${var.node_vm_size}"
+  resource_group_name = "${azurerm_resource_group.rg.name}"
+  image_id            = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${var.image_resource_group}/providers/Microsoft.Compute/images/${var.kubenow_image}"
+  location            = "${var.location}"
 
   # SSH settings
-  ssh_user         = "${var.ssh_user}"
-  ssh_keypair_name = "${module.keypair.keypair_name}"
+  ssh_user = "${var.ssh_user}"
+  ssh_key  = "${var.ssh_key}"
 
   # Network settings
-  subnet_id          = "${module.subnet.id}"
-  security_group_ids = "${concat(module.security_group.id, var.additional_sec_group_ids)}"
-
-  # Disk settings
-  disk_size       = "${var.edge_disk_size}"
-  extra_disk_size = "0"
+  subnet_id          = "${module.network.subnet_id}"
+  assign_floating_ip = "true"
+  security_group_id  = "${module.security_group.id}"
 
   # Bootstrap settings
   bootstrap_file = "bootstrap/node.sh"
@@ -258,23 +217,24 @@ module "edge" {
 
 module "glusternode" {
   # Core settings
-  source            = "./node"
-  count             = "${var.glusternode_count}"
-  name_prefix       = "${var.cluster_prefix}-glusternode"
-  instance_type     = "${var.glusternode_instance_type}"
-  image_id          = "${data.aws_ami.kubenow.id}"
-  availability_zone = "${var.availability_zone}"
+  source              = "./node-extra-disk"
+  count               = "${var.glusternode_count}"
+  name_prefix         = "${var.cluster_prefix}-glusternode"
+  vm_size             = "${var.glusternode_vm_size}"
+  resource_group_name = "${azurerm_resource_group.rg.name}"
+  image_id            = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${var.image_resource_group}/providers/Microsoft.Compute/images/${var.kubenow_image}"
+  location            = "${var.location}"
 
   # SSH settings
-  ssh_user         = "${var.ssh_user}"
-  ssh_keypair_name = "${module.keypair.keypair_name}"
+  ssh_user = "${var.ssh_user}"
+  ssh_key  = "${var.ssh_key}"
 
   # Network settings
-  subnet_id          = "${module.subnet.id}"
-  security_group_ids = "${concat(module.security_group.id, var.additional_sec_group_ids)}"
+  subnet_id          = "${module.network.subnet_id}"
+  assign_floating_ip = "false"
+  security_group_id  = "${module.security_group.id}"
 
   # Disk settings
-  disk_size       = "${var.glusternode_disk_size}"
   extra_disk_size = "${var.glusternode_extra_disk_size}"
 
   # Bootstrap settings

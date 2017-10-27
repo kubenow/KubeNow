@@ -2,13 +2,15 @@
 
 [![Build Status](https://travis-ci.org/kubenow/KubeNow.svg?branch=master)](https://travis-ci.org/kubenow/KubeNow)
 [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=latest)](http://kubenow.readthedocs.io/en/latest/?badge=latest)
+<span class="badge-patreon"><a href="https://patreon.com/kubenow" title="Donate to this project using Patreon"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate button" /></a></span>
+
 
 
 KubeNow is a cloud agnostic platform for microservices, based on Docker and Kubernetes. Other than lighting-fast Kubernetes operations, KubeNow helps you in lifting your final application configuring DNS records and distributed storage. Once you have defined your application as a Helm package, you can lift it running 3 commands:
 
 ```bash
 kn init my-awesome-deployment
-kn apply <aws|gce|openstack>
+kn apply <aws|gce|openstack|azure>
 kn helm install my-app-package
 ```
 
@@ -17,6 +19,7 @@ kn helm install my-app-package
 - [Architecture](#architecture)
 - [Manifesto](#manifesto)
 - [Getting Started](#getting-started)
+- [Donate](#donate)
 - [Roadmap](#roadmap)
 
 ## Architecture
@@ -54,6 +57,9 @@ Want to try KubeNow? You can get started following the tutorials in the document
 
 **latest:** [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=latest)](http://kubenow.readthedocs.io/en/latest/?badge=latest)
 
+## Donate
+You can support KubeNow throug [Patreon](https://patreon.com/kubenow), more information available at https://patreon.com/kubenow.
+
 ## Roadmap
 
 ### Core
@@ -67,6 +73,7 @@ Want to try KubeNow? You can get started following the tutorials in the document
 - [x] OpenStack
 - [x] Google Cloud Platform
 - [x] Amazon Web Services
+- [x] Microsoft Azure
 - [ ] Local
 - [ ] Bare Metal
 

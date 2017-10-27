@@ -25,6 +25,7 @@ env:
     - HOST_CLOUD=openstack
     - HOST_CLOUD=gce
     - HOST_CLOUD=aws
+    - HOST_CLOUD=azure
 
 addons:
   apt:
@@ -73,6 +74,10 @@ before_script:
   # Init test deployment
   - bin/kn init test-deployment
   - cd test-deployment
+  
+  # Overwrite ssh-key for debug purposes
+  - echo -e "$TRAVIS_SSH_KEY_PRIV" > ssh_key
+  - echo -e "$TRAVIS_SSH_KEY_PUB" > ssh_key.pub
 
   # RENDER CONFIGURATION
   # Create terraform.tfvars
@@ -90,6 +95,11 @@ before_script:
   # GCE
   - printf '%s\n' "$GCE_CREDENTIALS" > "./service-account.json"
   - sed -i -e "s/your_project_id/${GCE_PROJECT_ID}/g" terraform.tfvars
+  # AZURE
+  - sed -i -e "s/your-subscription_id/${AZURE_SUBSCRIPTION_ID}/g" terraform.tfvars
+  - sed -i -e "s/your-client_id/${AZURE_CLIENT_ID}/g" terraform.tfvars
+  - sed -i -e "s/your-client_secret/${AZURE_CLIENT_SECRET}/g" terraform.tfvars
+  - sed -i -e "s/your-tenant_id/${AZURE_TENANT_ID}/g" terraform.tfvars
   # OS
   - sed -i -e "s/your-pool-name/${OS_POOL_NAME}/g" terraform.tfvars
   - sed -i -e "s/external-net-uuid/${OS_EXTERNAL_NET_UUID}/g" terraform.tfvars
@@ -106,11 +116,12 @@ before_script:
   - sed -i -e "s/# cloudflare_email = \"your-cloudflare-email\"/cloudflare_email = \"${CI_CLOUDFLARE_EMAIL}\"/g" terraform.tfvars
   - sed -i -e "s/# cloudflare_token = \"your-cloudflare-token\"/cloudflare_token = \"${CI_CLOUDFLARE_TOKEN}\"/g" terraform.tfvars
   - sed -i -e "s/# cloudflare_domain = \"your-domain-name\"/cloudflare_domain = \"${CI_CLOUDFLARE_DOMAIN}\"/g" terraform.tfvars
+  - sed -i -e "s/# cloudflare_subdomain = \"your-subdomain-name\"/cloudflare_subdomain = \"kubenow-ci-${TRAVIS_BUILD_NUMBER}-${HOST_CLOUD}\"/g" terraform.tfvars
 
 
 script:
   # Deploy
-  - travis_retry ../bin/kn apply "$HOST_CLOUD"
+  - ../bin/kn apply "$HOST_CLOUD"
   # Test
   - ../bin/kn ansible-playbook /opt/KubeNow/playbooks/infra-test.yml
   - ../bin/kn kubectl get nodes # try to list nodes
