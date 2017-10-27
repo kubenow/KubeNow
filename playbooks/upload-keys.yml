@@ -1,0 +1,9 @@
+- hosts: master
+  tasks:
+    - name: Set up multiple authorized keys
+      authorized_key:
+        user: ubuntu
+        state: present
+        key: "{{ lookup('file', item) }}"
+      with_fileglob:
+        - "{{ (public_keys_dir | default(playbook_dir ~ '/../public_keys' )) ~ '/*.pub' }}"
