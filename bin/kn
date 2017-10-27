@@ -6,8 +6,8 @@ Usage: kn <command>
 Commands:
   help                 print this message
   init  <CLOUD> <DIR>  creates a new project in the supplied directory
+                       CLOUD=<gce|aws|openstack|azure>
   apply [DIR]          apply configuration (the current directory by default)
-                       CLOUD=<gce|aws|openstack>
   destroy [DIR]        destroy deployment (the current directory by default)
   kubectl              run kubectl on the master. More help: kn kubectl help
   helm                 run helm on the master. More help: kn helm help
@@ -68,17 +68,12 @@ LOCAL_GROUP_IDS="$(id -G)"
 
 
 if [ "$COMMAND" = "version" ]; then
-
-  echo "version"
+  echo "version, command not implemented yet, exit"
   exit 1
-
-if [ "$COMMAND" = "upgrade" ]; then
-
-  echo "upgrade"
+elif [ "$COMMAND" = "upgrade" ]; then
+  echo "upgrade, command not implemented yet, exit"
   exit 1
-
 elif [ "$COMMAND" = "init" ]; then
-
   # Validate
   if [ "$#" -ne 3 ]; then
     >&2 echo "Error: wrong number of argument for the init command"

@@ -1,11 +1,17 @@
 #!/bin/bash
 
-echo "Initializing $INIT_DIR deployment directory..."
+HOST_CLOUD="$2"
 
-# Copy templates
-cp /opt/KubeNow/templates/terraform.tfvars.*-template .
+echo "Initializing $INIT_DIR deployment directory for cloud provider $HOST_CLOUD"
 
-# Copy ansible.cfg
+# Copy config, scripts and template files to init dir
+cp /opt/KubeNow/templates/terraform.tfvars.$HOST_CLOUD-template terraform.tfvars
+cp -r /opt/KubeNow/$HOST_CLOUD .
+cp -r /opt/KubeNow/common .
+cp -r /opt/KubeNow/bootstrap .
+cp -r /opt/KubeNow/bootstrap .
+cp -r /opt/KubeNow/bin .
+cp -r /opt/KubeNow/playbooks .
 cp /opt/KubeNow/ansible.cfg .
 
 # Generate and write kubetoken
