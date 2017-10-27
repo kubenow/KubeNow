@@ -3,9 +3,9 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-TF_VARS_FILE=${1}
+TF_VARS_FILE=${TF_VARS_FILE:-1}
 if [ -z "$TF_VARS_FILE" ]; then
-  echo "env TF_VARS_FILE must set or first argument for this script"
+  echo "env TF_VARS_FILE must set or be the first argument for this script"
   exit 1
 fi
 
@@ -13,7 +13,6 @@ IMG_VERSION=${IMG_VERSION:-"v040b1"}
 IMAGE_NAME="kubenow-$IMG_VERSION"
 RESOURCE_GROUP="kubenow-images-rg"
 SRC_CONTAINER="https://kubenow.blob.core.windows.net/system"
-TF_VARS_FILE=${1:-terraform.tfvars}
 
 # Get vars from tfvars-file
 ARM_CLIENT_ID=$(grep "client_id" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
