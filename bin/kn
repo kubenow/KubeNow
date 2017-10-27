@@ -4,22 +4,22 @@
 read -r -d '' USAGE << EOM
 Usage: kn <command>
 Commands:
-  help                print this message
-  init <DIR>          creates a new project in the supplied directory
-  apply <CLOUD>       apply configuration on the supplied cloud provider.
-                      CLOUD=<gce|aws|openstack>
-  destroy <CLOUD>     destroy deployment (CLOUD=<gce|aws|openstack>)
-  kubectl             run kubectl on the master. More help: kn kubectl help
-  helm                run helm on the master. More help: kn helm help
-  terraform           run Terraform. More help: kn terraform --help
-  ansible             run Ansible. More help: kn ansible --help
-  ansible-playbook    run an Ansible playbook.
-                      More help: kn ansible-playbook --help
-  openstack           run a command against you Openstack provider: More help: kn openstack help
-  kubetoken           generate and print a kubeadm token
-  ssh <host>          ssh to <host> defined in ansible inventory file, default <host> is master
-  bash                run an interactive bash promt in the kubenow provisioners docker-image
-  az                  run Microsoft Azure CLI: More help: kn az help
+  help                 print this message
+  init  <CLOUD> <DIR>  creates a new project in the supplied directory
+  apply [DIR]          apply configuration (the current directory by default)
+                       CLOUD=<gce|aws|openstack>
+  destroy [DIR]        destroy deployment (the current directory by default)
+  kubectl              run kubectl on the master. More help: kn kubectl help
+  helm                 run helm on the master. More help: kn helm help
+  terraform            run Terraform. More help: kn terraform --help
+  ansible              run Ansible. More help: kn ansible --help
+  ansible-playbook     run an Ansible playbook.
+                       More help: kn ansible-playbook --help
+  openstack            run a command against you Openstack provider: More help: kn openstack help
+  kubetoken            generate and print a kubeadm token
+  ssh <host>           ssh to <host> defined in ansible inventory file, default <host> is master
+  bash                 run an interactive bash promt in the kubenow provisioners docker-image
+  az                   run Microsoft Azure CLI: More help: kn az help
 EOM
 
 # Validate command
@@ -66,16 +66,38 @@ first="$1"; shift; set -- "${first/init/init-kn}" "$@"
 # Get all local user group id:s (to be added to user inside docker-image)
 LOCAL_GROUP_IDS="$(id -G)"
 
-# Init command
-if [ "$COMMAND" = "init" ]; then
+
+if [ "$COMMAND" = "version" ]; then
+
+  echo "version"
+  exit 1
+
+if [ "$COMMAND" = "upgrade" ]; then
+
+  echo "upgrade"
+  exit 1
+
+elif [ "$COMMAND" = "init" ]; then
+
   # Validate
   if [ "$#" -ne 3 ]; then
     >&2 echo "Error: wrong number of argument for the init command"
     echo "$USAGE"
     exit 1
   fi
+
+  HOST_CLOUD="$2"
+  if [ "$HOST_CLOUD" != 'openstack' ] && \
+    [ "$HOST_CLOUD" != 'gce' ] && \
+    [ "$HOST_CLOUD" != 'azure' ] && \
+    [ "$HOST_CLOUD" != 'aws' ]; then
+    >&2 echo "Unrecognized host cloud '$HOST_CLOUD' <hos"
+    echo "$USAGE"
+    exit 1
+  fi
+
   # shellcheck disable=SC2086,SC2046
-  INIT_DIR=$(cd $(dirname $2) && echo $PWD/$(basename $2))
+  INIT_DIR=$(cd $(dirname $3) && echo $PWD/$(basename $3))
   if [ -f "$INIT_DIR" ] || [ -d "$INIT_DIR" ]; then
     >&2 echo "Error: $INIT_DIR already exists"
     exit 1
