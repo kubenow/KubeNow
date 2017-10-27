@@ -3,9 +3,9 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-TF_VARS_FILE=${1}
+TF_VARS_FILE=${TF_VARS_FILE:-1}
 if [ -z "$TF_VARS_FILE" ]; then
-  echo "env TF_VARS_FILE must set or first argument for this script"
+  echo "env TF_VARS_FILE must set or be the first argument for this script"
   exit 1
 fi
 
