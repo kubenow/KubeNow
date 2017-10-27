@@ -1,11 +1,18 @@
 #!/bin/bash
 
-HOST_CLOUD="$2"
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+HOST_CLOUD="$1"
+
+echo "$1"
+echo "$2"
+echo "$3"
 
 echo "Initializing $INIT_DIR deployment directory for cloud provider $HOST_CLOUD"
 
 # Copy config, scripts and template files to init dir
-cp /opt/KubeNow/templates/terraform.tfvars.$HOST_CLOUD-template terraform.tfvars
+cp "/opt/KubeNow/templates/terraform.tfvars.$HOST_CLOUD-template" terraform.tfvars
 cp -r /opt/KubeNow/$HOST_CLOUD .
 cp -r /opt/KubeNow/common .
 cp -r /opt/KubeNow/bootstrap .
@@ -19,7 +26,7 @@ tokenID=$(openssl rand -hex 3)
 tokenVal=$(openssl rand -hex 8)
 token="$tokenID.$tokenVal"
 
-sed -i "s/your-kubeadm-token/${token}/g" terraform.tfvars.*-template
+sed -i "s/your-kubeadm-token/${token}/g" terraform.tfvars
 
 # Generate SSH keys
 ssh-keygen -t rsa -N '' -f ssh_key
