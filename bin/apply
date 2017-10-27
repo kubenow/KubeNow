@@ -23,10 +23,10 @@ fi
 set -e
 
 # Import image (AWS doesn't need it)
-if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ]; then
-  ansible-playbook -e "credentials_file_path=$PWD/service-account.json" /opt/KubeNow/playbooks/import-"$HOST_CLOUD"-image.yml
-elif [ "$HOST_CLOUD" = 'azure' ]; then
-  /opt/KubeNow/bin/image-create-azure.sh
+if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ] || [ "$HOST_CLOUD" = 'gce' ]; then
+  export GCE_ACCOUNT_FILE_PATH="$PWD/service-account.json"
+  export TF_VARS_FILE="$PWD/terraform.tfvars"
+  /opt/KubeNow/bin/image-create-"$HOST_CLOUD".sh
 fi
 # Deploy
 terraform init --plugin-dir=/terraform_plugins "/opt/KubeNow/$HOST_CLOUD"

@@ -11,6 +11,8 @@ ENV DNSPYTHON_VERSION=1.15.0
 ENV JMESPATH_VERSION=0.9.3
 ENV SHADE_VERSION=1.21.0
 ENV OPENSTACKCLIENT_VERSION=3.11.0
+ENV GLANCECLIENT_VERSION=2.8.0
+ENV AWSCLI_VERSION=1.11.177
 # Terraform plugin versions
 ENV PLUGIN_OPENSTACK=0.2.2
 ENV PLUGIN_GOOGLE=0.1.3
@@ -43,7 +45,9 @@ RUN pip install \
   jmespath=="$JMESPATH_VERSION" \
   apache-libcloud=="$LIBCLOUD_VERSION" \
   shade=="$SHADE_VERSION" \
-  python-openstackclient=="$OPENSTACKCLIENT_VERSION"
+  python-openstackclient=="$OPENSTACKCLIENT_VERSION" \
+  python-glanceclient=="$GLANCECLIENT_VERSION" \
+  awscli=="$AWSCLI_VERSION"
 
 # Install Terraform
 RUN curl "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" > \
@@ -96,6 +100,13 @@ RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheez
     tee /etc/apt/sources.list.d/azure-cli.list
 RUN apt-key adv --keyserver packages.microsoft.com --recv-keys 417A0893
 RUN apt-get update -y && apt-get install -y azure-cli \
+            && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Google gcloud cli
+RUN echo "deb http://packages.cloud.google.com/apt cloud-sdk-xenial main" | \
+    tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+RUN apt-get update -y && apt-get install -y google-cloud-sdk \
             && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Add KubeNow

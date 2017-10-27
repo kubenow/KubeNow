@@ -3,7 +3,13 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-IMG_VERSION="v040b1"
+TF_VARS_FILE=${1}
+if [ -z "$TF_VARS_FILE" ]; then
+  echo "env TF_VARS_FILE must set or first argument for this script"
+  exit 1
+fi
+
+IMG_VERSION=${IMG_VERSION:-"v040b1"}
 IMAGE_NAME="kubenow-$IMG_VERSION"
 RESOURCE_GROUP="kubenow-images-rg"
 SRC_CONTAINER="https://kubenow.blob.core.windows.net/system"
