@@ -3,9 +3,9 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-GCE_ACCOUNT_FILE_PATH=${1}
+GCE_ACCOUNT_FILE_PATH=${GCE_ACCOUNT_FILE_PATH:-1}
 if [ -z "$GCE_ACCOUNT_FILE_PATH" ]; then
-  echo "env GCE_ACCOUNT_FILE_PATH must set or first argument for this script"
+  echo "env GCE_ACCOUNT_FILE_PATH must set or be the first argument for this script"
   exit 1
 fi
 
@@ -15,9 +15,14 @@ IMAGE_NAME="kubenow-$IMG_VERSION"
 echo "Login"
 gcloud auth activate-service-account --key-file="$GCE_ACCOUNT_FILE_PATH"
 
+echo "Set project"
+project_id="$(cat service-account.json | jq -r .project_id)"
+gcloud config set project "$project_id"
+
 echo "Check if image exists already"
-image_status=$(gcloud compute images list | grep -w "$IMAGE_NAME " || true)
-if [ -z "$image_status" ]; then
+image_status="$(gcloud compute images list)"
+image_name=$(echo "$image_status" | grep  "\b$IMAGE_NAME\s" || true)
+if [ -z "$image_name" ]; then
 
   SECONDS=0
 
