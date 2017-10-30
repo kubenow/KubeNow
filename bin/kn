@@ -1,7 +1,12 @@
 #!/bin/bash
 
-#Usage
-read -r -d '' USAGE << EOM
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+function usage
+{
+    cat <<TEXT_END
+
 Usage: kn <command>
 Commands:
   help                 print this message
@@ -20,27 +25,28 @@ Commands:
   ssh <host>           ssh to <host> defined in ansible inventory file, default <host> is master
   bash                 run an interactive bash promt in the kubenow provisioners docker-image
   az                   run Microsoft Azure CLI: More help: kn az help
-EOM
+
+TEXT_END
+}
 
 # Validate command
 if [ "$#" -eq 0 ]; then
   >&2 echo "Error: no arguments supplied"
-  echo "$USAGE"
+  usage
   exit 1
 fi
 
 COMMAND="$1"
 ALLOWED="help init terraform ansible ansible-playbook kubetoken apply destroy kubectl helm openstack az ssh bash"
-echo "$ALLOWED" | grep "\b$COMMAND\b" > /dev/null
-if [ "$?" = "1" ]; then
+if ! grep -q "\b$COMMAND\b" <<< "$ALLOWED"; then
   >&2 echo "Error: unrecognized command '$COMMAND'"
-  echo "$USAGE"
+  usage
   exit 1
 fi
 
 # Print help if required
 if [ "$COMMAND" = "help" ]; then
-  echo "$USAGE"
+  usage
   exit 0
 fi
 
@@ -54,11 +60,15 @@ echo "Using KubeNow docker-image tag: $KUBENOW_VERSION"
 # Set directories to be mounted in docker
 USER_DIR="$PWD"
 USER_DIR_DOCKER="/var/userdir"
-# This is mainly for development where a local kubenow-dir will
-# be mounted on top of the kubenow dir in docker image
+
+# This is mainly for development where a local
+
+edgfd
+
 if [ -n "$KUBENOW_DIR" ] ; then
-  OPTIONAL_KUBENOW_DIR_MNT="-v $KUBENOW_DIR:/opt/KubeNow"
   echo "** Using local KubeNow directory: $KUBENOW_DIR **"
+else
+  KUBENOW_DIR="$USER_DIR"
 fi
 
 # Command name replacement
@@ -79,7 +89,7 @@ elif [ "$COMMAND" = "init" ]; then
   # Validate
   if [ "$#" -ne 3 ]; then
     >&2 echo "Error: wrong number of argument for the init command"
-    echo "$USAGE"
+    usage
     exit 1
   fi
 
@@ -89,7 +99,7 @@ elif [ "$COMMAND" = "init" ]; then
     [ "$HOST_CLOUD" != 'azure' ] && \
     [ "$HOST_CLOUD" != 'aws' ]; then
     >&2 echo "Unrecognized host cloud '$HOST_CLOUD' <hos"
-    echo "$USAGE"
+    usage
     exit 1
   fi
 
@@ -112,8 +122,8 @@ elif [ "$COMMAND" = "init" ]; then
     kubenow/provisioners:"$KUBENOW_VERSION" \
     "$@"
 else
-  # Validate PWD
-  if [[ "$COMMAND" != "kubetoken" && "$COMMAND" != "bash" ]]; then
+  # Validate PWD (not needed for a selection of commands)
+  if ! grep -q "\b$COMMAND\b" <<< "kubetoken az bash"; then
     if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ] ; then
         >&2 echo "Error: ssh_key not found. Are you in the right directory?"
         exit 1

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 # Exit immediately if a command exits with a non-zero status
-# (but allow for the error trap)
 set -e
 
 IMG_VERSION=${IMG_VERSION:-"v040b1"}
