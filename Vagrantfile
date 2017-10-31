@@ -138,6 +138,13 @@ Vagrant.configure("2") do |config|
                                 service ssh restart",
                        :privileged => true
 
+  # remove passwords
+  config.vm.provision "shell",
+                       inline: "passwd -l vagrant %%
+                                passwd -l root",
+                       :privileged => true
+
+
   # bootstrap (kubeadm init)
   config.vm.provision "shell",
                       path: MASTER_BOOTSTRAP_FILE,
