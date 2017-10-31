@@ -1,0 +1,11 @@
+
+# Testing kube-dns if pod is ready
+- name: "get kube-dns ready status"
+  command: >
+    kubectl get pods -l k8s-app=kube-dns --namespace=kube-system
+    -o jsonpath='{.items[*].status.containerStatuses[*].ready}'
+  register: get_is_ready
+  until: get_is_ready.stdout | match( '^(true\s)*true$' )
+  # Wait for 10 minutes
+  retries: 120
+  delay: 5

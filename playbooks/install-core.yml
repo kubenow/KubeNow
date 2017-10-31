@@ -2,7 +2,8 @@
   gather_facts: False
   roles:
     - { role: common, tags: [ 'minimal' ] }
-    - { role: weave-network, tags: [ 'minimal' ] }
+    - { role: flannel-network, tags: [ 'minimal' ] }
+    - { role: wait-kube-dns, tags: [ 'minimal' ] }
     - { role: start-helm, tags: [ 'minimal' ] }
     - { role: traefik, tags: [ 'traefik' ] }
-    - { role: heketi-gluster, tags: [ 'heketi-glusterfs' ] }
+    - { role: heketi-gluster, tags: [ 'heketi-glusterfs' ], when glusternode_count is defined and glusternode_count > 0 }

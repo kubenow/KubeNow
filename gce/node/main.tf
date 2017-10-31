@@ -55,9 +55,12 @@ resource "google_compute_instance" "instance" {
   zone           = "${var.zone}"
   can_ip_forward = false
 
-  disk {
-    image       = "${var.image_name}"
-    size        = "${var.disk_size}"
+  boot_disk {
+    initialize_params {
+      image = "${var.image_name}"
+      size  = "${var.disk_size}"
+    }
+
     auto_delete = true
   }
 

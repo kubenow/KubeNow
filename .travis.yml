@@ -19,12 +19,13 @@ branches:
 
 env:
   global:
-    - TERRAFORM_VERSION=0.9.4
-    - ANSIBLE_LINT_VERSION=3.4.13
+    - TERRAFORM_VERSION=0.10.7
+    - ANSIBLE_LINT_VERSION=3.4.15
   matrix:
     - HOST_CLOUD=openstack
     - HOST_CLOUD=gce
     - HOST_CLOUD=aws
+    - HOST_CLOUD=azure
 
 addons:
   apt:
@@ -63,7 +64,7 @@ before_install:
   - shellcheck $(find . -type f -name "*.sh")
   - shellcheck bin/*
   # check Dockerfile
-  - docker run --rm -i lukasmartinelli/hadolint < Dockerfile
+  - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 - < Dockerfile
 
 # Build Docker image
 install: docker build -t kubenow/provisioners:latest .
@@ -73,6 +74,10 @@ before_script:
   # Init test deployment
   - bin/kn init test-deployment
   - cd test-deployment
+
+  # Overwrite ssh-key for debug purposes
+  - echo -e "$TRAVIS_SSH_KEY_PRIV" > ssh_key
+  - echo -e "$TRAVIS_SSH_KEY_PUB" > ssh_key.pub
 
   # RENDER CONFIGURATION
   # Create terraform.tfvars
@@ -87,12 +92,18 @@ before_script:
   # AWS
   - sed -i -e "s/your-acces-key-id/${AWS_ACCESS_KEY_ID}/g" terraform.tfvars
   - sed -i -e "s#your-secret-access-key#${AWS_SECRET_ACCESS_KEY}#g" terraform.tfvars
+  - sed -i -e "s/eu-west-1/${AWS_DEFAULT_REGION}/g" terraform.tfvars
   # GCE
   - printf '%s\n' "$GCE_CREDENTIALS" > "./service-account.json"
   - sed -i -e "s/your_project_id/${GCE_PROJECT_ID}/g" terraform.tfvars
+  # AZURE
+  - sed -i -e "s/your-subscription_id/${AZURE_SUBSCRIPTION_ID}/g" terraform.tfvars
+  - sed -i -e "s/your-client_id/${AZURE_CLIENT_ID}/g" terraform.tfvars
+  - sed -i -e "s/your-client_secret/${AZURE_CLIENT_SECRET}/g" terraform.tfvars
+  - sed -i -e "s/your-tenant_id/${AZURE_TENANT_ID}/g" terraform.tfvars
   # OS
   - sed -i -e "s/your-pool-name/${OS_POOL_NAME}/g" terraform.tfvars
-  - sed -i -e "s/external-net-uuid/${OS_EXTERNAL_NET_UUUID}/g" terraform.tfvars
+  - sed -i -e "s/external-net-uuid/${OS_EXTERNAL_NET_UUID}/g" terraform.tfvars
   - sed -i -e "s/your-master-flavor/${OS_MASTER_FLAVOR}/g" terraform.tfvars
   - sed -i -e "s/your-node-flavor/${OS_NODE_FLAVOR}/g" terraform.tfvars
   - sed -i -e "s/your-edge-flavor/${OS_EDGE_FLAVOR}/g" terraform.tfvars
@@ -106,13 +117,14 @@ before_script:
   - sed -i -e "s/# cloudflare_email = \"your-cloudflare-email\"/cloudflare_email = \"${CI_CLOUDFLARE_EMAIL}\"/g" terraform.tfvars
   - sed -i -e "s/# cloudflare_token = \"your-cloudflare-token\"/cloudflare_token = \"${CI_CLOUDFLARE_TOKEN}\"/g" terraform.tfvars
   - sed -i -e "s/# cloudflare_domain = \"your-domain-name\"/cloudflare_domain = \"${CI_CLOUDFLARE_DOMAIN}\"/g" terraform.tfvars
+  - sed -i -e "s/# cloudflare_subdomain = \"your-subdomain-name\"/cloudflare_subdomain = \"kubenow-ci-${TRAVIS_BUILD_NUMBER}-${HOST_CLOUD}\"/g" terraform.tfvars
 
 
 script:
   # Deploy
-  - travis_retry ../bin/kn apply "$HOST_CLOUD"
+  - ../bin/kn apply "$HOST_CLOUD"
   # Test
-  - ../bin/kn ansible-playbook playbooks/infra-test.yml
+  - ../bin/kn ansible-playbook /opt/KubeNow/playbooks/infra-test.yml
   - ../bin/kn kubectl get nodes # try to list nodes
   - ../bin/kn helm list # try to helm list
   - ../bin/kn openstack --version # try to run an openstack command
@@ -130,18 +142,13 @@ jobs:
       before_script: true
       after_script: true
       script:
-        # Exit if not in master
-        - >
-            if [ $TRAVIS_BRANCH != 'master' ]; then
-              exit 0
-            fi
         # Build and push Docker image (needs to be build again in this stage)
         - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         - >
-            if [ -z $TRAVIS_TAG ]; then
-              docker build -t kubenow/provisioners:current .
-              docker push kubenow/provisioners:current
-            else
+            if [ $TRAVIS_BRANCH == 'master' ]; then
+              docker build -t kubenow/provisioners:master .
+              docker push kubenow/provisioners:master
+            elif [ ! -z $TRAVIS_TAG ]; then
               docker build -t kubenow/provisioners:$TRAVIS_TAG \
                 -t kubenow/provisioners:latest .
               docker push kubenow/provisioners:$TRAVIS_TAG
