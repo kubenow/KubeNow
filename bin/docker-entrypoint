@@ -6,7 +6,7 @@
 # all groupIDs from the host users are added to this user.
 #
 
-# Exit immediately if a command exits with a non-zero status
+# Exit if a command exits with a non-zero status
 set -e
 
 # Add and run as local user if LOCAL_USER_ID is passed in at runtime
@@ -27,8 +27,7 @@ fi
 for group_id in $LOCAL_GROUP_IDS; do
 
   # create group with $group_id if it doesnt exist
-  test="$(getent group "$group_id")"
-  if [ -z "$test" ] ; then
+  if ! getent group "$group_id"; then
     addgroup --quiet --gid "$group_id" "group$group_id"
   fi
 
@@ -57,7 +56,7 @@ for arg in "$@"; do
 done
 
 # enter KubeNow user config path
-cd "/KubeNow_config" || exit 1
+cd "/KubeNow_config" || echo "Error: could not change dir to /KuneNow_config, exiting."  && exit 1
 
 # run command as above created user via ssh-wrapper script that adds the
 # ssh-agent to this execution environment

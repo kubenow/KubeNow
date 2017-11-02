@@ -67,12 +67,18 @@ if [ "$COMMAND" = "version" ]; then
   echo "version - command not implemented yet, exit"
   exit 0
 elif [ "$COMMAND" = "upgrade" ]; then
-  echo "upgrade - command not implemented yet, exit"
+  latest="$(curl https://api.github.com/repos/kubenow/KubeNow/releases | jq -r '.[0].tag_name')"
+  latest_stable="$(curl https://api.github.com/repos/kubenow/KubeNow/releases | jq -r '[.[] | select(.prerelease==false) | .tag_name'][0])"
+  laterst_url=
+  latest_stable_url=
   exit 0
 elif [ "$COMMAND" = "install-bash-autocomplete" ]; then
   echo "install-bash-autocomplete - command not implemented yet, exit"
   exit 0
 elif [ "$COMMAND" = "init" ]; then
+
+  echo "init"
+
   # Validate
   if [ "$#" -ne 3 ]; then
     >&2 echo "Error: wrong number of argument for the init command"
@@ -109,6 +115,8 @@ elif [ "$COMMAND" = "init" ]; then
     kubenow/provisioners:"$KUBENOW_VERSION" \
     "/opt/KubeNow/bin/docker-entrypoint" "$@"
 else
+
+  echo "else"
   # Validate PWD (not needed for a selection of commands)
   if ! grep -qw "$COMMAND" <<< "kubetoken az bash"; then
     if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ] ; then
