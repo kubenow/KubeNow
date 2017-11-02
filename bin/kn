@@ -10,10 +10,10 @@ function usage
 Usage: kn <command>
 Commands:
   help                 print this message
-  init  <CLOUD> <DIR>  creates a new project in the supplied directory
+  init <CLOUD> <DIR>   creates a new project in the supplied directory
                        CLOUD=<gce|aws|openstack|azure>
-  apply [DIR]          apply configuration (the current directory by default)
-  destroy [DIR]        destroy deployment (the current directory by default)
+  apply                apply configuration (the current directory by default)
+  destroy              destroy deployment (the current directory by default)
   kubectl              run kubectl on the master. More help: kn kubectl help
   helm                 run helm on the master. More help: kn helm help
   terraform            run Terraform. More help: kn terraform --help
@@ -63,16 +63,7 @@ first="$1"; shift; set -- "${first/init/init-kn}" "$@"
 # Get all local user group id:s (to be added to user inside docker-image)
 LOCAL_GROUP_IDS="$(id -G)"
 
-if [ "$COMMAND" = "version" ]; then
-  echo "version - command not implemented yet, exit"
-  exit 0
-elif [ "$COMMAND" = "upgrade" ]; then
-  echo "upgrade - command not implemented yet, exit"
-  exit 0
-elif [ "$COMMAND" = "install-bash-autocomplete" ]; then
-  echo "install-bash-autocomplete - command not implemented yet, exit"
-  exit 0
-elif [ "$COMMAND" = "init" ]; then
+if [ "$COMMAND" = "init" ]; then
 
   # Validate
   if [ "$#" -ne 3 ]; then
@@ -82,12 +73,9 @@ elif [ "$COMMAND" = "init" ]; then
   fi
 
   HOST_CLOUD="$2"
-  if [ "$HOST_CLOUD" != 'openstack' ] && \
-    [ "$HOST_CLOUD" != 'gce' ] && \
-    [ "$HOST_CLOUD" != 'azure' ] && \
-    [ "$HOST_CLOUD" != 'aws' ]; then
-    >&2 echo "Unrecognized host cloud '$HOST_CLOUD' <hos"
-    usage
+  # Check for recognized cloud provider
+  if ! grep -qw "$HOST_CLOUD" <<< "openstack gce azure aws"; then
+    >&2 echo "Error: unrecognized host cloud '$HOST_CLOUD'"
     exit 1
   fi
 
