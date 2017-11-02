@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Usage
-USAGE="Usage: kn destroy [DIR] (the current directory by default)"
+#USAGE="Usage: kn destroy [DIR] (the current directory by default)"
 
 HOST_CLOUD=$(grep -w "provider" terraform.tfvars | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
 

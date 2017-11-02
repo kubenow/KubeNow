@@ -106,8 +106,8 @@ elif [ "$COMMAND" = "init" ]; then
   # Wrap docker run
   # shellcheck disable=SC2086
   docker run --rm -it \
-    -v "$INIT_DIR":"/KubeNow_config/" \
-    -v "$INIT_DIR":"/KubeNow_root/" \
+    -v "$INIT_DIR":/KubeNow_config/ \
+    -v "$INIT_DIR":/KubeNow_root/ \
     -e "LOCAL_USER_ID=$UID" \
     -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
     kubenow/provisioners:"$KUBENOW_VERSION" \
@@ -128,8 +128,8 @@ else
   # Wrap docker run
   # shellcheck disable=SC2086
   docker run --rm -it \
-    -v "$CONFIG_DIR":"/KubeNow_config/" \
-    -v "$KUBENOW_DIR":"/KubeNow_root/" \
+    -v "$CONFIG_DIR":/KubeNow_config/ \
+    -v "$KUBENOW_DIR":/KubeNow_root/ \
     -e "LOCAL_USER_ID=$UID" \
     -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
     -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
