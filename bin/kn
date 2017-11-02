@@ -3,8 +3,7 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-function usage
-{
+function usage {
   cat <<TEXT_END
 
 Usage: kn <command>
