@@ -48,7 +48,7 @@ case "$1" in
         exit
         ;;
 
-    init)
+    init-kn)
         # Validate
         if [ "$#" -ne 3 ]; then
           >&2 echo "Error: wrong number of argument for the init command"
@@ -83,7 +83,7 @@ case "$1" in
           "/opt/KubeNow/bin/docker-entrypoint" "$@"
         ;;
 
-    terraform|ansible|ansible-playbook|kubetoken|apply|destroy|kubectl|helm|openstack|az|ssh|bash)
+    terraform|ansible|ansible-playbook|kubetoken|apply|destroy|kubectl|helm|openstack|az|ssh-kn|bash)
         # Validate PWD (not needed for a selection of commands)
         if ! grep -qw "$COMMAND" <<< "kubetoken az bash"; then
           if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ] ; then
