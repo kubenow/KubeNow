@@ -19,7 +19,7 @@ branches:
 
 env:
   global:
-    - TERRAFORM_VERSION=0.9.4
+    - TERRAFORM_VERSION=0.10.7
     - ANSIBLE_LINT_VERSION=3.4.15
   matrix:
     - HOST_CLOUD=openstack
@@ -71,8 +71,11 @@ install: docker build -t kubenow/provisioners:latest .
 
 before_script:
 
+  # Copy kn bin
+  - cp bin/kn /usr/bin/
+  
   # Init test deployment
-  - bin/kn init test-deployment
+  - kn init ${HOST_CLOUD} test-deployment
   - cd test-deployment
   
   # Overwrite ssh-key for debug purposes
@@ -80,13 +83,7 @@ before_script:
   - echo -e "$TRAVIS_SSH_KEY_PUB" > ssh_key.pub
 
   # RENDER CONFIGURATION
-  # Create terraform.tfvars
-  - >
-      if [ "$HOST_CLOUD" = 'openstack' ]; then
-        cp terraform.tfvars.os-template terraform.tfvars
-      else
-        cp "terraform.tfvars.${HOST_CLOUD}-template" terraform.tfvars
-      fi
+
   # Common
   - sed -i -e "s/your-cluster-prefix/kubenow-ci-${TRAVIS_BUILD_NUMBER}-${HOST_CLOUD}/g" terraform.tfvars
   # AWS
@@ -121,15 +118,15 @@ before_script:
 
 script:
   # Deploy
-  - ../bin/kn apply "$HOST_CLOUD"
+  - kn apply
   # Test
-  - ../bin/kn ansible-playbook /opt/KubeNow/playbooks/infra-test.yml
-  - ../bin/kn kubectl get nodes # try to list nodes
-  - ../bin/kn helm list # try to helm list
-  - ../bin/kn openstack --version # try to run an openstack command
+  - kn ansible-playbook /opt/KubeNow/playbooks/infra-test.yml
+  - kn kubectl get nodes # try to list nodes
+  - kn helm list # try to helm list
+  - kn openstack --version # try to run an openstack command
 
 after_script:
-  - export TERRAFORM_OPT="-force" && travis_retry ../bin/kn destroy "$HOST_CLOUD"
+  - export TERRAFORM_OPT="-force" && travis_retry kn destroy
   - travis_retry terraform destroy -force "$HOST_CLOUD" # in case there is some problem with kn
 
 jobs:
