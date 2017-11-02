@@ -6,7 +6,7 @@ USAGE="Usage: kn destroy [DIR] (the current directory by default)"
 HOST_CLOUD=$(grep -w "provider" terraform.tfvars | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
 
 # Check for recognized cloud provider
-if ! grep -q "\b$HOST_CLOUD\b" <<< "openstack gce azure aws"; then
+if ! grep -qw "$HOST_CLOUD" <<< "openstack gce azure aws"; then
   >&2 echo "Error: unrecognized host cloud '$HOST_CLOUD' in config file terraform.tfvars"
   exit 1
 fi

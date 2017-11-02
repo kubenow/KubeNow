@@ -59,11 +59,6 @@ echo "Using KubeNow docker-image tag: $KUBENOW_VERSION"
 # Set directories to be mounted in docker
 CONFIG_DIR="$PWD"
 KUBENOW_DIR="$CONFIG_DIR"
-#if [ -n "$KUBENOW_DIR" ] ; then
-#  echo "** Using local KubeNow directory: $KUBENOW_DIR **"
-#else
-#  KUBENOW_DIR="$CONFIG_DIR"
-#fi
 
 # Command name replacement
 first="$1"; shift; set -- "${first/ssh/ssh-kn}" "$@"
@@ -73,11 +68,14 @@ first="$1"; shift; set -- "${first/init/init-kn}" "$@"
 LOCAL_GROUP_IDS="$(id -G)"
 
 if [ "$COMMAND" = "version" ]; then
-  echo "version, command not implemented yet, exit"
-  exit 1
+  echo "version - command not implemented yet, exit"
+  exit 0
 elif [ "$COMMAND" = "upgrade" ]; then
-  echo "upgrade, command not implemented yet, exit"
-  exit 1
+  echo "upgrade - command not implemented yet, exit"
+  exit 0
+elif [ "$COMMAND" = "install-bash-autocomplete" ]; then
+  echo "install-bash-autocomplete - command not implemented yet, exit"
+  exit 0
 elif [ "$COMMAND" = "init" ]; then
   # Validate
   if [ "$#" -ne 3 ]; then
