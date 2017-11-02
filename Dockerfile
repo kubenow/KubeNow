@@ -1,5 +1,4 @@
 FROM ubuntu:xenial-20171006
-MAINTAINER "Marco Capuccini <marco.capuccini@it.uu.se>"
 
 # Provisioners versions
 ENV TERRAFORM_VERSION=0.10.7
