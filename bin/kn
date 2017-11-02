@@ -74,8 +74,6 @@ elif [ "$COMMAND" = "install-bash-autocomplete" ]; then
   exit 0
 elif [ "$COMMAND" = "init" ]; then
 
-  echo "init"
-
   # Validate
   if [ "$#" -ne 3 ]; then
     >&2 echo "Error: wrong number of argument for the init command"
@@ -113,7 +111,6 @@ elif [ "$COMMAND" = "init" ]; then
     "/opt/KubeNow/bin/docker-entrypoint" "$@"
 else
 
-  echo "else"
   # Validate PWD (not needed for a selection of commands)
   if ! grep -qw "$COMMAND" <<< "kubetoken az bash"; then
     if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ] ; then
