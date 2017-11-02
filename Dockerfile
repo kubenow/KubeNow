@@ -111,6 +111,3 @@ RUN apt-get update -y && apt-get install -y google-cloud-sdk \
 
 # Add KubeNow
 COPY . /opt/KubeNow
-
-# Set entrypoint
-ENTRYPOINT ["/opt/KubeNow/bin/docker-entrypoint"]

@@ -18,11 +18,11 @@ fi
 if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ] || [ "$HOST_CLOUD" = 'gce' ]; then
   export GCE_ACCOUNT_FILE_PATH="$PWD/service-account.json"
   export TF_VARS_FILE="$PWD/terraform.tfvars"
-  /opt/KubeNow/bin/image-create-"$HOST_CLOUD".sh
+  /KubeNow_root/bin/image-create-"$HOST_CLOUD".sh
 fi
 # Deploy
-terraform init --plugin-dir=/terraform_plugins "/opt/KubeNow/$HOST_CLOUD"
+terraform init --plugin-dir=/terraform_plugins "/KubeNow_root/$HOST_CLOUD"
 # shellcheck disable=SC2086
-terraform apply $TERRAFORM_OPT "/opt/KubeNow/$HOST_CLOUD"
+terraform apply $TERRAFORM_OPT "/KubeNow_root/$HOST_CLOUD"
 # shellcheck disable=SC2086
-ansible-playbook $ANSIBLE_OPT "/opt/KubeNow/playbooks/install-core.yml"
+ansible-playbook $ANSIBLE_OPT "/KubeNow_root/playbooks/install-core.yml"

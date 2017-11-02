@@ -5,21 +5,17 @@ set -e
 
 HOST_CLOUD="$1"
 
-echo "$1"
-echo "$2"
-echo "$3"
-
 echo "Initializing $INIT_DIR deployment directory for cloud provider $HOST_CLOUD"
 
 # Copy config, scripts and template files to init dir
-cp "/opt/KubeNow/templates/terraform.tfvars.$HOST_CLOUD-template" terraform.tfvars
-cp -r /opt/KubeNow/$HOST_CLOUD .
-cp -r /opt/KubeNow/common .
-cp -r /opt/KubeNow/bootstrap .
-cp -r /opt/KubeNow/bootstrap .
-cp -r /opt/KubeNow/bin .
-cp -r /opt/KubeNow/playbooks .
-cp /opt/KubeNow/ansible.cfg .
+cp "/opt/KubeNow/templates/terraform.tfvars.$HOST_CLOUD-template" "/KubeNow_config/terraform.tfvars"
+cp -r "/opt/KubeNow/$HOST_CLOUD" "/KubeNow_root/"
+cp -r "/opt/KubeNow/common" "/KubeNow_root/"
+cp -r "/opt/KubeNow/bootstrap" "/KubeNow_root/"
+cp -r "/opt/KubeNow/bootstrap" "/KubeNow_root/"
+cp -r "/opt/KubeNow/bin" "/KubeNow_root/"
+cp -r "/opt/KubeNow/playbooks" "/KubeNow_root/"
+cp "/opt/KubeNow/ansible.cfg" "/KubeNow_root/"
 
 # Generate and write kubetoken
 tokenID=$(openssl rand -hex 3)

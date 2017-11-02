@@ -42,7 +42,11 @@ done
 
 # add KubeNow bin path (works with gosu - environment variables are kept
 # when swiching user
-export PATH="/opt/KubeNow/bin:$PATH"
+if [ "$1" = "init-kn" ]; then
+  export PATH="/opt/KubeNow/bin:$PATH"
+else
+  export PATH="/KubeNow_root/bin:$PATH"
+fi
 
 # re-cite arguments (because user commands are passed via the ssh-wrapper)
 for arg in "$@"; do
@@ -50,7 +54,7 @@ for arg in "$@"; do
 done
 
 # enter KubeNow user config path
-cd "/var/userdir" || exit 1
+cd "/KubeNow_config" || exit 1
 
 # run command as above created user via ssh-wrapper script that adds the
 # ssh-agent to this execution environment
