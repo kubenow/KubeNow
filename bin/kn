@@ -56,10 +56,6 @@ if [ -z "$KUBENOW_VERSION" ] ; then
 fi
 echo "Using KubeNow docker-image tag: $KUBENOW_VERSION"
 
-# Set directories to be mounted in docker
-CONFIG_DIR="$PWD"
-KUBENOW_DIR="$CONFIG_DIR"
-
 # Command name replacement
 first="$1"; shift; set -- "${first/ssh/ssh-kn}" "$@"
 first="$1"; shift; set -- "${first/init/init-kn}" "$@"
@@ -128,8 +124,8 @@ else
   # Wrap docker run
   # shellcheck disable=SC2086
   docker run --rm -it \
-    -v "$CONFIG_DIR":/KubeNow_config/ \
-    -v "$KUBENOW_DIR":/KubeNow_root/ \
+    -v "$PWD":/KubeNow_config/ \
+    -v "$PWD":/KubeNow_root/ \
     -e "LOCAL_USER_ID=$UID" \
     -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
     -e "TERRAFORM_OPT=$TERRAFORM_OPT" \

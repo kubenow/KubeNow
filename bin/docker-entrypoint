@@ -6,6 +6,9 @@
 # all groupIDs from the host users are added to this user.
 #
 
+# Exit immediately if a command exits with a non-zero status
+set -e
+
 # Add and run as local user if LOCAL_USER_ID is passed in at runtime
 if [ -z "$LOCAL_USER_ID" ]; then
   echo "LOCAL_USER_ID must be set in the environment when running this container, exiting."
