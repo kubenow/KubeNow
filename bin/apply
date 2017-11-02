@@ -4,7 +4,7 @@
 set -e
 
 #Usage
-USAGE="Usage: kn apply [DIR] (the current directory by default)"
+# USAGE="Usage: kn apply [DIR] (the current directory by default)"
 
 HOST_CLOUD=$(grep -w "provider" terraform.tfvars | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
 
