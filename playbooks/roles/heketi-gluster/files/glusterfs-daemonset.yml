@@ -25,7 +25,7 @@ spec:
         storagenode: glusterfs
       hostNetwork: true
       containers:
-      - image: heketi/gluster:latest
+      - image: gluster/gluster-centos:gluster3u9_centos7
         imagePullPolicy: Always
         name: glusterfs
         volumeMounts:
