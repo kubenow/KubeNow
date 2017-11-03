@@ -77,7 +77,7 @@ before_script:
   # Init test deployment
   - kn init ${HOST_CLOUD} test-deployment
   - cd test-deployment
-  
+
   # Overwrite ssh-key for debug purposes
   - echo -e "$TRAVIS_SSH_KEY_PRIV" > ssh_key
   - echo -e "$TRAVIS_SSH_KEY_PUB" > ssh_key.pub
@@ -89,6 +89,7 @@ before_script:
   # AWS
   - sed -i -e "s/your-acces-key-id/${AWS_ACCESS_KEY_ID}/g" terraform.tfvars
   - sed -i -e "s#your-secret-access-key#${AWS_SECRET_ACCESS_KEY}#g" terraform.tfvars
+  - sed -i -e "s/eu-west-1/${AWS_DEFAULT_REGION}/g" terraform.tfvars
   # GCE
   - printf '%s\n' "$GCE_CREDENTIALS" > "./service-account.json"
   - sed -i -e "s/your_project_id/${GCE_PROJECT_ID}/g" terraform.tfvars
