@@ -68,7 +68,6 @@ case "$1" in
       >&2 echo "Error: $INIT_DIR already exists"
       exit 1
     fi
-  fi
 
     mkdir -p "$INIT_DIR"
 
