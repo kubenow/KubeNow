@@ -4,7 +4,7 @@
 # (but allow for the error trap)
 set -e
 
-[ -z "${IMG_VERSION}" ] && IMG_VERSION="v040b1"
+IMG_VERSION=${IMG_VERSION:-"v040b1"}
 IMAGE_NAME="kubenow-$IMG_VERSION"
 FILE_NAME="$IMAGE_NAME.qcow2"
 IMAGE_BUCKET_URL="https://s3.eu-central-1.amazonaws.com/kubenow-eu-central-1"
@@ -12,7 +12,7 @@ IMAGE_BUCKET_URL="https://s3.eu-central-1.amazonaws.com/kubenow-eu-central-1"
 # check if image is present already
 echo "List images available in OpenStack..."
 image_list="$(glance image-list)"
-image_id="$(printf '%s' "$image_list" | grep -w "$IMAGE_NAME " | awk -F "|" '{print $2;}' | tr -d '[:space:]')"
+image_id="$(printf '%s' "$image_list" | grep "\s$IMAGE_NAME\s" | awk -F "|" '{print $2;}' | tr -d '[:space:]')"
 
 # if it doesn't exist then download it
 if [ -z "$image_id" ]; then
@@ -55,7 +55,7 @@ fi
 echo "Verify md5 of present/uploaded image..."
 echo "List images available in OpenStack..."
 image_list="$(glance image-list)"
-image_id="$(printf '%s' "$image_list" | grep -w "$IMAGE_NAME " | awk -F "|" '{print $2;}' | tr -d '[:space:]')"
+image_id="$(printf '%s' "$image_list" | grep "\s$IMAGE_NAME\s" | awk -F "|" '{print $2;}' | tr -d '[:space:]')"
 
 # Get checksum of uploaded file
 image_details="$(glance image-show "$image_id")"
