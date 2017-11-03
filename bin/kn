@@ -11,8 +11,8 @@ Commands:
   help                 print this message
   init <CLOUD> <DIR>   creates a new project in the supplied directory
                        CLOUD=<gce|aws|openstack|azure>
-  apply                apply configuration (the current directory by default)
-  destroy              destroy deployment (the current directory by default)
+  apply                apply configuration
+  destroy              destroy deployment
   kubectl              run kubectl on the master. More help: kn kubectl help
   helm                 run helm on the master. More help: kn helm help
   terraform            run Terraform. More help: kn terraform --help
@@ -34,12 +34,12 @@ if [ -z "$KUBENOW_VERSION" ] ; then
 fi
 echo "Using KubeNow docker-image tag: $KUBENOW_VERSION"
 
+# Get all local user group id:s (to be added to user inside docker-image)
+LOCAL_GROUP_IDS="$(id -G)"
+
 # Command name replacement
 first="$1"; shift; set -- "${first/ssh/ssh-kn}" "$@"
 first="$1"; shift; set -- "${first/init/init-kn}" "$@"
-
-# Get all local user group id:s (to be added to user inside docker-image)
-LOCAL_GROUP_IDS="$(id -G)"
 
 case "$1" in
   help)
@@ -92,6 +92,10 @@ case "$1" in
       if [ ! -f terraform.tfvars ] ; then
           >&2 echo "Error: terraform.tfvars not found. Please create one using the templates."
           exit 1
+      fi
+      if [ ! -f ansible.cfg ] ; then
+        >&2 echo "Error: ansible.cfg not found. Are you in the right directory?"
+        exit 1
       fi
     fi
 
