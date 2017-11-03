@@ -38,8 +38,10 @@ echo "Using KubeNow docker-image tag: $KUBENOW_VERSION"
 LOCAL_GROUP_IDS="$(id -G)"
 
 # Command name replacement
-first="$1"; shift; set -- "${first/ssh/ssh-kn}" "$@"
-first="$1"; shift; set -- "${first/init/init-kn}" "$@"
+if [ -n "$1" ]; then 
+  first="$1"; shift; set -- "${first/ssh/ssh-kn}" "$@"
+  first="$1"; shift; set -- "${first/init/init-kn}" "$@"
+fi
 
 case "$1" in
   help)
