@@ -1,10 +1,9 @@
 #!/bin/bash
 
-# Exit immediately if a command exits with a non-zero status
 set -e
 
 function usage {
-  cat <<TEXT_END
+  cat <<EOF
 
 Usage: kn <command>
 Commands:
@@ -25,7 +24,7 @@ Commands:
   bash                 run an interactive bash promt in the kubenow provisioners docker-image
   az                   run Microsoft Azure CLI: More help: kn az help
 
-TEXT_END
+EOF
 }
 
 # If no version specified take stable
@@ -76,8 +75,8 @@ case "$1" in
     # Wrap docker run
     # shellcheck disable=SC2086
     docker run --rm -it \
-      -v "$INIT_DIR":/KubeNow_config/ \
-      -v "$INIT_DIR":/KubeNow_root/ \
+      -v "$INIT_DIR":/KubeNow_config \
+      -v "$INIT_DIR":/KubeNow_root \
       -e "LOCAL_USER_ID=$UID" \
       -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
       kubenow/provisioners:"$KUBENOW_VERSION" \
@@ -88,12 +87,12 @@ case "$1" in
     # Validate PWD (not needed for a selection of commands)
     if ! grep -qw "$COMMAND" <<< "kubetoken az bash"; then
       if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ] ; then
-          >&2 echo "Error: ssh_key not found. Are you in the right directory?"
-          exit 1
+        >&2 echo "Error: ssh_key not found. Are you in the right directory?"
+        exit 1
       fi
       if [ ! -f terraform.tfvars ] ; then
-          >&2 echo "Error: terraform.tfvars not found. Please create one using the templates."
-          exit 1
+        >&2 echo "Error: terraform.tfvars not found. Please create one using the templates."
+        exit 1
       fi
       if [ ! -f ansible.cfg ] ; then
         >&2 echo "Error: ansible.cfg not found. Are you in the right directory?"
@@ -104,8 +103,8 @@ case "$1" in
     # Wrap docker run
     # shellcheck disable=SC2086
     docker run --rm -it \
-      -v "$PWD":/KubeNow_config/ \
-      -v "$PWD":/KubeNow_root/ \
+      -v "$PWD":/KubeNow_config \
+      -v "$PWD":/KubeNow_root \
       -e "LOCAL_USER_ID=$UID" \
       -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
       -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
