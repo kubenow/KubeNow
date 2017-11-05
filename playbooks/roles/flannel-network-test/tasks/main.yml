@@ -1,0 +1,11 @@
+---
+- name: "get flannel ready status"
+  command: >
+    kubectl get pods -l app=flannel --namespace=kube-system
+    -o jsonpath='{.items[*].status.containerStatuses[*].ready}'
+  register: get_ready_statuses
+
+- name: "test flannel ready status"
+  fail:
+    msg: "unexpected flannel ready statuses: {{get_ready_statuses.stdout}}"
+  when: not (get_ready_statuses.stdout | match('^(true\s)*true$'))
