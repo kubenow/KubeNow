@@ -1,11 +1,11 @@
 # Cluster settings
 variable cluster_prefix {}
 
-variable kubenow_image {
+variable boot_image {
   default = "kubenow-v040b1"
 }
 
-variable kubeadm_token {}
+#variable kubeadm_token {default = "no-token"}
 
 variable aws_access_key_id {}
 variable aws_secret_access_key {}
@@ -154,13 +154,13 @@ module "security_group" {
   source      = "./security_group"
 }
 
-# Lookup image-id of kubenow-image
-data "aws_ami" "kubenow" {
+# Lookup image-id of
+data "aws_ami" "boot_image" {
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["${var.kubenow_image}"]
+    values = ["${var.boot_image}"]
   }
 
   filter {
@@ -175,7 +175,7 @@ module "master" {
   count             = "${var.master_count}"
   name_prefix       = "${var.cluster_prefix}-master"
   instance_type     = "${var.master_instance_type}"
-  image_id          = "${data.aws_ami.kubenow.id}"
+  image_id          = "${data.aws_ami.boot_image.id}"
   availability_zone = "${var.availability_zone}"
 
   # SSH settings
@@ -191,11 +191,11 @@ module "master" {
   extra_disk_size = "0"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/master.sh"
-  kubeadm_token  = "${var.kubeadm_token}"
-  node_labels    = "${split(",", var.master_as_edge == "true" ? "role=edge" : "")}"
-  node_taints    = [""]
-  master_ip      = ""
+  bootstrap_file = "bootstrap/openshift.sh"
+  #kubeadm_token  = "${var.kubeadm_token}"
+  node_labels = "${split(",", var.master_as_edge == "true" ? "role=edge" : "")}"
+  node_taints = [""]
+  master_ip   = ""
 }
 
 module "node" {
@@ -204,7 +204,7 @@ module "node" {
   count             = "${var.node_count}"
   name_prefix       = "${var.cluster_prefix}-node"
   instance_type     = "${var.node_instance_type}"
-  image_id          = "${data.aws_ami.kubenow.id}"
+  image_id          = "${data.aws_ami.boot_image.id}"
   availability_zone = "${var.availability_zone}"
 
   # SSH settings
@@ -220,11 +220,11 @@ module "node" {
   extra_disk_size = "0"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/node.sh"
-  kubeadm_token  = "${var.kubeadm_token}"
-  node_labels    = ["role=node"]
-  node_taints    = [""]
-  master_ip      = "${element(module.master.local_ip_v4, 0)}"
+  bootstrap_file = "bootstrap/openshift.sh"
+  #kubeadm_token  = "${var.kubeadm_token}"
+  node_labels = ["role=node"]
+  node_taints = [""]
+  master_ip   = "${element(module.master.local_ip_v4, 0)}"
 }
 
 module "edge" {
@@ -233,7 +233,7 @@ module "edge" {
   count             = "${var.edge_count}"
   name_prefix       = "${var.cluster_prefix}-edge"
   instance_type     = "${var.edge_instance_type}"
-  image_id          = "${data.aws_ami.kubenow.id}"
+  image_id          = "${data.aws_ami.boot_image.id}"
   availability_zone = "${var.availability_zone}"
 
   # SSH settings
@@ -249,11 +249,11 @@ module "edge" {
   extra_disk_size = "0"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/node.sh"
-  kubeadm_token  = "${var.kubeadm_token}"
-  node_labels    = ["role=edge"]
-  node_taints    = [""]
-  master_ip      = "${element(module.master.local_ip_v4, 0)}"
+  bootstrap_file = "bootstrap/openshift.sh"
+  #kubeadm_token  = "${var.kubeadm_token}"
+  node_labels = ["role=edge"]
+  node_taints = [""]
+  master_ip   = "${element(module.master.local_ip_v4, 0)}"
 }
 
 module "glusternode" {
@@ -262,7 +262,7 @@ module "glusternode" {
   count             = "${var.glusternode_count}"
   name_prefix       = "${var.cluster_prefix}-glusternode"
   instance_type     = "${var.glusternode_instance_type}"
-  image_id          = "${data.aws_ami.kubenow.id}"
+  image_id          = "${data.aws_ami.boot_image.id}"
   availability_zone = "${var.availability_zone}"
 
   # SSH settings
@@ -278,11 +278,11 @@ module "glusternode" {
   extra_disk_size = "${var.glusternode_extra_disk_size}"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/node.sh"
-  kubeadm_token  = "${var.kubeadm_token}"
-  node_labels    = ["storagenode=glusterfs"]
-  node_taints    = [""]
-  master_ip      = "${element(module.master.local_ip_v4, 0)}"
+  bootstrap_file = "bootstrap/openshift.sh"
+  #kubeadm_token  = "${var.kubeadm_token}"
+  node_labels = ["storagenode=glusterfs"]
+  node_taints = [""]
+  master_ip   = "${element(module.master.local_ip_v4, 0)}"
 }
 
 # The code below (from here to end) should be identical for all cloud providers

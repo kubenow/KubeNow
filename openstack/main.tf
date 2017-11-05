@@ -1,7 +1,7 @@
 # Cluster settings
 variable cluster_prefix {}
 
-variable kubenow_image {
+variable boot_image {
   default = "kubenow-v040b1"
 }
 
@@ -13,6 +13,14 @@ variable ssh_key {
   default = "ssh_key.pub"
 }
 
+variable network_name {
+  default = ""
+}
+
+variable secgroup_name {
+  default = ""
+}
+
 variable external_network_uuid {}
 
 variable dns_nameservers {
@@ -20,7 +28,7 @@ variable dns_nameservers {
 }
 
 variable floating_ip_pool {}
-variable kubeadm_token {}
+#variable kubeadm_token {default = "no-token"
 
 # Master settings
 variable master_count {
@@ -120,12 +128,20 @@ module "keypair" {
   name_prefix = "${var.cluster_prefix}"
 }
 
-# Network (here would be nice with condition)
+# Network
 module "network" {
   source            = "./network"
+  network_name      = "${var.network_name}"
   external_net_uuid = "${var.external_network_uuid}"
   name_prefix       = "${var.cluster_prefix}"
   dns_nameservers   = "${var.dns_nameservers}"
+}
+
+# Secgroup
+module "secgroup" {
+  source        = "./secgroup"
+  secgroup_name = "${var.secgroup_name}"
+  name_prefix   = "${var.cluster_prefix}"
 }
 
 module "master" {
@@ -135,7 +151,7 @@ module "master" {
   name_prefix = "${var.cluster_prefix}-master"
   flavor_name = "${var.master_flavor}"
   flavor_id   = "${var.master_flavor_id}"
-  image_name  = "${var.kubenow_image}"
+  image_name  = "${var.boot_image}"
 
   # SSH settings
   ssh_user     = "${var.ssh_user}"
@@ -143,7 +159,7 @@ module "master" {
 
   # Network settings
   network_name       = "${module.network.network_name}"
-  secgroup_name      = "${module.network.secgroup_name}"
+  secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "true"
   floating_ip_pool   = "${var.floating_ip_pool}"
 
@@ -165,7 +181,7 @@ module "node" {
   name_prefix = "${var.cluster_prefix}-node"
   flavor_name = "${var.node_flavor}"
   flavor_id   = "${var.node_flavor_id}"
-  image_name  = "${var.kubenow_image}"
+  image_name  = "${var.boot_image}"
 
   # SSH settings
   ssh_user     = "${var.ssh_user}"
@@ -173,7 +189,7 @@ module "node" {
 
   # Network settings
   network_name       = "${module.network.network_name}"
-  secgroup_name      = "${module.network.secgroup_name}"
+  secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "false"
   floating_ip_pool   = ""
 
@@ -195,7 +211,7 @@ module "edge" {
   name_prefix = "${var.cluster_prefix}-edge"
   flavor_name = "${var.edge_flavor}"
   flavor_id   = "${var.edge_flavor_id}"
-  image_name  = "${var.kubenow_image}"
+  image_name  = "${var.boot_image}"
 
   # SSH settings
   ssh_user     = "${var.ssh_user}"
@@ -203,7 +219,7 @@ module "edge" {
 
   # Network settings
   network_name       = "${module.network.network_name}"
-  secgroup_name      = "${module.network.secgroup_name}"
+  secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "true"
   floating_ip_pool   = "${var.floating_ip_pool}"
 
@@ -225,7 +241,7 @@ module "glusternode" {
   name_prefix = "${var.cluster_prefix}-glusternode"
   flavor_name = "${var.glusternode_flavor}"
   flavor_id   = "${var.glusternode_flavor_id}"
-  image_name  = "${var.kubenow_image}"
+  image_name  = "${var.boot_image}"
 
   # SSH settings
   ssh_user     = "${var.ssh_user}"
@@ -233,7 +249,7 @@ module "glusternode" {
 
   # Network settings
   network_name       = "${module.network.network_name}"
-  secgroup_name      = "${module.network.secgroup_name}"
+  secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "false"
   floating_ip_pool   = "${var.floating_ip_pool}"
 
