@@ -167,9 +167,9 @@ module "master" {
   extra_disk_size = "0"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/master.sh"
+  bootstrap_file = "bootstrap/openshift.sh"
   kubeadm_token  = "${var.kubeadm_token}"
-  node_labels    = "${split(",", var.master_as_edge == "true" ? "role=edge" : "")}"
+  node_labels    = "{'zone': 'default'}"
   node_taints    = [""]
   master_ip      = ""
 }
@@ -197,9 +197,9 @@ module "node" {
   extra_disk_size = "0"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/node.sh"
+  bootstrap_file = "bootstrap/openshift.sh"
   kubeadm_token  = "${var.kubeadm_token}"
-  node_labels    = ["role=node"]
+  node_labels    = ["{'zone': 'worker'}"]
   node_taints    = [""]
   master_ip      = "${element(module.master.local_ip_v4, 0)}"
 }
@@ -260,6 +260,66 @@ module "glusternode" {
   bootstrap_file = "bootstrap/node.sh"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["storagenode=glusterfs"]
+  node_taints    = [""]
+  master_ip      = "${element(module.master.local_ip_v4, 0)}"
+}
+
+module "bastion" {
+  # Core settings
+  source      = "./node"
+  count       = "${var.bastion_count}"
+  name_prefix = "${var.cluster_prefix}-bastion"
+  flavor_name = "${var.bastion_flavor}"
+  flavor_id   = "${var.bastion_flavor_id}"
+  image_name  = "${var.boot_image}"
+
+  # SSH settings
+  ssh_user     = "${var.ssh_user}"
+  keypair_name = "${module.keypair.keypair_name}"
+
+  # Network settings
+  network_name       = "${module.network.network_name}"
+  secgroup_name      = "${module.secgroup.secgroup_name}"
+  assign_floating_ip = "true"
+  floating_ip_pool   = "${var.floating_ip_pool}"
+
+  # Disk settings
+  extra_disk_size = "0"
+
+  # Bootstrap settings
+  bootstrap_file = "bootstrap/openshift.sh"
+  kubeadm_token  = "${var.kubeadm_token}"
+  node_labels    = "{'zone': 'default'}"
+  node_taints    = [""]
+  master_ip      = ""
+}
+
+module "infra" {
+  # Core settings
+  source      = "./node"
+  count       = "${var.edge_count}"
+  name_prefix = "${var.cluster_prefix}-edge"
+  flavor_name = "${var.edge_flavor}"
+  flavor_id   = "${var.edge_flavor_id}"
+  image_name  = "${var.boot_image}"
+
+  # SSH settings
+  ssh_user     = "${var.ssh_user}"
+  keypair_name = "${module.keypair.keypair_name}"
+
+  # Network settings
+  network_name       = "${module.network.network_name}"
+  secgroup_name      = "${module.secgroup.secgroup_name}"
+  assign_floating_ip = "true"
+  floating_ip_pool   = "${var.floating_ip_pool}"
+
+  # Disk settings
+  extra_disk_size = "0"
+
+  # Bootstrap settings
+  bootstrap_file = "bootstrap/openshift.sh"
+  kubeadm_token  = "${var.kubeadm_token}"
+  node_labels    = ["{'zone': 'default', 'region': 'infra'}"]
   node_taints    = [""]
   master_ip      = "${element(module.master.local_ip_v4, 0)}"
 }
