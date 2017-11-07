@@ -1,0 +1,11 @@
+[master]
+ip-10-0-224-49 ansible_ssh_host=54.194.219.141 ansible_ssh_user=ubuntu
+[edge]
+ip-10-0-224-49 ansible_ssh_host=54.194.219.141 ansible_ssh_user=ubuntu
+ 
+[all:vars]
+nodes_count=3 
+domain=54.194.219.141.nip.io
+extra_disk_device=/dev/xvdh
+glusternode_count=1
+gluster_volumetype=none:1
