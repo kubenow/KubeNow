@@ -3,7 +3,7 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-IMG_VERSION="v040b1"
+IMG_VERSION="v040"
 IMAGE_NAME="kubenow-$IMG_VERSION"
 RESOURCE_GROUP="kubenow-images-rg"
 SRC_CONTAINER="https://kubenow.blob.core.windows.net/system"
