@@ -28,14 +28,19 @@ variable dns_nameservers {
 }
 
 variable floating_ip_pool {}
-#variable kubeadm_token {default = "no-token"
+
+variable kubeadm_token {
+  default = "no-token"
+}
 
 # Master settings
 variable master_count {
-  default = 1
+  default = 0
 }
 
-variable master_flavor {}
+variable master_flavor {
+  default = "nothing"
+}
 
 variable master_flavor_id {
   default = ""
@@ -46,9 +51,13 @@ variable master_as_edge {
 }
 
 # Nodes settings
-variable node_count {}
+variable node_count {
+  default = 0
+}
 
-variable node_flavor {}
+variable node_flavor {
+  default = "nothing"
+}
 
 variable node_flavor_id {
   default = ""
@@ -86,6 +95,19 @@ variable glusternode_extra_disk_size {
 
 variable gluster_volumetype {
   default = "none:1"
+}
+
+# Bastion settings
+variable bastion_count {
+  default = 0
+}
+
+variable bastion_flavor {
+  default = "nothing"
+}
+
+variable bastion_flavor_id {
+  default = ""
 }
 
 # Cloudflare settings
@@ -169,7 +191,7 @@ module "master" {
   # Bootstrap settings
   bootstrap_file = "bootstrap/openshift.sh"
   kubeadm_token  = "${var.kubeadm_token}"
-  node_labels    = "{'zone': 'default'}"
+  node_labels    = ["{'zone': 'default'}"]
   node_taints    = [""]
   master_ip      = ""
 }
@@ -201,7 +223,7 @@ module "node" {
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["{'zone': 'worker'}"]
   node_taints    = [""]
-  master_ip      = "${element(module.master.local_ip_v4, 0)}"
+  master_ip      = "${element(concat(module.master.local_ip_v4, list("")),0)}"
 }
 
 module "edge" {
@@ -231,7 +253,7 @@ module "edge" {
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["role=edge"]
   node_taints    = [""]
-  master_ip      = "${element(module.master.local_ip_v4, 0)}"
+  master_ip      = "${element(concat(module.master.local_ip_v4, list("")),0)}"
 }
 
 module "glusternode" {
@@ -261,7 +283,7 @@ module "glusternode" {
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["storagenode=glusterfs"]
   node_taints    = [""]
-  master_ip      = "${element(module.master.local_ip_v4, 0)}"
+  master_ip      = "${element(concat(module.master.local_ip_v4, list("")),0)}"
 }
 
 module "bastion" {
@@ -289,7 +311,7 @@ module "bastion" {
   # Bootstrap settings
   bootstrap_file = "bootstrap/openshift.sh"
   kubeadm_token  = "${var.kubeadm_token}"
-  node_labels    = "{'zone': 'default'}"
+  node_labels    = ["{'zone': 'default'}"]
   node_taints    = [""]
   master_ip      = ""
 }
@@ -321,7 +343,7 @@ module "infra" {
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["{'zone': 'default', 'region': 'infra'}"]
   node_taints    = [""]
-  master_ip      = "${element(module.master.local_ip_v4, 0)}"
+  master_ip      = "${element(concat(module.master.local_ip_v4, list("")),0)}"
 }
 
 # The code below (from here to end) should be identical for all cloud providers
@@ -349,7 +371,7 @@ module "cloudflare" {
 module "generate-inventory" {
   source             = "../common/inventory"
   cluster_prefix     = "${var.cluster_prefix}"
-  domain             = "${ var.use_cloudflare == true ? module.cloudflare.domain_and_subdomain : format("%s.nip.io", element(concat(module.edge.public_ip, module.master.public_ip), 0))}"
+  domain             = "${ var.use_cloudflare == true ? module.cloudflare.domain_and_subdomain : format("%s.nip.io", element(concat(module.edge.public_ip, module.master.public_ip, list("")), 0))}"
   ssh_user           = "${var.ssh_user}"
   master_hostnames   = "${module.master.hostnames}"
   master_public_ip   = "${module.master.public_ip}"
@@ -366,4 +388,6 @@ module "generate-inventory" {
   glusternode_count  = "${var.glusternode_count}"
   gluster_volumetype = "${var.gluster_volumetype}"
   extra_disk_device  = "${element(concat(module.glusternode.extra_disk_device, list("")),0)}"
+  bastion_hostnames  = "${module.bastion.hostnames}"
+  bastion_public_ip  = "${module.bastion.public_ip}"
 }

@@ -48,12 +48,24 @@ variable glusternode_count {}
 variable gluster_volumetype {}
 variable extra_disk_device {}
 
+variable bastion_hostnames {
+  type = "list"
+}
+
+variable bastion_public_ip {
+  type = "list"
+}
+
+variable bastion_labels {
+  type = "list"
+}
+
 variable inventory_template_file {
-  default = "inventory-openshift-template"
+  default = "inventory-template"
 }
 
 variable inventory_output_file {
-  default = "inventory-openshift"
+  default = "inventory"
 }
 
 ## Generates a list of hostnames (azurerm_virtual_machine does not output them)
@@ -69,11 +81,14 @@ data "template_file" "inventory" {
   template = "${file("${path.root}/../${ var.inventory_template_file }")}"
 
   vars {
-    masters                  = "${join("\n",formatlist("%s openshift_public_ip=%s", var.master_hostnames , var.master_public_ip))}"
-    nodes                    = "${join("\n",formatlist("%s openshift_node_labels=\"{'\"'region'\"': '\"'infra'\"','\"'zone'\"': '\"'default'\"'}\" openshift_schedulable=true", var.node_hostnames))}"
-    edges
+    masters                  = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s openshift_node_labels=%s", var.master_hostnames , var.master_public_ip, var.ssh_user, var.master_public_ip, var.master_labels ))}"
+
+    nodes                    = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s openshift_node_labels=%s", var.node_hostnames , var.node_public_ip, var.ssh_user, var.node_public_ip, var.node_labels ))}"
+
+    bastions                 = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s", var.bastion_hostnames , var.bastion_public_ip, var.ssh_user, var.bastion_public_ip))}"
+
     ansible_ssh_user         = "${var.ssh_user}"
-    master-hostname-private  = "${var.master_hostnames[0]}"
+    master-hostname-private  = "${element(concat(var.master_hostnames, list("")),0)}"
     master_hostname_public   = "${var.domain}"
     master_default_subdomain = "${var.domain}"
   }
