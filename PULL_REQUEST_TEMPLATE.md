@@ -1,23 +1,8 @@
 <!-- 
-Thanks for sending a Pull Request (PR)! Please use this template to facilitate the review/merge process. 
-
-Please make sure that the PR fullfills these review criteria before submitting:
-
-POSITIVES
-- Has a nice, self-explanatory title
-- Fixes the root cause of a bug in existing functionality
-- Adds functionality or fixes a problem needed by a large number of users
-- Simple, targeted
-- Easily tested; has tests
-- Reduces complexity and lines of code
-- Change has already been discussed and is known to committers (open an issue first otherwise)
-
-NEGATIVES
-- Makes lots of modifications in one "big bang" change
-- Adds user-space functionality that does not need to be maintained in KubeNow, but could be hosted externally 
-- Adds large dependencies
-- Adds a large amount of code
+Thanks for sending a Pull Request (PR)! Please make sure to use the following template to facilitate the review/merge process. 
 -->
+## Note
+Please make sure to read the [contributing guidelines](https://github.com/kubenow/KubeNow/blob/master/CONTRIBUTING.md) beforehand
 
 ## Change content and motivation
 <!-- please describe briefly the content of this PR, and motivate why this changes are needed -->
