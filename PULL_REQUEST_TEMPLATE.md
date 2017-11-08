@@ -1,8 +1,6 @@
 <!-- 
-Thanks for sending a Pull Request (PR)! Please make sure to use the following template to facilitate the review/merge process. 
+Thanks for sending a Pull Request (PR)! Please make sure to read the contributing guidelinse before you proceed: https://github.com/kubenow/KubeNow/blob/master/CONTRIBUTING.md. 
 -->
-## Note
-Please make sure to read the [contributing guidelines](https://github.com/kubenow/KubeNow/blob/master/CONTRIBUTING.md) beforehand
 
 ## Change content and motivation
 <!-- please describe briefly the content of this PR, and motivate why this changes are needed -->
