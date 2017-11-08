@@ -39,17 +39,17 @@ In both scenarios when a new functionality or a Bug fix would like to be propose
 2. Clone your fork, create a new branch, push commits to the branch.
 3. Consider whether documentation or tests need to be added or updated as part of the change, and add them as needed.
 4. [Open a pull request](https://help.github.com/articles/about-pull-requests/) against the master branch of kubenow/kubenow. (Only in special cases would the PR be opened against other branches.)
-  1. The PR title should be quite a specific title describing the PR itself.
-  2. If the pull request is still a work in progress, and so is not ready to be merged, but needs to be pushed to Github to facilitate review, then add [skip ci] at the end of the commit's message
-  3. Consider identifying committers or other contributors who have worked on the code being changed. Find the file(s) in Github and click “Blame” to see a line-by-line annotation of who changed the code last. You can add @username in the PR description to ping them immediately.
-  4. Please state that the contribution is your original work and that you license the work to the project under the project’s open source license.
+   1. The PR title should be quite a specific title describing the PR itself.
+   2. If the pull request is still a work in progress, and so is not ready to be merged, but needs to be pushed to Github to facilitate review, then add [skip ci] at the end of the commit's message
+   3. Consider identifying committers or other contributors who have worked on the code being changed. Find the file(s) in Github and click “Blame” to see a line-by-line annotation of who changed the code last. You can add @username in the PR description to ping them immediately.
+   4. Please state that the contribution is your original work and that you license the work to the project under the project’s open source license.
     The related JIRA, if any, will be marked as “In Progress” and your pull request will automatically be linked to it. There is no need to be the Assignee of the JIRA to work on it, though you are welcome to comment that you have begun work.
 5. The Travis automatic pull request builder will test your changes (which could take up to an hour)
 6. After about 1 hour, Travis will post the results of the test to the pull request, along with a link to the full results on Travis CI.
-  1. Watch for the results, and investigate and fix failures promptly
-  2. Fixes can simply be pushed to the same branch from which you opened your pull request
-  3. Travis will automatically re-test when new commits are pushed
-  4. If the tests failed for reasons unrelated to the change (e.g. Travis outage), then please first check any reports on the [Travis' status page](https://www.traviscistatus.com/). If this is the case, then please wait until further notice from the Travis' folks and re-try once any technical glitches will be solved.
+   1. Watch for the results, and investigate and fix failures promptly
+   2. Fixes can simply be pushed to the same branch from which you opened your pull request
+   3. Travis will automatically re-test when new commits are pushed
+   4. If the tests failed for reasons unrelated to the change (e.g. Travis outage), then please first check any reports on the [Travis' status page](https://www.traviscistatus.com/). If this is the case, then please wait until further notice from the Travis' folks and re-try once any technical glitches will be solved.
 
 
 ### Closing Your Pull Request
