@@ -19,5 +19,12 @@ resource "aws_vpc" "created" {
 }
 
 output "id" {
-  value = "${ var.vpc_id != "" ? var.vpc_id : aws_vpc.created.id }"
+  # The join() hack is required because currently the ternary operator
+  # evaluates the expressions on both branches of the condition before
+  # returning a value. When providing and external VPC, the template VPC
+  # resource gets a count of zero which triggers an evaluation error.
+  #
+  # This is tracked upstream: https://github.com/hashicorp/hil/issues/50
+  #
+  value = "${ var.vpc_id == "" ? join(" ", aws_vpc.created.*.id) : var.vpc_id }"
 }

@@ -19,7 +19,7 @@ branches:
 
 env:
   global:
-    - TERRAFORM_VERSION=0.9.4
+    - TERRAFORM_VERSION=0.10.7
     - ANSIBLE_LINT_VERSION=3.4.15
   matrix:
     - HOST_CLOUD=openstack
@@ -52,10 +52,9 @@ before_install:
 
   # Check code quality
   # check Terraform
-  - terraform fmt common/cloudflare
-  - terraform fmt common/inventory
-  - terraform fmt "$HOST_CLOUD"
-  - git diff --exit-code # this will fail if terraform changed something
+  - terraform fmt -check=true common/cloudflare
+  - terraform fmt -check=true common/inventory
+  - terraform fmt -check=true "$HOST_CLOUD"
   # check Ansible
   # skip ANSIBLE0006: avoid using curl
   # skip ANSIBLE0012: missing change_when on command/shell etc.
