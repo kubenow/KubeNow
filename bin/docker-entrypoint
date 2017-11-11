@@ -1,45 +1,27 @@
 #!/bin/bash
 
-# Add and run as local user if LOCAL_USER_ID is passed in at runtime
-if [ -z "$LOCAL_USER_ID" ]; then
-  echo "LOCAL_USER_ID must be specified when running this container, exiting."
-  exit 1
-fi
+# Copy host PWD in container PWD
+cp /var/userdir/terraform.tfvars ./ 2>/dev/null
+cp -R /var/userdir/.terraform ./ 2>/dev/null
+cp /var/userdir/terraform.tfstate ./ 2>/dev/null
+cp /var/userdir/inventory ./ 2>/dev/null
+cp /var/userdir/ssh_key* ./ 2>/dev/null
+cp /var/userdir/service-account.json ./ 2>/dev/null
 
-# create user with $LOCAL_USER_ID if it doesn't exists
-if [[ ! $(id -u $LOCAL_USER_ID > /dev/null 2>&1) ]]; then
-  adduser -s /bin/bash -h /home/user -u $LOCAL_USER_ID -D user
-fi
+# Setup SSH
+eval "$(ssh-agent -s)" &>/dev/null
+ssh-add ssh_key 2>/dev/null
 
-# create group with $LOCAL_PWD_GROUP_ID if it doesnt exist
-if [[ ! $(getent group $LOCAL_PWD_GROUP_ID > /dev/null 2>&1) ]]; then
-  addgroup -g $LOCAL_PWD_GROUP_ID agroup
-fi
+# Run user command
+sh -c "$@" ; URS_COMMAND_STATUS="$?"
 
-# get username with $LOCAL_USER_ID
-LOCAL_USERNAME=$(getent passwd $LOCAL_USER_ID | cut -d: -f1)
+# Copy container PWD in host PWD
+cp -R ./.terraform /var/userdir/ 2>/dev/null
+cp ./terraform.tfstate /var/userdir/ 2>/dev/null
+cp ./inventory /var/userdir/ 2>/dev/null
 
-# get groupname with $LOCAL_PWD_GROUP_ID
-GROUPNAME=$(getent group "$LOCAL_PWD_GROUP_ID" | cut -d: -f1)
+# Change ownership to host user
+chown -R "$HOST_USR_UID" /var/userdir/
 
-# add group to user
-addgroup "$LOCAL_USERNAME" "$GROUPNAME"
-
-# copy terraform config to user home
-USER_HOME=$(getent passwd "$LOCAL_USERNAME" | cut -d: -f6)
-cp /.terraformrc "$USER_HOME"
-
-#su-exec user sh -c "set"
-
-#su-exec user sh -c "nohup eval $(ssh-agent -s)"
-
-#su-exec user sh -c "ssh-add id_rsa"
-
-#su-exec user sh -c "set"
-
-# exec command as new user
-# export HOME=/home/user
-exec su-exec other-user ssh-agent sh -c 'ssh-add ssh_key; apply kvm; "$@"' -- "$@"
-# exec su-exec user "$@"
-
-
+# Return user command status code
+exit "$URS_COMMAND_STATUS"
