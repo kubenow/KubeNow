@@ -67,7 +67,7 @@ before_install:
   - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 - < Dockerfile
 
 # Build Docker image
-install: docker build -t kubenow/provisioners:latest .
+install: docker build --squashed -t kubenow/provisioners:latest .
 
 before_script:
 

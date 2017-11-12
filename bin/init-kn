@@ -12,7 +12,7 @@ echo "Initializing $INIT_DIR deployment directory for cloud provider $HOST_CLOUD
 template_suffix="-$HOST_CLOUD$PROJECT-template"
 for file in /opt/KubeNow/templates/terraform*$template_suffix; do
     # get name without path and suffix
-    name="$(basename ${file%$template_suffix})"
+    name="$(basename "${file%$template_suffix}")"
     cp "$file" "/KubeNow_config/$name"
 done
 
@@ -20,7 +20,7 @@ done
 template_suffix="$PROJECT-template"
 for file in /opt/KubeNow/templates/inventory*$template_suffix; do
     # get name without path and suffix
-    name="$(basename ${file%$template_suffix})-template"
+    name="$(basename "${file%$template_suffix}")-template"
     cp "$file" "/KubeNow_config/$name"
 done
 
