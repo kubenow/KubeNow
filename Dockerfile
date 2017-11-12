@@ -12,6 +12,7 @@ ENV SHADE_VERSION=1.21.0
 ENV OPENSTACKCLIENT_VERSION=3.11.0
 ENV GLANCECLIENT_VERSION=2.8.0
 ENV AWSCLI_VERSION=1.11.177
+ENV AZURE_CLI_VERSION=2.0.18
 # Terraform plugin versions
 ENV PLUGIN_OPENSTACK=0.2.2
 ENV PLUGIN_GOOGLE=0.1.3
@@ -37,7 +38,7 @@ RUN apt-get update -y && apt-get install -y \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install PIP deps
-RUN pip install \
+RUN pip install --no-cache-dir \
   ansible=="$ANSIBLE_VERSION" \
   j2cli=="$J2CLI_VERSION" \
   dnspython=="$DNSPYTHON_VERSION" \
@@ -46,7 +47,8 @@ RUN pip install \
   shade=="$SHADE_VERSION" \
   python-openstackclient=="$OPENSTACKCLIENT_VERSION" \
   python-glanceclient=="$GLANCECLIENT_VERSION" \
-  awscli=="$AWSCLI_VERSION"
+  awscli=="$AWSCLI_VERSION" \
+  azure-cli=="$AZURE_CLI_VERSION"
 
 # Install Terraform
 RUN curl "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" > \
@@ -94,19 +96,17 @@ RUN curl "https://releases.hashicorp.com/terraform-provider-template/${PLUGIN_TE
     unzip "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" -d /terraform_plugins/ && \
     rm -f "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip"
 
-# Install Azure cli
-RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | \
-    tee /etc/apt/sources.list.d/azure-cli.list
-RUN apt-key adv --keyserver packages.microsoft.com --recv-keys 417A0893
-RUN apt-get update -y && apt-get install -y azure-cli \
-            && apt-get clean && rm -rf /var/lib/apt/lists/*
-
 # Install Google gcloud cli
 RUN echo "deb http://packages.cloud.google.com/apt cloud-sdk-xenial main" | \
     tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 RUN apt-get update -y && apt-get install -y google-cloud-sdk \
+            && rm -f -r /usr/lib/google-cloud-sdk/platform/gsutil \
             && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Delete unwanted stuff
+RUN rm -rf /usr/lib/gcc \
+      && rm -rf /usr/share/man
 
 # Add KubeNow
 COPY . /opt/KubeNow
