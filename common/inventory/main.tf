@@ -81,11 +81,11 @@ data "template_file" "inventory" {
   template = "${file("${path.root}/../${ var.inventory_template_file }")}"
 
   vars {
-    masters                  = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s openshift_node_labels=%s", var.master_hostnames , var.master_public_ip, var.ssh_user, var.master_public_ip, var.master_labels ))}"
+    masters = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s openshift_node_labels=%s", var.master_hostnames , var.master_public_ip, var.ssh_user, var.master_public_ip, var.master_labels ))}"
 
-    nodes                    = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s openshift_node_labels=%s", var.node_hostnames , var.node_public_ip, var.ssh_user, var.node_public_ip, var.node_labels ))}"
+    nodes = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s openshift_node_labels=%s", var.node_hostnames , var.node_public_ip, var.ssh_user, var.node_public_ip, var.node_labels ))}"
 
-    bastions                 = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s", var.bastion_hostnames , var.bastion_public_ip, var.ssh_user, var.bastion_public_ip))}"
+    bastions = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s", var.bastion_hostnames , var.bastion_public_ip, var.ssh_user, var.bastion_public_ip))}"
 
     ansible_ssh_user         = "${var.ssh_user}"
     master-hostname-private  = "${element(concat(var.master_hostnames, list("")),0)}"
