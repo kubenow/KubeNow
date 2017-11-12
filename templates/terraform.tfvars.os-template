@@ -10,7 +10,7 @@ master_flavor = "your-master-flavor"
 master_as_edge = "true"
 
 # Node configuration
-node_count = "3"
+node_count = "2"
 node_flavor = "your-node-flavor"
 
 # Edge configuration
