@@ -34,11 +34,16 @@ RUN apt-get update -y && apt-get install -y \
   libffi-dev \
   openssl \
   unzip \
-  python-pip \
-  && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install PIP deps
-RUN pip install --no-cache-dir \
+  python-pip && \
+  echo "deb http://packages.cloud.google.com/apt cloud-sdk-xenial main" | \
+  tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
+  apt-get update -y && apt-get install -y \
+  google-cloud-sdk && \
+  rm -f -r /usr/lib/google-cloud-sdk/platform/gsutil && \
+  apt-get clean && rm -rf /var/lib/apt/lists/* && \
+  pip install --upgrade pip --no-cache-dir && \
+  pip install --no-cache-dir \
   ansible=="$ANSIBLE_VERSION" \
   j2cli=="$J2CLI_VERSION" \
   dnspython=="$DNSPYTHON_VERSION" \
@@ -48,7 +53,10 @@ RUN pip install --no-cache-dir \
   python-openstackclient=="$OPENSTACKCLIENT_VERSION" \
   python-glanceclient=="$GLANCECLIENT_VERSION" \
   awscli=="$AWSCLI_VERSION" \
-  azure-cli=="$AZURE_CLI_VERSION"
+  azure-cli=="$AZURE_CLI_VERSION" && \
+  rm -rf /usr/lib/gcc && \
+  rm -rf /usr/share/man && \
+  apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Terraform
 RUN curl "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" > \
@@ -95,18 +103,6 @@ RUN curl "https://releases.hashicorp.com/terraform-provider-template/${PLUGIN_TE
     "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" && \
     unzip "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" -d /terraform_plugins/ && \
     rm -f "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip"
-
-# Install Google gcloud cli
-RUN echo "deb http://packages.cloud.google.com/apt cloud-sdk-xenial main" | \
-    tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-RUN apt-get update -y && apt-get install -y google-cloud-sdk \
-            && rm -f -r /usr/lib/google-cloud-sdk/platform/gsutil \
-            && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Delete unwanted stuff
-RUN rm -rf /usr/lib/gcc \
-      && rm -rf /usr/share/man
 
 # Add KubeNow
 COPY . /opt/KubeNow
