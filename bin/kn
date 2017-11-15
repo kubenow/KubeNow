@@ -48,7 +48,7 @@ case "$1" in
     exit
     ;;
 
-  init-kn)
+  init-kn|init-os)
     # Validate
     if [ "$#" -ne 3 ]; then
       >&2 echo "Error: wrong number of argument for the init command"
