@@ -3,7 +3,7 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-[ -n "${IMG_VERSION}" ] && IMG_VERSION="v040b1"
+[ -z "${IMG_VERSION}" ] && IMG_VERSION="v040b1"
 IMAGE_NAME="kubenow-$IMG_VERSION"
 RESOURCE_GROUP_PREFIX="kubenow-images-rg"
 SRC_CONTAINER="https://kubenow.blob.core.windows.net/system"
@@ -94,7 +94,6 @@ if [ -z "$image_details" ]; then
                                       --account-name "$storage_account" \
                                       --query properties.copy.progress |
                                       tr -d '"')
-      echo "$progress"
 
       done_bytes=$(echo "$progress" | cut -d '/' -f 1)
       total_bytes=$(echo "$progress" | cut -d '/' -f 2)
