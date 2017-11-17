@@ -112,7 +112,7 @@ provider "azurerm" {
 # Data-lookup, subscriptin_id etc.
 data "azurerm_client_config" "current" {}
 
-# Generates a list of hostnames (azurerm_virtual_machine does not output them)
+# Generates image resource group name by adding location as suffix (without spaces)
 data "null_data_source" "image_rg" {
   inputs = {
     name = "${var.image_resource_group_prefix}-${replace(var.location, " " , "")}"
@@ -177,6 +177,7 @@ module "node" {
   resource_group_name = "${azurerm_resource_group.rg.name}"
   image_id            = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${data.null_data_source.image_rg.inputs.name}/providers/Microsoft.Compute/images/${var.kubenow_image}"
   location            = "${var.location}"
+
   # SSH settings
   ssh_user = "${var.ssh_user}"
   ssh_key  = "${var.ssh_key}"
