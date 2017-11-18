@@ -4,9 +4,10 @@
 set -e
 
 IMG_VERSION=${IMG_VERSION:-"v040b1"}
+IMAGE_BUCKET_URL=${IMAGE_BUCKET_URL:-"https://s3.eu-central-1.amazonaws.com/kubenow-eu-central-1"}
 IMAGE_NAME="kubenow-$IMG_VERSION"
 FILE_NAME="$IMAGE_NAME.qcow2"
-IMAGE_BUCKET_URL="https://s3.eu-central-1.amazonaws.com/kubenow-eu-central-1"
+
 
 # check if image is present already
 echo "List images available in OpenStack..."
@@ -15,9 +16,7 @@ image_id="$(printf '%s' "$image_list" | grep "\s$IMAGE_NAME\s" | awk -F "|" '{pr
 
 # if it doesn't exist then download it
 if [ -z "$image_id" ]; then
-
   echo "Image not present in OpenStack"
-
   echo "Downloading image to local /tmp/"
   curl "$IMAGE_BUCKET_URL/$FILE_NAME" \
        -o "/tmp/$FILE_NAME" \
@@ -68,11 +67,9 @@ curl "$IMAGE_BUCKET_URL/$FILE_NAME.md5" \
        --max-time 1800
 
 md5only=$( cut -f1 -d ' ' "/tmp/$FILE_NAME.md5")
-
 if [ "$md5only" != "$checksum" ]; then
-  echo "Wrong checksum of present/uploaded image. Something might have failed on file transfer."
-  echo "Please delete image $IMAGE_NAME from Openstack and try again."
-
+  >&2 echo "Wrong checksum of present/uploaded image. Something might have failed on file transfer."
+  >&2 echo "Please delete image $IMAGE_NAME from Openstack and try again."
   exit 1
 else
   echo "Checksum OK"
