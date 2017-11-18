@@ -3,7 +3,9 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-[ -z "${IMG_VERSION}" ] && IMG_VERSION="v040b1"
+if [ -z "${IMG_VERSION}" ]; then
+  IMG_VERSION="v040b1"
+fi
 IMAGE_NAME="kubenow-$IMG_VERSION"
 RESOURCE_GROUP_PREFIX="kubenow-images-rg"
 SRC_CONTAINER="https://kubenow.blob.core.windows.net/system"
@@ -11,10 +13,26 @@ TF_VARS_FILE=${1:-terraform.tfvars}
 CMD_OUTPUT_FMT="table"
 
 # Get vars from tfvars-file
-[ -z "${ARM_CLIENT_ID}" ] && ARM_CLIENT_ID=$(grep "client_id" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
-[ -z "${ARM_CLIENT_SECRET}" ] && ARM_CLIENT_SECRET=$(grep "client_secret" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
-[ -z "${ARM_TENANT_ID}" ] && ARM_TENANT_ID=$(grep "tenant_id" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
-[ -z "${ARM_LOCATION}" ] && ARM_LOCATION=$(grep "location" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
+if [ -z "${ARM_CLIENT_ID}" ]; then
+  ARM_CLIENT_ID=$(grep "client_id" "$TF_VARS_FILE" | \
+                  cut -d "=" -f 2- | \
+                  awk -F\" '{print $(NF-1)}')
+fi
+if [ -z "${ARM_CLIENT_SECRET}" ]; then
+  ARM_CLIENT_SECRET=$(grep "client_secret" "$TF_VARS_FILE" | \
+                      cut -d "=" -f 2- | \
+                      awk -F\" '{print $(NF-1)}')
+fi
+if [ -z "${ARM_TENANT_ID}" ]; then
+  ARM_TENANT_ID=$(grep "tenant_id" "$TF_VARS_FILE" | \
+                  cut -d "=" -f 2- | \
+                  awk -F\" '{print $(NF-1)}')
+fi
+if [ -z "${ARM_LOCATION}" ]; then
+  ARM_LOCATION=$(grep "location" "$TF_VARS_FILE" | \
+                 cut -d "=" -f 2- | \
+                 awk -F\" '{print $(NF-1)}')
+fi
 
 echo "Login"
 az login --service-principal \
@@ -30,7 +48,8 @@ ARM_LOCATION="${ARM_LOCATION,,}"
 # append location to rg to make unique rg per location
 resource_group="$RESOURCE_GROUP_PREFIX-$ARM_LOCATION"
 
-image_details=$(az image show --resource-group "$resource_group" --name "$IMAGE_NAME" -o json | jq "select(.location == \"$ARM_LOCATION\")")
+image_details=$(az image show --resource-group "$resource_group" --name "$IMAGE_NAME" -o json | \
+                jq "select(.location == \"$ARM_LOCATION\")")
 if [ -z "$image_details" ]; then
 
   echo "Image is not present in this subscription - will create"
@@ -83,7 +102,9 @@ if [ -z "$image_details" ]; then
                              --output "$CMD_OUTPUT_FMT" &&
                              true
 
-  # check file copy status
+  # Check file copy progress by polling the show blob status
+  # The loop also updates the copy progress message to user and
+  # updates the spinner character
   spin='-\|/'
   for i in {0..36000}; do
     n=$(( i %4 ))
