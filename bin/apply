@@ -12,7 +12,7 @@ if ! grep -qw "$HOST_CLOUD" <<< "openstack gce azure aws"; then
 fi
 
 # Import image (AWS doesn't need it)
-if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ] || [ "$HOST_CLOUD" = 'gce' ]; then
+if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ] || [ "$HOST_CLOUD" = 'azure' ]; then
   export GCE_ACCOUNT_FILE_PATH="$PWD/service-account.json"
   export TF_VARS_FILE="$PWD/terraform.tfvars"
   /KubeNow_root/bin/image-create-"$HOST_CLOUD".sh
