@@ -48,8 +48,9 @@ ARM_LOCATION="${ARM_LOCATION,,}"
 # append location to rg to make unique rg per location
 resource_group="$RESOURCE_GROUP_PREFIX-$ARM_LOCATION"
 
-image_details=$(az image show --resource-group "$resource_group" --name "$IMAGE_NAME" -o json | \
-                jq "select(.location == \"$ARM_LOCATION\")")
+image_details=$(az image show --resource-group "$resource_group" \
+                 --name "$IMAGE_NAME" -o json \
+                 | jq "select(.location == \"$ARM_LOCATION\")")
 if [ -z "$image_details" ]; then
 
   echo "Image is not present in this subscription - will create"

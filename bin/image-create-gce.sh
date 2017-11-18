@@ -27,7 +27,7 @@ if [ -z "$image_name" ]; then
 
   # exec in background and capture stdout of the job as (input) fd 3.
   exec 3< <(gcloud compute images create "$IMAGE_NAME" \
-                                  --source-uri "gs://kubenow-images/$IMAGE_NAME.tar.gz" 2>&1)
+                           --source-uri "gs://kubenow-images/$IMAGE_NAME.tar.gz" 2>&1)
 
   # Process Id of the previous running command
   pid=$!
@@ -43,7 +43,8 @@ if [ -z "$image_name" ]; then
     min=$((SECONDS/60%60))
     hrs=$((SECONDS/60/60))
     i=$(( (i+1) %4 ))
-    printf "\r%s Creating image (usually takes 3-10min) time elapsed: %d:%02d:%02d" "${spin_char:$i:1}" "$hrs" "$min" "$sec"
+    printf "\r%s Creating image (usually takes 3-10min) time elapsed: %d:%02d:%02d" \
+           "${spin_char:$i:1}" "$hrs" "$min" "$sec"
     sleep .3
   done
 
