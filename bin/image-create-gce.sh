@@ -32,15 +32,18 @@ if [ -z "$image_name" ]; then
   # Process Id of the previous running command
   pid=$!
 
-  # Spinner while $pid is alive and running
-  spin='-\|/'
+  # This loop is running while process id of previous image create
+  # command running in background still is alive and creating image
+  # While running it is updating the status message with the time
+  # that has elapsed and also continously changing the spinner character
+  spin_char='-\|/'
   while kill -0 $pid 2>/dev/null
   do
     sec=$((SECONDS%60))
     min=$((SECONDS/60%60))
     hrs=$((SECONDS/60/60))
     i=$(( (i+1) %4 ))
-    printf "\r%s Creating image (usually takes 3-10min) time elapsed: %d:%02d:%02d" "${spin:$i:1}" "$hrs" "$min" "$sec"
+    printf "\r%s Creating image (usually takes 3-10min) time elapsed: %d:%02d:%02d" "${spin_char:$i:1}" "$hrs" "$min" "$sec"
     sleep .3
   done
 
