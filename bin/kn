@@ -31,7 +31,7 @@ EOF
 if [ -z "$KUBENOW_VERSION" ] ; then
   KUBENOW_VERSION="latest"
 fi
-echo "Using KubeNow docker-image tag: $KUBENOW_VERSION"
+echo "Using KubeNow version: $KUBENOW_VERSION"
 
 # Get all local user group id:s (to be added to user inside docker-image)
 LOCAL_GROUP_IDS="$(id -G)"
