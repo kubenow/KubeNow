@@ -36,10 +36,12 @@ echo "Using KubeNow docker-image tag: $KUBENOW_VERSION"
 # Get all local user group id:s (to be added to user inside docker-image)
 LOCAL_GROUP_IDS="$(id -G)"
 
-# Command name replacement
-if [ -n "$1" ]; then 
-  first="$1"; shift; set -- "${first/ssh/ssh-kn}" "$@"
-  first="$1"; shift; set -- "${first/init/init-kn}" "$@"
+# Replace command for commands that are overriding
+# standard bash/ubuntu commands
+command="$1"
+if [ -n "$command" ]; then 
+  shift; set -- "${command/ssh/ssh-kn}" "$@"
+  shift; set -- "${command/init/init-kn}" "$@"
 fi
 
 case "$1" in
