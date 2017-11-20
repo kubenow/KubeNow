@@ -68,32 +68,38 @@ variable inventory_output_file {
   default = "inventory"
 }
 
-## Generates a list of hostnames (azurerm_virtual_machine does not output them)
-#data "null_data_source" "node_hostnames" {
-#
-#  inputs = {
-#    hostname = "${split(",", join(",",var.node_private_ip ) ) }"
-#  }
-#}
+# create variables
+locals {
+  # Format list of masters
+  #masters = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s", var.master_hostnames , var.master_public_ip, var.ssh_user))}"
+  masters = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s openshift_node_labels=%s", var.master_hostnames , var.master_public_ip, var.ssh_user, var.master_public_ip, var.master_labels ))}"
+
+  # Format list of nodes
+  #nodes = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s", var.node_hostnames , var.node_public_ip, var.ssh_user))}"
+  nodes = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s openshift_node_labels=%s", var.node_hostnames , var.node_public_ip, var.ssh_user, var.node_public_ip, var.node_labels ))}"
+
+  bastions = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s", var.bastion_hostnames , var.bastion_public_ip, var.ssh_user, var.bastion_public_ip))}"
+
+  master_hostname_private = "${element(concat(var.master_hostnames, list("")),0)}"
+}
 
 # Generate inventory from template file
 data "template_file" "inventory" {
   template = "${file("${path.root}/../${ var.inventory_template_file }")}"
 
   vars {
-    masters = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s openshift_node_labels=%s", var.master_hostnames , var.master_public_ip, var.ssh_user, var.master_public_ip, var.master_labels ))}"
-
-    nodes = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s openshift_node_labels=%s", var.node_hostnames , var.node_public_ip, var.ssh_user, var.node_public_ip, var.node_labels ))}"
-
-    bastions = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s", var.bastion_hostnames , var.bastion_public_ip, var.ssh_user, var.bastion_public_ip))}"
+    masters  = "${local.masters}"
+    nodes    = "${local.nodes}"
+    bastions = "${local.bastions}"
 
     ansible_ssh_user         = "${var.ssh_user}"
-    master-hostname-private  = "${element(concat(var.master_hostnames, list("")),0)}"
     master_hostname_public   = "${var.domain}"
     master_default_subdomain = "${var.domain}"
+    master_hostname_private  = "${local.master_hostname_private}"
   }
 }
 
+# Write the template to a file
 resource "null_resource" "local" {
   # Trigger rewrite of inventory, uuid() generates a random string everytime it is called
   triggers {
@@ -105,6 +111,6 @@ resource "null_resource" "local" {
   }
 
   provisioner "local-exec" {
-    command = "echo -e '${data.template_file.inventory.rendered}' > \"${path.root}/../${var.inventory_output_file}\""
+    command = "echo '${data.template_file.inventory.rendered}' > \"${path.root}/../${var.inventory_output_file}\""
   }
 }
