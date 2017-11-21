@@ -44,7 +44,7 @@ done
 
 # add KubeNow bin path (works with gosu - environment variables are kept
 # when swiching user
-if [ "$1" = "init-kn" ]; then
+if [[ "$1" =~ init.* ]]; then
   export PATH="/opt/KubeNow/bin:$PATH"
 else
   export PATH="/KubeNow_root/bin:$PATH"

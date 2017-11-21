@@ -29,7 +29,7 @@ EOF
 
 # If no version specified take stable
 if [ -z "$KUBENOW_VERSION" ] ; then
-  KUBENOW_VERSION="latest"
+  KUBENOW_VERSION="openrisknet"
 fi
 echo "Using KubeNow docker-image tag: $KUBENOW_VERSION"
 
@@ -37,9 +37,9 @@ echo "Using KubeNow docker-image tag: $KUBENOW_VERSION"
 LOCAL_GROUP_IDS="$(id -G)"
 
 # Command name replacement
-if [ -n "$1" ]; then 
-  first="$1"; shift; set -- "${first/ssh/ssh-kn}" "$@"
-  first="$1"; shift; set -- "${first/init/init-kn}" "$@"
+if [ -n "$1" ]; then
+  first="$1"; shift; set -- "$(sed -e 's/\bssh\b/ssh-kn/' <<< $first)" "$@"
+  first="$1"; shift; set -- "$(sed -e 's/\binit\b/init-kn/' <<< $first)" "$@"
 fi
 
 case "$1" in
@@ -79,7 +79,7 @@ case "$1" in
       -v "$INIT_DIR":/KubeNow_root \
       -e "LOCAL_USER_ID=$UID" \
       -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
-      kubenow/provisioners:"$KUBENOW_VERSION" \
+      andersla/provisioners:"$KUBENOW_VERSION" \
       "/opt/KubeNow/bin/docker-entrypoint" "$@"
     ;;
 
@@ -115,7 +115,7 @@ case "$1" in
       --env-file <(env | grep AWS_) \
       --env-file <(env | grep ARM_) \
       --env-file <(env | grep KUBENOW_) \
-      kubenow/provisioners:"$KUBENOW_VERSION" \
+      andersla/provisioners:"$KUBENOW_VERSION" \
       "/KubeNow_root/bin/docker-entrypoint" "$@"
     ;;
   "")

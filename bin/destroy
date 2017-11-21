@@ -13,4 +13,4 @@ fi
 
 # Destroy
 # shellcheck disable=SC2086
-terraform destroy $TERRAFORM_OPT "/KubeNow_root/$HOST_CLOUD"
+terraform destroy -force $TERRAFORM_OPT "/KubeNow_root/$HOST_CLOUD"

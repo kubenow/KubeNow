@@ -140,6 +140,10 @@ variable cloudflare_record_texts {
   default = ["*"]
 }
 
+variable inventory_template {
+  default = "inventory-template"
+}
+
 # Provider
 provider "openstack" {}
 
@@ -223,7 +227,7 @@ module "node" {
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["{'zone': 'worker'}"]
   node_taints    = [""]
-  master_ip      = "${element(concat(module.master.local_ip_v4, list("")),0)}"
+  master_ip      = ""
 }
 
 module "edge" {
@@ -253,7 +257,7 @@ module "edge" {
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["role=edge"]
   node_taints    = [""]
-  master_ip      = "${element(concat(module.master.local_ip_v4, list("")),0)}"
+  master_ip      = ""
 }
 
 module "glusternode" {
@@ -283,7 +287,7 @@ module "glusternode" {
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["storagenode=glusterfs"]
   node_taints    = [""]
-  master_ip      = "${element(concat(module.master.local_ip_v4, list("")),0)}"
+  master_ip      = ""
 }
 
 module "bastion" {
@@ -390,4 +394,5 @@ module "generate-inventory" {
   extra_disk_device  = "${element(concat(module.glusternode.extra_disk_device, list("")),0)}"
   bastion_hostnames  = "${module.bastion.hostnames}"
   bastion_public_ip  = "${module.bastion.public_ip}"
+  inventory_template = "${var.inventory_template}"
 }
