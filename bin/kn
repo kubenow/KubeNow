@@ -38,8 +38,8 @@ LOCAL_GROUP_IDS="$(id -G)"
 
 # Command name replacement
 if [ -n "$1" ]; then
-  first="$1"; shift; set -- "$(sed -e 's/\bssh\b/ssh-kn/' <<< $first)" "$@"
-  first="$1"; shift; set -- "$(sed -e 's/\binit\b/init-kn/' <<< $first)" "$@"
+  first="$1"; shift; set -- "$(sed -e 's/^ssh$/ssh-kn/' <<< $first)" "$@"
+  first="$1"; shift; set -- "$(sed -e 's/^init$/init-kn/' <<< $first)" "$@"
 fi
 
 case "$1" in
