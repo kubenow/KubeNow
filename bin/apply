@@ -1,36 +1,27 @@
 #!/bin/bash
 
-#Usage
-USAGE="Usage: kn apply <aws|gce|azure|openstack>"
-
-# Validate command
-if [ "$#" -eq 0 ]; then
-  >&2 echo "Error: no arguments supplied"
-  echo "$USAGE"
-  exit 1
-fi
-HOST_CLOUD="$1"
-if [ "$HOST_CLOUD" != 'openstack' ] && \
-  [ "$HOST_CLOUD" != 'gce' ] && \
-  [ "$HOST_CLOUD" != 'azure' ] && \
-  [ "$HOST_CLOUD" != 'aws' ]; then
-  >&2 echo "Error: unrecognized host cloud '$HOST_CLOUD'"
-  echo "$USAGE"
-  exit 1
-fi
-
-#Exit immediately if a command exits with a non-zero status
+# Exit immediately if a command exits with a non-zero status
 set -e
 
+HOST_CLOUD=$(grep -w "provider" terraform.tfvars | \
+             cut -d "=" -f 2- | \
+             awk -F\" '{print $(NF-1)}')
+
+# Check for recognized cloud provider
+if ! grep -qw "$HOST_CLOUD" <<< "openstack gce azure aws"; then
+  >&2 echo "Error: unrecognized host cloud '$HOST_CLOUD' in config file terraform.tfvars"
+  exit 1
+fi
+
 # Import image (AWS doesn't need it)
-if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ]; then
-  ansible-playbook -e "credentials_file_path=$PWD/service-account.json" /opt/KubeNow/playbooks/import-"$HOST_CLOUD"-image.yml
-elif [ "$HOST_CLOUD" = 'azure' ]; then
-  /opt/KubeNow/bin/image-create-azure.sh
+if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ] || [ "$HOST_CLOUD" = 'azure' ]; then
+  export GCE_ACCOUNT_FILE_PATH="$PWD/service-account.json"
+  export TF_VARS_FILE="$PWD/terraform.tfvars"
+  /KubeNow_root/bin/image-create-"$HOST_CLOUD".sh
 fi
 # Deploy
-terraform init --plugin-dir=/terraform_plugins "/opt/KubeNow/$HOST_CLOUD"
+terraform init --plugin-dir=/terraform_plugins "/KubeNow_root/$HOST_CLOUD"
 # shellcheck disable=SC2086
-terraform apply $TERRAFORM_OPT "/opt/KubeNow/$HOST_CLOUD"
+terraform apply $TERRAFORM_OPT "/KubeNow_root/$HOST_CLOUD"
 # shellcheck disable=SC2086
-ansible-playbook $ANSIBLE_OPT "/opt/KubeNow/playbooks/install-core.yml"
+ansible-playbook $ANSIBLE_OPT "/KubeNow_root/playbooks/install-core.yml"

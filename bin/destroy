@@ -1,24 +1,18 @@
 #!/bin/bash
 
-#Usage
-USAGE="Usage: kn destroy <aws|gce|azure|openstack>"
+# Exit immediately if a command exits with a non-zero status
+set -e
 
-# Validate command
-if [ "$#" -eq 0 ]; then
-  >&2 echo "Error: no arguments supplied"
-  echo "$USAGE"
-  exit 1
-fi
-HOST_CLOUD="$1"
-if [ "$HOST_CLOUD" != 'openstack' ] && \
-  [ "$HOST_CLOUD" != 'gce' ] && \
-  [ "$HOST_CLOUD" != 'azure' ] && \
-  [ "$HOST_CLOUD" != 'aws' ]; then
-  >&2 echo "Error: unrecognized host cloud '$HOST_CLOUD'"
-  echo "$USAGE"
+HOST_CLOUD=$(grep -w "provider" terraform.tfvars | \
+             cut -d "=" -f 2- | \
+             awk -F\" '{print $(NF-1)}')
+
+# Check for recognized cloud provider
+if ! grep -qw "$HOST_CLOUD" <<< "openstack gce azure aws"; then
+  >&2 echo "Error: unrecognized host cloud '$HOST_CLOUD' in config file terraform.tfvars"
   exit 1
 fi
 
 # Destroy
 # shellcheck disable=SC2086
-terraform destroy $TERRAFORM_OPT "/opt/KubeNow/$HOST_CLOUD"
+terraform destroy $TERRAFORM_OPT "/KubeNow_root/$HOST_CLOUD"
