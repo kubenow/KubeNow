@@ -2,7 +2,7 @@
 variable cluster_prefix {}
 
 variable kubenow_image {
-  default = "kubenow-v040b1"
+  default = "kubenow-v040"
 }
 
 variable ssh_user {
@@ -11,6 +11,14 @@ variable ssh_user {
 
 variable ssh_key {
   default = "ssh_key.pub"
+}
+
+variable network_name {
+  default = ""
+}
+
+variable secgroup_name {
+  default = ""
 }
 
 variable external_network_uuid {}
@@ -120,12 +128,20 @@ module "keypair" {
   name_prefix = "${var.cluster_prefix}"
 }
 
-# Network (here would be nice with condition)
+# Network
 module "network" {
   source            = "./network"
+  network_name      = "${var.network_name}"
   external_net_uuid = "${var.external_network_uuid}"
   name_prefix       = "${var.cluster_prefix}"
   dns_nameservers   = "${var.dns_nameservers}"
+}
+
+# Secgroup
+module "secgroup" {
+  source        = "./secgroup"
+  secgroup_name = "${var.secgroup_name}"
+  name_prefix   = "${var.cluster_prefix}"
 }
 
 module "master" {
@@ -143,7 +159,7 @@ module "master" {
 
   # Network settings
   network_name       = "${module.network.network_name}"
-  secgroup_name      = "${module.network.secgroup_name}"
+  secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "true"
   floating_ip_pool   = "${var.floating_ip_pool}"
 
@@ -173,7 +189,7 @@ module "node" {
 
   # Network settings
   network_name       = "${module.network.network_name}"
-  secgroup_name      = "${module.network.secgroup_name}"
+  secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "false"
   floating_ip_pool   = ""
 
@@ -203,7 +219,7 @@ module "edge" {
 
   # Network settings
   network_name       = "${module.network.network_name}"
-  secgroup_name      = "${module.network.secgroup_name}"
+  secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "true"
   floating_ip_pool   = "${var.floating_ip_pool}"
 
@@ -233,7 +249,7 @@ module "glusternode" {
 
   # Network settings
   network_name       = "${module.network.network_name}"
-  secgroup_name      = "${module.network.secgroup_name}"
+  secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "false"
   floating_ip_pool   = "${var.floating_ip_pool}"
 

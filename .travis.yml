@@ -52,10 +52,9 @@ before_install:
 
   # Check code quality
   # check Terraform
-  - terraform fmt common/cloudflare
-  - terraform fmt common/inventory
-  - terraform fmt "$HOST_CLOUD"
-  - git diff --exit-code # this will fail if terraform changed something
+  - terraform fmt -check=true common/cloudflare
+  - terraform fmt -check=true common/inventory
+  - terraform fmt -check=true "$HOST_CLOUD"
   # check Ansible
   # skip ANSIBLE0006: avoid using curl
   # skip ANSIBLE0012: missing change_when on command/shell etc.
@@ -64,7 +63,7 @@ before_install:
   - shellcheck $(find . -type f -name "*.sh")
   - shellcheck bin/*
   # check Dockerfile
-  - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 - < Dockerfile
+  - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 --ignore DL3013 - < Dockerfile
 
 # Build Docker image
 install: docker build -t kubenow/provisioners:latest .

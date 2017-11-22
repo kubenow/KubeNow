@@ -1,0 +1,11 @@
+---
+- name: "get kube-dns ready status"
+  command: >
+    kubectl get pods -l k8s-app=kube-dns --namespace=kube-system
+    -o jsonpath='{.items[*].status.containerStatuses[*].ready}'
+  register: get_ready_statuses
+
+- name: "test kube-dns ready status"
+  fail:
+    msg: "unexpected kube-dns ready statuses: {{get_ready_statuses.stdout}}"
+  when: not (get_ready_statuses.stdout | match('^(true\s)*true$'))
