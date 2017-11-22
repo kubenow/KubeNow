@@ -74,6 +74,7 @@ case "$1" in
 
     # Wrap docker run
     # shellcheck disable=SC2086
+    echo "Running command with docker..."
     docker run --rm -it \
       -v "$INIT_DIR":/KubeNow_config \
       -v "$INIT_DIR":/KubeNow_root \
@@ -102,6 +103,7 @@ case "$1" in
 
     # Wrap docker run
     # shellcheck disable=SC2086
+    echo "Running command with docker..."
     docker run --rm -it \
       -v "$PWD":/KubeNow_config \
       -v "$PWD":/KubeNow_root \
