@@ -4,7 +4,7 @@
 set -e
 
 if [ -z "${IMG_VERSION}" ]; then
-  IMG_VERSION="v040b1"
+  IMG_VERSION="v040"
 fi
 IMAGE_NAME="kubenow-$IMG_VERSION"
 RESOURCE_GROUP_PREFIX="kubenow-images-rg"
