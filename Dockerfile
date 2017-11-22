@@ -108,6 +108,3 @@ COPY . /opt/KubeNow
 
 # Add KubeNow
 COPY . /opt/KubeNow
-
-# Set entrypoint
-ENTRYPOINT ["/opt/KubeNow/bin/docker-entrypoint"]

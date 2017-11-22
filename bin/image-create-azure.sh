@@ -3,19 +3,36 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-IMG_VERSION="v040"
+if [ -z "${IMG_VERSION}" ]; then
+  IMG_VERSION="v040b1"
+fi
 IMAGE_NAME="kubenow-$IMG_VERSION"
-RESOURCE_GROUP="kubenow-images-rg"
+RESOURCE_GROUP_PREFIX="kubenow-images-rg"
 SRC_CONTAINER="https://kubenow.blob.core.windows.net/system"
 TF_VARS_FILE=${1:-terraform.tfvars}
+CMD_OUTPUT_FMT="table"
 
 # Get vars from tfvars-file
-ARM_CLIENT_ID=$(grep "client_id" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
-ARM_CLIENT_SECRET=$(grep "client_secret" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
-ARM_TENANT_ID=$(grep "tenant_id" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
-LOCATION=$(grep "location" "$TF_VARS_FILE" | cut -d "=" -f 2- | awk -F\" '{print $(NF-1)}')
-
-CMD_OUTPUT_FMT="table"
+if [ -z "${ARM_CLIENT_ID}" ]; then
+  ARM_CLIENT_ID=$(grep "client_id" "$TF_VARS_FILE" | \
+                  cut -d "=" -f 2- | \
+                  awk -F\" '{print $(NF-1)}')
+fi
+if [ -z "${ARM_CLIENT_SECRET}" ]; then
+  ARM_CLIENT_SECRET=$(grep "client_secret" "$TF_VARS_FILE" | \
+                      cut -d "=" -f 2- | \
+                      awk -F\" '{print $(NF-1)}')
+fi
+if [ -z "${ARM_TENANT_ID}" ]; then
+  ARM_TENANT_ID=$(grep "tenant_id" "$TF_VARS_FILE" | \
+                  cut -d "=" -f 2- | \
+                  awk -F\" '{print $(NF-1)}')
+fi
+if [ -z "${ARM_LOCATION}" ]; then
+  ARM_LOCATION=$(grep "location" "$TF_VARS_FILE" | \
+                 cut -d "=" -f 2- | \
+                 awk -F\" '{print $(NF-1)}')
+fi
 
 echo "Login"
 az login --service-principal \
@@ -24,24 +41,32 @@ az login --service-principal \
          --tenant "$ARM_TENANT_ID" \
          --output "$CMD_OUTPUT_FMT"
 
-echo "Check if image already exists"
-image_details=$(az image show --resource-group "$RESOURCE_GROUP" --name "$IMAGE_NAME")
+# Make sure location is in lowercase format without spaces
+ARM_LOCATION="${ARM_LOCATION//[[:blank:]]/}"
+ARM_LOCATION="${ARM_LOCATION,,}"
+
+# append location to rg to make unique rg per location
+resource_group="$RESOURCE_GROUP_PREFIX-$ARM_LOCATION"
+
+image_details=$(az image show --resource-group "$resource_group" \
+                 --name "$IMAGE_NAME" -o json \
+                 | jq "select(.location == \"$ARM_LOCATION\")")
 if [ -z "$image_details" ]; then
 
   echo "Image is not present in this subscription - will create"
 
   echo "Create resource-group (if not there already)"
-  az group create --location "$LOCATION" \
-                  --name "$RESOURCE_GROUP" \
+  az group create --location "$ARM_LOCATION" \
+                  --name "$resource_group" \
                   --output "$CMD_OUTPUT_FMT"
 
   echo "Create storage account (if not there already)"
-  # create a uniqe (>1 in a quadrillion), and stable suffix via md5sum of subscription-id
+  # create a uniqe (>1 in a quadrillion), and stable suffix via md5sum of subscription-id + location
   subscription_id=$(az account show --query id | tr -d '"')
-  suffix=$(md5sum <<< "$subscription_id" | head -c 14)
+  suffix=$(md5sum <<< "$subscription_id$ARM_LOCATION" | head -c 14)
   storage_account="kubenow000$suffix"
   az storage account create --name "$storage_account" \
-                            --resource-group "$RESOURCE_GROUP" \
+                            --resource-group "$resource_group" \
                             --sku Standard_LRS \
                             --output "$CMD_OUTPUT_FMT"
 
@@ -78,7 +103,9 @@ if [ -z "$image_details" ]; then
                              --output "$CMD_OUTPUT_FMT" &&
                              true
 
-  # check file copy status
+  # Check file copy progress by polling the show blob status
+  # The loop also updates the copy progress message to user and
+  # updates the spinner character
   spin='-\|/'
   for i in {0..36000}; do
     n=$(( i %4 ))
@@ -113,7 +140,7 @@ if [ -z "$image_details" ]; then
   done
 
   echo "Create image from imported vhd-file"
-  az image create --resource-group "$RESOURCE_GROUP" \
+  az image create --resource-group "$resource_group" \
                   --name "$IMAGE_NAME" \
                   --os-type "Linux" \
                   --source "https://$storage_account.blob.core.windows.net/kubenow-images/$file_name_vhd" \
