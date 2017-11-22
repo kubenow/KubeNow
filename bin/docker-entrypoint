@@ -23,6 +23,9 @@ if ! id -u "$LOCAL_USER_ID" > /dev/null 2>&1; then
           --disabled-password --gecos "" user
 fi
 
+# get username with $LOCAL_USER_ID
+username=$(getent passwd "$LOCAL_USER_ID" | cut -d: -f1)
+
 # create groups with $LOCAL_GROUP_IDS and add them to user
 for group_id in $LOCAL_GROUP_IDS; do
 
@@ -31,20 +34,17 @@ for group_id in $LOCAL_GROUP_IDS; do
     addgroup --quiet --gid "$group_id" "group$group_id"
   fi
 
-  # get username with $LOCAL_USER_ID
-  LOCAL_USERNAME=$(getent passwd "$LOCAL_USER_ID" | cut -d: -f1)
-
   # get groupname with $group_id
   GROUPNAME=$(getent group "$group_id" | cut -d: -f1)
 
   # add group to user
-  adduser --quiet "$LOCAL_USERNAME" "$GROUPNAME" > /dev/null 2>&1
+  adduser --quiet "$username" "$GROUPNAME" > /dev/null 2>&1
 
 done
 
 # add KubeNow bin path (works with gosu - environment variables are kept
 # when swiching user
-if [ "$1" = "init-kn" ]; then
+if [[ "$1" =~ init.* ]]; then
   export PATH="/opt/KubeNow/bin:$PATH"
 else
   export PATH="/KubeNow_root/bin:$PATH"
@@ -60,4 +60,4 @@ cd "/KubeNow_config" || ( echo "Error: could not change dir to /KuneNow_config, 
 
 # run command as above created user via ssh-wrapper script that adds the
 # ssh-agent to this execution environment
-gosu user sh -c "ssh-agent-wrapper $recited_cmd"
+gosu "$username" sh -c "ssh-agent-wrapper $recited_cmd"
