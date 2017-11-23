@@ -6,11 +6,12 @@
 
 
 
-KubeNow is a cloud agnostic platform for microservices, based on Docker and Kubernetes. Other than lighting-fast Kubernetes operations, KubeNow helps you in lifting your final application configuring DNS records and distributed storage. Once you have defined your application as a Helm package, you can lift it running 3 commands:
+KubeNow is a cloud agnostic platform for microservices, based on Docker and Kubernetes. Other than lighting-fast Kubernetes operations, KubeNow helps you in lifting your final application configuring DNS records and distributed storage. Once you have defined your application as a Helm package, lifting it is as simple as:
 
 ```bash
-kn init my-awesome-deployment
-kn apply <aws|gce|openstack|azure>
+kn init <aws|gce|openstack|azure> my-awesome-deployemt
+cd my-awesome-deployemt
+kn apply
 kn helm install my-app-package
 ```
 
