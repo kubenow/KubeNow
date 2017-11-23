@@ -136,7 +136,7 @@ locals {
 
   nodes = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s openshift_node_labels=%s", local.node_hostnames , local.node_public_ip, var.ssh_user, local.node_public_ip, local.node_labels ))}"
 
-  infra = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s openshift_node_labels=%s", local.infra_hostnames , local.infra_public_ip, var.ssh_user, local.infra_public_ip, local.infra_labels ))}"
+  infras = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s openshift_node_labels=%s", local.infra_hostnames , local.infra_public_ip, var.ssh_user, local.infra_public_ip, local.infra_labels ))}"
 
   bastions = "${join("\n",formatlist("%s ansible_ssh_host=%s ansible_ssh_user=%s openshift_public_ip=%s openshift_node_labels=%s", local.bastion_hostnames , local.bastion_public_ip, var.ssh_user, local.bastion_public_ip, local.bastion_labels ))}"
 
@@ -149,8 +149,8 @@ data "template_file" "inventory" {
 
   vars {
     masters  = "${local.masters}"
-    nodes    = "${local.nodes}"
-    infra    = "${local.infra}"
+    workers  = "${local.nodes}"
+    infras   = "${local.infras}"
     bastions = "${local.bastions}"
 
     ansible_ssh_user         = "${var.ssh_user}"
@@ -172,6 +172,6 @@ resource "null_resource" "local" {
   }
 
   provisioner "local-exec" {
-    command = "echo '${data.template_file.inventory.rendered}' > \"${path.root}/../${var.inventory_output_file}\""
+    command = "echo \"${data.template_file.inventory.rendered}\" > \"${path.root}/../${var.inventory_output_file}\""
   }
 }

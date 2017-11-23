@@ -7,6 +7,8 @@ external_network_uuid = "external-net-uuid" # The uuid of the external network i
 boot_image = "orn-os-02"
 ssh_user = "centos"
 
+inventory_template = "inventory.standard-template"
+
 # Master configuration
 # obs: too small flavors might cause diffuse errors on your installation
 master_flavor = "your-master-flavor"
@@ -19,3 +21,5 @@ node_flavor = "your-node-flavor"
 # Infra configuration
 infra_count = "1"
 infra_flavor = "your-infra-flavor"
+
+provider = "openstack"

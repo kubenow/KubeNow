@@ -110,6 +110,19 @@ variable bastion_flavor_id {
   default = ""
 }
 
+# Infra settings
+variable infra_count {
+  default = 0
+}
+
+variable infra_flavor {
+  default = "nothing"
+}
+
+variable infra_flavor_id {
+  default = ""
+}
+
 # Cloudflare settings
 variable use_cloudflare {
   default = "false"
@@ -323,10 +336,10 @@ module "bastion" {
 module "infra" {
   # Core settings
   source      = "./node"
-  count       = "${var.edge_count}"
-  name_prefix = "${var.cluster_prefix}-edge"
-  flavor_name = "${var.edge_flavor}"
-  flavor_id   = "${var.edge_flavor_id}"
+  count       = "${var.infra_count}"
+  name_prefix = "${var.cluster_prefix}-infra"
+  flavor_name = "${var.infra_flavor}"
+  flavor_id   = "${var.infra_flavor_id}"
   image_name  = "${var.boot_image}"
 
   # SSH settings
