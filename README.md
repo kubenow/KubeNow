@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/kubenow/KubeNow.svg?branch=master)](https://travis-ci.org/kubenow/KubeNow)
 [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=latest)](http://kubenow.readthedocs.io/en/latest/?badge=latest)
+<span class="badge-slack"><a href="https://kubenow-slackin.herokuapp.com" title="Invite yourself to our Slack team"><img src="https://kubenow-slackin.herokuapp.com/badge.svg" alt="Slackin button"/></a></span>
 <span class="badge-patreon"><a href="https://patreon.com/kubenow" title="Donate to this project using Patreon"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate button" /></a></span>
 
 
