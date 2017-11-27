@@ -66,7 +66,8 @@ data "template_cloudinit_config" "cloudinit_bootstrap" {
   part {
     filename     = "set_hostname.sh"
     content_type = "text/x-shellscript"
-    content      = <<EOF
+
+    content = <<EOF
                    #!/bin/bash
                    ## Add hostname
                    IP=$(hostname -I | cut -d ' ' -f1 | sed 's/\./-/g')
@@ -75,9 +76,9 @@ data "template_cloudinit_config" "cloudinit_bootstrap" {
                    echo $HOSTNAME > /etc/hostname
                    echo "127.0.0.1 $HOSTNAME" >> /etc/hosts
                    EOF
-   }
+  }
 
-   part {
+  part {
     filename     = "bootstrap.sh"
     content_type = "text/x-shellscript"
     content      = "${data.template_file.instance_bootstrap.rendered}"

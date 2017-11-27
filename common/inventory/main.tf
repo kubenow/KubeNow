@@ -140,7 +140,6 @@ locals {
   bastions = "${join("\n",formatlist("%s ansible_host=%s ansible_user=%s openshift_public_ip=%s openshift_node_labels=\"'\"'\"%s\"'\"'\"", local.bastion_hostnames , local.bastion_public_ip, var.ssh_user, local.bastion_public_ip, var.bastion_labels ))}"
 
   master_hostname_private = "${element(concat(var.master_hostnames, list("")),0)}"
-
 }
 
 # Generate inventory from template file
@@ -153,7 +152,7 @@ data "template_file" "inventory" {
     infras   = "${local.infras}"
     bastions = "${local.bastions}"
 
-    ansible_user         = "${var.ssh_user}"
+    ansible_user             = "${var.ssh_user}"
     master_hostname_public   = "${local.master_hostname_private}.${var.domain}"
     master_default_subdomain = "${var.domain}"
     master_hostname_private  = "${local.master_hostname_private}"
