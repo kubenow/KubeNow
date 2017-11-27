@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# specified host or master as default
-target_host=${1:-"master"}
+# specified host or first as default
+target_host=${1:-"*[0]"}
 
 # get ansible inventory as json for specified host, then with sed delete from first line up until =>
 inventory_json=$(ansible "$target_host" -m debug -a "var=hostvars[inventory_hostname]" | sed 's/^[^=>]*=>//')
