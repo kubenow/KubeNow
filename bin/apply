@@ -25,3 +25,7 @@ terraform init --plugin-dir=/terraform_plugins "/KubeNow_root/$HOST_CLOUD"
 # ansible-playbook $ANSIBLE_OPT "/KubeNow_root/playbooks/install-core.yml"
 
 terraform apply $TERRAFORM_OPT "/KubeNow_root/$HOST_CLOUD"
+
+git clone https://github.com/openshift/openshift-ansible.git
+cd openshift-ansible
+git checkout release-3.6

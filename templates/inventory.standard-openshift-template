@@ -19,8 +19,8 @@ openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 
 # make sure this htpasswd file exists
 openshift_master_htpasswd_file=/home/centos/users.htpasswd
 
-openshift_master_cluster_public_hostname=master.openrisknet.org
-openshift_master_default_subdomain=apps.openrisknet.org
+openshift_master_cluster_public_hostname=${master_hostname_public}
+openshift_master_default_subdomain=apps.${master_default_subdomain}
 
 openshift_master_named_certificates=[{"certfile": "/home/centos/certs/master.openrisknet.org/fullchain.pem", "keyfile": "/home/centos/certs/master.openrisknet.org/privkey.pem"}]
 openshift_master_overwrite_named_certificates=true
