@@ -152,6 +152,7 @@ jobs:
             fi
 
 notifications:
+  email: false
   slack:
     secure: >
       ed+rC8Oc4EdZfptHGX1Xr5sNc+wQTyjb4rjJT0P/U/NBStmik7dnUfAK9vk6XYVDrrPZxmAz6A
