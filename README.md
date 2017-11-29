@@ -1,94 +1,77 @@
-![architecture](img/logo_wide_50dpi.png)
-
-[![Build Status](https://travis-ci.org/kubenow/KubeNow.svg?branch=master)](https://travis-ci.org/kubenow/KubeNow)
-[![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=latest)](http://kubenow.readthedocs.io/en/latest/?badge=latest)
-<span class="badge-patreon"><a href="https://patreon.com/kubenow" title="Donate to this project using Patreon"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate button" /></a></span>
 
 
+## Setting up an openshift cluster with KubeNow
 
-KubeNow is a cloud agnostic platform for microservices, based on Docker and Kubernetes. Other than lighting-fast Kubernetes operations, KubeNow helps you in lifting your final application configuring DNS records and distributed storage. Once you have defined your application as a Helm package, you can lift it running 3 commands:
+Install kn client:
 
 ```bash
-kn init my-awesome-deployment
-kn apply <aws|gce|openstack|azure>
-kn helm install my-app-package
+curl -f "https://raw.githubusercontent.com/kubenow/KubeNow/development/openrisknet/bin/kn" -o "/tmp/kn"
+sudo mv /tmp/kn /usr/bin/
+sudo chmod +x /usr/bin/kn
 ```
 
-## Table of Contents
+Create bastion:
 
-- [Architecture](#architecture)
-- [Manifesto](#manifesto)
-- [Getting Started](#getting-started)
-- [Donate](#donate)
-- [Roadmap](#roadmap)
+```bash
+# init bastion terraform configuration directory
+kn init-os openstack my-orn-bastion
+cd my-orn-bastion
 
-## Architecture
-Deploying a KubeNow cluster you will get:
+# source your openstack-rc-credentials file
+source /path/to/openstack/credentials
 
- - A Kubernetes cluster up and running in ~10 minutes (provisioned with [kubeadm](http://kubernetes.io/docs/getting-started-guides/kubeadm/))
- - [Flannel](https://github.com/coreos/flannel) networking
- - [Traefik](https://traefik.io/) HTTP reverse proxy and load balancer
- - [Cloudflare](https://www.cloudflare.com/) dynamic DNS configuration
- - [GlusterFS](https://www.gluster.org/) distributed file system
+# Now edit parameters in terraform.tfvars.bastion
+# You can find your network name with command:
+# kn openstack network list --external
+#
+vim terraform.tfvars.bastion
 
-![architecture](img/architecture.png)
+# then rename it
+mv terraform.tfvars.bastion terraform.tfvars
 
-In a KubeNow cluster there are 3 instance types:
+# now create bastion host:
+kn apply
+```
 
-- **master**: it runs the Kubernetes master, and it optionally acts as an ingress controller proxying from the Internet to the application services through its public IP.
-- **node**: it runs a Kubernetes node and it hosts application services.
-- **edge**: it is a specialized kind of node with a public IP associated, it acts as an ingress controller proxying from the Internet to the application services. It can run application services as well. Edge nodes are optional.
-- **glusternode**: it is a specialized kind of node that runs only a GlusterFS server. One or more *glusternodes* can be used to provide distributed storage for the application services. Glusternodes are optional.
+Log in to Bastion host and create cluster:
 
-**Cloudflare** can be optionally used to setup DNS records and SSL/TSL (HTTPS) encryption.
+```bash
+kn ssh
 
-## Manifesto
+# swich into root user on bastion
+sudo su
 
-- We want fast deployments: each instance provision itself independently and immutable images are used
-- We use existing provisioning tools: [Terraform](https://www.terraform.io/), [Packer](https://www.packer.io/), [Ansible](https://www.ansible.com/) and [kubeadm](http://kubernetes.io/docs/getting-started-guides/kubeadm)
-- We avoid resources that are available only for a specific cloud provider
-- We provision IaaS, PaaS and SaaS: lifting a distributed application should be possible with a few commands
+# if bastion is using selinux disable it when running docker
+setenforce 0 
 
-## Getting started
+# init cluster configuration directory on bastion (kn is already installed on "orn-os-2"-image)
+kn init-os openstack my-orn
+cd my-orn
 
-Want to try KubeNow? You can get started following the tutorials in the documentation:
+# source your openstack-rc-credentials file
+# (you first need to copy file to bastion, probably easiest by pasting it into vi)
+# e.g. vi my-openstack.rc
+source my-openstack.rc
 
-**stable:** [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=stable)](http://kubenow.readthedocs.io/en/stable/?badge=stable)
+# Now edit parameters in terraform.tfvars.standard
+#
+vi terraform.tfvars.standard
 
-**latest:** [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=latest)](http://kubenow.readthedocs.io/en/latest/?badge=latest)
+# then rename it
+mv terraform.tfvars.standard terraform.tfvars
 
-## Donate
-You can support KubeNow throug [Patreon](https://patreon.com/kubenow), more information available at https://patreon.com/kubenow.
+# now create bastion host:
+kn apply
+```
 
-## Roadmap
+Deploy openshift on cluster:
 
-### Core
-- [x] Kubernetes
-- [ ] High Availability
-- [ ] Scaling (it lacks documentation, but it should work)
-- [ ] Autoscaling
-- [ ] Dashboard
+```bash
+kn git clone ....
 
-### Cloud Providers
-- [x] OpenStack
-- [x] Google Cloud Platform
-- [x] Amazon Web Services
-- [x] Microsoft Azure
-- [ ] Local
-- [ ] Bare Metal
 
-### Load balancer
-- [x] Traefik
+```
 
-### Networking
-- [x] Flannel
 
-### Big Data Frameworks
-- [ ] Spark
 
-### Storage
-- [x] GlusterFS
-
-### SSL/TSL (HTTPS)
-- [x] Cloudflare
-- [ ] Let's Encrypt
+ 

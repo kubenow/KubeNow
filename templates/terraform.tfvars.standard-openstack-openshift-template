@@ -7,7 +7,6 @@ dns_nameservers = "" # Should most of the cases be left empty
 # network_name = "optional-existing-network"
 # secgroup_name = "optional-existing-secgroup"
 
-
 boot_image = "orn-os-02"
 ssh_user = "centos"
 
