@@ -19,4 +19,6 @@ if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ] || [ "$HOST_CLOU
 fi
 # Deploy
 terraform init --plugin-dir=/terraform_plugins "/KubeNow_root/$HOST_CLOUD"
+
+# shellcheck disable=SC2086
 terraform apply $TERRAFORM_OPT "/KubeNow_root/$HOST_CLOUD"
