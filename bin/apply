@@ -19,12 +19,4 @@ if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ] || [ "$HOST_CLOU
 fi
 # Deploy
 terraform init --plugin-dir=/terraform_plugins "/KubeNow_root/$HOST_CLOUD"
-# shellcheck disable=SC2086
-
-# shellcheck disable=SC2086
-# ansible-playbook $ANSIBLE_OPT "/KubeNow_root/playbooks/install-core.yml"
-
 terraform apply $TERRAFORM_OPT "/KubeNow_root/$HOST_CLOUD"
-
-# git clone https://github.com/openshift/openshift-ansible.git
-# git -C openshift-ansible checkout release-3.6

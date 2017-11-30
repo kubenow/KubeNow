@@ -87,7 +87,7 @@ case "$1" in
 
   terraform|ansible|ansible-playbook|kubetoken|apply|destroy|kubectl|helm|openstack|az|ssh-kn|bash|git)
     # Validate PWD (not needed for a selection of commands)
-    if ! grep -qw "$1" <<< "kubetoken az bash git"; then
+    if ! grep -qw "$1" <<< "kubetoken az openstack bash git"; then
       if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ] ; then
         >&2 echo "Error: ssh_key not found. Are you in the right directory?"
         exit 1

@@ -1,5 +1,3 @@
-
-
 ## Setting up an openshift cluster with KubeNow
 
 Install kn client:
@@ -42,7 +40,7 @@ kn ssh
 sudo su
 
 # if bastion is using selinux disable it when running docker
-setenforce 0 
+setenforce 0
 
 # init cluster configuration directory on bastion (kn is already installed on "orn-os-2"-image)
 kn init-os openstack my-orn
@@ -67,11 +65,6 @@ kn apply
 Deploy openshift on cluster:
 
 ```bash
-kn git clone ....
-
-
+kn git clone https://github.com/openshift/openshift-ansible.git
+kn git -C openshift-ansible checkout release-3.6
 ```
-
-
-
- 
