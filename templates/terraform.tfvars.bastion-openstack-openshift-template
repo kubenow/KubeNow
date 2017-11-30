@@ -5,7 +5,7 @@ floating_ip_pool = "your-pool-name" # Usually the name of the external network i
 external_network_uuid = "external-net-uuid" # The uuid of the external network in the OpenStack tenancy
 dns_nameservers = "" # Should most of the cases be left empty
 
-boot_image = "orn-os-02"
+boot_image = "orn-os-03"
 ssh_user = "centos"
 
 inventory_template = "inventory.bastion-template"

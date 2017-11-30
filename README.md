@@ -20,6 +20,7 @@ source /path/to/openstack/credentials
 
 # Now edit parameters in terraform.tfvars.bastion
 # You can find your network name with command:
+#
 # kn openstack network list --external
 #
 vim terraform.tfvars.bastion
@@ -42,7 +43,7 @@ sudo su
 # if bastion is using selinux disable it when running docker
 setenforce 0
 
-# init cluster configuration directory on bastion (kn is already installed on "orn-os-2"-image)
+# init cluster configuration directory on bastion (kn is already installed on "orn-os-3"-image)
 kn init-os openstack my-orn
 cd my-orn
 
