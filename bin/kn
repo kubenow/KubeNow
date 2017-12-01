@@ -2,6 +2,8 @@
 
 set -e
 
+VERSION="master"
+
 function usage {
   cat <<EOF
 
@@ -24,23 +26,87 @@ Commands:
   bash                 run an interactive bash promt in the kubenow provisioners docker-image
   az                   run Microsoft Azure CLI: More help: kn az help
   git
+  upgrade <version>    upgrade kn to <latest|latest-stable|master|"tag">
 
 EOF
 }
 
-# If no version specified take stable
-if [ -z "$KUBENOW_VERSION" ] ; then
-  KUBENOW_VERSION="openrisknet"
-fi
-echo "Using KubeNow docker-image tag: $KUBENOW_VERSION"
+#
+# Adapted from stackoverflow-questions-59895
+#
+# Globals:
+#   None
+# Arguments:
+#   file to resolve
+# Returns:
+#   resolved file
+#
+function resolve_links {
+  source="$1"
+  # resolve $source until the file is no longer a symlink
+  while [ -h "$source" ]; do
+    dir="$( cd -P "$( dirname "$source" )" && pwd )"
+    # if $dir was a relative symlink, we need to resolve it relative to
+    # the path where the symlink file was located
+    source="$(readlink "$source")"
+    [[ $dir != /* ]] && dir="$dir/$dir"
+  done
+  echo "$source"
+}
+
+#
+# Description of function
+#
+function upgrade {
+  echo "upgrade version: $version"
+  tag=""
+  case "$version" in
+    latest)
+      tag="$(curl https://api.github.com/repos/kubenow/KubeNow/releases | \
+            jq -r '.[0].tag_name')"
+      ;;
+    latest-stable)
+      echo "lateststable"
+      tag="$(curl https://api.github.com/repos/kubenow/KubeNow/releases | \
+                   jq -r '[.[] | select(.prerelease==false) | .tag_name'][0])"
+      ;;
+    *)
+      tag="$version"
+      ;;
+  esac
+
+  url="https://raw.githubusercontent.com/kubenow/KubeNow/$tag/bin/kn"
+  url="https://api.github.com/repos/kubenow/KubeNow/contents/bin/kn?ref=$tag"
+
+  # get full filename of this script
+  absolute_file="$(resolve_links "${BASH_SOURCE[0]}")"
+
+  # download new version to temp
+  tmpfile=$(mktemp)
+  curl -f "$url" -o "$tmpfile" || ( >&2 echo -e "\nError trying to download file $url\n"; exit 1 )
+
+  # copy file over old (preserves file attr from original file)
+  rsync --no-perms --no-owner --no-group "$tmpfile" "$absolute_file" || ( >&2 echo -e "\nCould not replace file: $absolute_file - do you have sudo rights?\n"; exit 1 )
+
+  rm "$tmpfile"
+
+  # pull latest docker
+  docker pull kubenow/provisioners:"$version"
+
+  echo -e "\nUpdated ok to version $tag\n"
+}
+
+echo "kn version: $VERSION"
 
 # Get all local user group id:s (to be added to user inside docker-image)
 LOCAL_GROUP_IDS="$(id -G)"
 
-# Command name replacement
-if [ -n "$1" ]; then
-  first="$1"; shift; set -- "$(sed -e 's/^ssh$/ssh-kn/' <<< $first)" "$@"
-  first="$1"; shift; set -- "$(sed -e 's/^init$/init-kn/' <<< $first)" "$@"
+# Replace command for commands that are overriding
+# standard bash/ubuntu commands
+command="$1"
+if [ -n "$command" ]; then 
+  shift; set -- "$(sed -e 's/^ssh$/ssh-kn/' <<< $command)" "$@"
+  shift; set -- "$(sed -e 's/^init$/init-kn/' <<< $command)" "$@"
 fi
 
 case "$1" in
@@ -48,6 +114,20 @@ case "$1" in
     usage
     exit
     ;;
+
+  upgrade)
+    version="${2:-$VERSION}"
+
+    upgrade "$version"
+
+    exit
+    ;;
+
+  install-autocomplete)
+    #/usr/local/etc/bash_completion.d
+    #/etc/bash_completion.d
+    >&2 echo "Error: could not find a suitable autocomplete path, e.g. /etc/bash_completion.d or /usr/local/etc/bash_completion.d"
+    echo "You could provide preferred installation path with argument --preferred=/path/to/bash_completion.d"
 
   init-kn|init-os)
     # Validate
