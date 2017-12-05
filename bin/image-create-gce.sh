@@ -9,7 +9,7 @@ if [ -z "$GCE_ACCOUNT_FILE_PATH" ]; then
   exit 1
 fi
 
-IMG_VERSION=${IMG_VERSION:-"v040"}
+IMG_VERSION=$IMG_VERSION
 IMAGE_NAME="kubenow-$IMG_VERSION"
 
 echo "Login"

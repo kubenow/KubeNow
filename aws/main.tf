@@ -1,9 +1,7 @@
 # Cluster settings
 variable cluster_prefix {}
 
-variable kubenow_image {
-  default = "kubenow-v040"
-}
+variable boot_image {}
 
 variable kubeadm_token {}
 
@@ -160,7 +158,7 @@ data "aws_ami" "kubenow" {
 
   filter {
     name   = "name"
-    values = ["${var.kubenow_image}"]
+    values = ["${var.boot_image}"]
   }
 
   filter {

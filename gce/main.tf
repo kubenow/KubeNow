@@ -1,9 +1,7 @@
 # Cluster settings
 variable cluster_prefix {}
 
-variable kubenow_image {
-  default = "kubenow-v040"
-}
+variable boot_image {}
 
 variable kubeadm_token {}
 
@@ -125,7 +123,7 @@ module "master" {
   count       = "1"
   name_prefix = "${var.cluster_prefix}-master"
   flavor_name = "${var.master_flavor}"
-  image_name  = "${var.kubenow_image}"
+  image_name  = "${var.boot_image}"
   zone        = "${var.gce_zone}"
 
   # SSH settings
@@ -152,7 +150,7 @@ module "node" {
   count       = "${var.node_count}"
   name_prefix = "${var.cluster_prefix}-node"
   flavor_name = "${var.node_flavor}"
-  image_name  = "${var.kubenow_image}"
+  image_name  = "${var.boot_image}"
   zone        = "${var.gce_zone}"
 
   # SSH settings
@@ -179,7 +177,7 @@ module "edge" {
   count       = "${var.edge_count}"
   name_prefix = "${var.cluster_prefix}-edge"
   flavor_name = "${var.edge_flavor}"
-  image_name  = "${var.kubenow_image}"
+  image_name  = "${var.boot_image}"
   zone        = "${var.gce_zone}"
 
   # SSH settings
@@ -206,7 +204,7 @@ module "glusternode" {
   count       = "${var.glusternode_count}"
   name_prefix = "${var.cluster_prefix}-glusternode"
   flavor_name = "${var.glusternode_flavor}"
-  image_name  = "${var.kubenow_image}"
+  image_name  = "${var.boot_image}"
   zone        = "${var.gce_zone}"
 
   # SSH settings

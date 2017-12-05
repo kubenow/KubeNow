@@ -3,9 +3,7 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-if [ -z "${IMG_VERSION}" ]; then
-  IMG_VERSION="v040"
-fi
+IMG_VERSION=$IMG_VERSION
 IMAGE_NAME="kubenow-$IMG_VERSION"
 RESOURCE_GROUP_PREFIX="kubenow-images-rg"
 SRC_CONTAINER="https://kubenow.blob.core.windows.net/system"
