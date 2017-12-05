@@ -7,6 +7,10 @@ HOST_CLOUD=$(grep -w "provider" terraform.tfvars | \
              cut -d "=" -f 2- | \
              awk -F\" '{print $(NF-1)}')
 
+IMAGE_NAME=$(grep -w "boot_image" terraform.tfvars | \
+             cut -d "=" -f 2- | \
+             awk -F\" '{print $(NF-1)}')
+
 # Check for recognized cloud provider
 if ! grep -qw "$HOST_CLOUD" <<< "openstack gce azure aws"; then
   >&2 echo "Error: unrecognized host cloud '$HOST_CLOUD' in config file terraform.tfvars"
@@ -17,6 +21,7 @@ fi
 if [ "$HOST_CLOUD" = 'openstack' ] || [ "$HOST_CLOUD" = 'gce' ] || [ "$HOST_CLOUD" = 'azure' ]; then
   export GCE_ACCOUNT_FILE_PATH="$PWD/service-account.json"
   export TF_VARS_FILE="$PWD/terraform.tfvars"
+  export IMAGE_NAME
   /KubeNow_root/bin/image-create-"$HOST_CLOUD".sh
 fi
 # Deploy
