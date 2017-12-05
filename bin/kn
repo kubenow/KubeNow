@@ -39,9 +39,9 @@ LOCAL_GROUP_IDS="$(id -G)"
 # Replace command for commands that are overriding
 # standard bash/ubuntu commands
 command="$1"
-if [ -n "$command" ]; then 
-  shift; set -- "${command/ssh/ssh-kn}" "$@"
-  shift; set -- "${command/init/init-kn}" "$@"
+if [ -n "$command" ]; then
+  command="$1"; shift; set -- "$(sed -e 's/^ssh$/ssh-kn/' <<< $command)" "$@"
+  command="$1"; shift; set -- "$(sed -e 's/^init$/init-kn/' <<< $command)" "$@"
 fi
 
 case "$1" in
@@ -87,7 +87,7 @@ case "$1" in
 
   terraform|ansible|ansible-playbook|kubetoken|apply|destroy|kubectl|helm|openstack|az|ssh-kn|bash)
     # Validate PWD (not needed for a selection of commands)
-    if ! grep -qw "$1" <<< "kubetoken az bash"; then
+    if ! grep -qw "$1" <<< "kubetoken az openstack bash"; then
       if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ] ; then
         >&2 echo "Error: ssh_key not found. Are you in the right directory?"
         exit 1
