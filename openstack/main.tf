@@ -14,7 +14,7 @@ variable ssh_key {
 }
 
 variable network_name {
-default = ""
+  default = ""
 }
 
 variable secgroup_name {
