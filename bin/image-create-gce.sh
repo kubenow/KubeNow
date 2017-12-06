@@ -24,6 +24,8 @@ image_status="$(gcloud compute images list)"
 existing_image=$(echo "$image_status" | grep  "\b$IMAGE_NAME\s" || true)
 if [ -z "$existing_image" ]; then
 
+  echo "Image does not exist in this account"
+
   SECONDS=0
 
   # exec in background and capture stdout of the job as (input) fd 3.
