@@ -69,3 +69,4 @@ Deploy openshift on cluster:
 kn git clone https://github.com/openshift/openshift-ansible.git
 kn git -C openshift-ansible checkout release-3.6
 ```
+
