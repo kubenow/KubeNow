@@ -71,6 +71,10 @@ function upgrade {
 
   url="https://raw.githubusercontent.com/kubenow/KubeNow/$branch/bin/kn"
 
+  # generate random suffix to prevent url caching
+  random="$(openssl rand -base64 16)"
+  url="$url?rnd=$random"    
+
   # get full filename of this script
   absolute_file="$(resolve_links "${BASH_SOURCE[0]}")"
 
