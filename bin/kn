@@ -77,7 +77,10 @@ function upgrade {
   # download new version to temp
   tmpfile=$(mktemp)
   curl -f "$url" -o "$tmpfile" || ( >&2 echo -e "\nError trying to download file $url\n"; exit 1 )
-
+  
+  # verify file is ok by executing help
+  "$tmpfile" help || ( >&2 echo -e "\nCould not verify functionality of kn version - skipping upgrade\n"; exit 1 )
+  
   # copy file over old (preserves file attr from original file)
   rsync --no-perms --no-owner --no-group "$tmpfile" "$absolute_file" || ( >&2 echo -e "\nCould not replace file: $absolute_file - do you have sudo rights?\n"; exit 1 )
 
