@@ -2,7 +2,7 @@
 
 set -e
 
-VERSION="development/openstack"
+VERSION="development/openrisknet"
 PROVISIONER_IMAGE="andersla/provisioners"
 
 function usage {
@@ -53,24 +53,23 @@ function resolve_links {
 #
 function upgrade {
   echo "upgrade version: $version"
-  tag=""
+  branch=""
   case "$version" in
     latest)
-      tag="$(curl https://api.github.com/repos/kubenow/KubeNow/releases | \
+      branch="$(curl https://api.github.com/repos/kubenow/KubeNow/releases | \
             jq -r '.[0].tag_name')"
       ;;
     latest-stable)
       echo "lateststable"
-      tag="$(curl https://api.github.com/repos/kubenow/KubeNow/releases | \
+      branch="$(curl https://api.github.com/repos/kubenow/KubeNow/releases | \
                    jq -r '[.[] | select(.prerelease==false) | .tag_name'][0])"
       ;;
     *)
-      tag="$version"
+      branch="${version}"
       ;;
   esac
 
-  url="https://raw.githubusercontent.com/kubenow/KubeNow/$tag/bin/kn"
-  url="https://api.github.com/repos/kubenow/KubeNow/contents/bin/kn?ref=$tag"
+  url="https://raw.githubusercontent.com/kubenow/KubeNow/$branch/bin/kn"
 
   # get full filename of this script
   absolute_file="$(resolve_links "${BASH_SOURCE[0]}")"
@@ -85,7 +84,8 @@ function upgrade {
   rm "$tmpfile"
 
   # pull latest docker
-  docker pull kubenow/provisioners:"$version"
+  tag="${version/\//-}"
+  docker pull "$PROVISIONER_IMAGE:$tag"
 
   echo -e "\nUpdated ok to version $tag\n"
 }
