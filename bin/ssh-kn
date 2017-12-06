@@ -7,10 +7,10 @@ target_host=${1:-"*[0]"}
 inventory_json=$(ansible "$target_host" -m debug -a "var=hostvars[inventory_hostname]" | sed 's/^[^=>]*=>//')
 
 # get vars from inventory
-ansible_host=$(echo "$inventory_json" | jq --raw-output ".\"hostvars[inventory_hostname]\".ansible_host")
-ansible_user=$(echo "$inventory_json" | jq --raw-output ".\"hostvars[inventory_hostname]\".ansible_user")
+ansible_host=$(echo "$inventory_json" | jq --raw-output ".\"hostvars[inventory_hostname]\".ansible_ssh_host")
+ansible_user=$(echo "$inventory_json" | jq --raw-output ".\"hostvars[inventory_hostname]\".ansible_ssh_user")
 
 echo "SSH connect to to $target_host ($ansible_host)"
 
 # shellcheck disable=SC2029
-ssh -A -o StrictHostKeyChecking=no "$ansible_user@$ansible_host"
+ssh -A -o StrictHostKeyChecking=no "$ansible_user@$ansible_host" "${@:2}"

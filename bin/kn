@@ -23,6 +23,7 @@ Commands:
   ssh <host>           ssh to <host> defined in ansible inventory file, default <host> is master
   bash                 run an interactive bash promt in the kubenow provisioners docker-image
   az                   run Microsoft Azure CLI: More help: kn az help
+  gcloud               run Google Cloud Platform CLI: More help: kn gcloud help
 
 EOF
 }
@@ -85,9 +86,9 @@ case "$1" in
       "/opt/KubeNow/bin/docker-entrypoint" "$@"
     ;;
 
-  terraform|ansible|ansible-playbook|kubetoken|apply|destroy|kubectl|helm|openstack|az|ssh-kn|bash)
+  terraform|ansible|ansible-playbook|kubetoken|apply|destroy|kubectl|helm|openstack|az|gcloud|ssh-kn|bash)
     # Validate PWD (not needed for a selection of commands)
-    if ! grep -qw "$1" <<< "kubetoken az openstack bash"; then
+    if ! grep -qw "$1" <<< "kubetoken az openstack gcloud bash"; then
       if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ] ; then
         >&2 echo "Error: ssh_key not found. Are you in the right directory?"
         exit 1
