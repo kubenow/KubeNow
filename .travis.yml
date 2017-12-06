@@ -16,7 +16,7 @@ branches:
     - /^doc\/.*$/
     - /^docs\/.*$/
     - /^documentation\/.*$/
-    
+
 env:
   global:
     - TERRAFORM_VERSION=0.10.7
@@ -63,7 +63,7 @@ before_install:
   - shellcheck $(find . -type f -name "*.sh")
   - shellcheck bin/*
   # check Dockerfile
-  - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 --ignore DL3013 - < Dockerfile
+  - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 - < Dockerfile
 
 # Build Docker image
 install: docker build -t kubenow/provisioners:latest .
@@ -72,7 +72,7 @@ before_script:
 
   # Copy kn bin
   - sudo cp bin/kn /usr/bin/
-  
+
   # Init test deployment
   - kn init ${HOST_CLOUD} test-deployment
   - cd test-deployment
@@ -123,7 +123,11 @@ script:
   - kn ansible-playbook /opt/KubeNow/playbooks/infra-test.yml
   - kn kubectl get nodes # try to list nodes
   - kn helm list # try to helm list
+  - kn ssh master 'uname && exit' # ssh to master and execute commands
   - kn openstack --version # try to run an openstack command
+  - kn az --version # try to run an azure cli command
+  - kn gcloud --version # try to run an gcloud cli command
+
 
 after_script:
   - export TERRAFORM_OPT="-force" && travis_retry kn destroy
