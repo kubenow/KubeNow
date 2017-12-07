@@ -60,8 +60,11 @@ before_install:
   # skip ANSIBLE0012: missing change_when on command/shell etc.
   - ansible-lint -x ANSIBLE0006,ANSIBLE0012 playbooks/*.yml
   # check Shell
-  - shellcheck $(find . -type f -name "*.sh")
+  - shellcheck bootstrap/*
   - shellcheck bin/*
+  - docker run -v "$(pwd)":/sh -w /sh jamesmstone/shfmt -i 2 -w bin/*
+  - docker run -v "$(pwd)":/sh -w /sh jamesmstone/shfmt -i 2 -w bootstrap/*
+  - git diff --exit-code
   # check Dockerfile
   - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 --ignore DL3013 - < Dockerfile
 
