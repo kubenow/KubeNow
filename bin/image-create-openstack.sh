@@ -4,7 +4,7 @@
 set -e
 
 if [ -z "$IMAGE_NAME" ]; then
-  >&2 echo "env IMAGE_NAME must be set for this script to run"
+  echo >&2 "env IMAGE_NAME must be set for this script to run"
   exit 1
 fi
 
