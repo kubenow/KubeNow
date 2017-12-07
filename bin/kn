@@ -28,6 +28,15 @@ Commands:
 EOF
 }
 
+function usage_init {
+  cat <<EOF
+
+Usage: init <CLOUD> <DIR>
+CLOUD=<gce|aws|openstack|azure>
+
+EOF
+}
+
 # If no version specified take stable
 if [ -z "$KUBENOW_VERSION" ] ; then
   KUBENOW_VERSION="latest"
@@ -55,7 +64,7 @@ case "$1" in
     # Validate
     if [ "$#" -ne 3 ]; then
       >&2 echo "Error: wrong number of argument for the init command"
-      usage
+      usage_init
       exit 1
     fi
 
@@ -63,6 +72,7 @@ case "$1" in
     # Check for recognized cloud provider
     if ! grep -qw "$HOST_CLOUD" <<< "openstack gce azure aws"; then
       >&2 echo "Error: unrecognized host cloud '$HOST_CLOUD'"
+      usage_init
       exit 1
     fi
 
@@ -70,6 +80,7 @@ case "$1" in
     INIT_DIR=$(cd $(dirname $3) && echo $PWD/$(basename $3))
     if [ -f "$INIT_DIR" ] || [ -d "$INIT_DIR" ]; then
       >&2 echo "Error: $INIT_DIR already exists"
+      usage_init
       exit 1
     fi
 
