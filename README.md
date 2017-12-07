@@ -1,7 +1,7 @@
 ![architecture](img/logo_wide_50dpi.png)
 
 [![Build Status](https://travis-ci.org/kubenow/KubeNow.svg?branch=master)](https://travis-ci.org/kubenow/KubeNow)
-[![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=latest)](http://kubenow.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=master)](http://kubenow.readthedocs.io)
 <span class="badge-slack"><a href="https://kubenow-slackin.herokuapp.com" title="Invite yourself to our Slack team"><img src="https://kubenow-slackin.herokuapp.com/badge.svg" alt="Slackin button"/></a></span>
 <span class="badge-patreon"><a href="https://patreon.com/kubenow" title="Donate to this project using Patreon"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate button" /></a></span>
 
@@ -52,12 +52,7 @@ In a KubeNow cluster there are 3 instance types:
 - We provision IaaS, PaaS and SaaS: lifting a distributed application should be possible with a few commands
 
 ## Getting started
-
-Want to try KubeNow? You can get started following the tutorials in the documentation:
-
-**stable:** [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=stable)](http://kubenow.readthedocs.io/en/stable/?badge=stable)
-
-**latest:** [![Documentation Status](https://readthedocs.org/projects/kubenow/badge/?version=latest)](http://kubenow.readthedocs.io/en/latest/?badge=latest)
+Want to try KubeNow? The documentation is available at http://kubenow.readthedocs.io.
 
 ## Donate
 You can support KubeNow throug [Patreon](https://patreon.com/kubenow), more information available at https://patreon.com/kubenow.
