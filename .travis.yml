@@ -49,13 +49,6 @@ before_install:
   - sudo pip install ansible-lint=="${ANSIBLE_LINT_VERSION}"
   # Pull hadolint
   - docker pull lukasmartinelli/hadolint
-  # Install shfmt
-  - >
-      travis_retry curl
-      "https://github.com/mvdan/sh/releases/download/v2.1.0/shfmt_v2.1.0_linux_amd64"
-      > /tmp/shfmt
-  - sudo mv /tmp/shfmt /usr/bin
-  - sudo chmod +x /usr/bin/shfmt
 
   # Check code quality
   # check Terraform
@@ -69,8 +62,8 @@ before_install:
   # check Shell
   - shellcheck bootstrap/*
   - shellcheck bin/*
-  - shfmt -i 2 -w bootstrap/*
-  - shfmt -i 2 -w bin/*
+  - docker run -v "$(pwd)":/sh -w /sh jamesmstone/shfmt -i 2 -w bin/*
+  - docker run -v "$(pwd)":/sh -w /sh jamesmstone/shfmt -i 2 -w bootstrap/*
   - git diff --exit-code
   # check Dockerfile
   - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 --ignore DL3013 - < Dockerfile
