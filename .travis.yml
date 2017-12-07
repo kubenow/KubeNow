@@ -49,6 +49,12 @@ before_install:
   - sudo pip install ansible-lint=="${ANSIBLE_LINT_VERSION}"
   # Pull hadolint
   - docker pull lukasmartinelli/hadolint
+  # Install shfmt
+  - >
+      travis_retry sudo curl
+      "https://github.com/mvdan/sh/releases/download/v2.1.0/shfmt_v2.1.0_linux_amd64"
+      > /usr/bin/shfmt
+  - sudo chmod +x /usr/bin/shfmt
 
   # Check code quality
   # check Terraform
@@ -60,8 +66,11 @@ before_install:
   # skip ANSIBLE0012: missing change_when on command/shell etc.
   - ansible-lint -x ANSIBLE0006,ANSIBLE0012 playbooks/*.yml
   # check Shell
-  - shellcheck $(find . -type f -name "*.sh")
+  - shellcheck bootstrap/*
   - shellcheck bin/*
+  - shfmt -i 2 -ci -w bootstrap/*
+  - shfmt -i 2 -ci -w bootstrap/*
+  - git diff --exit-code
   # check Dockerfile
   - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 - < Dockerfile
 
