@@ -72,7 +72,7 @@ before_install:
   - shfmt -i 2 -ci -w bootstrap/*
   - git diff --exit-code
   # check Dockerfile
-  - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 - < Dockerfile
+  - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 --ignore DL3013 - < Dockerfile
 
 # Build Docker image
 install: docker build -t kubenow/provisioners:latest .
