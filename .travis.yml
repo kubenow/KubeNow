@@ -51,9 +51,10 @@ before_install:
   - docker pull lukasmartinelli/hadolint
   # Install shfmt
   - >
-      travis_retry sudo curl
+      travis_retry curl
       "https://github.com/mvdan/sh/releases/download/v2.1.0/shfmt_v2.1.0_linux_amd64"
-      > /usr/bin/shfmt
+      > /tmp/shfmt
+  - sudo mv /tmp/shfmt /usr/bin
   - sudo chmod +x /usr/bin/shfmt
 
   # Check code quality
