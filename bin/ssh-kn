@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# specified host or master as default
-target_host=${1:-"master"}
+# specified host or first as default
+target_host=${1:-"*[0]"}
 
 # get ansible inventory as json for specified host, then with sed delete from first line up until =>
 inventory_json=$(ansible "$target_host" -m debug -a "var=hostvars[inventory_hostname]" | sed 's/^[^=>]*=>//')
 
 # get vars from inventory
-ansible_ssh_host=$(echo "$inventory_json" | jq --raw-output ".\"hostvars[inventory_hostname]\".ansible_ssh_host")
-ansible_ssh_user=$(echo "$inventory_json" | jq --raw-output ".\"hostvars[inventory_hostname]\".ansible_ssh_user")
+ansible_host=$(echo "$inventory_json" | jq --raw-output ".\"hostvars[inventory_hostname]\".ansible_ssh_host")
+ansible_user=$(echo "$inventory_json" | jq --raw-output ".\"hostvars[inventory_hostname]\".ansible_ssh_user")
 
-echo "SSH connect to to $target_host ($ansible_ssh_host)"
+echo "SSH connect to to $target_host ($ansible_host)"
 
 # shellcheck disable=SC2029
-ssh -A -o StrictHostKeyChecking=no "$ansible_ssh_user@$ansible_ssh_host"
+ssh -A -o StrictHostKeyChecking=no "$ansible_user@$ansible_host" "${@:2}"

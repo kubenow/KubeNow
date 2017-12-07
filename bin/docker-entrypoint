@@ -16,11 +16,11 @@ if [ -z "$LOCAL_USER_ID" ]; then
 fi
 
 # create user with $LOCAL_USER_ID if it doesn't exists
-if ! id -u "$LOCAL_USER_ID" > /dev/null 2>&1; then
+if ! id -u "$LOCAL_USER_ID" >/dev/null 2>&1; then
   adduser --quiet --shell /bin/bash \
-          --home /home/user \
-          --uid "$LOCAL_USER_ID" \
-          --disabled-password --gecos "" user
+    --home /home/user \
+    --uid "$LOCAL_USER_ID" \
+    --disabled-password --gecos "" user
 fi
 
 # get username with $LOCAL_USER_ID
@@ -30,7 +30,7 @@ username=$(getent passwd "$LOCAL_USER_ID" | cut -d: -f1)
 for group_id in $LOCAL_GROUP_IDS; do
 
   # create group with $group_id if it doesnt exist
-  if ! getent group "$group_id" > /dev/null 2>&1; then
+  if ! getent group "$group_id" >/dev/null 2>&1; then
     addgroup --quiet --gid "$group_id" "group$group_id"
   fi
 
@@ -38,7 +38,7 @@ for group_id in $LOCAL_GROUP_IDS; do
   GROUPNAME=$(getent group "$group_id" | cut -d: -f1)
 
   # add group to user
-  adduser --quiet "$username" "$GROUPNAME" > /dev/null 2>&1
+  adduser --quiet "$username" "$GROUPNAME" >/dev/null 2>&1
 
 done
 
@@ -56,7 +56,10 @@ for arg in "$@"; do
 done
 
 # enter KubeNow user config path
-cd "/KubeNow_config" || ( echo "Error: could not change dir to /KuneNow_config, exiting."; exit 1 )
+cd "/KubeNow_config" || (
+  echo "Error: could not change dir to /KuneNow_config, exiting."
+  exit 1
+)
 
 # run command as above created user via ssh-wrapper script that adds the
 # ssh-agent to this execution environment

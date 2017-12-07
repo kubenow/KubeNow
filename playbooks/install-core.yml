@@ -6,4 +6,4 @@
     - { role: wait-kube-dns, tags: [ 'minimal' ] }
     - { role: start-helm, tags: [ 'minimal' ] }
     - { role: traefik, tags: [ 'traefik' ] }
-    - { role: heketi-gluster, tags: [ 'heketi-glusterfs' ], when glusternode_count is defined and glusternode_count > 0 }
+    - { role: heketi-gluster, tags: [ 'heketi-glusterfs' ], when: glusternode_count is defined and glusternode_count > 0 }

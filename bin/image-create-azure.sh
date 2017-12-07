@@ -18,23 +18,23 @@ fi
 
 # Get vars from tfvars-file
 if [ -z "${ARM_CLIENT_ID}" ]; then
-  ARM_CLIENT_ID=$(grep "client_id" "$TF_VARS_FILE" | \
-    cut -d "=" -f 2- | \
+  ARM_CLIENT_ID=$(grep "client_id" "$TF_VARS_FILE" |
+    cut -d "=" -f 2- |
     awk -F\" '{print $(NF-1)}')
 fi
 if [ -z "${ARM_CLIENT_SECRET}" ]; then
-  ARM_CLIENT_SECRET=$(grep "client_secret" "$TF_VARS_FILE" | \
-    cut -d "=" -f 2- | \
+  ARM_CLIENT_SECRET=$(grep "client_secret" "$TF_VARS_FILE" |
+    cut -d "=" -f 2- |
     awk -F\" '{print $(NF-1)}')
 fi
 if [ -z "${ARM_TENANT_ID}" ]; then
-  ARM_TENANT_ID=$(grep "tenant_id" "$TF_VARS_FILE" | \
-    cut -d "=" -f 2- | \
+  ARM_TENANT_ID=$(grep "tenant_id" "$TF_VARS_FILE" |
+    cut -d "=" -f 2- |
     awk -F\" '{print $(NF-1)}')
 fi
 if [ -z "${ARM_LOCATION}" ]; then
-  ARM_LOCATION=$(grep "location" "$TF_VARS_FILE" | \
-    cut -d "=" -f 2- | \
+  ARM_LOCATION=$(grep "location" "$TF_VARS_FILE" |
+    cut -d "=" -f 2- |
     awk -F\" '{print $(NF-1)}')
 fi
 
@@ -53,7 +53,7 @@ ARM_LOCATION="${ARM_LOCATION,,}"
 # append location to rg to make unique rg per location
 resource_group="$RESOURCE_GROUP_PREFIX-$ARM_LOCATION"
 
-image_details=$(az image show --resource-group "$resource_group" --name "$IMAGE_NAME" -o json | \
+image_details=$(az image show --resource-group "$resource_group" --name "$IMAGE_NAME" -o json |
   jq "select(.location == \"$ARM_LOCATION\")")
 if [ -z "$image_details" ]; then
 
@@ -67,7 +67,7 @@ if [ -z "$image_details" ]; then
   echo "Create storage account (if not there already)"
   # create a uniqe (>1 in a quadrillion), and stable suffix via md5sum of subscription-id + location
   subscription_id=$(az account show --query id | tr -d '"')
-  suffix=$(md5sum <<< "$subscription_id$ARM_LOCATION" | head -c 14)
+  suffix=$(md5sum <<<"$subscription_id$ARM_LOCATION" | head -c 14)
   storage_account="kubenow000$suffix"
   az storage account create --name "$storage_account" \
     --resource-group "$resource_group" \
@@ -112,8 +112,8 @@ if [ -z "$image_details" ]; then
   # updates the spinner character
   spin='-\|/'
   for i in {0..36000}; do
-    n=$(( i %4 ))
-    m=$(( i %6 ))
+    n=$((i % 4))
+    m=$((i % 6))
     if [ $m == 0 ]; then
       progress=$(az storage blob show --name "$file_name_vhd" \
         --container-name kubenow-images \
@@ -127,9 +127,9 @@ if [ -z "$image_details" ]; then
       # used, the last 26.5GB is zero-filled and copied instantly, then file copy progress displayed
       # to user would be very skewed if not adjusted down to display used bytes)
       ACTUAL_IMAGE_FILE_SIZE=3450000000
-      percent=$( bc -l <<< "($done_bytes/$ACTUAL_IMAGE_FILE_SIZE)*100" )
+      percent=$(bc -l <<<"($done_bytes/$ACTUAL_IMAGE_FILE_SIZE)*100")
       # Never more than 99.99% (this could happen when ACTUAL_IMAGE_FILE_SIZE is set to small)
-      percent=$( bc -l <<< "if ($percent > 100) 99.99 else $percent")
+      percent=$(bc -l <<<"if ($percent > 100) 99.99 else $percent")
     fi
 
     printf '\r %s Image copy progress: %.2f%%' "${spin:$n:1}" "$percent"
@@ -140,7 +140,7 @@ if [ -z "$image_details" ]; then
       break
     fi
 
-    sleep 0.6;
+    sleep 0.6
   done
 
   echo "Create image from imported vhd-file"
