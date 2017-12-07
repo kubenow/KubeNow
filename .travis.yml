@@ -69,8 +69,8 @@ before_install:
   # check Shell
   - shellcheck bootstrap/*
   - shellcheck bin/*
-  - shfmt -i 2 -ci -w bootstrap/*
-  - shfmt -i 2 -ci -w bin/*
+  - shfmt -i 2 -w bootstrap/*
+  - shfmt -i 2 -w bin/*
   - git diff --exit-code
   # check Dockerfile
   - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 --ignore DL3013 - < Dockerfile

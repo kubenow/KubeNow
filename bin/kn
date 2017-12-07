@@ -59,92 +59,92 @@ if [ -n "$command" ]; then
 fi
 
 case "$1" in
-  help)
-    usage
-    exit
-    ;;
+help)
+  usage
+  exit
+  ;;
 
-  init-kn)
-    # Validate
-    if [ "$#" -ne 3 ]; then
-      echo >&2 "Error: wrong number of argument for the init command"
-      usage_init
-      exit 1
-    fi
-
-    HOST_CLOUD="$2"
-    # Check for recognized cloud provider
-    if ! grep -qw "$HOST_CLOUD" <<<"openstack gce azure aws"; then
-      echo >&2 "Error: unrecognized host cloud '$HOST_CLOUD'"
-      usage_init
-      exit 1
-    fi
-
-    # shellcheck disable=SC2086,SC2046
-    INIT_DIR=$(cd $(dirname $3) && echo $PWD/$(basename $3))
-    if [ -f "$INIT_DIR" ] || [ -d "$INIT_DIR" ]; then
-      echo >&2 "Error: $INIT_DIR already exists"
-      usage_init
-      exit 1
-    fi
-
-    mkdir -p "$INIT_DIR"
-
-    # Wrap docker run
-    # shellcheck disable=SC2086
-    docker run --rm -it \
-      -v "$INIT_DIR":/KubeNow_config \
-      -v "$INIT_DIR":/KubeNow_root \
-      -e "LOCAL_USER_ID=$UID" \
-      -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
-      kubenow/provisioners:"$KUBENOW_VERSION" \
-      "/opt/KubeNow/bin/docker-entrypoint" "$@"
-    ;;
-
-  terraform | ansible | ansible-playbook | kubetoken | apply | destroy | kubectl | helm | openstack | az | gcloud | ssh-kn | bash)
-    # Validate PWD (not needed for a selection of commands)
-    if ! grep -qw "$1" <<<"kubetoken az openstack gcloud bash"; then
-      if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ]; then
-        echo >&2 "Error: ssh_key not found. Are you in the right directory?"
-        exit 1
-      fi
-      if [ ! -f terraform.tfvars ]; then
-        echo >&2 "Error: terraform.tfvars not found. Please create one using the templates."
-        exit 1
-      fi
-      if [ ! -f ansible.cfg ]; then
-        echo >&2 "Error: ansible.cfg not found. Are you in the right directory?"
-        exit 1
-      fi
-    fi
-
-    # Wrap docker run
-    # shellcheck disable=SC2086
-    docker run --rm -it \
-      -v "$PWD":/KubeNow_config \
-      -v "$PWD":/KubeNow_root \
-      -e "LOCAL_USER_ID=$UID" \
-      -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
-      -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
-      -e "ANSIBLE_OPT=$ANSIBLE_OPT" \
-      --env-file <(env | grep OS_) \
-      --env-file <(env | grep TF_) \
-      --env-file <(env | grep GOOGLE_) \
-      --env-file <(env | grep AWS_) \
-      --env-file <(env | grep ARM_) \
-      --env-file <(env | grep KUBENOW_) \
-      kubenow/provisioners:"$KUBENOW_VERSION" \
-      "/KubeNow_root/bin/docker-entrypoint" "$@"
-    ;;
-  "")
-    echo "No <command> specified" >&2
-    usage
-    exit
-    ;;
-  *)
-    printf '"%s" is not a valid command\n' "$1" >&2
-    usage
+init-kn)
+  # Validate
+  if [ "$#" -ne 3 ]; then
+    echo >&2 "Error: wrong number of argument for the init command"
+    usage_init
     exit 1
-    ;;
+  fi
+
+  HOST_CLOUD="$2"
+  # Check for recognized cloud provider
+  if ! grep -qw "$HOST_CLOUD" <<<"openstack gce azure aws"; then
+    echo >&2 "Error: unrecognized host cloud '$HOST_CLOUD'"
+    usage_init
+    exit 1
+  fi
+
+  # shellcheck disable=SC2086,SC2046
+  INIT_DIR=$(cd $(dirname $3) && echo $PWD/$(basename $3))
+  if [ -f "$INIT_DIR" ] || [ -d "$INIT_DIR" ]; then
+    echo >&2 "Error: $INIT_DIR already exists"
+    usage_init
+    exit 1
+  fi
+
+  mkdir -p "$INIT_DIR"
+
+  # Wrap docker run
+  # shellcheck disable=SC2086
+  docker run --rm -it \
+    -v "$INIT_DIR":/KubeNow_config \
+    -v "$INIT_DIR":/KubeNow_root \
+    -e "LOCAL_USER_ID=$UID" \
+    -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
+    kubenow/provisioners:"$KUBENOW_VERSION" \
+    "/opt/KubeNow/bin/docker-entrypoint" "$@"
+  ;;
+
+terraform | ansible | ansible-playbook | kubetoken | apply | destroy | kubectl | helm | openstack | az | gcloud | ssh-kn | bash)
+  # Validate PWD (not needed for a selection of commands)
+  if ! grep -qw "$1" <<<"kubetoken az openstack gcloud bash"; then
+    if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ]; then
+      echo >&2 "Error: ssh_key not found. Are you in the right directory?"
+      exit 1
+    fi
+    if [ ! -f terraform.tfvars ]; then
+      echo >&2 "Error: terraform.tfvars not found. Please create one using the templates."
+      exit 1
+    fi
+    if [ ! -f ansible.cfg ]; then
+      echo >&2 "Error: ansible.cfg not found. Are you in the right directory?"
+      exit 1
+    fi
+  fi
+
+  # Wrap docker run
+  # shellcheck disable=SC2086
+  docker run --rm -it \
+    -v "$PWD":/KubeNow_config \
+    -v "$PWD":/KubeNow_root \
+    -e "LOCAL_USER_ID=$UID" \
+    -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
+    -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
+    -e "ANSIBLE_OPT=$ANSIBLE_OPT" \
+    --env-file <(env | grep OS_) \
+    --env-file <(env | grep TF_) \
+    --env-file <(env | grep GOOGLE_) \
+    --env-file <(env | grep AWS_) \
+    --env-file <(env | grep ARM_) \
+    --env-file <(env | grep KUBENOW_) \
+    kubenow/provisioners:"$KUBENOW_VERSION" \
+    "/KubeNow_root/bin/docker-entrypoint" "$@"
+  ;;
+"")
+  echo "No <command> specified" >&2
+  usage
+  exit
+  ;;
+*)
+  printf '"%s" is not a valid command\n' "$1" >&2
+  usage
+  exit 1
+  ;;
 
 esac
