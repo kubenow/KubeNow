@@ -21,6 +21,7 @@ env:
   global:
     - TERRAFORM_VERSION=0.10.7
     - ANSIBLE_LINT_VERSION=3.4.15
+    - YAMLLINT_VERSION=1.8.1
   matrix:
     - HOST_CLOUD=openstack
     - HOST_CLOUD=gce
@@ -32,9 +33,7 @@ addons:
     sources:
       - debian-sid
     packages:
-      # code review tool
-      - shellcheck
-      - yamllint
+      - shellcheck # code review tool
 
 before_install:
 
@@ -48,7 +47,10 @@ before_install:
   - sudo chmod +x /usr/bin/terraform
   # Install pip deps
   - sudo pip install --upgrade pip
-  - sudo pip install ansible-lint=="${ANSIBLE_LINT_VERSION}"
+  - >
+    sudo pip install
+    ansible-lint=="${ANSIBLE_LINT_VERSION}"
+    yamllint=="${YAMLLINT_VERSION}"
   # Pull hadolint
   - docker pull lukasmartinelli/hadolint
 
