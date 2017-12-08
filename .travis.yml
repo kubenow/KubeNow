@@ -32,7 +32,9 @@ addons:
     sources:
       - debian-sid
     packages:
-      - shellcheck # code review tool
+      # code review tool
+      - shellcheck
+      - yamllint
 
 before_install:
 
@@ -67,6 +69,10 @@ before_install:
   - git diff --exit-code
   # check Dockerfile
   - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 --ignore DL3013 - < Dockerfile
+  # check YAML
+  - >
+    yamllint -d "{extends: default, rules: {line-length: {max: 120}}}" -s
+    $(find . -type f -name "*.yml")
 
 # Build Docker image
 install: docker build -t kubenow/provisioners:latest .
