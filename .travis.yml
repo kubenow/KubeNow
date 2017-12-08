@@ -1,3 +1,4 @@
+---
 language: python # (Ansible)
 
 sudo: required
@@ -72,9 +73,7 @@ before_install:
   # check Dockerfile
   - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 --ignore DL3013 - < Dockerfile
   # check YAML
-  - >
-    yamllint -d "{extends: default, rules: {line-length: {max: 120}}}" -s
-    $(find . -type f -name "*.yml")
+  - yamllint -c .yamllint.yml -s $(find . -type f -name "*.yml")
 
 # Build Docker image
 install: docker build -t kubenow/provisioners:latest .
@@ -124,7 +123,10 @@ before_script:
   - sed -i -e "s/# cloudflare_email = \"your-cloudflare-email\"/cloudflare_email = \"${CI_CLOUDFLARE_EMAIL}\"/g" terraform.tfvars
   - sed -i -e "s/# cloudflare_token = \"your-cloudflare-token\"/cloudflare_token = \"${CI_CLOUDFLARE_TOKEN}\"/g" terraform.tfvars
   - sed -i -e "s/# cloudflare_domain = \"your-domain-name\"/cloudflare_domain = \"${CI_CLOUDFLARE_DOMAIN}\"/g" terraform.tfvars
-  - sed -i -e "s/# cloudflare_subdomain = \"your-subdomain-name\"/cloudflare_subdomain = \"kubenow-ci-${TRAVIS_BUILD_NUMBER}-${HOST_CLOUD}\"/g" terraform.tfvars
+  - >
+    sed -i -e
+    "s/# cloudflare_subdomain = \"your-subdomain-name\"/cloudflare_subdomain = \"kubenow-ci-${TRAVIS_BUILD_NUMBER}-${HOST_CLOUD}\"/g"
+    terraform.tfvars
 
 
 script:

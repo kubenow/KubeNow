@@ -6,7 +6,7 @@
     mode: 0755
 - name: template {{name}}-pvc
   template:
-    src: template-pvc.yml
+    src: template-pvc.yml.tpl
     dest: "~/.kubernetes-yaml/pvc/pvc-{{name}}.yml"
 
 - name: create {{name}}-pvc

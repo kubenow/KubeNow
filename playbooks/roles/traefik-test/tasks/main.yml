@@ -1,3 +1,4 @@
+---
 - name: "get traefik ready count"
   command: >
     kubectl get ds traefik-ingress-controller --namespace=kube-system

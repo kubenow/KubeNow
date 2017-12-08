@@ -1,3 +1,4 @@
+---
 - name: retrieve gluster-pod IPs
   command: >
     kubectl get pods
@@ -22,7 +23,7 @@
 
 - name: combine host-list with endpoint-list
   set_fact:
-     combined_host_ip: "{{ combined_host_ip|default({})|combine({item.0: item.1}) }}"
+    combined_host_ip: "{{ combined_host_ip|default({})|combine({item.0: item.1}) }}"
   with_together:
     - "{{ host_list }}"
     - "{{ enpoint_list }}"

@@ -1,3 +1,4 @@
+---
 # Testing Helm by checking if tiller-deploy pod is ready
 - name: "get tiller-deploy pod name"
   shell: >
