@@ -121,7 +121,7 @@ before_script:
 
 script:
   # Deploy
-  - kn apply
+  - travis_retry kn apply
   # Test
   - kn ansible-playbook /opt/KubeNow/playbooks/infra-test.yml
   - kn kubectl get nodes # try to list nodes
