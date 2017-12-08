@@ -3,14 +3,18 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-if [ -z "${IMG_VERSION}" ]; then
-  IMG_VERSION="v040"
-fi
-IMAGE_NAME="kubenow-$IMG_VERSION"
 RESOURCE_GROUP_PREFIX="kubenow-images-rg"
 SRC_CONTAINER="https://kubenow.blob.core.windows.net/system"
-TF_VARS_FILE=${1:-terraform.tfvars}
 CMD_OUTPUT_FMT="table"
+
+if [ -z "$IMAGE_NAME" ]; then
+  echo >&2 "env IMAGE_NAME must be set for this script to run"
+  exit 1
+fi
+
+if [ -z "${TF_VARS_FILE}" ]; then
+  echo >&2 "env TF_VARS_FILE must be set for this script to run"
+fi
 
 # Get vars from tfvars-file
 if [ -z "${ARM_CLIENT_ID}" ]; then

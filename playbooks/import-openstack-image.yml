@@ -2,12 +2,9 @@
 - hosts: localhost
   gather_facts: False
   vars:
-    img_version: "v040"
+    image_name: "{{ lookup('env', 'IMAGE_NAME') }}"
     timeout: 1800
   tasks:
-    - name: "set image facts"
-      set_fact:
-        image_name: "kubenow-{{img_version}}"
     - name: "check if image is present in OpenStack"
       os_image_facts:
         image: "{{ image_name }}"

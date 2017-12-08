@@ -4,7 +4,7 @@
   vars:
     timeout: 1800
     credentials_file_path: "{{playbook_dir}}/../service-account.json"
-    img_version: "v040"
+    image_name: "{{ lookup('env', 'IMAGE_NAME') }}"
   tasks:
   - name: "read credentials file"
     set_fact:
@@ -12,7 +12,7 @@
   - name: "set image facts"
     set_fact:
       img_name: "kubenow-{{img_version}}"
-      img_source: "https://storage.googleapis.com/kubenow-images/kubenow-{{img_version}}.tar.gz"
+      img_source: "https://storage.googleapis.com/kubenow-images/{{image_name}}.tar.gz"
   - name: "import GCE image (if not present)"
     gce_img:
       name: "{{img_name}}"

@@ -1,9 +1,7 @@
 # Cluster settings
 variable cluster_prefix {}
 
-variable kubenow_image {
-  default = "kubenow-v040"
-}
+variable boot_image {}
 
 variable ssh_user {
   default = "ubuntu"
@@ -151,7 +149,7 @@ module "master" {
   name_prefix = "${var.cluster_prefix}-master"
   flavor_name = "${var.master_flavor}"
   flavor_id   = "${var.master_flavor_id}"
-  image_name  = "${var.kubenow_image}"
+  image_name  = "${var.boot_image}"
 
   # SSH settings
   ssh_user     = "${var.ssh_user}"
@@ -181,7 +179,7 @@ module "node" {
   name_prefix = "${var.cluster_prefix}-node"
   flavor_name = "${var.node_flavor}"
   flavor_id   = "${var.node_flavor_id}"
-  image_name  = "${var.kubenow_image}"
+  image_name  = "${var.boot_image}"
 
   # SSH settings
   ssh_user     = "${var.ssh_user}"
@@ -211,7 +209,7 @@ module "edge" {
   name_prefix = "${var.cluster_prefix}-edge"
   flavor_name = "${var.edge_flavor}"
   flavor_id   = "${var.edge_flavor_id}"
-  image_name  = "${var.kubenow_image}"
+  image_name  = "${var.boot_image}"
 
   # SSH settings
   ssh_user     = "${var.ssh_user}"
@@ -241,7 +239,7 @@ module "glusternode" {
   name_prefix = "${var.cluster_prefix}-glusternode"
   flavor_name = "${var.glusternode_flavor}"
   flavor_id   = "${var.glusternode_flavor_id}"
-  image_name  = "${var.kubenow_image}"
+  image_name  = "${var.boot_image}"
 
   # SSH settings
   ssh_user     = "${var.ssh_user}"

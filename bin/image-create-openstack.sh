@@ -3,9 +3,12 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-IMG_VERSION=${IMG_VERSION:-"v040"}
+if [ -z "$IMAGE_NAME" ]; then
+  echo >&2 "env IMAGE_NAME must be set for this script to run"
+  exit 1
+fi
+
 IMAGE_BUCKET_URL=${IMAGE_BUCKET_URL:-"https://s3.eu-central-1.amazonaws.com/kubenow-eu-central-1"}
-IMAGE_NAME="kubenow-$IMG_VERSION"
 FILE_NAME="$IMAGE_NAME.qcow2"
 
 # check if image is present already
