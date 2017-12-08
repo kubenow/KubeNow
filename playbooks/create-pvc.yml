@@ -1,5 +1,5 @@
+---
 - hosts: master
-  gather_facts: False
+  gather_facts: "False"
   roles:
-    - { role: pvc, tags: [ 'pvc' ] }
-
+    - {role: pvc, tags: ['pvc']}

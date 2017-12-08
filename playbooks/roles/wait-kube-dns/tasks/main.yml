@@ -1,4 +1,4 @@
-
+---
 # Testing kube-dns if pod is ready
 - name: "get kube-dns ready status"
   command: >

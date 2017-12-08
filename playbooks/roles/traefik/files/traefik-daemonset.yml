@@ -1,3 +1,4 @@
+---
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
@@ -23,8 +24,8 @@ spec:
         name: traefik-ingress-lb
         imagePullPolicy: Always
         volumeMounts:
-          - mountPath: "/config"
-            name: "config"
+        - mountPath: "/config"
+          name: "config"
         resources:
           requests:
             cpu: 100m

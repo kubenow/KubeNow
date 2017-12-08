@@ -1,4 +1,4 @@
-# parameters documented at https://github.com/kubernetes/kubernetes/tree/master/examples/persistent-volume-provisioning
+---
 apiVersion: storage.k8s.io/v1beta1
 kind: StorageClass
 metadata:
