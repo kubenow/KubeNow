@@ -44,11 +44,14 @@ In both scenarios when a new functionality or a bug fix would like to be propose
 ### Code Style Guide
 Please follow the style of the existing codebase:
 
-* For any Terraform files, please make sure to run the command `terraform fmt` before pushing them
-* For any Packer file, please make sure to run the command `packer validate` before pushing them
-* For any shell scripts, please make sure to validate them by using any command-line tool such as [shellcheck](https://github.com/koalaman/shellcheck) before pushing them
-* For any Json files, please make sure to validate them by using either a command-line tool or an online Json validator before pushing them
-* For any Yaml files, please make sure to validate them by using either a command-line tool or an online Yaml validator before pushing them 
+* For any Terraform files, please make sure to format with `terraform fmt`
+* For any Packer file, please make sure to validate with `packer validate` 
+* For any shell script, please make sure to validate with [shellcheck](https://github.com/koalaman/shellcheck), and to format with [shfmt](https://github.com/mvdan/sh)
+* For any json file, please make sure to format with `python -mjson.too`
+* For any yaml file, please make sure to validate with [yamllint](https://github.com/adrienverge/yamllint), using the `.yamllint.yml` configuration
+* For any Ansible file please make sure to validate with [ansible-lint](https://github.com/willthames/ansible-lint)
+
+Any violation of the previous policies will fail the CI process.
 
 ## Contributing by Reviewing Changes
 Changes to KubeNow source code are proposed, reviewed and committed via [Github pull requests](https://github.com/kubenow/KubeNow/pulls) (see above). Anyone can view and comment on active changes here. Reviewing others' changes is a good way to learn how the change process works and gain exposure to activity in various parts of the code. You can help by reviewing the changes and asking questions or pointing out issues – as simple as typos or small issues of style.
