@@ -37,11 +37,9 @@ CLOUD=<gce|aws|openstack|azure>
 EOF
 }
 
-# If no version specified take stable
-if [ -z "$KUBENOW_VERSION" ]; then
-  KUBENOW_VERSION="latest"
-fi
-echo "Using KubeNow version: $KUBENOW_VERSION"
+# Set version
+kubenow_version="master"
+echo "Using KubeNow version: $kubenow_version"
 
 # Get all local user group id:s (to be added to user inside docker-image)
 LOCAL_GROUP_IDS="$(id -G)"
@@ -97,7 +95,7 @@ init-kn)
     -v "$INIT_DIR":/KubeNow_root \
     -e "LOCAL_USER_ID=$UID" \
     -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
-    kubenow/provisioners:"$KUBENOW_VERSION" \
+    kubenow/provisioners:"$kubenow_version" \
     "/opt/KubeNow/bin/docker-entrypoint" "$@"
   ;;
 
@@ -133,7 +131,7 @@ terraform | ansible | ansible-playbook | kubetoken | apply | destroy | kubectl |
     --env-file <(env | grep AWS_) \
     --env-file <(env | grep ARM_) \
     --env-file <(env | grep KUBENOW_) \
-    kubenow/provisioners:"$KUBENOW_VERSION" \
+    kubenow/provisioners:"$kubenow_version" \
     "/KubeNow_root/bin/docker-entrypoint" "$@"
   ;;
 "")

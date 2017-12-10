@@ -167,7 +167,29 @@ jobs:
               docker push kubenow/provisioners:$TRAVIS_TAG
               docker push kubenow/provisioners:latest
             fi
-
+        # If tag, create a versioned kn CLI
+        - >
+            if [ ! -z $TRAVIS_TAG ]; then
+              sed -i -e "s/kubenow_version=\"master\"/kubenow_version=\"${TRAVIS_TAG}\"/g" bin/kn
+            fi
+      deploy:
+        provider: releases
+        file: bin/kn
+        skip_cleanup: true
+        api_key:
+          secure: >
+            kTW1R8oSIGm91Vc4p9fw921REV234A6hv9P1VN4Yf6WBp3/UW1hGKm2K9/QSkovpSTEW1W
+            nx3Sj63rb3L91xr+0sFGwI71nLGGWvjiOFKMl0HeJjF4OX+G6V6xdFF/CDW94hof+Lhzjk
+            flxri1iR66dt5X45FnH4frvybBvg0yCyqL2EidZc+0WEbiocEINsgRnGMHJjYNVty0ee9A
+            GOZJbts1UBoh5CmHkfNwchblvjipl/HqZ/KFcPmLpc5urb37ppe9qUA3smyYWnwzqQua0u
+            k3jj79MKjvXIUY5OliihWFbTeGDmdMsKYRFp4cVDXU+gKOYFFlmybzgnU7D15XhepCqvqd
+            CDAbgmUakti8R1dXbM2AKeP59xJLjEQeaJBL3uGcND4nu9+uHwnoT6k+rWwpJxkxdYoMgf
+            YGHsZn8voCL2JbsNujsDvR5G9k6Wt/z5dGsJzzrHrunkaTQ3vTTsa+R1xwwGuJVvNbnG9h
+            iAXr4ERmUfY6cMawVIyp6WKpNs+d20jWyEzEfOpxVIchLGLlNqH1/fHZqTZGiL0TvALxe7
+            R3iHvmMotMv8UUAM/qaHROzOmWke5xv3oBAa26iB4UFoiWltGy22o6MbqQpdn2JyocbZvH
+            m3xyck3pd6R7kQSHeDaQ4PpNwbDDYnTvb5sgjVtneNwswZPUZ4ojc=
+        on: # yamllint disable-line rule:truthy
+          tags: true
 notifications:
   email: false
   slack:
