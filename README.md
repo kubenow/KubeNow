@@ -4,8 +4,8 @@ Install kn client:
 
 ```bash
 curl -f "https://raw.githubusercontent.com/kubenow/KubeNow/development/openrisknet/bin/kn" -o "/tmp/kn"
-sudo mv /tmp/kn /usr/bin/
-sudo chmod +x /usr/bin/kn
+sudo mv /tmp/kn /usr/local/bin/
+sudo chmod +x /usr/local/bin/kn
 ```
 
 Create bastion:
