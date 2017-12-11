@@ -63,4 +63,4 @@ cd "/KubeNow_config" || (
 
 # run command as above created user via ssh-wrapper script that adds the
 # ssh-agent to this execution environment
-gosu "$username" sh -c "ssh-agent-wrapper $recited_cmd"
+gosu "$username" sh -c "/opt/KubeNow/bin/ssh-agent-wrapper $recited_cmd"
