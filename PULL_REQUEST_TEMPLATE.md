@@ -15,4 +15,4 @@ Fixes: <!-- fixes #X, fixes #Y, ... fixes #Z -->
 please add documentation for your feature (if applicable), and link the documentation changes. 
 Documentation PRs are to be sent to https://github.com/kubenow/docs.
 -->
-**Docs**: <!-- kubenow/docs#X, kubenow/docs#Y, ... kubenow/docs#Z -->
+Docs: <!-- kubenow/docs#X, kubenow/docs#Y, ... kubenow/docs#Z -->
