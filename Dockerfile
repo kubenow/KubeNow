@@ -105,6 +105,3 @@ RUN curl "https://releases.hashicorp.com/terraform-provider-template/${PLUGIN_TE
 
 # Add KubeNow
 COPY . /opt/KubeNow
-
-# Add KubeNow
-COPY . /opt/KubeNow

@@ -81,7 +81,7 @@ install: docker build -t kubenow/provisioners:latest .
 before_script:
 
   # Copy kn bin
-  - sudo cp bin/kn /usr/bin/
+  - sudo cp bin/kn /usr/local/bin/
 
   # Init test deployment
   - kn init ${HOST_CLOUD} test-deployment
