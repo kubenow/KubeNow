@@ -73,7 +73,7 @@ function docker_run() {
     --env-file <(env | grep AWS_) \
     --env-file <(env | grep ARM_) \
     --env-file <(env | grep KUBENOW_) \
-    $container \
+    "$container" \
     "/opt/KubeNow/bin/docker-entrypoint" "$command" ${@:4}
 }
 
