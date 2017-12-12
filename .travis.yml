@@ -76,7 +76,7 @@ before_install:
   - yamllint -c .yamllint.yml -s $(find . -type f -name "*.yml")
 
 # Build Docker image
-install: docker build -t kubenow/provisioners:latest .
+install: docker build -t kubenow/provisioners:master .
 
 before_script:
 
