@@ -130,6 +130,14 @@ before_script:
 
 
 script:
+
+  # First test commands outside the init-dir (before cluster is deployed)
+  - cd /tmp
+  - kn openstack --version # try to run an openstack command
+  - kn az --version # try to run an azure cli command
+  - kn gcloud --version # try to run an gcloud cli command
+  - cd -
+
   # Deploy
   - travis_retry kn apply
   # Test
@@ -137,12 +145,6 @@ script:
   - kn kubectl get nodes # try to list nodes
   - kn helm list # try to helm list
   - kn ssh master 'uname && exit' # ssh to master and execute commands
-  # Test commands outside the init-dir
-  - cd /tmp
-  - kn openstack --version # try to run an openstack command
-  - kn az --version # try to run an azure cli command
-  - kn gcloud --version # try to run an gcloud cli command
-
 
 after_script:
   - export TERRAFORM_OPT="-force" && travis_retry kn destroy
