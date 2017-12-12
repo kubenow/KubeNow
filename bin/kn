@@ -71,7 +71,7 @@ function docker_run() {
     --env-file <(env | grep AWS_) \
     --env-file <(env | grep ARM_) \
     --env-file <(env | grep KUBENOW_) \
-    kubenow/provisioners:"$kubenow_version" \
+    $container \
     "/opt/KubeNow/bin/docker-entrypoint" "$command"
 }
 
@@ -92,11 +92,11 @@ function validate_pwd() {
 }
 
 ###############
-# Subcommnads #
+# subcommands #
 ###############
 
-subcommnad="$1"
-case "$subcommnad" in
+subcommand="$1"
+case "$subcommand" in
 help)
   usage
   exit
@@ -124,7 +124,7 @@ init)
   fi
   # Parts INIT_DIR
   # shellcheck disable=SC2086,SC2046
-  INIT_DIR=$(cd $(dirname $3) && echo $PWD/$(basename $3))
+  init_dir=$(cd $(dirname $3) && echo $PWD/$(basename $3))
   if [ -f "$init_dir" ] || [ -d "$init_dir" ]; then
     echo >&2 "Error: $init_dir already exists"
     usage_init
@@ -137,24 +137,24 @@ init)
 
 # Commands that do not need PWD validation
 az | openstack | gcloud | bash)
-  docker_run kubenow/provisioners:"$kubenow_version" "$subcommnad"
+  docker_run kubenow/provisioners:"$kubenow_version" "$subcommand"
   ;;
 
 # Commands that need PWD validation
 terraform | ansible | ansible-playbook)
   validate_pwd
-  docker_run kubenow/provisioners:"$kubenow_version" "$subcommnad"
+  docker_run kubenow/provisioners:"$kubenow_version" "$subcommand"
   ;;
 
 # KubeNow-defined commands that do no need PWD validation
 kubetoken)
-  docker_run kubenow/provisioners:"$kubenow_version" "kn-$subcommnad"
+  docker_run kubenow/provisioners:"$kubenow_version" "kn-$subcommand"
   ;;
 
 # KubeNow-defined commands that need PWD validation
 apply | destroy | kubectl | helm | ssh)
   validate_pwd
-  docker_run kubenow/provisioners:"$kubenow_version" "kn-$subcommnad"
+  docker_run kubenow/provisioners:"$kubenow_version" "kn-$subcommand"
   ;;
 
 "")
