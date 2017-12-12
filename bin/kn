@@ -7,6 +7,7 @@ set -e # exit at first error
 ###############
 
 kubenow_version="master"
+provisioners_img="kubenow/provisioners:$kubenow_version"
 
 #############
 # Functions #
@@ -57,10 +58,11 @@ EOF
 function docker_run() {
   # parameters
   container=$1
-  command=$2
+  kubenow_root=$2
+  command=$3
   # shellcheck disable=SC2086
   docker run --rm -it \
-    -v "$PWD":/KubeNow_root \
+    -v "$kubenow_root":/KubeNow_root \
     -e "LOCAL_USER_ID=$UID" \
     -e "LOCAL_GROUP_IDS=$(id -G)" \
     -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
@@ -132,29 +134,29 @@ init)
   fi
   # Init deployment
   mkdir -p "$init_dir"
-  docker_run kubenow/provisioners:"$kubenow_version" kn-init
+  docker_run "$provisioners_img" "$init_dir" "kn-init $host_cloud"
   ;;
 
 # Commands that do not need PWD validation
 az | openstack | gcloud | bash)
-  docker_run kubenow/provisioners:"$kubenow_version" "$subcommand"
+  docker_run "$provisioners_img" "$PWD" "$subcommand"
   ;;
 
 # Commands that need PWD validation
 terraform | ansible | ansible-playbook)
   validate_pwd
-  docker_run kubenow/provisioners:"$kubenow_version" "$subcommand"
+  docker_run "$provisioners_img" "$PWD" "$subcommand"
   ;;
 
 # KubeNow-defined commands that do no need PWD validation
 kubetoken)
-  docker_run kubenow/provisioners:"$kubenow_version" "kn-$subcommand"
+  docker_run "$provisioners_img" "$PWD" "kn-$subcommand"
   ;;
 
 # KubeNow-defined commands that need PWD validation
 apply | destroy | kubectl | helm | ssh)
   validate_pwd
-  docker_run kubenow/provisioners:"$kubenow_version" "kn-$subcommand"
+  docker_run "$provisioners_img" "$PWD" "kn-$subcommand"
   ;;
 
 "")
