@@ -3,9 +3,11 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
+echo "Started script image-create-azure"
+
 RESOURCE_GROUP_PREFIX="kubenow-images-rg"
 SRC_CONTAINER="https://kubenow.blob.core.windows.net/system"
-CMD_OUTPUT_FMT="table"
+OUTPUT_FMT="table"
 
 if [ -z "$IMAGE_NAME" ]; then
   echo >&2 "env IMAGE_NAME must be set for this script to run"
@@ -43,40 +45,40 @@ az login --service-principal \
   -u "$ARM_CLIENT_ID" \
   -p "$ARM_CLIENT_SECRET" \
   --tenant "$ARM_TENANT_ID" \
-  --output "$CMD_OUTPUT_FMT"
+  --output "$OUTPUT_FMT"
 
 # Make sure location is in lowercase format without spaces
-ARM_LOCATION="${ARM_LOCATION//[[:blank:]]/}"
-ARM_LOCATION="${ARM_LOCATION,,}"
+location_short="${ARM_LOCATION//[[:blank:]]/}"
+location_short="${location_short,,}"
 
 # append location to rg to make unique rg per location
-resource_group="$RESOURCE_GROUP_PREFIX-$ARM_LOCATION"
+resource_group="$RESOURCE_GROUP_PREFIX-$location_short"
 
 image_details=$(az image show --resource-group "$resource_group" --name "$IMAGE_NAME" -o json |
-  jq "select(.location == \"$ARM_LOCATION\")")
+  jq "select(.location == \"$location_short\")")
 if [ -z "$image_details" ]; then
 
   echo "Image is not present in this subscription - will create"
 
   echo "Create resource-group (if not there already)"
-  az group create --location "$ARM_LOCATION" \
+  az group create --location "$location_short" \
     --name "$resource_group" \
-    --output "$CMD_OUTPUT_FMT"
+    --output "$OUTPUT_FMT"
 
   echo "Create storage account (if not there already)"
   # create a uniqe (>1 in a quadrillion), and stable suffix via md5sum of subscription-id + location
   subscription_id=$(az account show --query id | tr -d '"')
-  suffix=$(md5sum <<<"$subscription_id$ARM_LOCATION" | head -c 14)
+  suffix=$(md5sum <<<"$subscription_id$location_short" | head -c 14)
   storage_account="kubenow000$suffix"
   az storage account create --name "$storage_account" \
     --resource-group "$resource_group" \
     --sku Standard_LRS \
-    --output "$CMD_OUTPUT_FMT"
+    --output "$OUTPUT_FMT"
 
   echo "Create storage container (if not there already)"
   az storage container create --name kubenow-images \
     --account-name "$storage_account" \
-    --output "$CMD_OUTPUT_FMT"
+    --output "$OUTPUT_FMT"
 
   echo "Get uri of files to copy"
   file_name_json=$(az storage blob list --account-name kubenow \
@@ -96,14 +98,14 @@ if [ -z "$image_details" ]; then
     --destination-blob "$file_name_json" \
     --destination-container kubenow-images \
     --source-uri "$SRC_CONTAINER/$file_name_json" \
-    --output "$CMD_OUTPUT_FMT"
+    --output "$OUTPUT_FMT"
 
   echo "Start asynchronous file copy of VHD-file"
   az storage blob copy start --account-name "$storage_account" \
     --destination-blob "$file_name_vhd" \
     --destination-container kubenow-images \
     --source-uri "$SRC_CONTAINER/$file_name_vhd" \
-    --output "$CMD_OUTPUT_FMT" &&
+    --output "$OUTPUT_FMT" &&
     true
 
   # Check file copy progress by polling the show blob status
@@ -147,7 +149,7 @@ if [ -z "$image_details" ]; then
     --name "$IMAGE_NAME" \
     --os-type "Linux" \
     --source "https://$storage_account.blob.core.windows.net/kubenow-images/$file_name_vhd" \
-    --output "$CMD_OUTPUT_FMT"
+    --output "$OUTPUT_FMT"
 
   echo "Image created"
 

@@ -3,6 +3,8 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
+echo "Started script image-create-gce"
+
 if [ -z "$IMAGE_NAME" ]; then
   echo >&2 "env IMAGE_NAME must be set for this script to run"
   exit 1
@@ -26,8 +28,6 @@ if [ -z "$existing_image" ]; then
 
   echo "Image does not exist in this account"
 
-  SECONDS=0
-
   # exec in background and capture stdout of the job as (input) fd 3.
   exec 3< <(gcloud compute images create "$IMAGE_NAME" \
     --source-uri "gs://kubenow-images/$IMAGE_NAME.tar.gz" 2>&1)
@@ -39,6 +39,8 @@ if [ -z "$existing_image" ]; then
   # command running in background still is alive and creating image
   # While running it is updating the status message with the time
   # that has elapsed and also continously changing the spinner character
+  # It uses bash builtin SECONDS to display running time to user
+  SECONDS=0
   spin_char='-\|/'
   while kill -0 $pid 2>/dev/null; do
     sec=$((SECONDS % 60))

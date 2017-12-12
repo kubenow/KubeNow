@@ -3,13 +3,15 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
+echo "Started script image-create-openstack"
+
 if [ -z "$IMAGE_NAME" ]; then
   echo >&2 "env IMAGE_NAME must be set for this script to run"
   exit 1
 fi
 
 IMAGE_BUCKET_URL=${IMAGE_BUCKET_URL:-"https://s3.eu-central-1.amazonaws.com/kubenow-eu-central-1"}
-FILE_NAME="$IMAGE_NAME.qcow2"
+file_name="$IMAGE_NAME.qcow2"
 
 # check if image is present already
 echo "List images available in OpenStack..."
@@ -23,20 +25,20 @@ image_id="$(printf '%s' "$image_list" |
 if [ -z "$image_id" ]; then
   echo "Image not present in OpenStack"
   echo "Downloading image to local /tmp/"
-  curl "$IMAGE_BUCKET_URL/$FILE_NAME" \
-    -o "/tmp/$FILE_NAME" \
+  curl "$IMAGE_BUCKET_URL/$file_name" \
+    -o "/tmp/$file_name" \
     --connect-timeout 30 \
     --max-time 1800
 
   echo "Download md5 sum file"
-  curl "$IMAGE_BUCKET_URL/$FILE_NAME.md5" \
-    -o "/tmp/$FILE_NAME.md5" \
+  curl "$IMAGE_BUCKET_URL/$file_name.md5" \
+    -o "/tmp/$file_name.md5" \
     --connect-timeout 30 \
     --max-time 1800
 
   echo "Check md5 sum"
-  md5only=$(cut -f1 -d ' ' "/tmp/$FILE_NAME.md5")
-  printf '%s' "$md5only  /tmp/$FILE_NAME" | md5sum -c
+  md5only=$(cut -f1 -d ' ' "/tmp/$file_name.md5")
+  printf '%s' "$md5only  /tmp/$file_name" | md5sum -c
 else
   echo "File exists - no need to download"
 fi
@@ -45,7 +47,7 @@ fi
 if [ -z "$image_id" ]; then
   echo "Uploading image"
   glance image-create \
-    --file "/tmp/$FILE_NAME" \
+    --file "/tmp/$file_name" \
     --disk-format qcow2 \
     --min-disk 20 \
     --container-format bare \
@@ -72,12 +74,12 @@ checksum="$(printf '%s' "$image_details" |
 
 # Get checksum of bucket image
 echo "Download md5 sum file"
-curl "$IMAGE_BUCKET_URL/$FILE_NAME.md5" \
-  -o "/tmp/$FILE_NAME.md5" \
+curl "$IMAGE_BUCKET_URL/$file_name.md5" \
+  -o "/tmp/$file_name.md5" \
   --connect-timeout 30 \
   --max-time 1800
 
-md5only=$(cut -f1 -d ' ' "/tmp/$FILE_NAME.md5")
+md5only=$(cut -f1 -d ' ' "/tmp/$file_name.md5")
 if [ "$md5only" != "$checksum" ]; then
   echo >&2 "Wrong checksum of present/uploaded image."
   echo >&2 "Something might have failed on file transfer."
