@@ -56,8 +56,8 @@ for arg in "$@"; do
 done
 
 # enter KubeNow user config path
-cd "/KubeNow_config" || (
-  echo "Error: could not change dir to /KubeNow_config, exiting."
+cd "/KubeNow_root" || (
+  echo "Error: could not change dir to /KubeNow_root, exiting."
   exit 1
 )
 
