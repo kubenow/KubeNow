@@ -59,7 +59,6 @@ function docker_run() {
   # parameters
   container=$1
   kubenow_root=$2
-  command=$3
   # shellcheck disable=SC2068
   docker run --rm -it \
     -v "$kubenow_root":/KubeNow_root \
@@ -74,7 +73,7 @@ function docker_run() {
     --env-file <(env | grep ARM_) \
     --env-file <(env | grep KUBENOW_) \
     "$container" \
-    "/opt/KubeNow/bin/docker-entrypoint" "$command" ${@:4}
+    "/opt/KubeNow/bin/docker-entrypoint" ${@:3}
 }
 
 function validate_pwd() {
@@ -94,7 +93,7 @@ function validate_pwd() {
 }
 
 ###############
-# subcommands #
+# Subcommands #
 ###############
 
 subcommand="$1"
@@ -139,24 +138,28 @@ init)
 
 # Commands that do not need PWD validation
 az | openstack | gcloud | bash)
-  docker_run "$provisioners_img" "$PWD" "$subcommand"
+  # shellcheck disable=SC2068
+  docker_run "$provisioners_img" "$PWD" "$subcommand" ${@:2}
   ;;
 
 # Commands that need PWD validation
 terraform | ansible | ansible-playbook)
   validate_pwd
-  docker_run "$provisioners_img" "$PWD" "$subcommand"
+  # shellcheck disable=SC2068
+  docker_run "$provisioners_img" "$PWD" "$subcommand" ${@:2}
   ;;
 
 # KubeNow-defined commands that do no need PWD validation
 kubetoken)
-  docker_run "$provisioners_img" "$PWD" "kn-$subcommand"
+  # shellcheck disable=SC2068
+  docker_run "$provisioners_img" "$PWD" "kn-$subcommand" ${@:2}
   ;;
 
 # KubeNow-defined commands that need PWD validation
 apply | destroy | kubectl | helm | ssh)
   validate_pwd
-  docker_run "$provisioners_img" "$PWD" "kn-$subcommand"
+  # shellcheck disable=SC2068
+  docker_run "$provisioners_img" "$PWD" "kn-$subcommand" ${@:2}
   ;;
 
 "")
