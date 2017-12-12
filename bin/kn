@@ -132,7 +132,7 @@ terraform | ansible | ansible-playbook | kubetoken | apply | destroy | kubectl |
     --env-file <(env | grep ARM_) \
     --env-file <(env | grep KUBENOW_) \
     kubenow/provisioners:"$kubenow_version" \
-    "/KubeNow_root/bin/docker-entrypoint" "$@"
+    "/opt/KubeNow/bin/docker-entrypoint" "$@"
   ;;
 "")
   echo "No <command> specified" >&2

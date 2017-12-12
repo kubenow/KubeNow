@@ -57,10 +57,10 @@ done
 
 # enter KubeNow user config path
 cd "/KubeNow_config" || (
-  echo "Error: could not change dir to /KuneNow_config, exiting."
+  echo "Error: could not change dir to /KubeNow_config, exiting."
   exit 1
 )
 
 # run command as above created user via ssh-wrapper script that adds the
 # ssh-agent to this execution environment
-gosu "$username" sh -c "ssh-agent-wrapper $recited_cmd"
+gosu "$username" sh -c "/opt/KubeNow/bin/ssh-agent-wrapper $recited_cmd"
