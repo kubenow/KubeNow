@@ -79,15 +79,15 @@ function docker_run() {
 function validate_pwd() {
   # Make sure that all of the needed files are in place
   if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ]; then
-    echo >&2 "Error: ssh_key not found. Are you in the right directory?"
+    echo "Error: ssh_key not found. Are you in the right directory?" >&2
     exit 1
   fi
   if [ ! -f terraform.tfvars ]; then
-    echo >&2 "Error: terraform.tfvars not found. Are you in the right directory?"
+    echo "Error: terraform.tfvars not found. Are you in the right directory?" >&2
     exit 1
   fi
   if [ ! -f ansible.cfg ]; then
-    echo >&2 "Error: ansible.cfg not found. Are you in the right directory?"
+    echo "Error: ansible.cfg not found. Are you in the right directory?" >&2
     exit 1
   fi
 }
@@ -111,7 +111,7 @@ version)
 init)
   # Validate
   if [ "$#" -ne 3 ]; then
-    echo >&2 "Error: wrong number of argument for the init command"
+    echo "Error: wrong number of argument for the init command" >&2
     usage_init
     exit 1
   fi
@@ -119,7 +119,7 @@ init)
   host_cloud="$2"
   # Check for recognized cloud provider
   if ! grep -qw "$host_cloud" <<<"openstack gce azure aws"; then
-    echo >&2 "Error: unrecognized host cloud '$host_cloud'"
+    echo "Error: unrecognized host cloud '$host_cloud'" >&2
     usage_init
     exit 1
   fi
@@ -127,7 +127,7 @@ init)
   # shellcheck disable=SC2086,SC2046
   init_dir=$(cd $(dirname $3) && echo $PWD/$(basename $3))
   if [ -f "$init_dir" ] || [ -d "$init_dir" ]; then
-    echo >&2 "Error: $init_dir already exists"
+    echo "Error: $init_dir already exists" >&2
     usage_init
     exit 1
   fi

@@ -11,7 +11,7 @@ set -e
 
 # Add and run as local user if LOCAL_USER_ID is passed in at runtime
 if [ -z "$LOCAL_USER_ID" ]; then
-  echo "LOCAL_USER_ID must be set in the environment when running this container, exiting."
+  echo "LOCAL_USER_ID must be set in the environment when running this container, exiting." >&2
   exit 1
 fi
 
@@ -29,22 +29,22 @@ username=$(getent passwd "$LOCAL_USER_ID" | cut -d: -f1)
 # create groups with $LOCAL_GROUP_IDS and add them to user
 for group_id in $LOCAL_GROUP_IDS; do
 
-  # create group with $group_id if it doesnt exist
+  # create group with $group_id if it doesn't exist
   if ! getent group "$group_id" >/dev/null 2>&1; then
     addgroup --quiet --gid "$group_id" "group$group_id"
   fi
 
   # get groupname with $group_id
-  GROUPNAME=$(getent group "$group_id" | cut -d: -f1)
+  groupname=$(getent group "$group_id" | cut -d: -f1)
 
   # add group to user
-  adduser --quiet "$username" "$GROUPNAME" >/dev/null 2>&1
+  adduser --quiet "$username" "$groupname" >/dev/null 2>&1
 
 done
 
 # add KubeNow bin path (works with gosu - environment variables are kept
-# when swiching user
-if [[ "$1" =~ init.* ]]; then
+# when swiching user)
+if [[ "$1" == "kn-init" ]]; then
   export PATH="/opt/KubeNow/bin:$PATH"
 else
   export PATH="/KubeNow_root/bin:$PATH"
@@ -56,8 +56,12 @@ for arg in "$@"; do
 done
 
 # enter KubeNow user config path
+if [ ! -d "$DIRECTORY" ]; then
+  echo "Error: could not change dir to /KubeNow_root, exiting." >&2
+  exit 1
+fi
 cd "/KubeNow_root" || (
-  echo "Error: could not change dir to /KubeNow_root, exiting."
+  echo "Error: could not change dir to /KubeNow_root, exiting." >&2
   exit 1
 )
 
