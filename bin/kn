@@ -60,7 +60,7 @@ function docker_run() {
   container=$1
   kubenow_root=$2
   command=$3
-  # shellcheck disable=SC2086
+  # shellcheck disable=SC2068
   docker run --rm -it \
     -v "$kubenow_root":/KubeNow_root \
     -e "LOCAL_USER_ID=$UID" \
