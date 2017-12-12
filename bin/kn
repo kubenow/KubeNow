@@ -74,7 +74,7 @@ function docker_run() {
     --env-file <(env | grep ARM_) \
     --env-file <(env | grep KUBENOW_) \
     $container \
-    "/opt/KubeNow/bin/docker-entrypoint" "$command"
+    "/opt/KubeNow/bin/docker-entrypoint" "$command" ${@:4}
 }
 
 function validate_pwd() {
@@ -134,7 +134,7 @@ init)
   fi
   # Init deployment
   mkdir -p "$init_dir"
-  docker_run "$provisioners_img" "$init_dir" "kn-init $host_cloud"
+  docker_run "$provisioners_img" "$init_dir" "kn-init" "$host_cloud"
   ;;
 
 # Commands that do not need PWD validation
