@@ -56,14 +56,11 @@ for arg in "$@"; do
 done
 
 # enter KubeNow user config path
-if [ ! -d "$DIRECTORY" ]; then
-  echo "Error: could not change dir to /KubeNow_root, exiting." >&2
+if [ ! -d "/KubeNow_root" ]; then
+  echo "Error: /KubeNow_root does not exist, exiting." >&2
   exit 1
 fi
-cd "/KubeNow_root" || (
-  echo "Error: could not change dir to /KubeNow_root, exiting." >&2
-  exit 1
-)
+cd "/KubeNow_root"
 
 # run command as above created user via ssh-wrapper script that adds the
 # ssh-agent to this execution environment
