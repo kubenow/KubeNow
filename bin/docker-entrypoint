@@ -57,7 +57,7 @@ done
 
 # enter KubeNow user config path
 cd "/KubeNow_config" || (
-  echo "Error: could not change dir to /KuneNow_config, exiting."
+  echo "Error: could not change dir to /KubeNow_config, exiting."
   exit 1
 )
 
