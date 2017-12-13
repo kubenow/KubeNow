@@ -83,7 +83,7 @@ In addition to the above suggestions, reviewers should check code changes carefu
 ### Merging a Pull Request by an external contributor
 When a PR from an external contributor has been submitted, an owner needs to merge the PR following this workflow:
 
-1. Make sure that any of the encrypted value is manipulated in the PR
+1. Make sure that no encrypted value is manipulated in the PR
 2. Fetch the PR: `git fetch origin pull/<ID>/head:pr-<ID>`
 3. Checkout the master and pull it: `git checkout master && git pull`
 4. Checkout a new test branch from the master: `git checkout -b pr-test-<ID>`
