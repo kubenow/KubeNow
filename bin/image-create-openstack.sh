@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+# Checks and uploads specified Image to user's OpenStack account.
+# Downloads image first from an Amazon S3 storage account to host,
+# then uploads image to openstack teenancy.
+# Uses curl and python-glanceclient to do the job.
+#
+# Env vars
+#   IMAGE_NAME
+#   IMAGE_BUCKET_URL
+
 # Exit immediately if a command exits with a non-zero status
 set -e
 
@@ -13,7 +22,7 @@ fi
 IMAGE_BUCKET_URL=${IMAGE_BUCKET_URL:-"https://s3.eu-central-1.amazonaws.com/kubenow-eu-central-1"}
 file_name="$IMAGE_NAME.qcow2"
 
-# check if image is present already
+# Check if image is present already
 echo "List images available in OpenStack..."
 image_list="$(glance image-list)"
 image_id="$(printf '%s' "$image_list" |
@@ -21,7 +30,7 @@ image_id="$(printf '%s' "$image_list" |
   awk -F "|" '{print $2;}' |
   tr -d '[:space:]')"
 
-# if it doesn't exist then download it
+# If it doesn't exist then download it
 if [ -z "$image_id" ]; then
   echo "Image not present in OpenStack"
   echo "Downloading image to local /tmp/"
@@ -43,7 +52,7 @@ else
   echo "File exists - no need to download"
 fi
 
-# if it didn't exist then upload it
+# If it didn't exist then upload it
 if [ -z "$image_id" ]; then
   echo "Uploading image"
   glance image-create \

@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Checks and uploads specified Image to user's Google account.
+# Uses google command line client to do the job.
+#
+# Env vars
+#   IMAGE_NAME
+#   GCE_ACCOUNT_FILE_PATH
+
 # Exit immediately if a command exits with a non-zero status
 set -e
 
@@ -18,6 +25,7 @@ fi
 echo "Login"
 gcloud auth activate-service-account --key-file="$GCE_ACCOUNT_FILE_PATH"
 
+# Get project_id from json formatted account file
 project_id=$(jq -r .project_id <"$GCE_ACCOUNT_FILE_PATH")
 gcloud config set project "$project_id"
 
@@ -28,7 +36,7 @@ if [ -z "$existing_image" ]; then
 
   echo "Image does not exist in this account"
 
-  # exec in background and capture stdout of the job as (input) fd 3.
+  # Run exec in background and capture stdout of the job as (input) fd 3.
   exec 3< <(gcloud compute images create "$IMAGE_NAME" \
     --source-uri "gs://kubenow-images/$IMAGE_NAME.tar.gz" 2>&1)
 
