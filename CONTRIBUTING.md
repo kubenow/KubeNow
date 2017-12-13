@@ -80,12 +80,22 @@ In addition to the above suggestions, reviewers should check code changes carefu
 * Adds large dependencies
 * Adds a large amount of code
 
+### Merging a Pull Request by an external contributor
+When a PR from an external contributor has been submitted, an owner needs to merge the PR following this workflow:
+
+1. Make sure that any of the encrypted value is manipulated in the PR
+2. Fetch the PR: `git fetch origin pull/<ID>/head:pr-<ID>`
+3. Checkout the master and pull it: `git checkout master && git pull`
+4. Checkout a new test branch from the master: `git checkout -b pr-test-<ID>`
+5. Merge the PR in the new test branch: `git merge pr-<ID>`
+7. Merge the original PR if the CI for `pr-test-<ID>` passes
+
 ## Support Channels
 
 Whether you are a user or contributor, official support channels include:
 
-* GitHub issues: https://github.com/kubenetes/charts/issues
-* Slack: KubeNow - coming soon
+* GitHub issues: https://github.com/kubenow/KubeNow/issues
+* Slack: https://kubenow.slack.com
 
 Before opening a new issue or submitting a new pull request, it's helpful to search the project - it's likely that another user has already reported the issue you're facing, or it's a known issue that we're already aware of.
 
