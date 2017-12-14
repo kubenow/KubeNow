@@ -7,7 +7,6 @@ set -e # exit at first error
 ###############
 
 kubenow_version="master"
-provisioners_img="kubenow/provisioners:$kubenow_version"
 
 #############
 # Functions #
@@ -16,7 +15,8 @@ provisioners_img="kubenow/provisioners:$kubenow_version"
 function usage() {
   cat <<EOF
 
-Usage: kn <command>
+Usage: kn [options] <command>
+
 Commands:
 basic:
   help                   print this message
@@ -42,6 +42,10 @@ cloud providers CLI:
 developers:
   bash                   run an interactive bash promt in the provisioners container
   kubetoken              generate and print a kubeadm token
+
+Options:
+  -i, --docker-image <image>    specifies the provisioners docker image to be used.
+  KN_PROVISIONERS_IMG           Default: kubenow/provisioners:$kubenow_version
 
 EOF
 }
@@ -92,6 +96,33 @@ function validate_pwd() {
   fi
 }
 
+###########
+# Options #
+###########
+
+# Set defaults if not specified in the environment
+if [ -z "$KN_PROVISIONERS_IMG" ]; then
+  KN_PROVISIONERS_IMG="kubenow/provisioners:$kubenow_version"
+fi
+
+# While current command starts with "-" parse options
+# in environment variables
+while [[ "$1" == -* ]]; do
+  option="$1"
+  case $option in
+  -i | --docker-image)
+    KN_PROVISIONERS_IMG="$2"
+    shift # past argument
+    shift # past value
+    ;;
+  *)
+    echo "unrecognized option $1" >&2
+    usage
+    exit 1
+    ;;
+  esac
+done
+
 ###############
 # Subcommands #
 ###############
@@ -133,33 +164,33 @@ init)
   fi
   # Init deployment
   mkdir -p "$init_dir"
-  docker_run "$provisioners_img" "$init_dir" "kn-init" "$host_cloud"
+  docker_run "$KN_PROVISIONERS_IMG" "$init_dir" "kn-init" "$host_cloud"
   ;;
 
 # Commands that do not need PWD validation
 az | openstack | gcloud | bash)
   # shellcheck disable=SC2068
-  docker_run "$provisioners_img" "$PWD" "$subcommand" ${@:2}
+  docker_run "$KN_PROVISIONERS_IMG" "$PWD" "$subcommand" ${@:2}
   ;;
 
 # Commands that need PWD validation
 terraform | ansible | ansible-playbook)
   validate_pwd
   # shellcheck disable=SC2068
-  docker_run "$provisioners_img" "$PWD" "$subcommand" ${@:2}
+  docker_run "$KN_PROVISIONERS_IMG" "$PWD" "$subcommand" ${@:2}
   ;;
 
 # KubeNow-defined commands that do no need PWD validation
 kubetoken)
   # shellcheck disable=SC2068
-  docker_run "$provisioners_img" "$PWD" "kn-$subcommand" ${@:2}
+  docker_run "$KN_PROVISIONERS_IMG" "$PWD" "kn-$subcommand" ${@:2}
   ;;
 
 # KubeNow-defined commands that need PWD validation
 apply | destroy | kubectl | helm | ssh)
   validate_pwd
   # shellcheck disable=SC2068
-  docker_run "$provisioners_img" "$PWD" "kn-$subcommand" ${@:2}
+  docker_run "$KN_PROVISIONERS_IMG" "$PWD" "kn-$subcommand" ${@:2}
   ;;
 
 "")
