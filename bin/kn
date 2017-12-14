@@ -108,18 +108,18 @@ fi
 # While current command starts with "-" parse options
 # in environment variables
 while [[ "$1" == -* ]]; do
-option="$1"
+  option="$1"
   case $option in
-      -i|--docker-image)
-      KN_PROVISIONERS_IMG="$2"
-      shift # past argument
-      shift # past value
-      ;;
-      *)
-      echo "unrecognized option $1" >&2
-      usage
-      exit 1
-      ;;
+  -i | --docker-image)
+    KN_PROVISIONERS_IMG="$2"
+    shift # past argument
+    shift # past value
+    ;;
+  *)
+    echo "unrecognized option $1" >&2
+    usage
+    exit 1
+    ;;
   esac
 done
 
