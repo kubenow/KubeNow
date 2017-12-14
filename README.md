@@ -66,7 +66,11 @@ kn apply
 Deploy openshift on cluster:
 
 ```bash
+# Clone and checkout openshift-ansible repo
 kn git clone https://github.com/openshift/openshift-ansible.git
 kn git -C openshift-ansible checkout release-3.6
+
+# Run ansible-playbook
+kn ansible-playbook openshift-ansible/playbooks/byo/config.yml
 ```
 
