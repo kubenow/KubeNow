@@ -110,7 +110,7 @@ fi
 while [[ "$1" == -* ]]; do
 option="$1"
   case $option in
-      -p|--provisioners)
+      -i|--docker-image)
       KN_PROVISIONERS_IMG="$2"
       shift # past argument
       shift # past value
