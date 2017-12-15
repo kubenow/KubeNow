@@ -1,13 +1,20 @@
 #!/usr/bin/env bash
 #
-# Via azure command line client check if specified Image is present and
-# upload it to the users Azure account. The image will be uploaded to a
-# generated resource-group in a generated storage-account in a speciffic
-# location.
+# Checks and uploads specified Image to user's Azure account.
+# Uses azure command line client to do the job.
+# The image will be uploaded to a generated resource-group in
+# a generated storage-account in a speciffic location
 #
-# Env vars
-#   IMAGE_NAME
+# Env vars (mandatory)
+#   KN_IMAGE_NAME
 #   TF_VARS_FILE
+#
+# Env vars (optional)
+#   ARM_CLIENT_ID
+#   ARM_CLIENT_SECRET
+#   ARM_TENANT_ID
+#   ARM_LOCATION
+
 
 # Exit immediately if a command exits with a non-zero status
 set -e
@@ -18,8 +25,8 @@ RESOURCE_GROUP_PREFIX="kubenow-images-rg"
 SRC_CONTAINER="https://kubenow.blob.core.windows.net/system"
 OUTPUT_FMT="table"
 
-if [ -z "$IMAGE_NAME" ]; then
-  echo >&2 "env IMAGE_NAME must be set for this script to run"
+if [ -z "$KN_IMAGE_NAME" ]; then
+  echo >&2 "env KN_IMAGE_NAME must be set for this script to run"
   exit 1
 fi
 
@@ -27,39 +34,44 @@ if [ -z "${TF_VARS_FILE}" ]; then
   echo >&2 "env TF_VARS_FILE must be set for this script to run"
 fi
 
-# Get vars from tfvars-file
-arm_client_id=$(grep "client_id" "$TF_VARS_FILE" |
+# Get vars from tfvars-file if not set in environment
+if [ -z "${ARM_CLIENT_ID}" ]; then
+  ARM_CLIENT_ID=$(grep "client_id" "$TF_VARS_FILE" |
     cut -d "=" -f 2- |
     awk -F\" '{print $(NF-1)}')
-
-arm_client_secret=$(grep "client_secret" "$TF_VARS_FILE" |
+fi
+if [ -z "${ARM_CLIENT_SECRET}" ]; then
+  ARM_CLIENT_SECRET=$(grep "client_secret" "$TF_VARS_FILE" |
     cut -d "=" -f 2- |
     awk -F\" '{print $(NF-1)}')
-
-arm_tenant_id=$(grep "tenant_id" "$TF_VARS_FILE" |
+fi
+if [ -z "${ARM_TENANT_ID}" ]; then
+  ARM_TENANT_ID=$(grep "tenant_id" "$TF_VARS_FILE" |
     cut -d "=" -f 2- |
     awk -F\" '{print $(NF-1)}')
-
-arm_location=$(grep "location" "$TF_VARS_FILE" |
+fi
+if [ -z "${ARM_LOCATION}" ]; then
+  ARM_LOCATION=$(grep "location" "$TF_VARS_FILE" |
     cut -d "=" -f 2- |
     awk -F\" '{print $(NF-1)}')
+fi
 
 echo "Login"
 az login --service-principal \
-  -u "$arm_client_id" \
-  -p "$arm_client_secret" \
-  --tenant "$arm_tenant_id" \
+  -u "$ARM_CLIENT_ID" \
+  -p "$ARM_CLIENT_SECRET" \
+  --tenant "$ARM_TENANT_ID" \
   --output "$OUTPUT_FMT"
 
-# Make sure location is in azure short lowercase format without spaces
-location_short="${arm_location//[[:blank:]]/}"
+# Make sure location is in lowercase format without spaces
+location_short="${ARM_LOCATION//[[:blank:]]/}"
 location_short="${location_short,,}"
 
-# Append location to rg to make unique rg per location
+# append location to rg to make unique rg per location
 resource_group="$RESOURCE_GROUP_PREFIX-$location_short"
 
 # Check if image exists in this resource-group in this location
-image_details=$(az image show --resource-group "$resource_group" --name "$IMAGE_NAME" -o json |
+image_details=$(az image show --resource-group "$resource_group" --name "$KN_IMAGE_NAME" -o json |
   jq "select(.location == \"$location_short\")")
 if [ -z "$image_details" ]; then
 
@@ -92,13 +104,13 @@ if [ -z "$image_details" ]; then
     --container-name system \
     --query [].name \
     --output tsv |
-    grep "/$IMAGE_NAME/.*json")
+    grep "/$KN_IMAGE_NAME/.*json")
 
   file_name_vhd=$(az storage blob list --account-name kubenow \
     --container-name system \
     --query [].name \
     --output tsv |
-    grep "/$IMAGE_NAME/.*vhd")
+    grep "/$KN_IMAGE_NAME/.*vhd")
 
   echo "Start asynchronous file copy of image def file"
   az storage blob copy start --account-name "$storage_account" \
@@ -156,7 +168,7 @@ if [ -z "$image_details" ]; then
 
   echo "Create image from imported vhd-file"
   az image create --resource-group "$resource_group" \
-    --name "$IMAGE_NAME" \
+    --name "$KN_IMAGE_NAME" \
     --os-type "Linux" \
     --source "https://$storage_account.blob.core.windows.net/kubenow-images/$file_name_vhd" \
     --output "$OUTPUT_FMT"
