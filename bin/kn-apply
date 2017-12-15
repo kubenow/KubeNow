@@ -19,9 +19,9 @@ fi
 
 # Import image (AWS doesn't need it)
 if [ "$host_cloud" = 'openstack' ] || [ "$host_cloud" = 'gce' ] || [ "$host_cloud" = 'azure' ]; then
-  export GCE_ACCOUNT_FILE_PATH="$PWD/service-account.json"
+  export KN_GCE_ACCOUNT_FILE_PATH="$PWD/service-account.json"
   export TF_VARS_FILE="$PWD/terraform.tfvars"
-  export IMAGE_NAME="$image_name"
+  export KN_IMAGE_NAME="$image_name"
   /KubeNow_root/bin/image-create-"$host_cloud".sh
 fi
 

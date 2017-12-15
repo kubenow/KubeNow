@@ -15,7 +15,6 @@
 #   ARM_TENANT_ID
 #   ARM_LOCATION
 
-
 # Exit immediately if a command exits with a non-zero status
 set -e
 
