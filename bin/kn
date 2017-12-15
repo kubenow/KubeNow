@@ -1,45 +1,112 @@
 #!/bin/bash
 
-set -e
+set -e # exit at first error
 
-VERSION="development/openrisknet"
-PROVISIONER_IMAGE="andersla/provisioners"
+###############
+# Set version #
+###############
 
-function usage {
+kubenow_version="development/openrisknet"
+
+#############
+# Functions #
+#############
+
+function usage() {
   cat <<EOF
 
-Usage: kn <command>
+Usage: kn [options] <command>
+
 Commands:
-  help                 print this message
-  init <CLOUD> <DIR>   creates a new project in the supplied directory
-                       CLOUD=<gce|aws|openstack|azure>
-  apply                apply configuration
-  destroy              destroy deployment
-  kubectl              run kubectl on the master. More help: kn kubectl help
-  helm                 run helm on the master. More help: kn helm help
-  terraform            run Terraform. More help: kn terraform --help
-  ansible              run Ansible. More help: kn ansible --help
-  ansible-playbook     run an Ansible playbook.
-                       More help: kn ansible-playbook --help
-  openstack            run a command against you Openstack provider: More help: kn openstack help
-  kubetoken            generate and print a kubeadm token
-  ssh <host>           ssh to <host> defined in ansible inventory file, default <host> is master
-  bash                 run an interactive bash promt in the kubenow provisioners docker-image
-  az                   run Microsoft Azure CLI: More help: kn az help
+basic:
+  help                   print this message
+  version                print version of this software
+  init <CLOUD> <DIR>     creates a new project in the supplied directory
+                         CLOUD=<gce|aws|openstack|azure>
+  apply                  apply configuration
+  destroy                destroy deployment
+  ssh <host>             ssh to <host> defined in ansible inventory file.
+                         Default <host> is master
+  upgrade <version>      upgrade kn to <latest|latest-stable|master|"tag">
+
+kubernetes:
+  kubectl                run kubectl on the master. More help: kn kubectl help
+  helm                   run helm on the master. More help: kn helm help
+cloud tools:
+  terraform              run Terraform. More help: kn terraform --help
+  ansible                run Ansible. More help: kn ansible --help
+  ansible-playbook       run an Ansible playbook.
+                         More help: kn ansible-playbook --help
+cloud providers CLI:
+  gcloud                 run Google Cloud Platform CLI. More help: kn gcloud help
+  openstack              run OpenStack CLI. More help: kn openstack help
+  az                     run Microsoft Azure CLI. More help: kn az help
+developers:
+  bash                   run an interactive bash promt in the provisioners container
+  kubetoken              generate and print a kubeadm token
   git
-  upgrade <version>    upgrade kn to <latest|latest-stable|master|"tag">
+
+Options:
+  -i, --docker-image <image>    specifies the provisioners docker image to be used.
+  KN_PROVISIONERS_IMG           Default: kubenow/provisioners:$kubenow_version
 
 EOF
 }
 
+function usage_init() {
+  cat <<EOF
+
+Usage: init <CLOUD> <DIR>
+CLOUD=<gce|aws|openstack|azure>
+
+EOF
+}
+
+function docker_run() {
+  # parameters
+  container=$1
+  kubenow_root=$2
+  # shellcheck disable=SC2068
+  docker run --rm -it \
+    -v "$kubenow_root":/KubeNow_root \
+    -e "LOCAL_USER_ID=$UID" \
+    -e "LOCAL_GROUP_IDS=$(id -G)" \
+    -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
+    -e "ANSIBLE_OPT=$ANSIBLE_OPT" \
+    --env-file <(env | grep OS_) \
+    --env-file <(env | grep TF_) \
+    --env-file <(env | grep GOOGLE_) \
+    --env-file <(env | grep AWS_) \
+    --env-file <(env | grep ARM_) \
+    --env-file <(env | grep KUBENOW_) \
+    "$container" \
+    "/opt/KubeNow/bin/docker-entrypoint" ${@:3}
+}
+
+function validate_pwd() {
+  # Make sure that all of the needed files are in place
+  if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ]; then
+    echo "Error: ssh_key not found. Are you in the right directory?" >&2
+    exit 1
+  fi
+  if [ ! -f terraform.tfvars ]; then
+    echo "Error: terraform.tfvars not found. Are you in the right directory?" >&2
+    exit 1
+  fi
+  if [ ! -f ansible.cfg ]; then
+    echo "Error: ansible.cfg not found. Are you in the right directory?" >&2
+    exit 1
+  fi
+}
 #
 # Adapted from stackoverflow-questions-59895
 #
-function resolve_links {
+function resolve_links() {
+  # parameters
   source="$1"
   # resolve $source until the file is no longer a symlink
   while [ -h "$source" ]; do
-    dir="$( cd -P "$( dirname "$source" )" && pwd )"
+    dir="$(cd -P "$(dirname "$source")" && pwd)"
     # if $dir was a relative symlink, we need to resolve it relative to
     # the path where the symlink file was located
     source="$(readlink "$source")"
@@ -51,43 +118,54 @@ function resolve_links {
 #
 # Description of function
 #
-function upgrade {
+function upgrade() {
+  # parameters
+  version="$1"
   echo "upgrade version: $version"
   branch=""
   case "$version" in
-    latest)
-      branch="$(curl https://api.github.com/repos/kubenow/KubeNow/releases | \
-            jq -r '.[0].tag_name')"
-      ;;
-    latest-stable)
-      echo "lateststable"
-      branch="$(curl https://api.github.com/repos/kubenow/KubeNow/releases | \
-                   jq -r '[.[] | select(.prerelease==false) | .tag_name'][0])"
-      ;;
-    *)
-      branch="${version}"
-      ;;
+  latest)
+    branch="$(curl https://api.github.com/repos/kubenow/KubeNow/releases |
+      jq -r '.[0].tag_name')"
+    ;;
+  latest-stable)
+    echo "lateststable"
+    branch="$(curl https://api.github.com/repos/kubenow/KubeNow/releases |
+      jq -r '[.[] | select(.prerelease==false) | .tag_name'][0])"
+    ;;
+  *)
+    branch="${version}"
+    ;;
   esac
 
   url="https://raw.githubusercontent.com/kubenow/KubeNow/$branch/bin/kn"
 
   # generate random suffix to prevent url caching
   random="$(openssl rand -base64 16)"
-  url="$url?rnd=$random"    
+  url="$url?rnd=$random"
 
   # get full filename of this script
   absolute_file="$(resolve_links "${BASH_SOURCE[0]}")"
 
   # download new version to temp
   tmpfile=$(mktemp)
-  curl -f "$url" -o "$tmpfile" || ( >&2 echo -e "\nError trying to download file $url\n"; exit 1 )
-  
+  curl -f "$url" -o "$tmpfile" || (
+    echo >&2 -e "\nError trying to download file $url\n"
+    exit 1
+  )
+
   # verify downloaded temp file is ok by executing kn help
   chmod +x "$tmpfile"
-  "$tmpfile" help > /dev/null 2>&1 || ( >&2 echo -e "\nCould not verify functionality of downloaded kn script - skipping upgrade\n"; exit 1 )
-  
+  "$tmpfile" help >/dev/null 2>&1 || (
+    echo >&2 -e "\nCould not verify functionality of downloaded kn script - skipping upgrade\n"
+    exit 1
+  )
+
   # copy file over old (preserves file attr from original file)
-  rsync --no-perms --no-owner --no-group "$tmpfile" "$absolute_file" || ( >&2 echo -e "\nCould not replace file: $absolute_file - do you have sudo rights?\n"; exit 1 )
+  rsync --no-perms --no-owner --no-group "$tmpfile" "$absolute_file" || (
+    echo >&2 -e "\nCould not replace file: $absolute_file - do you have sudo rights?\n"
+    exit 1
+  )
 
   rm "$tmpfile"
 
@@ -98,123 +176,129 @@ function upgrade {
   echo -e "\nUpdated ok to version $tag\n"
 }
 
-echo "kn version: $VERSION"
-provisioner_image_tag="${VERSION/\//-}"
+###########
+# Options #
+###########
 
-# Get all local user group id:s (to be added to user inside docker-image)
-LOCAL_GROUP_IDS="$(id -G)"
-
-# Replace command for commands that are overriding
-# standard bash/ubuntu commands
-command="$1"
-if [ -n "$command" ]; then
-  shift; set -- "$(sed -e 's/^ssh$/ssh-kn/' <<< $command)" "$@"
-  shift; set -- "$(sed -e 's/^init$/init-kn/' <<< $command)" "$@"
+# Set defaults if not specified in the environment
+if [ -z "$KN_PROVISIONERS_IMG" ]; then
+  KN_PROVISIONERS_IMG="andersla/provisioners:$kubenow_version"
 fi
 
-case "$1" in
-  help)
-    usage
-    exit
-    ;;
-
-  upgrade)
-    version="${2:-$VERSION}"
-
-    upgrade "$version"
-
-    exit
-    ;;
-
-  install-autocomplete)
-    #/usr/local/etc/bash_completion.d
-    #/etc/bash_completion.d
-    >&2 echo "Error: could not find a suitable autocomplete path, e.g. /etc/bash_completion.d or /usr/local/etc/bash_completion.d"
-    echo "You could provide preferred installation path with argument --preferred=/path/to/bash_completion.d"
-    exit
-    ;;
-
-  init-kn|init-os)
-    # Validate
-    if [ "$#" -ne 3 ]; then
-      >&2 echo "Error: wrong number of argument for the init command"
-      usage
-      exit 1
-    fi
-
-    HOST_CLOUD="$2"
-    # Check for recognized cloud provider
-    if ! grep -qw "$HOST_CLOUD" <<< "openstack gce azure aws"; then
-      >&2 echo "Error: unrecognized host cloud '$HOST_CLOUD'"
-      exit 1
-    fi
-
-    # shellcheck disable=SC2086,SC2046
-    INIT_DIR=$(cd $(dirname $3) && echo $PWD/$(basename $3))
-    if [ -f "$INIT_DIR" ] || [ -d "$INIT_DIR" ]; then
-      >&2 echo "Error: $INIT_DIR already exists"
-      exit 1
-    fi
-
-    mkdir -p "$INIT_DIR"
-
-    # Wrap docker run
-    # shellcheck disable=SC2086
-    echo "Running command with docker..."
-    docker run --rm -it \
-      -v "$INIT_DIR":/KubeNow_config \
-      -v "$INIT_DIR":/KubeNow_root \
-      -e "LOCAL_USER_ID=$UID" \
-      -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
-      "$PROVISIONER_IMAGE":"$provisioner_image_tag" \
-      "/opt/KubeNow/bin/docker-entrypoint" "$@"
-    ;;
-
-  terraform|ansible|ansible-playbook|kubetoken|apply|destroy|kubectl|helm|openstack|az|ssh-kn|bash|git)
-    # Validate PWD (not needed for a selection of commands)
-    if ! grep -qw "$1" <<< "kubetoken az openstack bash git"; then
-      if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ] ; then
-        >&2 echo "Error: ssh_key not found. Are you in the right directory?"
-        exit 1
-      fi
-      if [ ! -f terraform.tfvars ] ; then
-        >&2 echo "Error: terraform.tfvars not found. Please create one using the templates."
-        exit 1
-      fi
-      if [ ! -f ansible.cfg ] ; then
-        >&2 echo "Error: ansible.cfg not found. Are you in the right directory?"
-        exit 1
-      fi
-    fi
-
-    # Wrap docker run
-    # shellcheck disable=SC2086
-    echo "Running command with docker..."
-    docker run --rm -it \
-      -v "$PWD":/KubeNow_config \
-      -v "$PWD":/KubeNow_root \
-      -e "LOCAL_USER_ID=$UID" \
-      -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
-      -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
-      -e "ANSIBLE_OPT=$ANSIBLE_OPT" \
-      --env-file <(env | grep OS_) \
-      --env-file <(env | grep TF_) \
-      --env-file <(env | grep GOOGLE_) \
-      --env-file <(env | grep AWS_) \
-      --env-file <(env | grep ARM_) \
-      --env-file <(env | grep KUBENOW_) \
-      "$PROVISIONER_IMAGE":"$provisioner_image_tag" \
-      "/KubeNow_root/bin/docker-entrypoint" "$@"
-    ;;
-  "")
-    echo "No <command> specified" >&2
-    usage
-    exit
+# While current command starts with "-" parse options
+# in environment variables
+while [[ "$1" == -* ]]; do
+  option="$1"
+  case $option in
+  -i | --docker-image)
+    KN_PROVISIONERS_IMG="$2"
+    shift # past argument
+    shift # past value
     ;;
   *)
-    printf '"%s" is not a valid command\n' "$1" >&2
+    echo "unrecognized option $1" >&2
     usage
     exit 1
     ;;
+  esac
+done
+
+###############
+# Subcommands #
+###############
+
+subcommand="$1"
+case "$subcommand" in
+help)
+  usage
+  exit
+  ;;
+
+version)
+  echo "KubeNow version: $kubenow_version"
+  exit
+  ;;
+
+upgrade)
+  version="${2:-$kubenow_version}"
+
+  upgrade "$version"
+
+  exit
+  ;;
+
+install-autocomplete)
+  #/usr/local/etc/bash_completion.d
+  #/etc/bash_completion.d
+  echo >&2 "Error: could not find a suitable autocomplete path, e.g. /etc/bash_completion.d or /usr/local/etc/bash_completion.d"
+  echo "You could provide preferred installation path with argument --preferred=/path/to/bash_completion.d"
+  exit
+  ;;
+
+init)
+  # Validate
+  if [ "$#" -ne 3 ]; then
+    echo "Error: wrong number of argument for the init command" >&2
+    usage_init
+    exit 1
+  fi
+  # Parse HOST_CLOUD
+  host_cloud="$2"
+  # Check for recognized cloud provider
+  if ! grep -qw "$host_cloud" <<<"openstack gce azure aws"; then
+    echo "Error: unrecognized host cloud '$host_cloud'" >&2
+    usage_init
+    exit 1
+  fi
+  # Parts INIT_DIR
+  # shellcheck disable=SC2086,SC2046
+  init_dir=$(cd $(dirname $3) && echo $PWD/$(basename $3))
+  if [ -f "$init_dir" ] || [ -d "$init_dir" ]; then
+    echo "Error: $init_dir already exists" >&2
+    usage_init
+    exit 1
+  fi
+  # Init deployment
+  mkdir -p "$init_dir"
+  docker_run "$KN_PROVISIONERS_IMG" "$init_dir" "kn-init" "$host_cloud"
+  ;;
+
+# Commands that do not need PWD validation
+az | openstack | gcloud | bash)
+  # shellcheck disable=SC2068
+  docker_run "$KN_PROVISIONERS_IMG" "$PWD" "$subcommand" ${@:2}
+  ;;
+
+# Commands that need PWD validation
+terraform | ansible | ansible-playbook)
+  validate_pwd
+  # shellcheck disable=SC2068
+  docker_run "$KN_PROVISIONERS_IMG" "$PWD" "$subcommand" ${@:2}
+  ;;
+
+# KubeNow-defined commands that do no need PWD validation
+kubetoken)
+  # shellcheck disable=SC2068
+  docker_run "$KN_PROVISIONERS_IMG" "$PWD" "kn-$subcommand" ${@:2}
+  ;;
+
+# KubeNow-defined commands that need PWD validation
+apply | destroy | kubectl | helm | ssh)
+  validate_pwd
+  # shellcheck disable=SC2068
+  docker_run "$KN_PROVISIONERS_IMG" "$PWD" "kn-$subcommand" ${@:2}
+  ;;
+
+"")
+  echo "No command specified" >&2
+  usage
+  exit
+  ;;
+
+*)
+  echo "$1 is not a valid command" >&2
+  usage
+  exit 1
+  ;;
 
 esac

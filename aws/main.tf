@@ -1,11 +1,9 @@
 # Cluster settings
 variable cluster_prefix {}
 
-variable boot_image {
-  default = "kubenow-v040b1"
-}
+variable boot_image {}
 
-#variable kubeadm_token {default = "no-token"}
+variable kubeadm_token {}
 
 variable aws_access_key_id {}
 variable aws_secret_access_key {}
@@ -154,8 +152,8 @@ module "security_group" {
   source      = "./security_group"
 }
 
-# Lookup image-id of
-data "aws_ami" "boot_image" {
+# Lookup image-id of boot_image
+data "aws_ami" "bootimg" {
   most_recent = true
 
   filter {
@@ -175,7 +173,7 @@ module "master" {
   count             = "${var.master_count}"
   name_prefix       = "${var.cluster_prefix}-master"
   instance_type     = "${var.master_instance_type}"
-  image_id          = "${data.aws_ami.boot_image.id}"
+  image_id          = "${data.aws_ami.bootimg.id}"
   availability_zone = "${var.availability_zone}"
 
   # SSH settings
@@ -205,7 +203,7 @@ module "node" {
   count             = "${var.node_count}"
   name_prefix       = "${var.cluster_prefix}-node"
   instance_type     = "${var.node_instance_type}"
-  image_id          = "${data.aws_ami.boot_image.id}"
+  image_id          = "${data.aws_ami.bootimg.id}"
   availability_zone = "${var.availability_zone}"
 
   # SSH settings
@@ -235,7 +233,7 @@ module "edge" {
   count             = "${var.edge_count}"
   name_prefix       = "${var.cluster_prefix}-edge"
   instance_type     = "${var.edge_instance_type}"
-  image_id          = "${data.aws_ami.boot_image.id}"
+  image_id          = "${data.aws_ami.bootimg.id}"
   availability_zone = "${var.availability_zone}"
 
   # SSH settings
@@ -265,7 +263,7 @@ module "glusternode" {
   count             = "${var.glusternode_count}"
   name_prefix       = "${var.cluster_prefix}-glusternode"
   instance_type     = "${var.glusternode_instance_type}"
-  image_id          = "${data.aws_ami.boot_image.id}"
+  image_id          = "${data.aws_ami.bootimg.id}"
   availability_zone = "${var.availability_zone}"
 
   # SSH settings

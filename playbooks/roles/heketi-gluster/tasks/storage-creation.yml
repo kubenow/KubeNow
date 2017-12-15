@@ -1,3 +1,4 @@
+---
 - name: retrieve gluster-pod IPs
   command: >
     kubectl get pods
@@ -22,7 +23,7 @@
 
 - name: combine host-list with endpoint-list
   set_fact:
-     combined_host_ip: "{{ combined_host_ip|default({})|combine({item.0: item.1}) }}"
+    combined_host_ip: "{{ combined_host_ip|default({})|combine({item.0: item.1}) }}"
   with_together:
     - "{{ host_list }}"
     - "{{ enpoint_list }}"
@@ -53,9 +54,13 @@
     glusterpod_count: "{{ (enpoint_list | length) | int }}"
 
 # volumtype (replication factor): <VolumeDurability>:number eg. none:1, replicate:2, replicate:3 , disperse:???
+# in jinja2 - means remove any whitespace before this bracket
 - name: set fact volumetype
   set_fact:
-    volumetype: "{% if (glusterpod_count | int) == 1 %}none:1{% else %}replicate:{{ glusterpod_count }}{% endif %}"
+    volumetype: "{% if (glusterpod_count | int) == 1 %}none:1
+                 {%- elif (glusterpod_count | int) == 2 %}replicate:2
+                 {%- else %}replicate:3{% endif %}"
+  when: volumetype is undefined
 
 - name: render storage-class
   template:

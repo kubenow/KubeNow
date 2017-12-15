@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Exit if a command exits with a non-zero status
+set -e
+
+host_cloud="$1"
+PROJECT="-openshift"
+
+echo "Initializing $INIT_DIR deployment directory for cloud provider $host_cloud"
+
+# Copy all congig templates with correct suffix
+template_suffix="-$host_cloud$PROJECT-template"
+for file in /opt/KubeNow/templates/terraform*$template_suffix; do
+  # get name without path and suffix
+  name="$(basename "${file%$template_suffix}")"
+  cp "$file" "/KubeNow_config/$name"
+done
+
+# Copy all inventory templates with correct suffix
+template_suffix="$PROJECT-template"
+for file in /opt/KubeNow/templates/inventory*$template_suffix; do
+  # get name without path and suffix
+  name="$(basename "${file%$template_suffix}")-template"
+  cp "$file" "/KubeNow_config/$name"
+done
+
+# Copy config, scripts and template files to init dir
+# cp "/opt/KubeNow/templates/terraform.tfvars.$host_cloud-template" "/KubeNow_root/terraform.tfvars"
+cp -r "/opt/KubeNow/$host_cloud" "/KubeNow_root/"
+cp -r "/opt/KubeNow/common" "/KubeNow_root/"
+cp -r "/opt/KubeNow/bootstrap" "/KubeNow_root/"
+cp -r "/opt/KubeNow/bootstrap" "/KubeNow_root/"
+cp -r "/opt/KubeNow/bin" "/KubeNow_root/"
+cp -r "/opt/KubeNow/playbooks" "/KubeNow_root/"
+cp "/opt/KubeNow/ansible.cfg" "/KubeNow_root/"
+
+# Generate and write kubetoken
+tokenID=$(openssl rand -hex 3)
+tokenVal=$(openssl rand -hex 8)
+token="$tokenID.$tokenVal"
+
+sed -i "s/your-kubeadm-token/${token}/g" terraform.tfvars
+
+# Generate SSH keys
+ssh-keygen -t rsa -N '' -f ssh_key

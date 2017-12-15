@@ -1,9 +1,7 @@
 # Cluster settings
 variable cluster_prefix {}
 
-variable boot_image {
-  default = "kubenow-v040b1"
-}
+variable boot_image {}
 
 variable ssh_user {
   default = "ubuntu"

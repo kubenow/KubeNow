@@ -1,8 +1,7 @@
 ---
-# ignore_errors because kubectl will exit with errorcode if taint doesn't exist,
-# which is the case if playbook is being run twice
-- name: "untaint master if it is the only node"
-  command: >
-    kubectl taint nodes
-    --all node-role.kubernetes.io/master-
-  ignore_errors: yes
+# First jq-filter nodes having taint and then untaint command
+- name: "untaint master"
+  shell: >
+    kubectl get nodes -o json
+      | jq ".items[] | select(.spec.taints[]?.key==\"node-role.kubernetes.io/master\") | .metadata.name"
+      | xargs -L1 -i kubectl taint nodes {} node-role.kubernetes.io/master-
