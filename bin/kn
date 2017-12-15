@@ -147,7 +147,7 @@ function upgrade() {
   # get full filename of this script
   absolute_file="$(resolve_links "${BASH_SOURCE[0]}")"
 
-  # download new version to temp
+  echo "Download new version to /tmp"
   tmpfile=$(mktemp)
   curl -f "$url" -o "$tmpfile" || (
     echo >&2 -e "\nError trying to download file $url\n"
@@ -155,6 +155,7 @@ function upgrade() {
   )
 
   # verify downloaded temp file is ok by executing kn help
+  echo "Verify downloaded file"
   chmod +x "$tmpfile"
   "$tmpfile" help >/dev/null 2>&1 || (
     echo >&2 -e "\nCould not verify functionality of downloaded kn script - skipping upgrade\n"
@@ -162,6 +163,7 @@ function upgrade() {
   )
 
   # copy file over old (preserves file attr from original file)
+  echo "Replace file $absolute_file with downloaded"
   rsync --no-perms --no-owner --no-group "$tmpfile" "$absolute_file" || (
     echo >&2 -e "\nCould not replace file: $absolute_file - do you have sudo rights?\n"
     exit 1
@@ -170,6 +172,7 @@ function upgrade() {
   rm "$tmpfile"
 
   # pull latest docker
+  echo "Pull provisioners docker image"
   tag="${version/\//-}"
   docker pull "$PROVISIONER_IMAGE:$tag"
 
@@ -182,7 +185,8 @@ function upgrade() {
 
 # Set defaults if not specified in the environment
 if [ -z "$KN_PROVISIONERS_IMG" ]; then
-  KN_PROVISIONERS_IMG="andersla/provisioners:$kubenow_version"
+  tag="${kubenow_version/\//-}"
+  KN_PROVISIONERS_IMG="andersla/provisioners:$tag"
 fi
 
 # While current command starts with "-" parse options
