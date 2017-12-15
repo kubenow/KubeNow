@@ -120,7 +120,7 @@ function resolve_links() {
 #
 function upgrade() {
   # parameters
-  version="$1"
+  version="$kubenow_version"
   echo "upgrade version: $version"
   branch=""
   case "$version" in
@@ -173,10 +173,10 @@ function upgrade() {
 
   # pull latest docker
   echo "Pull provisioners docker image"
-  tag="${version/\//-}"
-  docker pull "$KN_PROVISIONERS_IMG:$tag"
 
-  echo -e "\nUpdated ok to version $tag\n"
+  docker pull "$KN_PROVISIONERS_IMG"
+
+  echo -e "\nUpdated ok to version $KN_PROVISIONERS_IMG\n"
 }
 
 ###########
@@ -224,9 +224,8 @@ version)
   ;;
 
 upgrade)
-  version="${2:-$kubenow_version}"
 
-  upgrade "$version"
+  upgrade
 
   exit
   ;;
