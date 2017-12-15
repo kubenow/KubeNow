@@ -174,7 +174,7 @@ function upgrade() {
   # pull latest docker
   echo "Pull provisioners docker image"
   tag="${version/\//-}"
-  docker pull "$PROVISIONER_IMAGE:$tag"
+  docker pull "$KN_PROVISIONERS_IMG:$tag"
 
   echo -e "\nUpdated ok to version $tag\n"
 }
