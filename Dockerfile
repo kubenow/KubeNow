@@ -24,41 +24,43 @@ ENV PLUGIN_TEMPLATE=1.0.0
 
 # Install with apt and pip
 RUN apt-get update -y && apt-get install -y \
-  curl \
-  apt-transport-https \
-  git \
-  curl \
-  bc \
-  jq \
-  gosu \
-  libffi-dev \
-  openssl \
-  unzip \
-  python-pip && \
-  `# Add google cloud` \
-  echo "deb http://packages.cloud.google.com/apt cloud-sdk-xenial main" | \
-  tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
-  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
-  apt-get update -y && apt-get install -y \
-  google-cloud-sdk="$GOOGLE_CLOUD_SDK_VERSION" && \
-  `# Pip` \
-  pip install --upgrade pip --no-cache-dir && \
-  pip install --no-cache-dir \
-  ansible=="$ANSIBLE_VERSION" \
-  j2cli=="$J2CLI_VERSION" \
-  dnspython=="$DNSPYTHON_VERSION" \
-  jmespath=="$JMESPATH_VERSION" \
-  apache-libcloud=="$LIBCLOUD_VERSION" \
-  shade=="$SHADE_VERSION" \
-  python-openstackclient=="$OPENSTACKCLIENT_VERSION" \
-  python-glanceclient=="$GLANCECLIENT_VERSION" \
-  awscli=="$AWSCLI_VERSION" \
-  azure-cli=="$AZURE_CLI_VERSION" && \
-  `# Remove unwanted` \
-  rm -rf /usr/lib/gcc && \
-  rm -rf /usr/share/man && \
-  rm -rf /usr/lib/google-cloud-sdk/platform/gsutil && \
-  apt-get clean && rm -rf /var/lib/apt/lists/*
+      apt-transport-https \
+      bc \
+      curl \
+      git \
+      gosu \
+      jq \
+      libffi-dev \
+      openssl \
+      python-pip \
+      unzip && \
+    `# Add google cloud` \
+    echo "deb http://packages.cloud.google.com/apt cloud-sdk-xenial main" \
+      | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+      | apt-key add - && \
+    apt-get update -y && apt-get install -y \
+      google-cloud-sdk="$GOOGLE_CLOUD_SDK_VERSION" && \
+    `# Pip` \
+    pip install --no-cache-dir --upgrade \
+      pip && \
+    pip install --no-cache-dir \
+      ansible=="$ANSIBLE_VERSION" \
+      j2cli=="$J2CLI_VERSION" \
+      dnspython=="$DNSPYTHON_VERSION" \
+      jmespath=="$JMESPATH_VERSION" \
+      apache-libcloud=="$LIBCLOUD_VERSION" \
+      shade=="$SHADE_VERSION" \
+      python-openstackclient=="$OPENSTACKCLIENT_VERSION" \
+      python-glanceclient=="$GLANCECLIENT_VERSION" \
+      awscli=="$AWSCLI_VERSION" \
+      azure-cli=="$AZURE_CLI_VERSION" && \
+    `# Remove unwanted` \
+    rm -rf /usr/lib/gcc && \
+    rm -rf /usr/share/man && \
+    rm -rf /usr/lib/google-cloud-sdk/platform/gsutil && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install Terraform
 RUN curl "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" > \
