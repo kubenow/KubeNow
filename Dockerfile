@@ -12,7 +12,7 @@ ENV TERRAFORM_VERSION=0.10.7 \
     GLANCECLIENT_VERSION=2.8.0 \
     AWSCLI_VERSION=1.11.177 \
     AZURE_CLI_VERSION=2.0.18 \
-    GOOGLE_CLOUD_SDK_VERSION=179.0.0-0
+    GOOGLE_CLOUD_SDK_VERSION=179.0.0-0 \
 
     # Terraform plugin versions
     PLUGIN_OPENSTACK=0.2.2 \
@@ -27,6 +27,7 @@ ENV TERRAFORM_VERSION=0.10.7 \
 RUN apt-get update -y && apt-get install -y \
       apt-transport-https \
       bc \
+      ca-certificates \
       curl \
       git \
       gosu \
