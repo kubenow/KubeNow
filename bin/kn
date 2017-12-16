@@ -140,38 +140,38 @@ function upgrade() {
 
   url="https://raw.githubusercontent.com/kubenow/KubeNow/$branch/bin/kn"
 
-  # generate random suffix to prevent url caching
+  # Add a random suffix to prevent url caching
   random="$(openssl rand -base64 16)"
   url="$url?rnd=$random"
 
-  # get full filename of this script
+  # Get full filename of this script
   absolute_file="$(resolve_links "${BASH_SOURCE[0]}")"
 
   echo "Download new version to /tmp"
   tmpfile=$(mktemp)
   curl -f "$url" -o "$tmpfile" || (
-    echo >&2 -e "\nError trying to download file $url\n"
+    echo -e "\nError trying to download file $url\n" >&2
     exit 1
   )
 
-  # verify downloaded temp file is ok by executing kn help
+  # Verify that downloaded temp file is ok by executing kn help
   echo "Verify downloaded file"
   chmod +x "$tmpfile"
   "$tmpfile" help >/dev/null 2>&1 || (
-    echo >&2 -e "\nCould not verify functionality of downloaded kn script - skipping upgrade\n"
+    echo -e "\nCould not verify functionality of downloaded kn script - skipping upgrade\n" >&2
     exit 1
   )
 
-  # copy file over old (preserves file attr from original file)
+  # Copy new file over old (preserves file attr from original file)
   echo "Replace file $absolute_file with downloaded"
   rsync --no-perms --no-owner --no-group "$tmpfile" "$absolute_file" || (
-    echo >&2 -e "\nCould not replace file: $absolute_file - do you have sudo rights?\n"
+    echo -e "\nError replacing file: $absolute_file - do you have sudo rights?\n" >&2
     exit 1
   )
 
   rm "$tmpfile"
 
-  # pull latest docker
+  # Pull latest docker
   echo "Pull provisioners docker image"
 
   docker pull "$KN_PROVISIONERS_IMG"
