@@ -31,25 +31,29 @@ terraform init --plugin-dir=/terraform_plugins "/KubeNow_root/$host_cloud"
 terraform apply $TERRAFORM_OPT "/KubeNow_root/$host_cloud"
 
 # Provision
-# The --compact-output creates one json-object per line.
+# Read the provision list from the kn_config
+provision=$(echo "$kn_config" | jq -r --compact-output 'select(.provision != null) | .provision[]')
+# The --compact-output creates one json-object per line from array of provision-actions
 # Convert to base64 to preserve whitespace and citations in bash loop
-# TODO when jq 1.6 is released change into jq internal base64-decode @base64d
-provision=$(echo "$kn_config" | jq -r '.provision[].action')
-for action in $(echo "$provision" | jq -r --compact-output '.[] | @base64'); do
-  type=$(echo "$action" | base64 --decode | jq -r '.type')
+# Execute actions (ansible or helm) with supplied variables/parameters
+actions=$(echo "$provision" | jq -r --compact-output '.action[] | @base64')
+for action_base64 in $actions; do
+  action=$(base64 --decode <<< "$action_base64")
+
+  type=$(echo "$action" | jq -r '.type')
   case "$type" in
   ansible-playbook)
-    playbook=$(echo "$action" | base64 --decode | jq -r '.playbook')
-    extra_vars=$(echo "$action" | base64 --decode | jq -r --compact-output 'select(.extra_vars != null) | .extra_vars[]')
+    playbook=$(echo "$action" | jq -r '.playbook')
+    extra_vars=$(echo "$action" | jq -r --compact-output 'select(.extra_vars != null) | .extra_vars[]')
 
     # shellcheck disable=SC2086
     ansible-playbook $ANSIBLE_OPT -e \'"$extra_vars"\' "/KubeNow_root/$playbook"
     echo "Done with ansible-playbook: $playbook"
     ;;
-
   helm)
-    # TODO vars=$(echo "$action" | base64 --decode)
+    #vars=$(echo "$action")
 
     ;;
   esac
 done
+
