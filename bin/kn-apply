@@ -3,13 +3,12 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-host_cloud=$(grep -w "provider" terraform.tfvars |
-  cut -d "=" -f 2- |
-  awk -F\" '{print $(NF-1)}')
+# Read config file into variable as as json
+kn_config=$(json2hcl -reverse <terraform.tfvars)
 
-image_name=$(grep -w "boot_image" terraform.tfvars |
-  cut -d "=" -f 2- |
-  awk -F\" '{print $(NF-1)}')
+# Set variables from json-config
+host_cloud=$(jq -r '.provider' <<<"$kn_config")
+image_name=$(jq -r '.boot_image' <<<"$kn_config")
 
 # Check for recognized cloud provider
 if ! grep -qw "$host_cloud" <<<"openstack gce azure aws"; then
@@ -31,5 +30,26 @@ terraform init --plugin-dir=/terraform_plugins "/KubeNow_root/$host_cloud"
 # shellcheck disable=SC2086
 terraform apply $TERRAFORM_OPT "/KubeNow_root/$host_cloud"
 
-# shellcheck disable=SC2086
-ansible-playbook $ANSIBLE_OPT "/KubeNow_root/playbooks/install-core.yml"
+# Provision
+# The --compact-output creates one json-object per line.
+# Convert to base64 to preserve whitespace and citations in bash loop
+# TODO when jq 1.6 is released change into jq internal base64-decode @base64d
+provision=$(echo "$kn_config" | jq -r '.provision[].action')
+for action in $(echo "$provision" | jq -r --compact-output '.[] | @base64'); do
+  type=$(echo "$action" | base64 --decode | jq -r '.type')
+  case "$type" in
+  ansible-playbook)
+    playbook=$(echo "$action" | base64 --decode | jq -r '.playbook')
+    extra_vars=$(echo "$action" | base64 --decode | jq -r --compact-output 'select(.extra_vars != null) | .extra_vars[]')
+
+    # shellcheck disable=SC2086
+    ansible-playbook $ANSIBLE_OPT -e \'"$extra_vars"\' "/KubeNow_root/$playbook"
+    echo "Done with ansible-playbook: $playbook"
+    ;;
+
+  helm)
+    # TODO vars=$(echo "$action" | base64 --decode)
+
+    ;;
+  esac
+done
