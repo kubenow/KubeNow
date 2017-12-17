@@ -38,7 +38,7 @@ provision=$(echo "$kn_config" | jq -r --compact-output 'select(.provision != nul
 # Execute actions (ansible or helm) with supplied variables/parameters
 actions=$(echo "$provision" | jq -r --compact-output '.action[] | @base64')
 for action_base64 in $actions; do
-  action=$(base64 --decode <<< "$action_base64")
+  action=$(base64 --decode <<<"$action_base64")
 
   type=$(echo "$action" | jq -r '.type')
   case "$type" in
@@ -56,4 +56,3 @@ for action_base64 in $actions; do
     ;;
   esac
 done
-
