@@ -47,12 +47,27 @@ for action_base64 in $actions; do
     extra_vars=$(echo "$action" | jq -r --compact-output 'select(.extra_vars != null) | .extra_vars[]')
 
     # shellcheck disable=SC2086
-    ansible-playbook $ANSIBLE_OPT -e \'"$extra_vars"\' "/KubeNow_root/$playbook"
+    ansible-playbook $ANSIBLE_OPT -e "$extra_vars" "/KubeNow_root/$playbook"
     echo "Done with ansible-playbook: $playbook"
     ;;
   helm)
-    #vars=$(echo "$action")
+    chart_repo=$(echo "$action" | jq -r '.chart_repo')
+    chart_repo_name=$(echo "$action" | jq -r '.chart_repo_name')
+    chart_name=$(echo "$action" | jq -r '.chart_name')
+    release_name=$(echo "$action" | jq -r '.release_name')
+    values=$(echo "$action" | jq -r --compact-output 'select(.values != null) | .values[]')
+    target_host="master"
 
+    # Add repo
+    ansible "$target_host" -a "helm repo add $chart_repo_name $chart_repo"
+
+    # Create and upload values-file
+    tmpfile=$(mktemp)
+    echo "$values" >tmpfile
+    ansible "$target_host" -m copy -a "src=$tmpfile dest=/tmp/helm-values-release-$release_name.json"
+
+    # Install chart
+    ansible "$target_host" -a "helm upgrade --install -f /tmp/helm-values-release-$release_name.json $release_name $chart_repo_name/$chart_name"
     ;;
   esac
 done
