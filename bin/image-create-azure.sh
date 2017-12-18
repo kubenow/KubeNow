@@ -10,10 +10,10 @@
 #   TF_VARS_FILE
 #
 # Env vars (optional)
-#   ARM_CLIENT_ID
-#   ARM_CLIENT_SECRET
-#   ARM_TENANT_ID
-#   ARM_LOCATION
+#   arm_client_id
+#   arm_client_secret
+#   arm_tenant_id
+#   arm_location
 
 # Exit immediately if a command exits with a non-zero status
 set -e
@@ -33,37 +33,32 @@ if [ -z "${TF_VARS_FILE}" ]; then
   echo >&2 "env TF_VARS_FILE must be set for this script to run"
 fi
 
-# Get vars from tfvars-file if not set in environment
-if [ -z "${ARM_CLIENT_ID}" ]; then
-  ARM_CLIENT_ID=$(grep "client_id" "$TF_VARS_FILE" |
-    cut -d "=" -f 2- |
-    awk -F\" '{print $(NF-1)}')
-fi
-if [ -z "${ARM_CLIENT_SECRET}" ]; then
-  ARM_CLIENT_SECRET=$(grep "client_secret" "$TF_VARS_FILE" |
-    cut -d "=" -f 2- |
-    awk -F\" '{print $(NF-1)}')
-fi
-if [ -z "${ARM_TENANT_ID}" ]; then
-  ARM_TENANT_ID=$(grep "tenant_id" "$TF_VARS_FILE" |
-    cut -d "=" -f 2- |
-    awk -F\" '{print $(NF-1)}')
-fi
-if [ -z "${ARM_LOCATION}" ]; then
-  ARM_LOCATION=$(grep "location" "$TF_VARS_FILE" |
-    cut -d "=" -f 2- |
-    awk -F\" '{print $(NF-1)}')
-fi
+# Get vars from tfvars-file
+arm_client_id=$(grep "client_id" "$TF_VARS_FILE" |
+  cut -d "=" -f 2- |
+  awk -F\" '{print $(NF-1)}')
+
+arm_client_secret=$(grep "client_secret" "$TF_VARS_FILE" |
+  cut -d "=" -f 2- |
+  awk -F\" '{print $(NF-1)}')
+
+arm_tenant_id=$(grep "tenant_id" "$TF_VARS_FILE" |
+  cut -d "=" -f 2- |
+  awk -F\" '{print $(NF-1)}')
+
+arm_location=$(grep "location" "$TF_VARS_FILE" |
+  cut -d "=" -f 2- |
+  awk -F\" '{print $(NF-1)}')
 
 echo "Login"
 az login --service-principal \
-  -u "$ARM_CLIENT_ID" \
-  -p "$ARM_CLIENT_SECRET" \
-  --tenant "$ARM_TENANT_ID" \
+  -u "$arm_client_id" \
+  -p "$arm_client_secret" \
+  --tenant "$arm_tenant_id" \
   --output "$OUTPUT_FMT"
 
 # Make sure location is in lowercase format without spaces
-location_short="${ARM_LOCATION//[[:blank:]]/}"
+location_short="${arm_location//[[:blank:]]/}"
 location_short="${location_short,,}"
 
 # append location to rg to make unique rg per location
