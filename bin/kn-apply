@@ -47,7 +47,7 @@ for action_base64 in $actions; do
     extra_vars=$(echo "$action" | jq -r --compact-output 'select(.extra_vars != null) | .extra_vars[]')
 
     # shellcheck disable=SC2086
-    ansible-playbook $ANSIBLE_OPT -e \'"$extra_vars"\' "/KubeNow_root/$playbook"
+    ansible-playbook $ANSIBLE_OPT -e "$extra_vars" "/KubeNow_root/$playbook"
     echo "Done with ansible-playbook: $playbook"
     ;;
   helm)
