@@ -8,12 +8,6 @@
 # Env vars (mandatory)
 #   KN_IMAGE_NAME
 #   TF_VARS_FILE
-#
-# Env vars (optional)
-#   arm_client_id
-#   arm_client_secret
-#   arm_tenant_id
-#   arm_location
 
 # Exit immediately if a command exits with a non-zero status
 set -e
