@@ -69,7 +69,7 @@ data "template_cloudinit_config" "cloudinit_bootstrap" {
 
     content = <<EOF
                    #!/bin/bash
-                   ## Add hostname
+                   ## Create hostname from ip-number and then set it to host
                    IP=$(hostname -I | cut -d ' ' -f1 | sed 's/\./-/g')
                    HOSTNAME=host-$IP
                    hostname $HOSTNAME

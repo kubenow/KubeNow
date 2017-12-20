@@ -36,7 +36,9 @@ variable extra_disk_type {
 # Bootstrap settings
 variable bootstrap_file {}
 
-#variable kubeadm_token {}
+variable kubeadm_token {
+  default = "0123456.0123456789abcdef"
+}
 
 variable node_labels {
   type = "list"
