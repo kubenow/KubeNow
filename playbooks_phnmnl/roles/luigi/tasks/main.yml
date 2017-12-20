@@ -1,0 +1,11 @@
+---
+- name: template luigi deployment file
+  template:
+    src: luigi-deployment-template.j2
+    dest: /tmp/luigi_deployment.yml
+
+- name: deploy luigi
+  command: >
+    kubectl
+    apply
+    -f /tmp/luigi_deployment.yml

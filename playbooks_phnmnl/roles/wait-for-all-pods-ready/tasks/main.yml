@@ -1,0 +1,11 @@
+---
+- name: wait for all pods to be ready/running
+  command: >
+    kubectl get pods
+    -o jsonpath='{.items[*].status.containerStatuses[*].ready}'
+    --all-namespaces
+  register: get_is_ready
+  until: get_is_ready.stdout | match( '^(true\s)*true$' )
+  # Wait for 10 minutes
+  retries: 240
+  delay: 3

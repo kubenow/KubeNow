@@ -1,0 +1,6 @@
+---
+- name: install heapster
+  command: >
+   helm upgrade --install \
+   --namespace kube-system \
+   heapster-stable stable/heapster

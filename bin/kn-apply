@@ -31,8 +31,10 @@ terraform init --plugin-dir=/terraform_plugins "/KubeNow_root/$host_cloud"
 terraform apply $TERRAFORM_OPT "/KubeNow_root/$host_cloud"
 
 # Provision
+
 # Read the provision list from the kn_config
 provision=$(echo "$kn_config" | jq -r --compact-output 'select(.provision != null) | .provision[]')
+
 # The --compact-output creates one json-object per line from array of provision-actions
 # Convert to base64 to preserve whitespace and citations in bash loop
 # Execute actions (ansible or helm) with supplied variables/parameters
@@ -50,6 +52,7 @@ for action_base64 in $actions; do
     ansible-playbook $ANSIBLE_OPT -e "$extra_vars" "/KubeNow_root/$playbook"
     echo "Done with ansible-playbook: $playbook"
     ;;
+
   helm)
     chart_repo=$(echo "$action" | jq -r '.chart_repo')
     chart_repo_name=$(echo "$action" | jq -r '.chart_repo_name')
@@ -69,5 +72,6 @@ for action_base64 in $actions; do
     # Install chart
     ansible "$target_host" -a "helm upgrade --install -f /tmp/helm-values-release-$release_name.json $release_name $chart_repo_name/$chart_name"
     ;;
+
   esac
 done

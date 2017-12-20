@@ -1,0 +1,40 @@
+---
+# create a basic-auth password hash
+- name: generate dashboard hashed password
+  command: "openssl passwd -apr1 {{dashboard_password}}"
+  register: hashed_password
+
+- name: create dashboard basic-auth
+  set_fact:
+    dashboard_auth: "{{dashboard_username}}:{{hashed_password.stdout}}"
+
+- name: create dashboard yaml directory
+  file:
+    path: ~/.kubernetes-yaml/kubernetes-dashboard/
+    state: directory
+    mode: 0755
+
+# delete first is a workaround until kubernetes support apply -replace secret
+- name: "delete dashboard secret (if it already exists)"
+  command: >
+    kubectl delete
+    --ignore-not-found
+    --namespace=kube-system
+    secret dashboard-secret
+  no_log: "{{ nologging }}"
+
+- name: create dashboard password secret
+  command: >
+    kubectl --namespace=kube-system create secret generic dashboard-secret
+      --from-literal=auth='{{dashboard_auth}}'
+  no_log: "{{ nologging }}"
+
+- name: copy dashboard deployment file
+  template:
+    src: kubernetes-dashboard.yaml
+    dest: ~/.kubernetes-yaml/kubernetes-dashboard/kubernetes-dashboard.yaml
+
+- name: apply dashboard
+  command: >
+    kubectl apply -f
+     $HOME/.kubernetes-yaml/kubernetes-dashboard/kubernetes-dashboard.yaml

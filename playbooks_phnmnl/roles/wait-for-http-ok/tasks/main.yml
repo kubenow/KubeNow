@@ -1,0 +1,10 @@
+---
+- name: "wait for {{ service_name }} to be responding (usually takes minutes), url= {{ url }}"
+  command: >
+    curl -I {{ url }}
+  register: curl_response
+  until:
+    - curl_response.stdout.find('200 OK') != -1
+  # Try for 20 minutes
+  retries: 240
+  delay: 5

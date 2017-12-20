@@ -1,0 +1,15 @@
+---
+- name: wait until jupyter container is ready - takes minutes sometimes
+  command: >
+    kubectl get pods -o jsonpath='{.items[?(@.spec.containers[].name=="jupyter")].status.containerStatuses[*].ready}'
+  register: get_is_ready
+  until: get_is_ready.stdout | match( '^(true\s)*true$' )
+  # Wait for 20 minutes
+  retries: 240
+  delay: 5
+
+- name: git clone mtbls233 proof of concept repo into jupyter container
+  shell: >
+    kubectl get pods -o jsonpath='{.items[?(@.spec.containers[].name=="jupyter")].metadata.name}'
+    | xargs -i kubectl exec {} -- /bin/bash -c '[ -d /home/jovyan/work/MTBLS233 ]
+    || git clone https://github.com/phnmnl/MTBLS233-Jupyter /home/jovyan/work/MTBLS233'
