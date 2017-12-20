@@ -21,6 +21,7 @@ ENV PLUGIN_AZURERM=0.2.2
 ENV PLUGIN_NULL=1.0.0
 ENV PLUGIN_CLOUDFLARE=0.1.0
 ENV PLUGIN_TEMPLATE=1.0.0
+ENV PLUGIN_RANDOM=1.0.0
 
 # Install with apt and pip
 RUN apt-get update -y && apt-get install -y \
@@ -109,6 +110,11 @@ RUN curl "https://releases.hashicorp.com/terraform-provider-template/${PLUGIN_TE
     "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" && \
     unzip "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" -d /terraform_plugins/ && \
     rm -f "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip"
+    
+RUN curl "https://releases.hashicorp.com/terraform-provider-random/${PLUGIN_RANDOM}/terraform-provider-random_${PLUGIN_RANDOM}_linux_amd64.zip" > \
+    "terraform-provider-random_${PLUGIN_RANDOM}_linux_amd64.zip" && \
+    unzip "terraform-provider-random_${PLUGIN_RANDOM}_linux_amd64.zip" -d /terraform_plugins/ && \
+    rm -f "terraform-provider-random_${PLUGIN_RANDOM}_linux_amd64.zip"
 
 # Add KubeNow
 COPY . /opt/KubeNow

@@ -33,7 +33,9 @@ variable master_count {
   default = 1
 }
 
-variable master_flavor {}
+variable master_flavor {
+  default = "nothing"
+}
 
 variable master_flavor_id {
   default = ""
@@ -44,9 +46,13 @@ variable master_as_edge {
 }
 
 # Nodes settings
-variable node_count {}
+variable node_count {
+  default = 0
+}
 
-variable node_flavor {}
+variable node_flavor {
+  default = "nothing"
+}
 
 variable node_flavor_id {
   default = ""
@@ -287,7 +293,7 @@ module "cloudflare" {
 module "generate-inventory" {
   source             = "../common/inventory"
   cluster_prefix     = "${var.cluster_prefix}"
-  domain             = "${ var.use_cloudflare == true ? module.cloudflare.domain_and_subdomain : format("%s.nip.io", element(concat(module.edge.public_ip, module.master.public_ip), 0))}"
+  domain             = "${ var.use_cloudflare == true ? module.cloudflare.domain_and_subdomain : format("%s.nip.io", element(concat(module.edge.public_ip, module.master.public_ip, list("")), 0))}"
   ssh_user           = "${var.ssh_user}"
   master_hostnames   = "${module.master.hostnames}"
   master_public_ip   = "${module.master.public_ip}"
