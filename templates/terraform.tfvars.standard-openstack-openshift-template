@@ -25,5 +25,6 @@ node_flavor = "your-node-flavor"
 # Infra configuration
 infra_count = "1"
 infra_flavor = "your-infra-flavor"
+infra_extra_disk_size = "200" # GB
 
 provider = "openstack"

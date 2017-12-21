@@ -65,6 +65,8 @@ variable infra_private_ip {
   default = [""]
 }
 
+variable infra_extra_disk_dev {}
+
 variable bastion_count {}
 
 variable bastion_hostnames {
@@ -105,7 +107,7 @@ variable edge_private_ip {
 
 variable glusternode_count {}
 variable gluster_volumetype {}
-variable extra_disk_device {}
+variable gluster_extra_disk_dev {}
 
 variable inventory_template {}
 
