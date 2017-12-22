@@ -3,6 +3,14 @@ variable cluster_prefix {}
 
 variable boot_image {}
 
+variable bootstrap_script {
+  default = "bootstrap/bootstrap-default.sh"
+}
+
+variable inventory_template {
+  default = "inventory-template"
+}
+
 variable ssh_user {
   default = "ubuntu"
 }
@@ -155,10 +163,6 @@ variable cloudflare_record_texts {
   default = ["*"]
 }
 
-variable inventory_template {
-  default = "inventory-template"
-}
-
 # Provider
 provider "openstack" {}
 
@@ -208,7 +212,7 @@ module "master" {
   extra_disk_size = "0"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/openshift.sh"
+  bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["{'zone': 'default'}"]
   node_taints    = [""]
@@ -238,7 +242,7 @@ module "node" {
   extra_disk_size = "0"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/openshift.sh"
+  bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["{'zone': 'worker'}"]
   node_taints    = [""]
@@ -268,7 +272,7 @@ module "edge" {
   extra_disk_size = "0"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/node.sh"
+  bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["role=edge"]
   node_taints    = [""]
@@ -298,7 +302,7 @@ module "glusternode" {
   extra_disk_size = "${var.glusternode_extra_disk_size}"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/node.sh"
+  bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["storagenode=glusterfs"]
   node_taints    = [""]
@@ -328,7 +332,7 @@ module "bastion" {
   extra_disk_size = "0"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/openshift.sh"
+  bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["{'zone': 'default'}"]
   node_taints    = [""]
@@ -358,7 +362,7 @@ module "infra" {
   extra_disk_size = "${var.infra_extra_disk_size}"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/openshift.sh"
+  bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["{'zone': 'default', 'region': 'infra'}"]
   node_taints    = [""]

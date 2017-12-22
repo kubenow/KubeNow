@@ -3,7 +3,18 @@ variable cluster_prefix {}
 
 variable boot_image {}
 
-variable kubeadm_token {}
+variable bootstrap_script {
+  default = "bootstrap/bootstrap-default.sh"
+}
+
+variable inventory_template {
+  default = "inventory-template"
+}
+
+
+variable kubeadm_token {
+  default = "0123456.0123456789abcdef"
+}
 
 variable aws_access_key_id {}
 variable aws_secret_access_key {}
@@ -189,9 +200,8 @@ module "master" {
   extra_disk_size = "0"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/openshift.sh"
-
-  #kubeadm_token  = "${var.kubeadm_token}"
+  bootstrap_file = "${var.bootstrap_script}"
+  kubeadm_token  = "${var.kubeadm_token}"
   node_labels = "${split(",", var.master_as_edge == "true" ? "role=edge" : "")}"
   node_taints = [""]
   master_ip   = ""
@@ -219,9 +229,8 @@ module "node" {
   extra_disk_size = "0"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/openshift.sh"
-
-  #kubeadm_token  = "${var.kubeadm_token}"
+  bootstrap_file = "${var.bootstrap_script}"
+  kubeadm_token  = "${var.kubeadm_token}"
   node_labels = ["role=node"]
   node_taints = [""]
   master_ip   = "${element(module.master.local_ip_v4, 0)}"
@@ -249,9 +258,8 @@ module "edge" {
   extra_disk_size = "0"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/openshift.sh"
-
-  #kubeadm_token  = "${var.kubeadm_token}"
+  bootstrap_file = "${var.bootstrap_script}"
+  kubeadm_token  = "${var.kubeadm_token}"
   node_labels = ["role=edge"]
   node_taints = [""]
   master_ip   = "${element(module.master.local_ip_v4, 0)}"
@@ -279,9 +287,8 @@ module "glusternode" {
   extra_disk_size = "${var.glusternode_extra_disk_size}"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/openshift.sh"
-
-  #kubeadm_token  = "${var.kubeadm_token}"
+  bootstrap_file = "${var.bootstrap_script}"
+  kubeadm_token  = "${var.kubeadm_token}"
   node_labels = ["storagenode=glusterfs"]
   node_taints = [""]
   master_ip   = "${element(module.master.local_ip_v4, 0)}"
@@ -310,23 +317,35 @@ module "cloudflare" {
 
 # Generate Ansible inventory (identical for each cloud provider)
 module "generate-inventory" {
-  source             = "../common/inventory"
-  cluster_prefix     = "${var.cluster_prefix}"
-  domain             = "${ var.use_cloudflare == true ? module.cloudflare.domain_and_subdomain : format("%s.nip.io", element(concat(module.edge.public_ip, module.master.public_ip), 0))}"
-  ssh_user           = "${var.ssh_user}"
-  master_hostnames   = "${module.master.hostnames}"
-  master_public_ip   = "${module.master.public_ip}"
-  master_private_ip  = "${module.master.local_ip_v4}"
-  master_as_edge     = "${var.master_as_edge}"
-  edge_count         = "${var.edge_count}"
-  edge_hostnames     = "${module.edge.hostnames}"
-  edge_public_ip     = "${module.edge.public_ip}"
-  edge_private_ip    = "${module.edge.local_ip_v4}"
-  node_count         = "${var.node_count}"
-  node_hostnames     = "${module.node.hostnames}"
-  node_public_ip     = "${module.node.public_ip}"
-  node_private_ip    = "${module.node.local_ip_v4}"
-  glusternode_count  = "${var.glusternode_count}"
-  gluster_volumetype = "${var.gluster_volumetype}"
-  extra_disk_device  = "${element(concat(module.glusternode.extra_disk_device, list("")),0)}"
+  source                 = "../common/inventory"
+  cluster_prefix         = "${var.cluster_prefix}"
+  domain                 = "${ var.use_cloudflare == true ? module.cloudflare.domain_and_subdomain : format("%s.nip.io", element(concat(module.edge.public_ip, module.master.public_ip, list("")), 0))}"
+  ssh_user               = "${var.ssh_user}"
+  master_hostnames       = "${module.master.hostnames}"
+  master_public_ip       = "${module.master.public_ip}"
+  master_private_ip      = "${module.master.local_ip_v4}"
+  master_as_edge         = "${var.master_as_edge}"
+  edge_count             = "${var.edge_count}"
+  edge_hostnames         = "${module.edge.hostnames}"
+  edge_public_ip         = "${module.edge.public_ip}"
+  edge_private_ip        = "${module.edge.local_ip_v4}"
+  node_count             = "${var.node_count}"
+  node_hostnames         = "${module.node.hostnames}"
+  node_public_ip         = "${module.node.public_ip}"
+  node_private_ip        = "${module.node.local_ip_v4}"
+  infra_count            = "${var.infra_count}"
+  infra_hostnames        = "${module.infra.hostnames}"
+  infra_public_ip        = "${module.infra.public_ip}"
+  infra_private_ip       = "${module.infra.local_ip_v4}"
+  infra_extra_disk_dev   = "${element(concat(module.infra.extra_disk_device, list("")),0)}"
+  bastion_count          = "${var.bastion_count}"
+  bastion_hostnames      = "${module.bastion.hostnames}"
+  bastion_public_ip      = "${module.bastion.public_ip}"
+  bastion_private_ip     = "${module.bastion.local_ip_v4}"
+  glusternode_count      = "${var.glusternode_count}"
+  gluster_volumetype     = "${var.gluster_volumetype}"
+  gluster_extra_disk_dev = "${element(concat(module.glusternode.extra_disk_device, list("")),0)}"
+  bastion_hostnames      = "${module.bastion.hostnames}"
+  bastion_public_ip      = "${module.bastion.public_ip}"
+  inventory_template     = "${var.inventory_template}"
 }

@@ -6,7 +6,6 @@ echo "127.0.0.1 $HOSTNAME" >>/etc/hosts
 # Taint and label
 node_labels="${node_labels}"
 node_taints="${node_taints}"
-node_type="${node_type}"
 
 echo "Label nodes"
 if [ -n "$node_labels" ]; then
@@ -28,7 +27,8 @@ systemctl restart kubelet
 echo "Modprobe dm_thin_pool..."
 modprobe dm_thin_pool
 
-if [[ $node_type == master ]]; then
+# Execute kubeadm init vs. kubeadm join depending on node type
+if [[ "$node_labels" == *"role=master"* ]]; then
   echo "Inititializing the master...."
   
   if [ -n "$API_ADVERTISE_ADDRESSES" ]; then
