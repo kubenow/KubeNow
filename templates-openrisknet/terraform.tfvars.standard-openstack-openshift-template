@@ -28,3 +28,4 @@ infra_flavor = "your-infra-flavor"
 infra_extra_disk_size = "200" # GB
 
 provider = "openstack"
+bootstrap_script = "bootstrap/bootstrap-openshift.sh"
