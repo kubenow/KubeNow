@@ -11,7 +11,6 @@ variable inventory_template {
   default = "inventory-template"
 }
 
-
 variable kubeadm_token {
   default = "0123456.0123456789abcdef"
 }
@@ -202,9 +201,9 @@ module "master" {
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
-  node_labels = "${split(",", var.master_as_edge == "true" ? "role=edge" : "")}"
-  node_taints = [""]
-  master_ip   = ""
+  node_labels    = "${split(",", var.master_as_edge == "true" ? "role=edge" : "")}"
+  node_taints    = [""]
+  master_ip      = ""
 }
 
 module "node" {
@@ -231,9 +230,9 @@ module "node" {
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
-  node_labels = ["role=node"]
-  node_taints = [""]
-  master_ip   = "${element(module.master.local_ip_v4, 0)}"
+  node_labels    = ["role=node"]
+  node_taints    = [""]
+  master_ip      = "${element(module.master.local_ip_v4, 0)}"
 }
 
 module "edge" {
@@ -260,9 +259,9 @@ module "edge" {
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
-  node_labels = ["role=edge"]
-  node_taints = [""]
-  master_ip   = "${element(module.master.local_ip_v4, 0)}"
+  node_labels    = ["role=edge"]
+  node_taints    = [""]
+  master_ip      = "${element(module.master.local_ip_v4, 0)}"
 }
 
 module "glusternode" {
@@ -289,9 +288,9 @@ module "glusternode" {
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
-  node_labels = ["storagenode=glusterfs"]
-  node_taints = [""]
-  master_ip   = "${element(module.master.local_ip_v4, 0)}"
+  node_labels    = ["storagenode=glusterfs"]
+  node_taints    = [""]
+  master_ip      = "${element(module.master.local_ip_v4, 0)}"
 }
 
 # The code below (from here to end) should be identical for all cloud providers

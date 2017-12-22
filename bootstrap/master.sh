@@ -30,7 +30,7 @@ modprobe dm_thin_pool
 
 if [[ $node_type == master ]]; then
   echo "Inititializing the master...."
-  
+
   if [ -n "$API_ADVERTISE_ADDRESSES" ]; then
     # shellcheck disable=SC2154
     kubeadm init --token "${kubeadm_token}" --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.7.5 --api-advertise-address="$API_ADVERTISE_ADDRESSES"
@@ -38,7 +38,7 @@ if [[ $node_type == master ]]; then
     # shellcheck disable=SC2154
     kubeadm init --token "${kubeadm_token}" --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.7.5
   fi
-  
+
   # Copy Kubernetes configuration created by kubeadm (admin.conf to .kube/config)
   # shellcheck disable=SC2154
   SSH_USER="${ssh_user}"

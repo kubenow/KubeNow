@@ -15,7 +15,6 @@ variable ssh_user {
   default = "ubuntu"
 }
 
-
 variable ssh_key {
   default = "ssh_key.pub"
 }
