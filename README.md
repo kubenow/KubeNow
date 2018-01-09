@@ -41,7 +41,7 @@ kn ssh
 # swich into root user on bastion
 sudo su
 
-# update to latest version of kn
+# update to latest version of kn on bastion host
 kn upgrade
 
 # init cluster configuration directory on bastion (kn is already installed on "orn-os-3"-image)
