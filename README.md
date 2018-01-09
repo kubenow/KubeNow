@@ -42,7 +42,10 @@ kn ssh
 sudo su
 
 # if bastion is using selinux disable it when running docker
-setenforce 0
+# setenforce 0
+
+# update to latest version of kn
+kn upgrade
 
 # init cluster configuration directory on bastion (kn is already installed on "orn-os-3"-image)
 kn init-os openstack my-orn
@@ -53,14 +56,20 @@ cd my-orn
 # e.g. vi my-openstack.rc
 source my-openstack.rc
 
-# Now edit parameters in terraform.tfvars.standard
+# First rename config template
+mv terraform.tfvars.openstack.standard-template terraform.tfvars
+
+# Now edit parameters
 #
-vi terraform.tfvars.standard
+# If you are using a bastion host, then you need to uncomment and
+# add network and secgroup names, e.g.
+#
+# network_name = "<your-bastion-prefix>-network"
+# secgroup_name = "<your-bastion-prefix>-secgroup"
+#
+vi terraform.tfvars
 
-# then rename it
-mv terraform.tfvars.standard terraform.tfvars
-
-# now create bastion host:
+# now create cluster:
 kn apply
 ```
 
