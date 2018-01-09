@@ -23,10 +23,11 @@ source /path/to/openstack/credentials
 #
 # kn openstack network list --external
 #
-vim terraform.tfvars.bastion
+# rename template
+mv terraform.tfvars.openstack.bastion-template terraform.tfvars
 
-# then rename it
-mv terraform.tfvars.bastion terraform.tfvars
+# edit config
+vim terraform.tfvars
 
 # now create bastion host:
 kn apply
