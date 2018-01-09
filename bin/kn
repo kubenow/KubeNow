@@ -280,7 +280,7 @@ init*)
   ;;
 
 # Commands that do not need PWD validation
-az | openstack | gcloud | bash)
+az | openstack | gcloud | bash | git)
   # shellcheck disable=SC2068
   docker_run "$KN_PROVISIONERS_IMG" "$PWD" "$subcommand" ${@:2}
   ;;
