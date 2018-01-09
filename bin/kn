@@ -68,7 +68,7 @@ function docker_run() {
   kubenow_root=$2
   # shellcheck disable=SC2068
   docker run --rm -it \
-    -v "$kubenow_root":/KubeNow_root \
+    -v "$kubenow_root":/KubeNow_root:Z \
     -e "LOCAL_USER_ID=$UID" \
     -e "LOCAL_GROUP_IDS=$(id -G)" \
     -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
