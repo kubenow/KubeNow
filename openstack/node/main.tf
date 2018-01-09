@@ -68,14 +68,14 @@ data "template_cloudinit_config" "cloudinit_bootstrap" {
     content_type = "text/x-shellscript"
 
     content = <<EOF
-                   #!/bin/bash
-                   ## Create hostname from ip-number and then set it to host
-                   IP=$(hostname -I | cut -d ' ' -f1 | sed 's/\./-/g')
-                   HOSTNAME=host-$IP
-                   hostname $HOSTNAME
-                   echo $HOSTNAME > /etc/hostname
-                   echo "127.0.0.1 $HOSTNAME" >> /etc/hosts
-                   EOF
+#!/bin/bash
+# Create hostname from ip-number and then set it to host
+IP=$(hostname -I | cut -d ' ' -f1 | sed 's/\./-/g')
+HOSTNAME=host-$IP
+hostname $HOSTNAME
+echo $HOSTNAME > /etc/hostname
+echo "127.0.0.1 $HOSTNAME" >> /etc/hosts
+EOF
   }
 
   part {

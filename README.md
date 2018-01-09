@@ -41,9 +41,6 @@ kn ssh
 # swich into root user on bastion
 sudo su
 
-# if bastion is using selinux disable it when running docker
-# setenforce 0
-
 # update to latest version of kn
 kn upgrade
 
