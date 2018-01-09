@@ -1,0 +1,60 @@
+[OSEv3:children]
+masters
+nodes
+etcd
+nfs
+
+[OSEv3:vars]
+ansible_ssh_user=centos
+ansible_become=yes
+
+openshift_deployment_type=origin
+openshift_release=v3.6
+
+openshift_disable_check=disk_availability,docker_storage,memory_availability
+openshift_clock_enabled=true
+
+# Enable htpasswd authentication
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/users.htpasswd'}]
+# make sure this htpasswd file exists
+openshift_master_htpasswd_file=/home/centos/users.htpasswd
+
+openshift_master_cluster_public_hostname=${master_hostname_public}
+openshift_master_default_subdomain=apps.${master_default_subdomain}
+
+openshift_master_named_certificates=[{"certfile": "/home/centos/certs/master.openrisknet.org/fullchain.pem", "keyfile": "/home/centos/certs/master.openrisknet.org/privkey.pem"}]
+openshift_master_overwrite_named_certificates=true
+
+openshift_hosted_metrics_deployer_version=v3.6.0
+openshift_hosted_metrics_deploy=true
+openshift_hosted_metrics_storage_kind=nfs
+openshift_hosted_metrics_storage_access_modes=['ReadWriteOnce']
+openshift_hosted_metrics_storage_nfs_directory=/exports
+openshift_hosted_metrics_storage_nfs_options='*(rw,root_squash)'
+openshift_hosted_metrics_storage_volume_name=metrics
+openshift_hosted_metrics_storage_volume_size=10Gi
+openshift_hosted_metrics_storage_labels={'storage': 'metrics'}
+
+openshift_hosted_logging_deployer_version=v3.6.0
+openshift_hosted_logging_deploy=true
+openshift_hosted_logging_storage_kind=nfs
+openshift_hosted_logging_storage_access_modes=['ReadWriteOnce']
+openshift_hosted_logging_storage_nfs_directory=/exports
+openshift_hosted_logging_storage_nfs_options='*(rw,root_squash)'
+openshift_hosted_logging_storage_volume_name=logging
+openshift_hosted_logging_storage_volume_size=10Gi
+openshift_hosted_logging_storage_labels={'storage': 'logging'}
+
+[masters]
+${masters}
+
+[etcd]
+${masters}
+
+[nfs]
+${infras}
+
+[nodes]
+${masters}
+${infras}
+${workers}
