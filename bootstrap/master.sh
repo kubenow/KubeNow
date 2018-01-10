@@ -4,8 +4,9 @@
 echo "127.0.0.1 $HOSTNAME" >>/etc/hosts
 
 # Taint and label
-node_labels=${node_labels}
-node_taints=${node_taints}
+node_labels="${node_labels}"
+node_taints="${node_taints}"
+node_type="${node_type}"
 
 echo "Label nodes"
 if [ -n "$node_labels" ]; then
@@ -27,20 +28,27 @@ systemctl restart kubelet
 echo "Modprobe dm_thin_pool..."
 modprobe dm_thin_pool
 
-echo "Inititializing the master...."
+if [[ $node_type == master ]]; then
+  echo "Inititializing the master...."
 
-if [ -n "$API_ADVERTISE_ADDRESSES" ]; then
+  if [ -n "$API_ADVERTISE_ADDRESSES" ]; then
+    # shellcheck disable=SC2154
+    kubeadm init --token "${kubeadm_token}" --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.7.5 --api-advertise-address="$API_ADVERTISE_ADDRESSES"
+  else
+    # shellcheck disable=SC2154
+    kubeadm init --token "${kubeadm_token}" --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.7.5
+  fi
+
+  # Copy Kubernetes configuration created by kubeadm (admin.conf to .kube/config)
   # shellcheck disable=SC2154
-  kubeadm init --token "${kubeadm_token}" --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.7.5 --api-advertise-address="$API_ADVERTISE_ADDRESSES"
+  SSH_USER="${ssh_user}"
+  mkdir -p "/home/$SSH_USER/.kube/"
+  chown "$SSH_USER":"$SSH_USER" "/home/$SSH_USER/.kube/"
+  cp "/etc/kubernetes/admin.conf" "/home/$SSH_USER/.kube/config"
+  chown "$SSH_USER":"$SSH_USER" "/home/$SSH_USER/.kube/config"
+  
 else
+  echo "Try to join master..."
   # shellcheck disable=SC2154
   kubeadm init --token "${kubeadm_token}" --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.7.5
 fi
-
-# Copy Kubernetes configuration created by kubeadm (admin.conf to .kube/config)
-# shellcheck disable=SC2154
-SSH_USER="${ssh_user}"
-mkdir -p "/home/$SSH_USER/.kube/"
-chown "$SSH_USER":"$SSH_USER" "/home/$SSH_USER/.kube/"
-cp "/etc/kubernetes/admin.conf" "/home/$SSH_USER/.kube/config"
-chown "$SSH_USER":"$SSH_USER" "/home/$SSH_USER/.kube/config"

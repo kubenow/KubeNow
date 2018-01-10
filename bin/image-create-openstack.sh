@@ -53,6 +53,8 @@ if [ -z "$image_id" ]; then
     --progress
 else
   echo "file exists - no need to upload"
+  echo "this version skips md5 verification - exit here"
+  exit 0
 fi
 
 echo "Verify md5 of present/uploaded image..."

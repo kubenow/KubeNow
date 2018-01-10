@@ -6,7 +6,7 @@ set -e # exit at first error
 # Set version #
 ###############
 
-kubenow_version="master"
+kubenow_version="development/phenomenal-kn"
 
 #############
 # Functions #
@@ -68,7 +68,7 @@ function docker_run() {
   kubenow_root=$2
   # shellcheck disable=SC2068
   docker run --rm -it \
-    -v "$kubenow_root":/KubeNow_root \
+    -v "$kubenow_root":/KubeNow_root:Z \
     -e "LOCAL_USER_ID=$UID" \
     -e "LOCAL_GROUP_IDS=$(id -G)" \
     -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
@@ -78,7 +78,7 @@ function docker_run() {
     --env-file <(env | grep GOOGLE_) \
     --env-file <(env | grep AWS_) \
     --env-file <(env | grep ARM_) \
-    --env-file <(env | grep KUBENOW_) \
+    --env-file <(env | grep KN_) \
     "$container" \
     "/opt/KubeNow/bin/docker-entrypoint" ${@:3}
 }
@@ -97,6 +97,13 @@ function validate_pwd() {
     echo "Error: ansible.cfg not found. Are you in the right directory?" >&2
     exit 1
   fi
+}
+
+function read_provisioner_image_var() {
+  # Get var from tfvars-file
+  KN_PROVISIONERS_IMG=$(grep "provisioner_image" "terraform.tfvars" |
+    cut -d "=" -f 2- |
+    awk -F\" '{print $(NF-1)}')
 }
 #
 # Adapted from stackoverflow-questions-59895
@@ -207,6 +214,8 @@ while [[ "$1" == -* ]]; do
   esac
 done
 
+echo "Using provisioner version: $KN_PROVISIONERS_IMG"
+
 ###############
 # Subcommands #
 ###############
@@ -238,7 +247,7 @@ install-autocomplete)
   exit
   ;;
 
-init)
+init*)
   # Validate
   if [ "$#" -ne 3 ]; then
     echo "Error: wrong number of argument for the init command" >&2
@@ -253,7 +262,7 @@ init)
     usage_init
     exit 1
   fi
-  # Parts INIT_DIR
+  # Parse INIT_DIR
   # shellcheck disable=SC2086,SC2046
   init_dir=$(cd $(dirname $3) && echo $PWD/$(basename $3))
   if [ -f "$init_dir" ] || [ -d "$init_dir" ]; then
@@ -261,13 +270,17 @@ init)
     usage_init
     exit 1
   fi
+  # Parse PLUGIN
+  export KN_PLUGIN_NAME="openrisknet"
+  export KN_PROVISIONERS_IMG
+
   # Init deployment
   mkdir -p "$init_dir"
   docker_run "$KN_PROVISIONERS_IMG" "$init_dir" "kn-init" "$host_cloud"
   ;;
 
 # Commands that do not need PWD validation
-az | openstack | gcloud | bash)
+az | openstack | gcloud | bash | git)
   # shellcheck disable=SC2068
   docker_run "$KN_PROVISIONERS_IMG" "$PWD" "$subcommand" ${@:2}
   ;;

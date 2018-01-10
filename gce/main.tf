@@ -3,7 +3,13 @@ variable cluster_prefix {}
 
 variable boot_image {}
 
-variable kubeadm_token {}
+variable bootstrap_script {
+  default = "bootstrap/bootstrap-default.sh"
+}
+
+variable inventory_template {
+  default = "inventory-template"
+}
 
 variable ssh_user {
   default = "ubuntu"
@@ -137,7 +143,7 @@ module "master" {
   disk_size = "${var.master_disk_size}"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/master.sh"
+  bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = "${split(",", var.master_as_edge == "true" ? "role=edge" : "")}"
   node_taints    = [""]
@@ -164,7 +170,7 @@ module "node" {
   disk_size = "${var.node_disk_size}"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/node.sh"
+  bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["role=node"]
   node_taints    = [""]
@@ -191,7 +197,7 @@ module "edge" {
   disk_size = "${var.edge_disk_size}"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/node.sh"
+  bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["role=edge"]
   node_taints    = [""]
@@ -219,7 +225,7 @@ module "glusternode" {
   extra_disk_size = "${var.glusternode_extra_disk_size}"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/node.sh"
+  bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["storagenode=glusterfs"]
   node_taints    = [""]
