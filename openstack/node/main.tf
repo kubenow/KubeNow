@@ -32,6 +32,10 @@ variable bootstrap_file {}
 
 variable kubeadm_token {}
 
+variable node_type {
+  default = "other"
+}
+
 variable node_labels {
   type = "list"
 }
@@ -51,6 +55,7 @@ data "template_file" "instance_bootstrap" {
   vars {
     kubeadm_token = "${var.kubeadm_token}"
     master_ip     = "${var.master_ip}"
+    node_type     = "${var.node_type}"
     node_labels   = "${join(",", var.node_labels)}"
     node_taints   = "${join(",", var.node_taints)}"
     ssh_user      = "${var.ssh_user}"

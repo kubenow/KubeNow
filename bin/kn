@@ -271,7 +271,7 @@ init*)
     exit 1
   fi
   # Parse PLUGIN
-  export KN_PLUGIN_NAME="openrisknet"
+  export KN_PLUGIN_NAME="phenomenal"
   export KN_PROVISIONERS_IMG
 
   # Init deployment

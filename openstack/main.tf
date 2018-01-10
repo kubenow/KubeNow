@@ -183,6 +183,7 @@ module "master" {
 
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
+  node_type      = "master"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = "${split(",", var.master_as_edge == "true" ? "role=edge" : "")}"
   node_taints    = [""]
@@ -213,6 +214,7 @@ module "node" {
 
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
+  node_type      = "other"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["role=node"]
   node_taints    = [""]
@@ -243,6 +245,7 @@ module "edge" {
 
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
+  node_type      = "other"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["role=edge"]
   node_taints    = [""]
@@ -273,6 +276,7 @@ module "glusternode" {
 
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
+  node_type      = "other"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["storagenode=glusterfs"]
   node_taints    = [""]
