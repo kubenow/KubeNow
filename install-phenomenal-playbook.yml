@@ -130,32 +130,42 @@
     #
 
     # Jupyter
-    - name: Wait for Jupyter notebook to be ready
-      include_role:
-        name: playbooks_phnmnl/roles/wait-for-http-not-down
-      vars:
-        service_name: "{{jupyter_hostname}}"
+    - name: "Wait for Jupyter notebook to be ready"
+      uri:
         url: "http://{{jupyter_hostname}}.{{domain}}"
+      register: result
+      until:
+        result['status'] == 200
+      # Try for 20 minutes
+      retries: 240
+      delay: 5
       when:
         jupyter_include == true
+        
+        
 
     # Luigi
-    - name: Wait for Luigi to be ready
-      include_role:
-        name: playbooks_phnmnl/roles/wait-for-http-not-down
-      vars:
-        service_name: "{{luigi_hostname}}"
-        url: "http://{{luigi_hostname}}.{{domain}}"
+    - name: "Wait for luigi to be responding)"
+      command: >
+        curl -i -L "http://{{luigi_hostname}}.{{domain}}"
+      register: curl_response
+      until:
+        - curl_response.stdout.find('200 OK') != -1
+      # Try for 20 minutes
+      retries: 240
+      delay: 5
       when:
         luigi_include == true
 
     # Galaxy
-    - name: Wait for Galaxy to be ready
-      include_role:
-        name: playbooks_phnmnl/roles/wait-for-http-ok
-      vars:
-        service_name: "{{galaxy_hostname}}"
-        url: "http://{{galaxy_hostname}}.{{domain}}"
+    - name: "Wait for galaxy to be responding (usually takes minutes)"
+      command: >
+        curl -i -L "http://{{galaxy_hostname}}.{{domain}}"
+      register: curl_response
+      until:
+        - curl_response.stdout.find('200 OK') != -1
+      # Try for 20 minutes
+      retries: 240
+      delay: 5
       when:
         galaxy_include == true
-

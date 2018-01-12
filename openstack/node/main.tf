@@ -69,7 +69,7 @@ data "template_cloudinit_config" "cloudinit_bootstrap" {
   base64_encode = true
 
   part {
-    filename     = "set_hostname.sh"
+    filename     = "01_set_hostname.sh"
     content_type = "text/x-shellscript"
 
     content = <<EOF
@@ -84,7 +84,7 @@ EOF
   }
 
   part {
-    filename     = "bootstrap.sh"
+    filename     = "02_bootstrap.sh"
     content_type = "text/x-shellscript"
     content      = "${data.template_file.instance_bootstrap.rendered}"
   }
