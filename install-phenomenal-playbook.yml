@@ -135,35 +135,33 @@
         url: "http://{{jupyter_hostname}}.{{domain}}"
       register: result
       until:
-        result['status'] == 200
+        result['status'] | default(0) == 200
       # Try for 20 minutes
       retries: 240
       delay: 5
       when:
         jupyter_include == true
         
-        
-
     # Luigi
     - name: "Wait for luigi to be responding)"
-      command: >
-        curl -i -L "http://{{luigi_hostname}}.{{domain}}"
-      register: curl_response
+      uri:
+        url: "http://{{luigi_hostname}}.{{domain}}"
+      register: result
       until:
-        - curl_response.stdout.find('200 OK') != -1
+        result['status'] | default(0) == 200
       # Try for 20 minutes
       retries: 240
       delay: 5
       when:
         luigi_include == true
-
+        
     # Galaxy
     - name: "Wait for galaxy to be responding (usually takes minutes)"
-      command: >
-        curl -i -L "http://{{galaxy_hostname}}.{{domain}}"
-      register: curl_response
+      uri:
+        url: "http://{{galaxy_hostname}}.{{domain}}"
+      register: result
       until:
-        - curl_response.stdout.find('200 OK') != -1
+        result['status'] | default(0) == 200
       # Try for 20 minutes
       retries: 240
       delay: 5
