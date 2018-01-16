@@ -20,8 +20,8 @@ cp "/opt/KubeNow/$template_dir/terraform.tfvars.$host_cloud"* "/KubeNow_root/"
 cp "/opt/KubeNow/$template_dir/inventory"*"-template" "/KubeNow_root/"
 
 # If there is only one config file - then rename template to terraform.tfvars
-if [ -f "/KubeNow_root/$template_dir/terraform.tfvars.$host_cloud-template" ]; then
-  mv "/KubeNow_root/$template_dir/terraform.tfvars.$host_cloud-template" "/KubeNow_root/terraform.tfvars"
+if [ -f "/KubeNow_root/terraform.tfvars.$host_cloud-template" ]; then
+  mv "/KubeNow_root/terraform.tfvars.$host_cloud-template" "/KubeNow_root/terraform.tfvars"
 fi
 
 # Copy config, scripts and other files
