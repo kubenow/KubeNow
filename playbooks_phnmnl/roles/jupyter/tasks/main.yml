@@ -6,9 +6,13 @@
 
 # remove version until stable: --version "{{ jupyter_chart_version }}"
 - name: install jupyter
-  command: >
-    helm upgrade --install
-    --set jupyter_image_tag="{{ jupyter_image_tag }}",passwd_jupyter="{{ jupyter_password }}",use_ingress="yes",hostname="{{ hostname }}",domain="{{ domain }}",external_ingress_controller="yes",pvc_exists="yes",jupyter_pvc="{{ jupyter_pvc }}",jupyter_resource_req_cpu="{{ jupyter_resource_req_cpu }}",jupyter_resource_req_memory="{{ jupyter_resource_req_memory }}"
-    "jupyter-{{ jupyter_chart_version }}" phenomenal-helm/jupyter
+  command:
+    helm upgrade
+    --install
+    --set jupyter_image_tag="{{ jupyter_image_tag }}",passwd_jupyter="{{ jupyter_password }}",use_ingress="yes",\
+    hostname="{{ hostname }}",domain="{{ domain }}",external_ingress_controller="yes",pvc_exists="yes",\
+    jupyter_pvc="{{ jupyter_pvc }}",jupyter_resource_req_cpu="{{ jupyter_resource_req_cpu }}",\
+    jupyter_resource_req_memory="{{ jupyter_resource_req_memory }}" \
+    "jupyter-{{ jupyter_chart_version }}" \
+    phenomenal-helm/jupyter
   no_log: "{{ nologging }}"
-

@@ -1,7 +1,7 @@
 ---
 - name: Installs phenomenal services
   hosts: master
-  gather_facts: no
+  gather_facts: "no"
   vars:
     # Services
     jupyter_include: true
@@ -23,114 +23,107 @@
     no_sensitive_logging: false
 
   tasks:
-   # Wait for all default kubernetes pods to be ready
-   - name: Wait for all default kubernetes pods to be ready
-     include_role:
-       name: playbooks_phnmnl/roles/wait-for-all-pods-ready
+    # Wait for all default kubernetes pods to be ready
+    - name: Wait for all default kubernetes pods to be ready
+      include_role:
+        name: playbooks_phnmnl/roles/wait-for-all-pods-ready
 
-   # Create nfs or gluster server
+    # Create nfs or gluster server
 
-   # nfs
-   - name: shared-volume-nfs
-     include_role:
-       name: playbooks/roles/shared-volume-nfs
-     vars:
-       nfs_server: "{{nfs_server_host}}"
-       nfs_vol_size: "{{nfs_volume_size}}"
-       nfs_path: "{{nfs_server_path}}"
-     when:
-       (nfs_volume_size | int) > 0
+    # nfs
+    - name: shared-volume-nfs
+      include_role:
+        name: playbooks/roles/shared-volume-nfs
+      vars:
+        nfs_server: "{{nfs_server_host}}"
+        nfs_vol_size: "{{nfs_volume_size}}"
+        nfs_path: "{{nfs_server_path}}"
+      when:
+        (nfs_volume_size | int) > 0
 
-   # Gluster
-   - include_role:
-       name: playbooks/roles/heketi-gluster
-     when:
-       nfs_volume_size is undefined or (nfs_volume_size | int) == 0
+    # Gluster
+    - include_role:
+        name: playbooks/roles/heketi-gluster
+      when:
+        nfs_volume_size is undefined or (nfs_volume_size | int) == 0
 
-   # Create Persistent Volume Claim
-   - name: persistent volume claim
-     include_role:
-       name: playbooks/roles/pvc
-     vars:
-       claim_name: "{{pvc_name}}"
-       storage:    "{{pvc_storage}}"
+    # Create Persistent Volume Claim
+    - name: persistent volume claim
+      include_role:
+        name: playbooks/roles/pvc
+      vars:
+        claim_name: "{{pvc_name}}"
+        storage: "{{pvc_storage}}"
 
-   # Galaxy
-   - name: Galaxy
-     include_role:
-       name: playbooks_phnmnl/roles/galaxy
-     vars:
-       galaxy_chart_version: "0.3.2"
-       hostname: "{{galaxy_hostname}}{{proxied_suffix}}"
-       galaxy_image_tag: ":rc_v17.05-pheno_cv1.1.93"
-       galaxy_admin_password: "generate-random-passw"
-       galaxy_admin_email: "your @ email.com"
-       galaxy_api_key: "generate-galaxy-api-key"
-       galaxy_pvc: "{{pvc_name}}"
-       postgres_pvc: "{{pvc_name}}"
-       nologging: "{{no_sensitive_logging}}"
-     when:
-       galaxy_include  == true
+    # Galaxy
+    - name: Galaxy
+      include_role:
+        name: playbooks_phnmnl/roles/galaxy
+      vars:
+        galaxy_chart_version: "0.3.2"
+        hostname: "{{galaxy_hostname}}{{proxied_suffix}}"
+        galaxy_image_tag: ":rc_v17.05-pheno_cv1.1.93"
+        galaxy_admin_password: "generate-random-passw"
+        galaxy_admin_email: "your @ email.com"
+        galaxy_api_key: "generate-galaxy-api-key"
+        galaxy_pvc: "{{pvc_name}}"
+        postgres_pvc: "{{pvc_name}}"
+        nologging: "{{no_sensitive_logging}}"
+      when:
+        galaxy_include  == true
 
-   # Jupyter
-   - name: Jupyter
-     include_role:
-       name: playbooks_phnmnl/roles/jupyter
-     vars:
-       jupyter_chart_version: "0.1.2"
-       hostname: "{{jupyter_hostname}}{{proxied_suffix}}"
-       jupyter_image_tag: ":latest"
-       jupyter_password: "generate-random-passw"
-       jupyter_pvc: "{{pvc_name}}"
-       jupyter_resource_req_cpu: "200m"
-       jupyter_resource_req_memory: "1G"
-       nologging: "{{no_sensitive_logging}}"
-     when:
-       jupyter_include == true
+    # Jupyter
+    - name: Jupyter
+      include_role:
+        name: playbooks_phnmnl/roles/jupyter
+      vars:
+        jupyter_chart_version: "0.1.2"
+        hostname: "{{jupyter_hostname}}{{proxied_suffix}}"
+        jupyter_image_tag: ":latest"
+        jupyter_password: "generate-random-passw"
+        jupyter_pvc: "{{pvc_name}}"
+        jupyter_resource_req_cpu: "200m"
+        jupyter_resource_req_memory: "1G"
+        nologging: "{{no_sensitive_logging}}"
+      when:
+        jupyter_include == true
 
-   # Luigi
-   - name: Luigi
-     include_role:
-       name: playbooks_phnmnl/roles/luigi
-     vars:
-       hostname: "{{luigi_hostname}}{{proxied_suffix}}"
-       luigi_resource_req_memory: "1G"
-       luigi_resource_req_cpu: "200m"
-     when:
-       luigi_include == true
+    # Luigi
+    - name: Luigi
+      include_role:
+        name: playbooks_phnmnl/roles/luigi
+      vars:
+        hostname: "{{luigi_hostname}}{{proxied_suffix}}"
+        luigi_resource_req_memory: "1G"
+        luigi_resource_req_cpu: "200m"
+      when:
+        luigi_include == true
 
-   # Dashboard
-   - name: Dashboard
-     include_role:
-       name: playbooks_phnmnl/roles/kubernetes-dashboard
-     vars:
-       dashboard_username: "{{dashboard_username}}"
-       dashboard_password: "{{dashboard_password}}"
-       hostname: "{{dashboard_hostname}}{{proxied_suffix}}"
-       nologging: "{{no_sensitive_logging}}"
-     when:
-       dashboard_include == true
+    # Dashboard
+    - name: Dashboard
+      include_role:
+        name: playbooks_phnmnl/roles/kubernetes-dashboard
+      vars:
+        dashboard_username: "{{dashboard_username}}"
+        dashboard_password: "{{dashboard_password}}"
+        hostname: "{{dashboard_hostname}}{{proxied_suffix}}"
+        nologging: "{{no_sensitive_logging}}"
+      when:
+        dashboard_include == true
 
-   # Heapster (for Dashboard)
-   - name: Heapster (for Dashboard)
-     include_role:
-       name: playbooks_phnmnl/roles/heapster
-     when:
-       dashboard_include == true
+    # Heapster (for Dashboard)
+    - name: Heapster (for Dashboard)
+      include_role:
+        name: playbooks_phnmnl/roles/heapster
+      when:
+        dashboard_include == true
 
-   # Add demo-data to jupyter from repo
-   - name: Add mtbls233 data
-     include_role:
-       name: playbooks_phnmnl/roles/mtbls233-demo
-     when:
-       jupyter_include == true
-
-
-- name: Waits for services and display URL:s
-  hosts: localhost
-  gather_facts: no
-
-    tasks:
+    # Add demo-data to jupyter from repo
+    - name: Add mtbls233 data
+      include_role:
+        name: playbooks_phnmnl/roles/mtbls233-demo
+      when:
+        jupyter_include == true
 
     #
     # Wait for services to be up
@@ -188,5 +181,3 @@
 #          - '-'
 #          - 'And if you want to ssh into master:'
 #          - 'kn ssh'
-
-
