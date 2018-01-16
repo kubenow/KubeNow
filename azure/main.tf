@@ -171,7 +171,7 @@ module "master" {
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
-  node_labels    = "${split(",", var.master_as_edge == "true" ? "role=edge" : "")}"
+  node_labels    = "${split(",", var.master_as_edge == "true" ? "role=master,role=edge" : "role=master")}"
   node_taints    = [""]
   master_ip      = ""
 }
@@ -192,7 +192,7 @@ module "node" {
 
   # Network settings
   subnet_id          = "${module.network.subnet_id}"
-  assign_floating_ip = "false"
+  assign_floating_ip = "true"
   security_group_id  = "${module.security_group.id}"
 
   # Bootstrap settings
@@ -246,7 +246,7 @@ module "glusternode" {
 
   # Network settings
   subnet_id          = "${module.network.subnet_id}"
-  assign_floating_ip = "false"
+  assign_floating_ip = "true"
   security_group_id  = "${module.security_group.id}"
 
   # Disk settings

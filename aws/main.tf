@@ -201,7 +201,7 @@ module "master" {
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
-  node_labels    = "${split(",", var.master_as_edge == "true" ? "role=edge" : "")}"
+  node_labels    = "${split(",", var.master_as_edge == "true" ? "role=master,role=edge" : "role=master")}"
   node_taints    = [""]
   master_ip      = ""
 }
