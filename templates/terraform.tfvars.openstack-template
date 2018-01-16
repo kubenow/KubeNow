@@ -40,18 +40,5 @@ provision = {
     "type"       = "ansible-playbook"
     "playbook"   = "playbooks/install-core.yml"
   }
-#  "action" = {
-#    "type"      = "ansible-playbook"
-#    "playbook" = "playbooks/infra-test withspace.yml and line
-#                  break"
-#    "extra_vars" = {
-#      "var1"     = "data1"
-#      "var2"     = "data2"
-#    }
-#  }
-#  "action" = {
-#    "type"      = "helm"
-#    "chart"    = "my-chart"
-#  }
 }
 
