@@ -308,7 +308,7 @@ module "cloudflare" {
 module "generate-inventory" {
   source                 = "../common/inventory"
   cluster_prefix         = "${var.cluster_prefix}"
-  domain                 = "${ var.use_cloudflare == true ? module.cloudflare.domain_and_subdomain : format("%s.nip.io", element(concat(module.edge.public_ip, module.master.public_ip, list("")), 0))}"
+  domain                 = "${var.use_cloudflare == true ? module.cloudflare.domain_and_subdomain : format("%s.nip.io", element(concat(module.edge.public_ip, module.master.public_ip, list("")), 0))}"
   ssh_user               = "${var.ssh_user}"
   master_hostnames       = "${module.master.hostnames}"
   master_public_ip       = "${module.master.public_ip}"
