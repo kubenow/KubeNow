@@ -196,7 +196,7 @@ module "node" {
   security_group_id  = "${module.security_group.id}"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/node.sh"
+  bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["role=node"]
   node_taints    = [""]
@@ -223,7 +223,7 @@ module "edge" {
   security_group_id  = "${module.security_group.id}"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/node.sh"
+  bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["role=edge"]
   node_taints    = [""]

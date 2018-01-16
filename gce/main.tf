@@ -11,6 +11,10 @@ variable inventory_template {
   default = "inventory-template"
 }
 
+variable kubeadm_token {
+  default = "0123456.0123456789abcdef"
+}
+
 variable ssh_user {
   default = "ubuntu"
 }
