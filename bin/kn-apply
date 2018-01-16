@@ -45,6 +45,7 @@ for action_base64 in $actions; do
   type=$(echo "$action" | jq -r '.type')
   case "$type" in
   ansible-playbook)
+    echo "Inside kn-apply ansible-playbook"
     playbook=$(echo "$action" | jq -r '.playbook')
     extra_vars=$(echo "$action" | jq -r --compact-output 'select(.extra_vars != null) | .extra_vars[]')
 
@@ -54,6 +55,7 @@ for action_base64 in $actions; do
     ;;
 
   helm)
+    echo "Inside kn-apply helm"
     chart_repo=$(echo "$action" | jq -r '.chart_repo')
     chart_repo_name=$(echo "$action" | jq -r '.chart_repo_name')
     chart_name=$(echo "$action" | jq -r '.chart_name')
@@ -61,8 +63,11 @@ for action_base64 in $actions; do
     values=$(echo "$action" | jq -r --compact-output 'select(.values != null) | .values[]')
     target_host="master"
 
-    # Add repo
-    ansible "$target_host" -a "helm repo add $chart_repo_name $chart_repo"
+    # Add repo if specified
+    if [ -n "$chart_repo" ]; then
+      echo "Add helm chart-repo: $chart_repo"
+      ansible "$target_host" -a "helm repo add $chart_repo_name $chart_repo"
+    fi
 
     # Create and upload values-file
     tmpfile=$(mktemp)
@@ -70,7 +75,10 @@ for action_base64 in $actions; do
     ansible "$target_host" -m copy -a "src=$tmpfile dest=/tmp/helm-values-release-$release_name.json"
 
     # Install chart
+    echo "Install helm chart: $chart_name"
     ansible "$target_host" -a "helm upgrade --install -f /tmp/helm-values-release-$release_name.json $release_name $chart_repo_name/$chart_name"
+
+    echo "Done with helm chart: $chart_name"
     ;;
 
   esac

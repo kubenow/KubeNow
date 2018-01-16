@@ -4,13 +4,9 @@
 echo "127.0.0.1 $HOSTNAME" >>/etc/hosts
 
 # Make sure instance is updated with latest security fixes
+echo "Run unattended-upgrade"
+sudo apt-get update -y
 unattended-upgrade -d
-
-if [ -f /var/run/reboot-required ] 
-then
-    echo "Reboot required, rebooting now"
-    reboot now
-fi
 
 # Taint and label
 node_labels="${node_labels}"
