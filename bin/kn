@@ -6,7 +6,7 @@ set -e # exit at first error
 # Set version #
 ###############
 
-kubenow_version="development/phenomenal-kn"
+kubenow_version="feature/phenomenal-kn"
 
 #############
 # Functions #
@@ -186,6 +186,28 @@ function upgrade() {
   echo -e "\nUpdated ok to version $KN_PROVISIONERS_IMG\n"
 }
 
+function set_preset() {
+  # parameters
+  preset="$1"
+  echo "Setting preset: $preset"
+
+  case $preset in
+  phenomenal | pheno | phnmnl)
+    tag="${kubenow_version/\//-}"
+    export KN_PROVISIONERS_IMG="andersla/provisioners:$tag"
+    export KN_PLUGIN_NAME="phenomenal"
+    ;;
+  openrisknet | orn) ;;
+
+  *)
+
+    echo "unrecognized preset $preset" >&2
+    usage
+    exit 1
+    ;;
+  esac
+}
+
 ###########
 # Options #
 ###########
@@ -193,7 +215,7 @@ function upgrade() {
 # Set defaults if not specified in the environment
 if [ -z "$KN_PROVISIONERS_IMG" ]; then
   tag="${kubenow_version/\//-}"
-  KN_PROVISIONERS_IMG="andersla/provisioners:$tag"
+  KN_PROVISIONERS_IMG="kubenow/provisioners:$tag"
 fi
 
 # While current command starts with "-" parse options
@@ -203,7 +225,13 @@ while [[ "$1" == -* ]]; do
   case $option in
   -i | --docker-image)
     KN_PROVISIONERS_IMG="$2"
-    shift # past argument
+    shift # past option
+    shift # past value
+    ;;
+
+  -p | --preset)
+    set_preset "$2"
+    shift # past option
     shift # past value
     ;;
   *)
@@ -270,9 +298,6 @@ init*)
     usage_init
     exit 1
   fi
-  # Parse PLUGIN
-  export KN_PLUGIN_NAME="phenomenal"
-  export KN_PROVISIONERS_IMG
 
   # Init deployment
   mkdir -p "$init_dir"
