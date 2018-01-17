@@ -216,7 +216,7 @@ function set_preset() {
 # Set defaults if not specified in the environment
 if [ -z "$KN_PROVISIONERS_IMG" ]; then
   tag="${kubenow_version/\//-}"
-  KN_PROVISIONERS_IMG="kubenow/provisioners:$tag"
+  export KN_PROVISIONERS_IMG="kubenow/provisioners:$tag"
 fi
 
 # While current command starts with "-" parse options
@@ -225,7 +225,7 @@ while [[ "$1" == -* ]]; do
   option="$1"
   case $option in
   -i | --docker-image)
-    KN_PROVISIONERS_IMG="$2"
+    export KN_PROVISIONERS_IMG="$2"
     shift # past option
     shift # past value
     ;;
@@ -329,6 +329,7 @@ apply | destroy | kubectl | helm | ssh)
   validate_pwd
   # get provisioner image from tfvar-file
   read_provisioner_image_var
+  echo "Using provisioner version: $KN_PROVISIONERS_IMG"
   # shellcheck disable=SC2068
   docker_run "$KN_PROVISIONERS_IMG" "$PWD" "kn-$subcommand" ${@:2}
   ;;
