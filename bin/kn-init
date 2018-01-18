@@ -33,7 +33,7 @@ cp -r "/opt/KubeNow/playbooks" "/KubeNow_root/"
 cp "/opt/KubeNow/ansible.cfg" "/KubeNow_root/"
 
 # Copy plugin scripts and other files
-if [ -f "/opt/KubeNow/playbooks-$KN_PLUGIN_NAME" ]; then
+if [ -d "/opt/KubeNow/playbooks-$KN_PLUGIN_NAME" ]; then
   cp -r "/opt/KubeNow/playbooks-$KN_PLUGIN_NAME" "/KubeNow_root/"
 fi
 
