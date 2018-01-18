@@ -33,7 +33,9 @@ cp -r "/opt/KubeNow/playbooks" "/KubeNow_root/"
 cp "/opt/KubeNow/ansible.cfg" "/KubeNow_root/"
 
 # Copy plugin scripts and other files
-cp -r "/opt/KubeNow/playbooks-$KN_PLUGIN_NAME" "/KubeNow_root/"
+if [ -f "/opt/KubeNow/playbooks-$KN_PLUGIN_NAME" ]; then
+  cp -r "/opt/KubeNow/playbooks-$KN_PLUGIN_NAME" "/KubeNow_root/"
+fi
 
 # Generate and write kubetoken in all config files
 tokenID=$(openssl rand -hex 3)
