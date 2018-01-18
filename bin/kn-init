@@ -5,7 +5,7 @@ set -e
 
 host_cloud="$1"
 
-# Set plugin and template dir names
+# Set template dir name
 if [ -n "$KN_PLUGIN_NAME" ]; then
   echo "Using plugin configuration: $KN_PLUGIN_NAME"
   template_dir="templates-$KN_PLUGIN_NAME"
@@ -31,6 +31,9 @@ cp -r "/opt/KubeNow/bootstrap" "/KubeNow_root/"
 cp -r "/opt/KubeNow/bin" "/KubeNow_root/"
 cp -r "/opt/KubeNow/playbooks" "/KubeNow_root/"
 cp "/opt/KubeNow/ansible.cfg" "/KubeNow_root/"
+
+# Copy plugin scripts and other files
+cp -r "/opt/KubeNow/playbooks-$KN_PLUGIN_NAME" "/KubeNow_root/"
 
 # Generate and write kubetoken in all config files
 tokenID=$(openssl rand -hex 3)
