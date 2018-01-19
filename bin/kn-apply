@@ -81,5 +81,14 @@ for action_base64 in $actions; do
     echo "Done with helm chart: $chart_name"
     ;;
 
+  local-exec)
+    echo "Inside kn-apply local-exec"
+    command=$(echo "$action" | jq -r '.command')
+
+    # execute command
+    $command
+    echo "Done with local-exec"
+    ;;
+
   esac
 done
