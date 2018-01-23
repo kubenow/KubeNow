@@ -28,7 +28,7 @@ fi
 terraform init --plugin-dir=/terraform_plugins "/KubeNow_root/$host_cloud"
 
 # shellcheck disable=SC2086
-terraform apply $TERRAFORM_OPT "/KubeNow_root/$host_cloud"
+terraform apply $TERRAFORM_OPT -var-file=config.tfvars "/KubeNow_root/$host_cloud"
 
 # Provision
 

@@ -15,4 +15,4 @@ fi
 
 # Destroy
 # shellcheck disable=SC2086
-terraform destroy $TERRAFORM_OPT "/KubeNow_root/$host_cloud"
+terraform destroy $TERRAFORM_OPT -var-file=config.tfvars "/KubeNow_root/$host_cloud"
