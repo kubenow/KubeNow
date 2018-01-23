@@ -29,4 +29,4 @@ modprobe dm_thin_pool
 
 echo "Try to join master..."
 # shellcheck disable=SC2154
-kubeadm join --token "${kubeadm_token}" "${master_ip}:6443"
+kubeadm join --discovery-token-unsafe-skip-ca-verification --token "${kubeadm_token}" "${master_ip}:6443"
