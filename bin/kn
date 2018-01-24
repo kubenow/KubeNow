@@ -99,22 +99,6 @@ function validate_pwd() {
   fi
 }
 
-function validate_config() {
-  # Get var from tfvars-file
-  provider=$(grep "provider" "config.tfvars" |
-    cut -d "=" -f 2- |
-    awk -F\" '{print $(NF-1)}')
-
-  # Make sure that essential config are in place
-  if [[ "$provider" == "openstack" ]]; then
-    if [ -z "$OS_USERNAME" ]; then
-      echo "Error: Could not read OS_USERNAME in environment," >&2
-      echo "Did you forget to: source /path/to/credentials.rc" >&2
-      exit 1
-    fi
-  fi
-}
-
 function read_provisioner_image_var() {
   # Get var from tfvars-file
   KN_PROVISIONERS_IMG=$(grep "provisioner_image" "config.tfvars" |
