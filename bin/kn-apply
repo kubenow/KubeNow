@@ -4,7 +4,7 @@
 set -e
 
 # Run validate config-script
-/KubeNow_root/bin/validate_config config.tfvars
+/KubeNow_root/bin/validate-config config.tfvars
 
 # Read config file into variable as as json
 kn_config=$(json2hcl -reverse <config.tfvars)
