@@ -3,9 +3,11 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-host_cloud=$(grep -w "provider" config.tfvars |
-  cut -d "=" -f 2- |
-  awk -F\" '{print $(NF-1)}')
+# Read config file into variable as as json
+kn_config=$(json2hcl -reverse <config.tfvars)
+
+# Set variables from json-config
+host_cloud=$(jq -r '.provider' <<<"$kn_config")
 
 # Check for recognized cloud provider
 if ! grep -qw "$host_cloud" <<<"openstack gce azure aws"; then
