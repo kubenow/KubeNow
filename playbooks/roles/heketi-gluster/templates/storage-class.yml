@@ -1,5 +1,5 @@
 ---
-apiVersion: storage.k8s.io/v1beta1
+apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: gluster-heketi
@@ -10,3 +10,7 @@ provisioner: kubernetes.io/glusterfs
 parameters:
   resturl: "http://{{ heketi_endpoint }}"
   volumetype: {{volumetype}}
+  volumeoptions: "performance.stat-prefetch off"
+mountOptions:
+  - entry-timeout=0
+  - attribute-timeout=0
