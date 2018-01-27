@@ -195,7 +195,7 @@ function set_preset() {
   case $preset in
   phenomenal | pheno | phnmnl)
     tag="${kubenow_version/\//-}"
-    export KN_PROVISIONERS_IMG="andersla/provisioners:$tag"
+    export KN_PROVISIONERS_IMG="phenomenal/provisioners:$tag"
     export KN_PLUGIN_NAME="phenomenal"
     ;;
   openrisknet | orn) ;;
