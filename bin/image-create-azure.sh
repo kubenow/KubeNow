@@ -28,19 +28,19 @@ if [ -z "${TF_VARS_FILE}" ]; then
 fi
 
 # Get vars from tfvars-file
-arm_client_id=$(grep "client_id" "$TF_VARS_FILE" |
+arm_client_id=$(grep "^client_id" "$TF_VARS_FILE" |
   cut -d "=" -f 2- |
   awk -F\" '{print $(NF-1)}')
 
-arm_client_secret=$(grep "client_secret" "$TF_VARS_FILE" |
+arm_client_secret=$(grep "^client_secret" "$TF_VARS_FILE" |
   cut -d "=" -f 2- |
   awk -F\" '{print $(NF-1)}')
 
-arm_tenant_id=$(grep "tenant_id" "$TF_VARS_FILE" |
+arm_tenant_id=$(grep "^tenant_id" "$TF_VARS_FILE" |
   cut -d "=" -f 2- |
   awk -F\" '{print $(NF-1)}')
 
-arm_location=$(grep "location" "$TF_VARS_FILE" |
+arm_location=$(grep "^location" "$TF_VARS_FILE" |
   cut -d "=" -f 2- |
   awk -F\" '{print $(NF-1)}')
 
