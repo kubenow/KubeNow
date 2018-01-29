@@ -62,6 +62,10 @@
                  {%- else %}replicate:3{% endif %}"
   when: volumetype is undefined
 
+- name: set fact gluster_volumeoptions
+  set_fact:
+    gluster_volumeoptions: "{{ gluster_volumeoptions | default("performance.stat-prefetch off quick-read off, read-ahead off, io-cache off, remote-dio on, quorum-type auto, server-quorum-type server") }}"
+
 - name: render storage-class
   template:
     src: storage-class.yml
