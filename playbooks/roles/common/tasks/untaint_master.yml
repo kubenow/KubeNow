@@ -2,6 +2,6 @@
 # First jq-filter nodes having taint and then untaint command
 - name: "untaint master"
   shell: >
-    kubectl get nodes -o json
-      | jq ".items[] | select(.spec.taints[]?.key==\"node-role.kubernetes.io/master\") | .metadata.name"
+    kubectl get nodes -o json \
+      | jq ".items[] | select(.spec.taints[]?.key==\"node-role.kubernetes.io/master\") | .metadata.name" \
       | xargs -L1 -i kubectl taint nodes {} node-role.kubernetes.io/master-
