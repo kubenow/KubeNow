@@ -10,7 +10,7 @@ provisioner: kubernetes.io/glusterfs
 parameters:
   resturl: "http://{{ heketi_endpoint }}"
   volumetype: {{volumetype}}
-  volumeoptions: "performance.stat-prefetch off quick-read off, read-ahead off, io-cache off, remote-dio on, quorum-type auto, server-quorum-type server"
+  volumeoptions: "stat-prefetch off quick-read off, read-ahead off, io-cache off, remote-dio on, quorum-type auto, server-quorum-type server"
 mountOptions:
   - entry-timeout=0
   - attribute-timeout=0
