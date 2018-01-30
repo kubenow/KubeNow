@@ -2,7 +2,7 @@
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: minio-sc
+  name: object-store-sc
   namespace: storage-heketi
   annotations:
     storageclass.kubernetes.io/is-default-class: "false"
