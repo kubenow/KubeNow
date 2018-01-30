@@ -10,7 +10,3 @@ provisioner: kubernetes.io/glusterfs
 parameters:
   resturl: "http://{{ heketi_endpoint }}"
   volumetype: {{volumetype}}
-  volumeoptions: {{gluster_volumeoptions}}
-mountOptions:
-  - entry-timeout=0
-  - attribute-timeout=0
