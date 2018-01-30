@@ -93,8 +93,8 @@ resource "libvirt_domain" "instance" {
   network_interface {
     hostname       = "${var.name_prefix}-${format("%03d", count.index)}"
     network_id     = "${var.network_id}"
-    #addresses     = ["10.10.10.1"]
-    wait_for_lease = true
+    # addresses      = ["${var.fixed_ip_series}.${format("%01d", count.index + 1)}"]
+    wait_for_lease = 0
   }
 
   console {
