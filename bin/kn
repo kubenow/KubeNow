@@ -66,13 +66,18 @@ function docker_run() {
   # parameters
   container=$1
   kubenow_root=$2
-  # shellcheck disable=SC2068
+
+  # Specify extra kvm/libvirt args
+  LIBVIRT_EXTRA_OPTS="-v /var/run/libvirt/libvirt-sock:/var/run/libvirt/libvirt-sock --net=host --privileged=true"
+
+  # shellcheck disable=SC2068,SC2086
   docker run --rm -it \
     -v "$kubenow_root":/KubeNow_root:Z \
     -e "LOCAL_USER_ID=$UID" \
     -e "LOCAL_GROUP_IDS=$(id -G)" \
     -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
     -e "ANSIBLE_OPT=$ANSIBLE_OPT" \
+    $LIBVIRT_EXTRA_OPTS \
     --env-file <(env | grep OS_) \
     --env-file <(env | grep TF_) \
     --env-file <(env | grep GOOGLE_) \

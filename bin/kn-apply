@@ -14,13 +14,13 @@ host_cloud=$(jq -r '.provider' <<<"$kn_config")
 image_name=$(jq -r '.boot_image' <<<"$kn_config")
 
 # Check for recognized cloud provider
-if ! grep -qw "$host_cloud" <<<"openstack gce azure aws"; then
+if ! grep -qw "$host_cloud" <<<"openstack gce azure aws kvm"; then
   echo >&2 "Error: unrecognized host cloud '$host_cloud' in config file config.tfvars"
   exit 1
 fi
 
 # Import image (AWS doesn't need it)
-if [ "$host_cloud" = 'openstack' ] || [ "$host_cloud" = 'gce' ] || [ "$host_cloud" = 'azure' ]; then
+if [ "$host_cloud" = 'openstack' ] || [ "$host_cloud" = 'gce' ] || [ "$host_cloud" = 'azure' ] || [ "$host_cloud" = 'kvm' ]; then
   export KN_GCE_ACCOUNT_FILE_PATH="$PWD/service-account.json"
   export TF_VARS_FILE="$PWD/config.tfvars"
   export KN_IMAGE_NAME="$image_name"
