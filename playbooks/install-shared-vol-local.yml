@@ -1,0 +1,9 @@
+---
+- hosts: master
+  gather_facts: "false"
+  vars:
+    device: "/dev/vdb"
+    mnt_path: "/mnt/data"
+    fstype: "ext4"
+  roles:
+    - {role: shared-volume-local, tags: ['shared-vol-local']}
