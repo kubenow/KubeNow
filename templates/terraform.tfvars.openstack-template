@@ -34,3 +34,24 @@ node_flavor = "your-node-flavor"
 # Cloudflare proxy (optional)
 # cloudflare_proxied = "true"
 # cloudflare_record_texts = ["record1","record2",...] # Warn: wildcards are not supported when using proxied records
+
+provision = {
+  "action" = {
+    "type"       = "ansible-playbook"
+    "playbook"   = "playbooks/install-core.yml"
+  }
+#  "action" = {
+#    "type"      = "ansible-playbook"
+#    "playbook" = "playbooks/infra-test withspace.yml and line
+#                  break"
+#    "extra_vars" = {
+#      "var1"     = "data1"
+#      "var2"     = "data2"
+#    }
+#  }
+#  "action" = {
+#    "type"      = "helm"
+#    "chart"    = "my-chart"
+#  }
+}
+
