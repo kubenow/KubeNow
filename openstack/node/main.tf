@@ -11,6 +11,10 @@ variable ssh_user {}
 
 variable keypair_name {}
 
+variable ssh_priv_key {
+  default = "ssh_key"
+}
+
 # Network settings
 variable network_name {}
 
@@ -48,6 +52,8 @@ variable master_ip {
   default = ""
 }
 
+variable is_scaling {}
+
 # Bootstrap
 data "template_file" "instance_bootstrap" {
   template = "${file("${path.root}/../${ var.bootstrap_file }")}"
@@ -74,12 +80,12 @@ data "template_cloudinit_config" "cloudinit_bootstrap" {
 
     content = <<EOF
 #!/bin/bash
-# Create hostname from ip-number and then set it to host
-IP=$(hostname -I | cut -d ' ' -f1 | sed 's/\./-/g')
-HOSTNAME=host-$IP
-hostname $HOSTNAME
-echo $HOSTNAME > /etc/hostname
-echo "127.0.0.1 $HOSTNAME" >> /etc/hosts
+## Create hostname from ip-number and then set it to host
+#IP=$(hostname -I | cut -d ' ' -f1 | sed 's/\./-/g')
+#HOSTNAME=host-$IP
+#hostname $HOSTNAME
+#echo $HOSTNAME > /etc/hostname
+#echo "127.0.0.1 $HOSTNAME" >> /etc/hosts
 EOF
   }
 
@@ -105,6 +111,12 @@ resource "openstack_compute_instance_v2" "instance" {
 
   security_groups = ["${var.secgroup_name}"]
   user_data       = "${data.template_cloudinit_config.cloudinit_bootstrap.rendered}"
+
+  # destroy-provisioner
+  provisioner "local-exec" {
+    when    = "destroy"
+    command = "echo destroy-provisioner from ${var.name_prefix}-${format("%03d", count.index)} is_scaling = ${var.is_scaling}"
+  }
 }
 
 # Allocate floating IPs (optional)
@@ -167,8 +179,12 @@ output "public_ip" {
 }
 
 output "hostnames" {
-  value = ["${data.null_data_source.hostnames.*.inputs.hostname}"]
+  value = ["${openstack_compute_instance_v2.instance.*.name}"]
 }
+
+#output "hostnames" {
+#  value = ["${data.null_data_source.hostnames.*.inputs.hostname}"]
+#}
 
 output "node_labels" {
   value = "${var.node_labels}"

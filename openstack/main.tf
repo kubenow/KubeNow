@@ -133,6 +133,10 @@ variable cloudflare_record_texts {
   default = ["*"]
 }
 
+variable is_scaling {
+  default = "false"
+}
+
 # Provider
 provider "openstack" {}
 
@@ -167,6 +171,7 @@ module "master" {
   flavor_name = "${var.master_flavor}"
   flavor_id   = "${var.master_flavor_id}"
   image_name  = "${var.boot_image}"
+  is_scaling  = "${var.is_scaling}"
 
   # SSH settings
   ssh_user     = "${var.ssh_user}"
@@ -198,6 +203,7 @@ module "node" {
   flavor_name = "${var.node_flavor}"
   flavor_id   = "${var.node_flavor_id}"
   image_name  = "${var.boot_image}"
+  is_scaling  = "${var.is_scaling}"
 
   # SSH settings
   ssh_user     = "${var.ssh_user}"
@@ -228,6 +234,7 @@ module "edge" {
   flavor_name = "${var.edge_flavor}"
   flavor_id   = "${var.edge_flavor_id}"
   image_name  = "${var.boot_image}"
+  is_scaling  = "${var.is_scaling}"
 
   # SSH settings
   ssh_user     = "${var.ssh_user}"
@@ -258,6 +265,7 @@ module "glusternode" {
   flavor_name = "${var.glusternode_flavor}"
   flavor_id   = "${var.glusternode_flavor_id}"
   image_name  = "${var.boot_image}"
+  is_scaling  = "${var.is_scaling}"
 
   # SSH settings
   ssh_user     = "${var.ssh_user}"
