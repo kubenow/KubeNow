@@ -1,4 +1,5 @@
+---
 - hosts: master
-  gather_facts: False
+  gather_facts: "False"
   roles:
-    - { role: heketi-gluster, tags: [ 'heketi-glusterfs' ] }
+    - {role: heketi-gluster, tags: ['heketi-glusterfs']}

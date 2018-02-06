@@ -1,11 +1,12 @@
+---
 - name: create mountpath on node
-  become: yes
+  become: "yes"
   file:
     path: "/mnt/data"
     state: directory
 
 - name: mount hostdir on node
-  become: yes
+  become: "yes"
   command: >
     mount -t 9p -o trans=virtio,version=9p2000.L,rw data /mnt/data
 

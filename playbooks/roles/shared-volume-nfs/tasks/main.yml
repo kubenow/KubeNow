@@ -1,3 +1,4 @@
+---
 - name: create yaml directory
   file:
     path: "~/.kubernetes-yaml/shared-vol-nfs/"

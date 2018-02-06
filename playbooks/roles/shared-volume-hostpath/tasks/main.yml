@@ -1,5 +1,6 @@
+---
 - name: partition device
-  become: yes
+  become: "yes"
   parted:
     device: "{{ device }}"
     number: 1
@@ -10,19 +11,19 @@
     partition: "{{ device }}1"
 
 - name: format device
-  become: yes
+  become: "yes"
   filesystem:
     fstype: "{{ fstype }}"
     dev: "{{ partition }}"
 
 - name: create mountpath on node
-  become: yes
+  become: "yes"
   file:
     path: "{{ mnt_path }}"
     state: directory
 
 - name: mount
-  become: yes
+  become: "yes"
   mount:
     path: "{{ mnt_path }}"
     src: "{{ partition }}"
