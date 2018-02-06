@@ -37,7 +37,21 @@ while read -r line; do
 
   target_host=master
 
-  node_name=$(ansible "$target_host" -a "kubectl get nodes -o wide")
+  node_name=$(ansible "$target_host" -a "kubectl get nodes -o json |
+    jq \".items[] |
+        select(.status.addresses[].type == 'InternalIP' and .status.addresses[].address == '10.0.0.6') |
+       .metadata.name\"
+    ")
+
+  node_name=$(ansible master -a "kubectl get nodes -o json |
+    jq \".items[] |
+        select(.status.addresses[].type == 'InternalIP' and .status.addresses[].address == '10.0.0.6') |
+       .metadata.name\"
+    ")
+
+  kubectl get nodes -o json | jq '.items[].status.addresses'
+  kubectl get nodes -o json | jq .items[].metadata.name
+  kubectl get nodes -o json | jq '.items[].status.addresses | select(.type == "InternalIP")'
 
   echo "$node_name"
 
