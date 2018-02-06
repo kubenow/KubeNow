@@ -110,6 +110,13 @@ provider "azurerm" {
 # Data-lookup, subscriptin_id etc.
 data "azurerm_client_config" "current" {}
 
+# Generates image resource group name by adding location as suffix (without spaces)
+data "null_data_source" "image_rg" {
+  inputs = {
+    name = "${var.image_resource_group_prefix}-${replace(var.location, " " , "")}"
+  }
+}
+
 # Resource-group
 resource "azurerm_resource_group" "rg" {
   name     = "${var.cluster_prefix}-rg"
@@ -139,7 +146,7 @@ module "master" {
   name_prefix         = "${var.cluster_prefix}-master"
   vm_size             = "${var.master_vm_size}"
   resource_group_name = "${azurerm_resource_group.rg.name}"
-  image_id            = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${var.image_resource_group}/providers/Microsoft.Compute/images/${var.kubenow_image}"
+  image_id            = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${data.null_data_source.image_rg.inputs.name}/providers/Microsoft.Compute/images/${var.boot_image}"
   location            = "${var.location}"
 
   # SSH settings
@@ -166,7 +173,7 @@ module "node" {
   name_prefix         = "${var.cluster_prefix}-node"
   vm_size             = "${var.node_vm_size}"
   resource_group_name = "${azurerm_resource_group.rg.name}"
-  image_id            = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${var.image_resource_group}/providers/Microsoft.Compute/images/${var.kubenow_image}"
+  image_id            = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${data.null_data_source.image_rg.inputs.name}/providers/Microsoft.Compute/images/${var.boot_image}"
   location            = "${var.location}"
 
   # SSH settings
@@ -193,7 +200,7 @@ module "edge" {
   name_prefix         = "${var.cluster_prefix}-edge"
   vm_size             = "${var.node_vm_size}"
   resource_group_name = "${azurerm_resource_group.rg.name}"
-  image_id            = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${var.image_resource_group}/providers/Microsoft.Compute/images/${var.kubenow_image}"
+  image_id            = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${data.null_data_source.image_rg.inputs.name}/providers/Microsoft.Compute/images/${var.boot_image}"
   location            = "${var.location}"
 
   # SSH settings
@@ -220,7 +227,7 @@ module "glusternode" {
   name_prefix         = "${var.cluster_prefix}-glusternode"
   vm_size             = "${var.glusternode_vm_size}"
   resource_group_name = "${azurerm_resource_group.rg.name}"
-  image_id            = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${var.image_resource_group}/providers/Microsoft.Compute/images/${var.kubenow_image}"
+  image_id            = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${data.null_data_source.image_rg.inputs.name}/providers/Microsoft.Compute/images/${var.boot_image}"
   location            = "${var.location}"
 
   # SSH settings

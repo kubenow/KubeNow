@@ -15,7 +15,7 @@ spec:
         name: traefik-ingress-lb
     spec:
       hostNetwork: true # workaround
-      terminationGracePeriodSeconds: 120
+      terminationGracePeriodSeconds: 60
       tolerations:
       - key: node-role.kubernetes.io/master
         effect: NoSchedule
