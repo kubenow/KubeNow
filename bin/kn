@@ -1,121 +1,73 @@
 #!/bin/bash
 
-#Usage
-read -r -d '' USAGE << EOM
-Usage: kn <command>
+set -e # exit at first error
+
+###############
+# Set version #
+###############
+
+kubenow_version="master"
+
+#############
+# Functions #
+#############
+
+function usage() {
+  cat <<EOF
+
+Usage: kn [options] <command>
+
 Commands:
-  help                print this message
-  init <DIR>          creates a new project in the supplied directory
-  apply <CLOUD>       apply configuration on the supplied cloud provider.
-                      CLOUD=<gce|aws|openstack>
-  destroy <CLOUD>     destroy deployment (CLOUD=<gce|aws|openstack>)
-  kubectl             run kubectl on the master. More help: kn kubectl help
-  helm                run helm on the master. More help: kn helm help
-  terraform           run Terraform. More help: kn terraform --help
-  ansible             run Ansible. More help: kn ansible --help
-  ansible-playbook    run an Ansible playbook.
-                      More help: kn ansible-playbook --help
-  openstack           run a command against you Openstack provider: More help: kn openstack help
-  kubetoken           generate and print a kubeadm token
-  ssh <host>          ssh to <host> defined in ansible inventory file, default <host> is master
-  bash                run an interactive bash promt in the kubenow provisioners docker-image
-  az                  run Microsoft Azure CLI: More help: kn az help
-EOM
+basic:
+  help                   print this message
+  version                print version of this software
+  init <CLOUD> <DIR>     creates a new project in the supplied directory
+                         CLOUD=<gce|aws|openstack|azure>
+  apply                  apply configuration
+  destroy                destroy deployment
+  ssh <host>             ssh to <host> defined in ansible inventory file.
+                         Default <host> is master
+kubernetes:
+  kubectl                run kubectl on the master. More help: kn kubectl help
+  helm                   run helm on the master. More help: kn helm help
+cloud tools:
+  terraform              run Terraform. More help: kn terraform --help
+  ansible                run Ansible. More help: kn ansible --help
+  ansible-playbook       run an Ansible playbook.
+                         More help: kn ansible-playbook --help
+cloud providers CLI:
+  gcloud                 run Google Cloud Platform CLI. More help: kn gcloud help
+  openstack              run OpenStack CLI. More help: kn openstack help
+  az                     run Microsoft Azure CLI. More help: kn az help
+developers:
+  bash                   run an interactive bash promt in the provisioners container
+  kubetoken              generate and print a kubeadm token
 
-# Validate command
-if [ "$#" -eq 0 ]; then
-  >&2 echo "Error: no arguments supplied"
-  echo "$USAGE"
-  exit 1
-fi
+Options:
+  -i, --docker-image <image>    specifies the provisioners docker image to be used.
+  KN_PROVISIONERS_IMG           Default: kubenow/provisioners:$kubenow_version
 
-COMMAND="$1"
-ALLOWED="help init terraform ansible ansible-playbook kubetoken apply destroy kubectl helm openstack az ssh bash"
-echo "$ALLOWED" | grep "\b$COMMAND\b" > /dev/null
-if [ "$?" = "1" ]; then
-  >&2 echo "Error: unrecognized command '$COMMAND'"
-  echo "$USAGE"
-  exit 1
-fi
+EOF
+}
 
-# Print help if required
-if [ "$COMMAND" = "help" ]; then
-  echo "$USAGE"
-  exit 0
-fi
+function usage_init() {
+  cat <<EOF
 
-# If no version specified take stable
-if [ -z "$KUBENOW_VERSION" ] ; then
-  KUBENOW_VERSION="latest"
-fi
+Usage: init <CLOUD> <DIR>
+CLOUD=<gce|aws|openstack|azure>
 
-# Set directories to be mounted in docker
-USER_DIR="$PWD"
-USER_DIR_DOCKER="/var/userdir"
-# This is mainly for development where a local kubenow-dir will
-# be mounted on top of the kubenow dir in docker image
-if [ -n "$KUBENOW_DIR" ] ; then
-  OPTIONAL_KUBENOW_DIR_MNT="-v $KUBENOW_DIR:/opt/KubeNow"
-  echo "** Using local KubeNow directory: $KUBENOW_DIR **"
-fi
+EOF
+}
 
-# Command name replacement
-first="$1"; shift; set -- "${first/ssh/ssh-kn}" "$@"
-first="$1"; shift; set -- "${first/init/init-kn}" "$@"
-
-# Get all local user group id:s (to be added to user inside docker-image)
-LOCAL_GROUP_IDS="$(id -G)"
-
-# Init command
-if [ "$COMMAND" = "init" ]; then
-  # Validate
-  if [ "$#" -ne 2 ]; then
-    >&2 echo "Error: wrong number of argument for the init command"
-    echo "$USAGE"
-    exit 1
-  fi
-  # shellcheck disable=SC2086,SC2046
-  INIT_DIR=$(cd $(dirname $2) && echo $PWD/$(basename $2))
-  if [ -f "$INIT_DIR" ] || [ -d "$INIT_DIR" ]; then
-    >&2 echo "Error: $INIT_DIR already exists"
-    exit 1
-  fi
-
-  mkdir -p "$INIT_DIR"
-
-  # Wrap docker run
-  # shellcheck disable=SC2086
+function docker_run() {
+  # parameters
+  container=$1
+  kubenow_root=$2
+  # shellcheck disable=SC2068
   docker run --rm -it \
-    -v "$INIT_DIR":/var/userdir \
-    $OPTIONAL_KUBENOW_DIR_MNT \
+    -v "$kubenow_root":/KubeNow_root \
     -e "LOCAL_USER_ID=$UID" \
-    -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
-    kubenow/provisioners:"$KUBENOW_VERSION" \
-    "$@"
-else
-  # Validate PWD
-  if [[ "$COMMAND" != "kubetoken" && "$COMMAND" != "bash" ]]; then
-    if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ] ; then
-        >&2 echo "Error: ssh_key not found. Are you in the right directory?"
-        exit 1
-    fi
-    if [ ! -f terraform.tfvars ] ; then
-        >&2 echo "Error: terraform.tfvars not found. Please create one using the templates."
-        exit 1
-    fi
-    if [ ! -f ansible.cfg ] ; then
-        >&2 echo "Error: ansible.cfg not found. Are you in the right directory?"
-        exit 1
-    fi
-  fi
-
-  # Wrap docker run
-  # shellcheck disable=SC2086
-  docker run --rm -it \
-    -v "$USER_DIR:$USER_DIR_DOCKER" \
-    $OPTIONAL_KUBENOW_DIR_MNT \
-    -e "LOCAL_USER_ID=$UID" \
-    -e "LOCAL_GROUP_IDS=$LOCAL_GROUP_IDS" \
+    -e "LOCAL_GROUP_IDS=$(id -G)" \
     -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
     -e "ANSIBLE_OPT=$ANSIBLE_OPT" \
     --env-file <(env | grep OS_) \
@@ -124,6 +76,133 @@ else
     --env-file <(env | grep AWS_) \
     --env-file <(env | grep ARM_) \
     --env-file <(env | grep KUBENOW_) \
-    kubenow/provisioners:"$KUBENOW_VERSION" \
-    "$@"
+    "$container" \
+    "/opt/KubeNow/bin/docker-entrypoint" ${@:3}
+}
+
+function validate_pwd() {
+  # Make sure that all of the needed files are in place
+  if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ]; then
+    echo "Error: ssh_key not found. Are you in the right directory?" >&2
+    exit 1
+  fi
+  if [ ! -f terraform.tfvars ]; then
+    echo "Error: terraform.tfvars not found. Are you in the right directory?" >&2
+    exit 1
+  fi
+  if [ ! -f ansible.cfg ]; then
+    echo "Error: ansible.cfg not found. Are you in the right directory?" >&2
+    exit 1
+  fi
+}
+
+###########
+# Options #
+###########
+
+# Set defaults if not specified in the environment
+if [ -z "$KN_PROVISIONERS_IMG" ]; then
+  KN_PROVISIONERS_IMG="kubenow/provisioners:$kubenow_version"
 fi
+
+# While current command starts with "-" parse options
+# in environment variables
+while [[ "$1" == -* ]]; do
+  option="$1"
+  case $option in
+  -i | --docker-image)
+    KN_PROVISIONERS_IMG="$2"
+    shift # past argument
+    shift # past value
+    ;;
+  *)
+    echo "unrecognized option $1" >&2
+    usage
+    exit 1
+    ;;
+  esac
+done
+
+###############
+# Subcommands #
+###############
+
+subcommand="$1"
+case "$subcommand" in
+help)
+  usage
+  exit
+  ;;
+
+version)
+  echo "KubeNow version: $kubenow_version"
+  exit
+  ;;
+
+init)
+  # Validate
+  if [ "$#" -ne 3 ]; then
+    echo "Error: wrong number of argument for the init command" >&2
+    usage_init
+    exit 1
+  fi
+  # Parse HOST_CLOUD
+  host_cloud="$2"
+  # Check for recognized cloud provider
+  if ! grep -qw "$host_cloud" <<<"openstack gce azure aws"; then
+    echo "Error: unrecognized host cloud '$host_cloud'" >&2
+    usage_init
+    exit 1
+  fi
+  # Parts INIT_DIR
+  # shellcheck disable=SC2086,SC2046
+  init_dir=$(cd $(dirname $3) && echo $PWD/$(basename $3))
+  if [ -f "$init_dir" ] || [ -d "$init_dir" ]; then
+    echo "Error: $init_dir already exists" >&2
+    usage_init
+    exit 1
+  fi
+  # Init deployment
+  mkdir -p "$init_dir"
+  docker_run "$KN_PROVISIONERS_IMG" "$init_dir" "kn-init" "$host_cloud"
+  ;;
+
+# Commands that do not need PWD validation
+az | openstack | gcloud | bash)
+  # shellcheck disable=SC2068
+  docker_run "$KN_PROVISIONERS_IMG" "$PWD" "$subcommand" ${@:2}
+  ;;
+
+# Commands that need PWD validation
+terraform | ansible | ansible-playbook)
+  validate_pwd
+  # shellcheck disable=SC2068
+  docker_run "$KN_PROVISIONERS_IMG" "$PWD" "$subcommand" ${@:2}
+  ;;
+
+# KubeNow-defined commands that do no need PWD validation
+kubetoken)
+  # shellcheck disable=SC2068
+  docker_run "$KN_PROVISIONERS_IMG" "$PWD" "kn-$subcommand" ${@:2}
+  ;;
+
+# KubeNow-defined commands that need PWD validation
+apply | destroy | kubectl | helm | ssh)
+  validate_pwd
+  # shellcheck disable=SC2068
+  docker_run "$KN_PROVISIONERS_IMG" "$PWD" "kn-$subcommand" ${@:2}
+  ;;
+
+"")
+  echo "No command specified" >&2
+  usage
+  exit
+  ;;
+
+*)
+  echo "$1 is not a valid command" >&2
+  usage
+  exit 1
+  ;;
+
+esac

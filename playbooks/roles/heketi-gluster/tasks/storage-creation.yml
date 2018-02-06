@@ -1,3 +1,4 @@
+---
 - name: retrieve gluster-pod IPs
   command: >
     kubectl get pods
@@ -22,7 +23,7 @@
 
 - name: combine host-list with endpoint-list
   set_fact:
-     combined_host_ip: "{{ combined_host_ip|default({})|combine({item.0: item.1}) }}"
+    combined_host_ip: "{{ combined_host_ip|default({})|combine({item.0: item.1}) }}"
   with_together:
     - "{{ host_list }}"
     - "{{ enpoint_list }}"
@@ -53,10 +54,13 @@
     glusterpod_count: "{{ (enpoint_list | length) | int }}"
 
 # volumtype (replication factor): <VolumeDurability>:number eg. none:1, replicate:2, replicate:3 , disperse:???
-- name: set fact gluster_volumetype
+# in jinja2 - means remove any whitespace before this bracket
+- name: set fact volumetype
   set_fact:
-    gluster_volumetype: "{% if (glusterpod_count | int) == 1 %}none:1{% else %}replicate:{{ glusterpod_count }}{% endif %}"
-  when: gluster_volumetype is undefined
+    volumetype: "{% if (glusterpod_count | int) == 1 %}none:1
+                 {%- elif (glusterpod_count | int) == 2 %}replicate:2
+                 {%- else %}replicate:3{% endif %}"
+  when: volumetype is undefined
 
 - name: render storage-class
   template:
@@ -67,3 +71,13 @@
   command: >
     kubectl apply -f
     $HOME/.kubernetes-yaml/heketi/storage-class.yml
+
+- name: render object-store storage-class
+  template:
+    src: object-store-sc.yml
+    dest: "~/.kubernetes-yaml/heketi/object-store-sc.yml"
+
+- name: create storage-class
+  command: >
+    kubectl apply -f
+    $HOME/.kubernetes-yaml/heketi/object-store-sc.yml

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+host_cloud=$(grep -w "provider" terraform.tfvars |
+  cut -d "=" -f 2- |
+  awk -F\" '{print $(NF-1)}')
+
+# Check for recognized cloud provider
+if ! grep -qw "$host_cloud" <<<"openstack gce azure aws"; then
+  echo >&2 "Error: unrecognized host cloud '$host_cloud' in config file terraform.tfvars"
+  exit 1
+fi
+
+# Destroy
+# shellcheck disable=SC2086
+terraform destroy $TERRAFORM_OPT "/KubeNow_root/$host_cloud"

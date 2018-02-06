@@ -1,5 +1,5 @@
-# parameters documented at https://github.com/kubernetes/kubernetes/tree/master/examples/persistent-volume-provisioning
-apiVersion: storage.k8s.io/v1beta1
+---
+apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: gluster-heketi
@@ -9,4 +9,4 @@ metadata:
 provisioner: kubernetes.io/glusterfs
 parameters:
   resturl: "http://{{ heketi_endpoint }}"
-  volumetype: "{{ gluster_volumetype }}"
+  volumetype: {{volumetype}}

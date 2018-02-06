@@ -1,3 +1,4 @@
+---
 language: python # (Ansible)
 
 sudo: required
@@ -21,6 +22,7 @@ env:
   global:
     - TERRAFORM_VERSION=0.10.7
     - ANSIBLE_LINT_VERSION=3.4.15
+    - YAMLLINT_VERSION=1.8.1
   matrix:
     - HOST_CLOUD=openstack
     - HOST_CLOUD=gce
@@ -46,7 +48,10 @@ before_install:
   - sudo chmod +x /usr/bin/terraform
   # Install pip deps
   - sudo pip install --upgrade pip
-  - sudo pip install ansible-lint=="${ANSIBLE_LINT_VERSION}"
+  - >
+    sudo pip install
+    ansible-lint=="${ANSIBLE_LINT_VERSION}"
+    yamllint=="${YAMLLINT_VERSION}"
   # Pull hadolint
   - docker pull lukasmartinelli/hadolint
 
@@ -60,18 +65,26 @@ before_install:
   # skip ANSIBLE0012: missing change_when on command/shell etc.
   - ansible-lint -x ANSIBLE0006,ANSIBLE0012 playbooks/*.yml
   # check Shell
-  - shellcheck $(find . -type f -name "*.sh")
+  - shellcheck bootstrap/*
   - shellcheck bin/*
+  - docker run -v "$(pwd)":/sh -w /sh jamesmstone/shfmt -i 2 -w bin/*
+  - docker run -v "$(pwd)":/sh -w /sh jamesmstone/shfmt -i 2 -w bootstrap/*
+  - git diff --exit-code
   # check Dockerfile
-  - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 - < Dockerfile
+  - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 --ignore DL3013 - < Dockerfile
+  # check YAML
+  - yamllint -c .yamllint.yml -s $(find . -type f -name "*.yml")
 
 # Build Docker image
-install: docker build -t kubenow/provisioners:latest .
+install: docker build -t kubenow/provisioners:master .
 
 before_script:
 
+  # Copy kn bin
+  - sudo cp bin/kn /usr/local/bin/
+
   # Init test deployment
-  - bin/kn init test-deployment
+  - kn init ${HOST_CLOUD} test-deployment
   - cd test-deployment
 
   # Overwrite ssh-key for debug purposes
@@ -79,13 +92,7 @@ before_script:
   - echo -e "$TRAVIS_SSH_KEY_PUB" > ssh_key.pub
 
   # RENDER CONFIGURATION
-  # Create terraform.tfvars
-  - >
-      if [ "$HOST_CLOUD" = 'openstack' ]; then
-        cp terraform.tfvars.os-template terraform.tfvars
-      else
-        cp "terraform.tfvars.${HOST_CLOUD}-template" terraform.tfvars
-      fi
+
   # Common
   - sed -i -e "s/your-cluster-prefix/kubenow-ci-${TRAVIS_BUILD_NUMBER}-${HOST_CLOUD}/g" terraform.tfvars
   # AWS
@@ -116,20 +123,31 @@ before_script:
   - sed -i -e "s/# cloudflare_email = \"your-cloudflare-email\"/cloudflare_email = \"${CI_CLOUDFLARE_EMAIL}\"/g" terraform.tfvars
   - sed -i -e "s/# cloudflare_token = \"your-cloudflare-token\"/cloudflare_token = \"${CI_CLOUDFLARE_TOKEN}\"/g" terraform.tfvars
   - sed -i -e "s/# cloudflare_domain = \"your-domain-name\"/cloudflare_domain = \"${CI_CLOUDFLARE_DOMAIN}\"/g" terraform.tfvars
-  - sed -i -e "s/# cloudflare_subdomain = \"your-subdomain-name\"/cloudflare_subdomain = \"kubenow-ci-${TRAVIS_BUILD_NUMBER}-${HOST_CLOUD}\"/g" terraform.tfvars
+  - >
+    sed -i -e
+    "s/# cloudflare_subdomain = \"your-subdomain-name\"/cloudflare_subdomain = \"kubenow-ci-${TRAVIS_BUILD_NUMBER}-${HOST_CLOUD}\"/g"
+    terraform.tfvars
 
 
 script:
+
+  # First test commands outside the init-dir (before cluster is deployed)
+  - cd /tmp
+  - kn openstack --version # try to run an openstack command
+  - kn az --version # try to run an azure cli command
+  - kn gcloud --version # try to run an gcloud cli command
+  - cd -
+
   # Deploy
-  - ../bin/kn apply "$HOST_CLOUD"
+  - travis_retry kn apply
   # Test
-  - ../bin/kn ansible-playbook /opt/KubeNow/playbooks/infra-test.yml
-  - ../bin/kn kubectl get nodes # try to list nodes
-  - ../bin/kn helm list # try to helm list
-  - ../bin/kn openstack --version # try to run an openstack command
+  - kn ansible-playbook /opt/KubeNow/playbooks/infra-test.yml
+  - kn kubectl get nodes # try to list nodes
+  - kn helm list # try to helm list
+  - kn ssh master 'uname && exit' # ssh to master and execute commands
 
 after_script:
-  - export TERRAFORM_OPT="-force" && travis_retry ../bin/kn destroy "$HOST_CLOUD"
+  - export TERRAFORM_OPT="-force" && travis_retry kn destroy
   - travis_retry terraform destroy -force "$HOST_CLOUD" # in case there is some problem with kn
 
 jobs:
@@ -153,3 +171,40 @@ jobs:
               docker push kubenow/provisioners:$TRAVIS_TAG
               docker push kubenow/provisioners:latest
             fi
+        # If tag, create a versioned kn CLI
+        - >
+            if [ ! -z $TRAVIS_TAG ]; then
+              sed -i -e "s/kubenow_version=\"master\"/kubenow_version=\"${TRAVIS_TAG}\"/g" bin/kn
+            fi
+      deploy:
+        provider: releases
+        file: bin/kn
+        skip_cleanup: true
+        api_key:
+          secure: >
+            kTW1R8oSIGm91Vc4p9fw921REV234A6hv9P1VN4Yf6WBp3/UW1hGKm2K9/QSkovpSTEW1W
+            nx3Sj63rb3L91xr+0sFGwI71nLGGWvjiOFKMl0HeJjF4OX+G6V6xdFF/CDW94hof+Lhzjk
+            flxri1iR66dt5X45FnH4frvybBvg0yCyqL2EidZc+0WEbiocEINsgRnGMHJjYNVty0ee9A
+            GOZJbts1UBoh5CmHkfNwchblvjipl/HqZ/KFcPmLpc5urb37ppe9qUA3smyYWnwzqQua0u
+            k3jj79MKjvXIUY5OliihWFbTeGDmdMsKYRFp4cVDXU+gKOYFFlmybzgnU7D15XhepCqvqd
+            CDAbgmUakti8R1dXbM2AKeP59xJLjEQeaJBL3uGcND4nu9+uHwnoT6k+rWwpJxkxdYoMgf
+            YGHsZn8voCL2JbsNujsDvR5G9k6Wt/z5dGsJzzrHrunkaTQ3vTTsa+R1xwwGuJVvNbnG9h
+            iAXr4ERmUfY6cMawVIyp6WKpNs+d20jWyEzEfOpxVIchLGLlNqH1/fHZqTZGiL0TvALxe7
+            R3iHvmMotMv8UUAM/qaHROzOmWke5xv3oBAa26iB4UFoiWltGy22o6MbqQpdn2JyocbZvH
+            m3xyck3pd6R7kQSHeDaQ4PpNwbDDYnTvb5sgjVtneNwswZPUZ4ojc=
+        on: # yamllint disable-line rule:truthy
+          tags: true
+notifications:
+  email: false
+  slack:
+    secure: >
+      ed+rC8Oc4EdZfptHGX1Xr5sNc+wQTyjb4rjJT0P/U/NBStmik7dnUfAK9vk6XYVDrrPZxmAz6A
+      cJmEaxY4kdG2HBLBPD0keRxKh2rN2ZbjCTWuGlAomMkmNDcyeVoQI95HcT0nYHzgoUCGn7lgZ7
+      9vBUhBqbJXUWbvkz7J5qn8Kx7PXWvmjW4YLu9RhuIP7JtZLDLJt9dgyeHXDm1CW3tvPPplv9e8
+      l1GOcF2DBqodwd8+U5BTCNXf1DdwdvlmzIaZemy3sAsvNEr5wEIuO0Zw2cayhV80nf9fWW58ne
+      NBV2i8oeAuCL/M3EkEE/Z4aI/zxBVRyTaeK0s+XKehlC7IDJxnMirbNn2X4yyUeWY/81DX+Hhb
+      pip46TGQpS0sST8rBd7JYj0LjGSXj585xOcP67s9HdncnkVRdIdTOFX63m2bSE5tddJuOPggHZ
+      VKM8k+twXsWpW7sCr95wnwlD/ARuuG3OTtV0HfnHpqvKLdBgJ1fEsmKXn6eAaDvcCQ0K5LUBUs
+      yaZ9HHU7LYv7S760XgrmUEMR1SBsb9grFzANkAyhzApWQJ7wQbGD1IFX1kJl2v1Ii4WRgdVNll
+      YcMeflpHWPYI0U0IVXYPPLuV5DOEoKfWsJpX3HtZswYLdNzrZkSB9DQ/LxkSAZZcbkj9GLCv2E
+      igZHjgC3Ey2wwGIYQ=

@@ -1,3 +1,4 @@
+---
 - name: "test endpoint"
   command: >
     curl --silent --head

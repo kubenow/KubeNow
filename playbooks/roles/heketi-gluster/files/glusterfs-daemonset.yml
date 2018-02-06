@@ -16,7 +16,7 @@ spec:
       labels:
         glusterfs-node: daemonset
     spec:
-      tolerations: 
+      tolerations:
       - key: "dedicated"
         operator: "Equal"
         value: "fileserver"

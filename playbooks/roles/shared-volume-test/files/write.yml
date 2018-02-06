@@ -1,3 +1,4 @@
+---
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -10,7 +11,7 @@ spec:
       containers:
       - name: write
         image: ubuntu:xenial
-        command: ["dd","if=/dev/zero","of=/mnt/pv/test.img","bs=10M","count=1","oflag=dsync"]
+        command: ["dd", "if=/dev/zero", "of=/mnt/pv/test.img", "bs=10M", "count=1", "oflag=dsync"]
         volumeMounts:
         - mountPath: "/mnt/pv"
           name: test-volume

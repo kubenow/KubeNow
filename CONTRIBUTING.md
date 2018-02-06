@@ -44,11 +44,14 @@ In both scenarios when a new functionality or a bug fix would like to be propose
 ### Code Style Guide
 Please follow the style of the existing codebase:
 
-* For any Terraform files, please make sure to run the command `terraform fmt` before pushing them
-* For any Packer file, please make sure to run the command `packer validate` before pushing them
-* For any shell scripts, please make sure to validate them by using any command-line tool such as [shellcheck](https://github.com/koalaman/shellcheck) before pushing them
-* For any Json files, please make sure to validate them by using either a command-line tool or an online Json validator before pushing them
-* For any Yaml files, please make sure to validate them by using either a command-line tool or an online Yaml validator before pushing them 
+* For any Terraform files, please make sure to format with `terraform fmt`
+* For any Packer file, please make sure to validate with `packer validate` 
+* For any shell script, please make sure to validate with [shellcheck](https://github.com/koalaman/shellcheck), and to format with [shfmt](https://github.com/mvdan/sh)
+* For any json file, please make sure to format with `python -mjson.too`
+* For any yaml file, please make sure to validate with [yamllint](https://github.com/adrienverge/yamllint), using the `.yamllint.yml` configuration
+* For any Ansible file please make sure to validate with [ansible-lint](https://github.com/willthames/ansible-lint)
+
+Any violation of the previous policies will fail the CI process.
 
 ## Contributing by Reviewing Changes
 Changes to KubeNow source code are proposed, reviewed and committed via [Github pull requests](https://github.com/kubenow/KubeNow/pulls) (see above). Anyone can view and comment on active changes here. Reviewing others' changes is a good way to learn how the change process works and gain exposure to activity in various parts of the code. You can help by reviewing the changes and asking questions or pointing out issues – as simple as typos or small issues of style.
@@ -77,12 +80,22 @@ In addition to the above suggestions, reviewers should check code changes carefu
 * Adds large dependencies
 * Adds a large amount of code
 
+### Merging a Pull Request by an external contributor
+When a PR from an external contributor has been submitted, an owner needs to merge the PR following this workflow:
+
+1. Make sure that no encrypted value is manipulated in the PR
+2. Fetch the PR: `git fetch origin pull/<ID>/head:pr-<ID>`
+3. Checkout the master and pull it: `git checkout master && git pull`
+4. Checkout a new test branch from the master: `git checkout -b pr-test-<ID>`
+5. Merge the PR in the new test branch: `git merge pr-<ID>`
+7. Merge the original PR if the CI for `pr-test-<ID>` passes
+
 ## Support Channels
 
 Whether you are a user or contributor, official support channels include:
 
-* GitHub issues: https://github.com/kubenetes/charts/issues
-* Slack: KubeNow - coming soon
+* GitHub issues: https://github.com/kubenow/KubeNow/issues
+* Slack: https://kubenow.slack.com
 
 Before opening a new issue or submitting a new pull request, it's helpful to search the project - it's likely that another user has already reported the issue you're facing, or it's a known issue that we're already aware of.
 
