@@ -33,6 +33,7 @@ node_vm_size = "Standard_DS2_v2"
 # cloudflare_email = "your-cloudflare-email"
 # cloudflare_token = "your-cloudflare-token"
 # cloudflare_domain = "your-domain-name"
+# cloudflare_subdomain = "your-subdomain-name"
 
 # Cloudflare proxy (optional)
 # cloudflare_proxied = "true"

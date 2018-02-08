@@ -152,7 +152,6 @@ script:
   - kn ssh master 'uname && exit' # ssh to master and execute commands
 
 after_script:
-  - sleep 500
   - export TERRAFORM_OPT="-force" && travis_retry kn destroy
   - travis_retry terraform destroy -force "$HOST_CLOUD" # in case there is some problem with kn
 
