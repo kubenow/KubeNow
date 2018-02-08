@@ -153,6 +153,7 @@ script:
 
 after_script:
   - export TERRAFORM_OPT="-force" && travis_retry kn destroy
+  - sleep 500
   - travis_retry terraform destroy -force "$HOST_CLOUD" # in case there is some problem with kn
 
 jobs:
