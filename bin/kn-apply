@@ -3,8 +3,8 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-# Run validate config-script [TODO change into preflight-check]
-/KubeNow_root/bin/validate-config config.tfvars
+# Run preflight-check
+/KubeNow_root/bin/preflight-check config.tfvars
 
 # Read config file into variable as as json
 kn_config=$(json2hcl -reverse <config.tfvars)

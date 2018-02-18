@@ -57,5 +57,17 @@ while read -r line; do
 
 done <<<"$destroy"
 
+# TODO User input: Following nodes will be destroyed: .....
+
+# Execute kubectl drain nodes.... (is it possibe to issue several nodes at once?
+
+# Now execute terraform apply
+
+# shellcheck disable=SC2086
+terraform apply $TERRAFORM_OPT -var-file=config.tfvars "/KubeNow_root/$host_cloud"
+
+
+# Is it possible for a node to ask to be drained...?
+
 ## shellcheck disable=SC2086
 #terraform apply $TERRAFORM_OPT -var-file=config.tfvars "/KubeNow_root/$host_cloud"

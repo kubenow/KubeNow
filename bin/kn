@@ -57,7 +57,7 @@ function usage_init() {
   cat <<EOF
 
 Usage: init <CLOUD> <DIR>
-CLOUD=<gce|aws|openstack|azure>
+CLOUD=<gce|aws|openstack|azure|kvm>
 
 EOF
 }
@@ -291,7 +291,7 @@ init*)
   # Parse HOST_CLOUD
   host_cloud="$2"
   # Check for recognized cloud provider
-  if ! grep -qw "$host_cloud" <<<"openstack gce azure aws"; then
+  if ! grep -qw "$host_cloud" <<<"openstack gce azure aws kvm"; then
     echo "Error: unrecognized host cloud '$host_cloud'" >&2
     usage_init
     exit 1
@@ -324,7 +324,7 @@ terraform | ansible | ansible-playbook)
   ;;
 
 # KubeNow-defined commands that do no need PWD validation
-kubetoken)
+kubetoken | openstack)
   # shellcheck disable=SC2068
   docker_run "$KN_PROVISIONERS_IMG" "$PWD" "kn-$subcommand" ${@:2}
   ;;
