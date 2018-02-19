@@ -1,0 +1,10 @@
+---
+volumeoptions: |
+   "performance.quick-read off, performance.read-ahead off,
+   performance.io-cache off, performance.stat-prefetch off,
+   performance.low-prio-threads 32, network.remote-dio enable,
+   cluster.eager-lock enable, disperse.eager-lock enable,
+   cluster.quorum-type auto, cluster.server-quorum-type server,
+   cluster.data-self-heal-algorithm full, cluster.locking-scheme granular,
+   cluster.shd-max-threads 8, cluster.shd-wait-qlength 10000,
+   features.shard on, user.cifs off"
