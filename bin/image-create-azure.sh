@@ -28,19 +28,19 @@ if [ -z "${TF_VARS_FILE}" ]; then
 fi
 
 # Get vars from tfvars-file
-arm_client_id=$(grep "client_id" "$TF_VARS_FILE" |
+arm_client_id=$(grep "^client_id" "$TF_VARS_FILE" |
   cut -d "=" -f 2- |
   awk -F\" '{print $(NF-1)}')
 
-arm_client_secret=$(grep "client_secret" "$TF_VARS_FILE" |
+arm_client_secret=$(grep "^client_secret" "$TF_VARS_FILE" |
   cut -d "=" -f 2- |
   awk -F\" '{print $(NF-1)}')
 
-arm_tenant_id=$(grep "tenant_id" "$TF_VARS_FILE" |
+arm_tenant_id=$(grep "^tenant_id" "$TF_VARS_FILE" |
   cut -d "=" -f 2- |
   awk -F\" '{print $(NF-1)}')
 
-arm_location=$(grep "location" "$TF_VARS_FILE" |
+arm_location=$(grep "^location" "$TF_VARS_FILE" |
   cut -d "=" -f 2- |
   awk -F\" '{print $(NF-1)}')
 
@@ -133,21 +133,17 @@ if [ -z "$image_details" ]; then
 
       done_bytes=$(echo "$progress" | cut -d '/' -f 1)
       total_bytes=$(echo "$progress" | cut -d '/' -f 2)
-      # The total bytes show actual file size, but since only about 3.5GB of 30GB is being
-      # used, the last 26.5GB is zero-filled and copied instantly, then file copy progress displayed
-      # to user would be very skewed if not adjusted down to display used bytes)
-      ACTUAL_IMAGE_FILE_SIZE=3450000000
-      percent=$(bc -l <<<"($done_bytes/$ACTUAL_IMAGE_FILE_SIZE)*100")
-      # Never more than 99.99% (this could happen when ACTUAL_IMAGE_FILE_SIZE is set to small)
-      percent=$(bc -l <<<"if ($percent > 100) 99.99 else $percent")
+      percent=$(bc -l <<<"($done_bytes/$total_bytes)*100")
+      done_mbytes=$(bc -l <<<"($done_bytes/1000000)")
+      total_mbytes=$(bc -l <<<"($total_bytes/1000000)")
     fi
 
     # Every time print status message with an updated spinner symbol
-    printf '\r %s Image copy progress: %.2f%%' "${spin:$n:1}" "$percent"
+    printf '\r %s Image copy progress: %.2f%% %.2f / %.2f MB (sometimes the copy process is much faster after ca 10%%)' "${spin:$n:1}" "$percent" "$done_mbytes" "$total_mbytes"
 
     # Break when finished
     if [[ "$done_bytes" == "$total_bytes" ]]; then
-      printf '\rDone copy image                   \n'
+      printf '\rDone copy image                                                                                                  \n'
       break
     fi
 

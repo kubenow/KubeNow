@@ -6,7 +6,7 @@ set -e # exit at first error
 # Set version #
 ###############
 
-kubenow_version="master"
+kubenow_version="phenomenal/stable"
 
 #############
 # Functions #
@@ -27,6 +27,8 @@ basic:
   destroy                destroy deployment
   ssh <host>             ssh to <host> defined in ansible inventory file.
                          Default <host> is master
+  upgrade <version>      upgrade kn to <latest|latest-stable|master|"tag">
+
 kubernetes:
   kubectl                run kubectl on the master. More help: kn kubectl help
   helm                   run helm on the master. More help: kn helm help
@@ -42,6 +44,7 @@ cloud providers CLI:
 developers:
   bash                   run an interactive bash promt in the provisioners container
   kubetoken              generate and print a kubeadm token
+  git
 
 Options:
   -i, --docker-image <image>    specifies the provisioners docker image to be used.
@@ -54,7 +57,7 @@ function usage_init() {
   cat <<EOF
 
 Usage: init <CLOUD> <DIR>
-CLOUD=<gce|aws|openstack|azure>
+CLOUD=<gce|aws|openstack|azure|kvm>
 
 EOF
 }
@@ -63,19 +66,24 @@ function docker_run() {
   # parameters
   container=$1
   kubenow_root=$2
-  # shellcheck disable=SC2068
+
+  # Specify extra kvm/libvirt args
+  LIBVIRT_EXTRA_OPTS="-v /var/run/libvirt/libvirt-sock:/var/run/libvirt/libvirt-sock --net=host --privileged=true"
+
+  # shellcheck disable=SC2068,SC2086
   docker run --rm -it \
-    -v "$kubenow_root":/KubeNow_root \
+    -v "$kubenow_root":/KubeNow_root:Z \
     -e "LOCAL_USER_ID=$UID" \
     -e "LOCAL_GROUP_IDS=$(id -G)" \
     -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
     -e "ANSIBLE_OPT=$ANSIBLE_OPT" \
+    $LIBVIRT_EXTRA_OPTS \
     --env-file <(env | grep OS_) \
     --env-file <(env | grep TF_) \
     --env-file <(env | grep GOOGLE_) \
     --env-file <(env | grep AWS_) \
     --env-file <(env | grep ARM_) \
-    --env-file <(env | grep KUBENOW_) \
+    --env-file <(env | grep KN_) \
     "$container" \
     "/opt/KubeNow/bin/docker-entrypoint" ${@:3}
 }
@@ -86,8 +94,8 @@ function validate_pwd() {
     echo "Error: ssh_key not found. Are you in the right directory?" >&2
     exit 1
   fi
-  if [ ! -f terraform.tfvars ]; then
-    echo "Error: terraform.tfvars not found. Are you in the right directory?" >&2
+  if [ ! -f config.tfvars ]; then
+    echo "Error: config.tfvars not found. Are you in the right directory?" >&2
     exit 1
   fi
   if [ ! -f ansible.cfg ]; then
@@ -96,13 +104,124 @@ function validate_pwd() {
   fi
 }
 
+function read_provisioner_image_var() {
+  # Get var from tfvars-file
+  KN_PROVISIONERS_IMG=$(grep "^provisioner_image" "config.tfvars" |
+    cut -d "=" -f 2- |
+    awk -F\" '{print $(NF-1)}')
+  export KN_PROVISIONERS_IMG
+}
+#
+# Adapted from stackoverflow-questions-59895
+#
+function resolve_links() {
+  # parameters
+  source="$1"
+  # resolve $source until the file is no longer a symlink
+  while [ -h "$source" ]; do
+    dir="$(cd -P "$(dirname "$source")" && pwd)"
+    # if $dir was a relative symlink, we need to resolve it relative to
+    # the path where the symlink file was located
+    source="$(readlink "$source")"
+    [[ $dir != /* ]] && dir="$dir/$dir"
+  done
+  echo "$source"
+}
+
+#
+# Description of function
+#
+function upgrade() {
+  # parameters
+  version="$kubenow_version"
+  echo "upgrade version: $version"
+  branch=""
+  case "$version" in
+  latest)
+    branch="$(curl https://api.github.com/repos/kubenow/KubeNow/releases |
+      jq -r '.[0].tag_name')"
+    ;;
+  latest-stable)
+    echo "lateststable"
+    branch="$(curl https://api.github.com/repos/kubenow/KubeNow/releases |
+      jq -r '[.[] | select(.prerelease==false) | .tag_name'][0])"
+    ;;
+  *)
+    branch="${version}"
+    ;;
+  esac
+
+  url="https://raw.githubusercontent.com/kubenow/KubeNow/$branch/bin/kn"
+
+  # Add a random suffix to prevent url caching
+  random="$(openssl rand -base64 16)"
+  url="$url?rnd=$random"
+
+  # Get full filename of this script
+  absolute_file="$(resolve_links "${BASH_SOURCE[0]}")"
+
+  echo "Download new version to /tmp"
+  tmpfile=$(mktemp)
+  curl -f "$url" -o "$tmpfile" || (
+    echo -e "\nError trying to download file $url\n" >&2
+    exit 1
+  )
+
+  # Verify that downloaded temp file is ok by executing kn help
+  echo "Verify downloaded file"
+  chmod +x "$tmpfile"
+  "$tmpfile" help >/dev/null 2>&1 || (
+    echo -e "\nCould not verify functionality of downloaded kn script - skipping upgrade\n" >&2
+    exit 1
+  )
+
+  # Copy new file over old (preserves file attr from original file)
+  echo "Replace file $absolute_file with downloaded"
+  rsync --no-perms --no-owner --no-group "$tmpfile" "$absolute_file" || (
+    echo -e "\nError replacing file: $absolute_file - do you have sudo rights?\n" >&2
+    exit 1
+  )
+
+  rm "$tmpfile"
+
+  # Pull latest docker
+  echo "Pull provisioners docker image"
+
+  docker pull "$KN_PROVISIONERS_IMG"
+
+  echo -e "\nUpdated ok to version $KN_PROVISIONERS_IMG\n"
+}
+
+function set_preset() {
+  # parameters
+  preset="$1"
+  echo "Setting preset: $preset"
+
+  case $preset in
+  phenomenal | pheno | phnmnl)
+    tag="${kubenow_version/\//-}"
+    export KN_PROVISIONERS_IMG="phenomenal/provisioners:$tag"
+    export KN_PLUGIN_NAME="phenomenal"
+    ;;
+  openrisknet | orn) ;;
+
+  *)
+
+    echo "unrecognized preset $preset" >&2
+    usage
+    exit 1
+    ;;
+  esac
+}
+
 ###########
 # Options #
 ###########
 
 # Set defaults if not specified in the environment
 if [ -z "$KN_PROVISIONERS_IMG" ]; then
-  KN_PROVISIONERS_IMG="kubenow/provisioners:$kubenow_version"
+  tag="${kubenow_version/\//-}"
+  export KN_PROVISIONERS_IMG="kubenow/provisioners:$tag"
 fi
 
 # While current command starts with "-" parse options
@@ -111,8 +230,14 @@ while [[ "$1" == -* ]]; do
   option="$1"
   case $option in
   -i | --docker-image)
-    KN_PROVISIONERS_IMG="$2"
-    shift # past argument
+    export KN_PROVISIONERS_IMG="$2"
+    shift # past option
+    shift # past value
+    ;;
+
+  -p | --preset)
+    set_preset "$2"
+    shift # past option
     shift # past value
     ;;
   *)
@@ -122,6 +247,8 @@ while [[ "$1" == -* ]]; do
     ;;
   esac
 done
+
+echo "Using provisioner version: $KN_PROVISIONERS_IMG"
 
 ###############
 # Subcommands #
@@ -139,7 +266,22 @@ version)
   exit
   ;;
 
-init)
+upgrade)
+
+  upgrade
+
+  exit
+  ;;
+
+install-autocomplete)
+  #/usr/local/etc/bash_completion.d
+  #/etc/bash_completion.d
+  echo >&2 "Error: could not find a suitable autocomplete path, e.g. /etc/bash_completion.d or /usr/local/etc/bash_completion.d"
+  echo "You could provide preferred installation path with argument --preferred=/path/to/bash_completion.d"
+  exit
+  ;;
+
+init*)
   # Validate
   if [ "$#" -ne 3 ]; then
     echo "Error: wrong number of argument for the init command" >&2
@@ -149,12 +291,12 @@ init)
   # Parse HOST_CLOUD
   host_cloud="$2"
   # Check for recognized cloud provider
-  if ! grep -qw "$host_cloud" <<<"openstack gce azure aws"; then
+  if ! grep -qw "$host_cloud" <<<"openstack gce azure aws kvm"; then
     echo "Error: unrecognized host cloud '$host_cloud'" >&2
     usage_init
     exit 1
   fi
-  # Parts INIT_DIR
+  # Parse INIT_DIR
   # shellcheck disable=SC2086,SC2046
   init_dir=$(cd $(dirname $3) && echo $PWD/$(basename $3))
   if [ -f "$init_dir" ] || [ -d "$init_dir" ]; then
@@ -162,13 +304,14 @@ init)
     usage_init
     exit 1
   fi
+
   # Init deployment
   mkdir -p "$init_dir"
   docker_run "$KN_PROVISIONERS_IMG" "$init_dir" "kn-init" "$host_cloud"
   ;;
 
 # Commands that do not need PWD validation
-az | openstack | gcloud | bash)
+az | openstack | gcloud | bash | git)
   # shellcheck disable=SC2068
   docker_run "$KN_PROVISIONERS_IMG" "$PWD" "$subcommand" ${@:2}
   ;;
@@ -181,7 +324,7 @@ terraform | ansible | ansible-playbook)
   ;;
 
 # KubeNow-defined commands that do no need PWD validation
-kubetoken)
+kubetoken | openstack)
   # shellcheck disable=SC2068
   docker_run "$KN_PROVISIONERS_IMG" "$PWD" "kn-$subcommand" ${@:2}
   ;;
@@ -189,6 +332,9 @@ kubetoken)
 # KubeNow-defined commands that need PWD validation
 apply | destroy | kubectl | helm | ssh)
   validate_pwd
+  # get provisioner image from tfvar-file
+  read_provisioner_image_var
+  echo "Using provisioner version: $KN_PROVISIONERS_IMG"
   # shellcheck disable=SC2068
   docker_run "$KN_PROVISIONERS_IMG" "$PWD" "kn-$subcommand" ${@:2}
   ;;

@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#
+# Checks sanity of config file before kn-apply
+#
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+config_file=$1
+
+# Read config file into variable as as json
+kn_config=$(json2hcl -reverse <"$config_file")
+
+# Set variables from json-config
+provider=$(jq -r '.provider' <<<"$kn_config")
+
+# Make sure that essential config are in place
+if [[ "$provider" == "openstack" ]]; then
+  if [ -z "$OS_USERNAME" ]; then
+    echo "Error: Could not read OS_USERNAME in environment" >&2
+    echo "Did you forget to source your credentials-file?" >&2
+    echo "e.g: source /path/to/credentials.rc" >&2
+    exit 1
+  fi
+fi

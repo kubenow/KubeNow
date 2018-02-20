@@ -11,6 +11,10 @@ variable ssh_user {}
 
 variable keypair_name {}
 
+variable ssh_priv_key {
+  default = "ssh_key"
+}
+
 # Network settings
 variable network_name {}
 
@@ -32,6 +36,10 @@ variable bootstrap_file {}
 
 variable kubeadm_token {}
 
+variable node_type {
+  default = "other"
+}
+
 variable node_labels {
   type = "list"
 }
@@ -44,6 +52,8 @@ variable master_ip {
   default = ""
 }
 
+variable is_scaling {}
+
 # Bootstrap
 data "template_file" "instance_bootstrap" {
   template = "${file("${path.root}/../${ var.bootstrap_file }")}"
@@ -51,9 +61,38 @@ data "template_file" "instance_bootstrap" {
   vars {
     kubeadm_token = "${var.kubeadm_token}"
     master_ip     = "${var.master_ip}"
+    node_type     = "${var.node_type}"
     node_labels   = "${join(",", var.node_labels)}"
     node_taints   = "${join(",", var.node_taints)}"
     ssh_user      = "${var.ssh_user}"
+  }
+}
+
+# Render a multi-part cloudinit config making use of the part
+# bootstrap file above
+data "template_cloudinit_config" "cloudinit_bootstrap" {
+  gzip          = true
+  base64_encode = true
+
+  part {
+    filename     = "01_set_hostname.sh"
+    content_type = "text/x-shellscript"
+
+    content = <<EOF
+#!/bin/bash
+## Create hostname from ip-number and then set it to host
+#IP=$(hostname -I | cut -d ' ' -f1 | sed 's/\./-/g')
+#HOSTNAME=host-$IP
+#hostname $HOSTNAME
+#echo $HOSTNAME > /etc/hostname
+#echo "127.0.0.1 $HOSTNAME" >> /etc/hosts
+EOF
+  }
+
+  part {
+    filename     = "02_bootstrap.sh"
+    content_type = "text/x-shellscript"
+    content      = "${data.template_file.instance_bootstrap.rendered}"
   }
 }
 
@@ -71,7 +110,13 @@ resource "openstack_compute_instance_v2" "instance" {
   }
 
   security_groups = ["${var.secgroup_name}"]
-  user_data       = "${data.template_file.instance_bootstrap.rendered}"
+  user_data       = "${data.template_cloudinit_config.cloudinit_bootstrap.rendered}"
+
+  # destroy-provisioner
+  provisioner "local-exec" {
+    when    = "destroy"
+    command = "echo destroy-provisioner from ${var.name_prefix}-${format("%03d", count.index)} is_scaling = ${var.is_scaling}"
+  }
 }
 
 # Allocate floating IPs (optional)
@@ -101,6 +146,25 @@ resource "openstack_compute_volume_attach_v2" "attach_extra_disk" {
   volume_id   = "${element(openstack_blockstorage_volume_v2.extra_disk.*.id, count.index)}"
 }
 
+# Generates a list of hostnames (these hostnames are made to match hostnames in openstack dhcp/dns-server)
+data "null_data_source" "hostnames" {
+  count = "${var.count}"
+
+  inputs = {
+    hostname = "host-${replace(element(openstack_compute_instance_v2.instance.*.network.0.fixed_ip_v4, count.index),".","-")}"
+  }
+}
+
+# Generates a list of ip-numbers with public ip first if available
+data "null_data_source" "access_ip" {
+  count = "${var.count}"
+
+  inputs = {
+    # Need to attach empty element to list since it sometimes is empty terraform workaround issues/11210
+    ip = "${ var.assign_floating_ip == true ?  element(concat(openstack_compute_floatingip_v2.floating_ip.*.address, list("")), count.index) : element(openstack_compute_instance_v2.instance.*.network.0.fixed_ip_v4, count.index) }"
+  }
+}
+
 # Module outputs
 output "extra_disk_device" {
   value = ["${openstack_compute_volume_attach_v2.attach_extra_disk.*.device}"]
@@ -111,12 +175,16 @@ output "local_ip_v4" {
 }
 
 output "public_ip" {
-  value = ["${openstack_compute_floatingip_v2.floating_ip.*.address}"]
+  value = ["${data.null_data_source.access_ip.*.inputs.ip}"]
 }
 
 output "hostnames" {
   value = ["${openstack_compute_instance_v2.instance.*.name}"]
 }
+
+#output "hostnames" {
+#  value = ["${data.null_data_source.hostnames.*.inputs.hostname}"]
+#}
 
 output "node_labels" {
   value = "${var.node_labels}"

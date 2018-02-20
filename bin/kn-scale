@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+# Read config file into variable as as json
+kn_config=$(json2hcl -reverse <config.tfvars)
+
+# Set variables from json-config
+host_cloud=$(jq -r '.provider' <<<"$kn_config")
+
+# Check for recognized cloud provider
+if ! grep -qw "$host_cloud" <<<"openstack gce azure aws kvm"; then
+  echo >&2 "Error: unrecognized host cloud '$host_cloud' in config file config.tfvars"
+  exit 1
+fi
+
+echo "$host_cloud"
+
+# shellcheck disable=SC2086
+terraform plan $TERRAFORM_OPT -out terraform.plan -var-file=config.tfvars "/KubeNow_root/$host_cloud"
+
+# list lines to be destroyed
+destroy=$(terraform show -no-color terraform.plan | grep '  - module.' || true)
+
+echo "destroy=$destroy"
+
+while read -r line; do
+  echo "$line"
+  # trim away "  - " from beginning of lines
+  target=$(echo "$line" | cut -f2 -d '-' | tr -d '[:space:]')
+  echo "$target"
+
+  ip=$(terraform state show "$target" | grep 'access_ip_v4' | cut -f2 -d '=' | tr -d '[:space:]')
+
+  echo "$ip"
+
+  target_host=master
+
+  node_name=$(ansible "$target_host" -a "kubectl get nodes -o json |
+    jq \".items[] |
+        select(.status.addresses[].type == 'InternalIP' and .status.addresses[].address == '10.0.0.6') |
+       .metadata.name\"
+    ")
+
+  node_name=$(ansible master -a "kubectl get nodes -o json |
+    jq \".items[] |
+        select(.status.addresses[].type == 'InternalIP' and .status.addresses[].address == '10.0.0.6') |
+       .metadata.name\"
+    ")
+
+  kubectl get nodes -o json | jq '.items[].status.addresses'
+  kubectl get nodes -o json | jq .items[].metadata.name
+  kubectl get nodes -o json | jq '.items[].status.addresses | select(.type == "InternalIP")'
+
+  echo "$node_name"
+
+done <<<"$destroy"
+
+# TODO User input: Following nodes will be destroyed: .....
+# Execute kubectl drain nodes.... (is it possibe to issue several nodes at once?
+# Now execute terraform apply
+
+# shellcheck disable=SC2086
+terraform apply $TERRAFORM_OPT -var-file=config.tfvars "/KubeNow_root/$host_cloud"
+
+# Is it possible for a node to ask to be drained...?
+
+## shellcheck disable=SC2086
+#terraform apply $TERRAFORM_OPT -var-file=config.tfvars "/KubeNow_root/$host_cloud"

@@ -1,8 +1,6 @@
 # Cluster settings
 variable cluster_prefix {}
 
-variable boot_image {}
-
 variable bootstrap_script {
   default = "bootstrap/bootstrap-default.sh"
 }
@@ -19,86 +17,40 @@ variable ssh_key {
   default = "ssh_key.pub"
 }
 
-variable network_name {
-  default = ""
-}
-
-variable secgroup_name {
-  default = ""
-}
-
-variable external_network_uuid {}
-
-variable dns_nameservers {
-  default = "8.8.8.8,8.8.4.4"
-}
-
-variable floating_ip_pool {}
-
 variable kubeadm_token {
   default = "0123456.0123456789abcdef"
 }
+# Image settings
+variable boot_image {}
+variable image_dir { default = "/tmp" } # to do fixme
+variable volume_pool  { default = "default" }
+
+# Network settings
+variable network_mode  { default = "nat" }
+variable bridge_name { default = "br0" }
 
 # Master settings
-variable master_count {
-  default = 1
-}
-
-variable master_flavor {
-  default = "nothing"
-}
-
-variable master_flavor_id {
-  default = ""
-}
-
-variable master_as_edge {
-  default = "true"
-}
+variable master_count { default = 1 }
+variable master_vcpu { default = 2 }
+variable master_memory { default = 1024 }
+variable master_as_edge { default = "true" }
+variable master_extra_disk_size { default = "200" }
 
 # Nodes settings
-variable node_count {
-  default = 0
-}
-
-variable node_flavor {
-  default = "nothing"
-}
-
-variable node_flavor_id {
-  default = ""
-}
+variable node_count { default = 0 }
+variable node_vcpu { default = 2 }
+variable node_memory { default = 1024 }
 
 # Edges settings
-variable edge_count {
-  default = 0
-}
-
-variable edge_flavor {
-  default = "nothing"
-}
-
-variable edge_flavor_id {
-  default = ""
-}
+variable edge_count { default = 0 }
+variable edge_vcpu { default = 2 }
+variable edge_memory { default = 1024 }
 
 # Glusternode settings
-variable glusternode_count {
-  default = 0
-}
-
-variable glusternode_flavor {
-  default = "nothing"
-}
-
-variable glusternode_flavor_id {
-  default = ""
-}
-
-variable glusternode_extra_disk_size {
-  default = "200"
-}
-
+variable glusternode_count { default = 0 }
+variable glusternode_vcpu { default = 2 }
+variable glusternode_memory { default = 1024 }
+variable glusternode_extra_disk_size { default = "200" }
 variable gluster_volumetype {
   default = "none:1"
 }
@@ -133,62 +85,50 @@ variable cloudflare_record_texts {
   default = ["*"]
 }
 
-variable is_scaling {
-  default = "false"
-}
-
 # Provider
-provider "openstack" {}
-
-# Upload SSH key to OpenStack
-module "keypair" {
-  source      = "./keypair"
-  public_key  = "${var.ssh_key}"
-  name_prefix = "${var.cluster_prefix}"
+provider "libvirt" {
+  uri = "qemu:///system"
 }
 
 # Network
-module "network" {
-  source            = "./network"
-  network_name      = "${var.network_name}"
-  external_net_uuid = "${var.external_network_uuid}"
-  name_prefix       = "${var.cluster_prefix}"
-  dns_nameservers   = "${var.dns_nameservers}"
+resource "libvirt_network" "network" {
+  name = "${var.cluster_prefix}-network"
+  mode = "${var.network_mode}"
+#  bridge = "${var.bridge_name}"
+  domain = "k8s.local"
+  addresses = ["10.0.0.0/16"]
 }
 
-# Secgroup
-module "secgroup" {
-  source        = "./secgroup"
-  secgroup_name = "${var.secgroup_name}"
-  name_prefix   = "${var.cluster_prefix}"
+# Create a template disk
+resource "libvirt_volume" "template_volume" {
+  name   = "${var.cluster_prefix}-template-volume"
+  source = "${var.image_dir}/${var.boot_image}.qcow2"
+  pool   = "${var.volume_pool}"
 }
 
 module "master" {
   # Core settings
-  source      = "./node"
-  count       = "${var.master_count}"
-  name_prefix = "${var.cluster_prefix}-master"
-  flavor_name = "${var.master_flavor}"
-  flavor_id   = "${var.master_flavor_id}"
-  image_name  = "${var.boot_image}"
-  is_scaling  = "${var.is_scaling}"
-
-  # SSH settings
-  ssh_user     = "${var.ssh_user}"
-  keypair_name = "${module.keypair.keypair_name}"
+  source          = "./node"
+  count           = "${var.master_count}"
+  name_prefix     = "${var.cluster_prefix}-master"
+  vcpu            = "${var.master_vcpu}"
+  memory          = "${var.master_memory}"
+  template_vol_id = "${libvirt_volume.template_volume.id}"
+  volume_pool     = "${var.volume_pool}"
 
   # Network settings
-  network_name       = "${module.network.network_name}"
-  secgroup_name      = "${module.secgroup.secgroup_name}"
-  assign_floating_ip = "true"
-  floating_ip_pool   = "${var.floating_ip_pool}"
+  network_id      = "${libvirt_network.network.id}"
+  fixed_ip_series = "10.0.0"
+  ssh_key         = "${var.ssh_key}"
+  ssh_user        = "${var.ssh_user}"
+
+  # TO DO configure port rules in firewall
 
   # Disk settings
-  extra_disk_size = "0"
+  extra_disk_size = "${var.master_extra_disk_size}"
 
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
-  node_type      = "master"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = "${split(",", var.master_as_edge == "true" ? "role=master,role=edge" : "role=master")}"
   node_taints    = [""]
@@ -197,23 +137,21 @@ module "master" {
 
 module "node" {
   # Core settings
-  source      = "./node"
-  count       = "${var.node_count}"
-  name_prefix = "${var.cluster_prefix}-node"
-  flavor_name = "${var.node_flavor}"
-  flavor_id   = "${var.node_flavor_id}"
-  image_name  = "${var.boot_image}"
-  is_scaling  = "${var.is_scaling}"
-
-  # SSH settings
-  ssh_user     = "${var.ssh_user}"
-  keypair_name = "${module.keypair.keypair_name}"
+  source          = "./node"
+  count           = "${var.node_count}"
+  name_prefix     = "${var.cluster_prefix}-node"
+  vcpu            = "${var.node_vcpu}"
+  memory          = "${var.node_memory}"
+  template_vol_id = "${libvirt_volume.template_volume.id}"
+  volume_pool     = "${var.volume_pool}"
 
   # Network settings
-  network_name       = "${module.network.network_name}"
-  secgroup_name      = "${module.secgroup.secgroup_name}"
-  assign_floating_ip = "false"
-  floating_ip_pool   = ""
+  network_id      = "${libvirt_network.network.id}"
+  fixed_ip_series = "10.0.1"
+  ssh_key         = "${var.ssh_key}"
+  ssh_user        = "${var.ssh_user}"
+
+  # TO DO configure port rules in firewall
 
   # Disk settings
   extra_disk_size = "0"
@@ -228,23 +166,21 @@ module "node" {
 
 module "edge" {
   # Core settings
-  source      = "./node"
-  count       = "${var.edge_count}"
-  name_prefix = "${var.cluster_prefix}-edge"
-  flavor_name = "${var.edge_flavor}"
-  flavor_id   = "${var.edge_flavor_id}"
-  image_name  = "${var.boot_image}"
-  is_scaling  = "${var.is_scaling}"
-
-  # SSH settings
-  ssh_user     = "${var.ssh_user}"
-  keypair_name = "${module.keypair.keypair_name}"
+  source          = "./node"
+  count           = "${var.edge_count}"
+  name_prefix     = "${var.cluster_prefix}-edge"
+  vcpu            = "${var.edge_vcpu}"
+  memory          = "${var.edge_memory}"
+  template_vol_id = "${libvirt_volume.template_volume.id}"
+  volume_pool     = "${var.volume_pool}"
 
   # Network settings
-  network_name       = "${module.network.network_name}"
-  secgroup_name      = "${module.secgroup.secgroup_name}"
-  assign_floating_ip = "true"
-  floating_ip_pool   = "${var.floating_ip_pool}"
+  network_id      = "${libvirt_network.network.id}"
+  fixed_ip_series = "10.0.2"
+  ssh_key         = "${var.ssh_key}"
+  ssh_user        = "${var.ssh_user}"
+
+  # TO DO configure port rules in firewall
 
   # Disk settings
   extra_disk_size = "0"
@@ -259,23 +195,21 @@ module "edge" {
 
 module "glusternode" {
   # Core settings
-  source      = "./node"
-  count       = "${var.glusternode_count}"
-  name_prefix = "${var.cluster_prefix}-glusternode"
-  flavor_name = "${var.glusternode_flavor}"
-  flavor_id   = "${var.glusternode_flavor_id}"
-  image_name  = "${var.boot_image}"
-  is_scaling  = "${var.is_scaling}"
-
-  # SSH settings
-  ssh_user     = "${var.ssh_user}"
-  keypair_name = "${module.keypair.keypair_name}"
+  source          = "./node"
+  count           = "${var.glusternode_count}"
+  name_prefix     = "${var.cluster_prefix}-glusternode"
+  vcpu            = "${var.glusternode_vcpu}"
+  memory          = "${var.glusternode_memory}"
+  template_vol_id = "${libvirt_volume.template_volume.id}"
+  volume_pool     = "${var.volume_pool}"
 
   # Network settings
-  network_name       = "${module.network.network_name}"
-  secgroup_name      = "${module.secgroup.secgroup_name}"
-  assign_floating_ip = "false"
-  floating_ip_pool   = "${var.floating_ip_pool}"
+  network_id      = "${libvirt_network.network.id}"
+  fixed_ip_series = "10.0.3"
+  ssh_key         = "${var.ssh_key}"
+  ssh_user        = "${var.ssh_user}"
+
+  # TO DO configure port rules in firewall
 
   # Disk settings
   extra_disk_size = "${var.glusternode_extra_disk_size}"

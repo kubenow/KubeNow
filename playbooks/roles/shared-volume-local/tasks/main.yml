@@ -1,0 +1,55 @@
+---
+- name: partition device
+  become: "yes"
+  parted:
+    device: "{{ device }}"
+    number: 1
+    state: present
+
+- name: create partition name
+  set_fact:
+    partition: "{{ device }}1"
+
+- name: format device
+  become: "yes"
+  filesystem:
+    fstype: "{{ fstype }}"
+    dev: "{{ partition }}"
+
+- name: create mountpath on node
+  become: "yes"
+  file:
+    path: "{{ mnt_path }}"
+    state: directory
+
+- name: mount
+  become: "yes"
+  mount:
+    path: "{{ mnt_path }}"
+    src: "{{ partition }}"
+    fstype: "{{ fstype }}"
+    state: mounted
+
+- name: create yaml directory
+  file:
+    path: "~/.kubernetes-yaml/shared-vol-local/"
+    state: directory
+    mode: 0755
+
+- name: render local-shared-volume configuration
+  template:
+    src: local-shared-volume.yml
+    dest: "~/.kubernetes-yaml/shared-vol-local/local-shared-volume.yaml"
+
+- name: create local-shared-volume (Kubernetes side)
+  command: >
+    kubectl apply -f "$HOME/.kubernetes-yaml/shared-vol-local/local-shared-volume.yaml"
+
+- name: render local-storageclass
+  template:
+    src: storage-class.yml
+    dest: "~/.kubernetes-yaml/shared-vol-local/storage-class.yaml"
+
+# - name: create local-storageclass (Kubernetes side)
+#  command: >
+#    kubectl apply -f "$HOME/.kubernetes-yaml/shared-vol-local/storage-class.yaml"
