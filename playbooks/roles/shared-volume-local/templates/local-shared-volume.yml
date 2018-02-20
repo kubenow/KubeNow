@@ -10,7 +10,7 @@ spec:
   capacity:
     storage: "{{ vol_size }}Gi"
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: "{{ mnt_path }}"
