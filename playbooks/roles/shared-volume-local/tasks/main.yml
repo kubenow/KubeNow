@@ -50,6 +50,6 @@
     src: storage-class.yml
     dest: "~/.kubernetes-yaml/shared-vol-local/storage-class.yaml"
 
-#- name: create local-storageclass (Kubernetes side)
+# - name: create local-storageclass (Kubernetes side)
 #  command: >
 #    kubectl apply -f "$HOME/.kubernetes-yaml/shared-vol-local/storage-class.yaml"
