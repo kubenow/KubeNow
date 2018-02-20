@@ -6,5 +6,4 @@ volumeoptions: |
    cluster.eager-lock enable, disperse.eager-lock enable,
    cluster.quorum-type auto, cluster.server-quorum-type server,
    cluster.data-self-heal-algorithm full, cluster.locking-scheme granular,
-   cluster.shd-max-threads 8, cluster.shd-wait-qlength 10000,
-   features.shard on, user.cifs off"
+   cluster.shd-wait-qlength 10000,features.shard on, user.cifs off"
