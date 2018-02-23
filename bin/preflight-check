@@ -6,6 +6,25 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
+#
+# Description
+#
+function check_password() {
+  # parameters
+  password_name="$1"
+  password="$2"
+
+  if [[ -n "$password" ]]; then
+    output="$(cracklib-check <<<"$password")"
+    # Get text after last ': '
+    result=${output##*': '}
+    if [[ "$result" != "OK" ]]; then
+    	echo "Error: The $password_name in your config file is considered to weak: $result" >&2
+    	exit 1
+    fi
+  fi
+}
+
 config_file=$1
 
 # Read config file into variable as as json
@@ -23,3 +42,19 @@ if [[ "$provider" == "openstack" ]]; then
     exit 1
   fi
 fi
+
+#
+# check passwords strength
+#
+
+# select all dashboard_password keys in config
+dash_passw=$(echo "$kn_config" | jq -r '..|.dashboard_password? | select (.!=null)')
+check_password "dashboard_password" "$dash_passw"
+
+# select all galaxy_admin_password keys in config
+galaxy_adm_passw=$(echo "$kn_config" | jq -r '..|.galaxy_admin_password? | select (.!=null)')
+check_password "galaxy_admin_password" "$galaxy_adm_passw"
+
+# select all jupyter_password keys in config
+jupyter_passw=$(echo "$kn_config" | jq -r '..|.jupyter_password? | select (.!=null)')
+check_password "jupyter_password" "$jupyter_passw"
