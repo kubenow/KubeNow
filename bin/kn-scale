@@ -25,15 +25,18 @@ destroy=$(terraform show -no-color terraform.plan | grep '  - module.' || true)
 
 echo "destroy=$destroy"
 
+# loop through lines and lookup node-names from terraform targets that are supposed to be destroyed
 while read -r line; do
   echo "$line"
   # trim away "  - " from beginning of lines
   target=$(echo "$line" | cut -f2 -d '-' | tr -d '[:space:]')
   echo "$target"
 
+  # get ip from terraform "target"
   ip=$(terraform state show "$target" | grep 'access_ip_v4' | cut -f2 -d '=' | tr -d '[:space:]')
-
   echo "$ip"
+
+  # get kubernetes node-name(host-name) from ip
 
   target_host=master
 
