@@ -25,6 +25,7 @@ basic:
                          CLOUD=<gce|aws|openstack|azure>
   apply                  apply configuration
   destroy                destroy deployment
+  scale                  resizes cluster after manusl modifications in config.tfvars
   ssh <host>             ssh to <host> defined in ansible inventory file.
                          Default <host> is master
   upgrade <version>      upgrade kn to <latest|latest-stable|master|"tag">
@@ -330,7 +331,7 @@ kubetoken | openstack)
   ;;
 
 # KubeNow-defined commands that need PWD validation
-apply | destroy | kubectl | helm | ssh)
+apply | destroy | scale | kubectl | helm | ssh)
   validate_pwd
   # get provisioner image from tfvar-file
   read_provisioner_image_var
