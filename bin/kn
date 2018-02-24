@@ -25,10 +25,11 @@ basic:
                          CLOUD=<gce|aws|openstack|azure>
   apply                  apply configuration
   destroy                destroy deployment
-  scale                  resizes cluster after manusl modifications in config.tfvars
+  scale                  resizes cluster after manual modifications in config.tfvars
   ssh <host>             ssh to <host> defined in ansible inventory file.
                          Default <host> is master
   upgrade <version>      upgrade kn to <latest|latest-stable|master|"tag">
+                         Default <version> is the one currently in use
 
 kubernetes:
   kubectl                run kubectl on the master. More help: kn kubectl help
@@ -49,6 +50,7 @@ developers:
 
 Options:
   -i, --docker-image <image>    specifies the provisioners docker image to be used.
+  -p, --preset <plugin>         specifies a preset plugin to be used
   KN_PROVISIONERS_IMG           Default: kubenow/provisioners:$kubenow_version
 
 EOF
