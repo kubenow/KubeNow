@@ -1,0 +1,15 @@
+---
+- name: create yaml directory
+  file:
+    path: "~/.kubernetes-yaml/shared-vol-nfs/"
+    state: directory
+    mode: 0755
+
+- name: render shared-volume-nfs configuration
+  template:
+    src: shared-volume-nfs.yml
+    dest: "~/.kubernetes-yaml/shared-vol-nfs/shared-volume-nfs.yml"
+
+- name: create shared-volume-nfs (Kubernetes side)
+  command: >
+    kubectl apply -f "$HOME/.kubernetes-yaml/shared-vol-nfs/shared-volume-nfs.yml"
