@@ -17,7 +17,18 @@ function node_name_from_ip() {
 
 function ip_from_target() {
   target="$1"
+
+  # get ip (slightly differen depending on provider
+  # openstack
   result=$(terraform state show "$target" | grep 'access_ip_v4' | cut -f2 -d '=' | tr -d '[:space:]')
+  # aws
+  if [[ -z "$result" ]]; then
+    result=$(terraform state show "$target" | grep 'private_ip' | cut -f2 -d '=' | tr -d '[:space:]')
+  fi
+  # gce
+  if [[ -z "$result" ]]; then
+    result=$(terraform state show "$target" | grep 'network_interface.0.address' | cut -f2 -d '=' | tr -d '[:space:]')
+  fi
   echo "$result"
 }
 
