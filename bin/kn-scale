@@ -20,14 +20,18 @@ function ip_from_target() {
 
   # get ip (slightly differen depending on provider
   # openstack
-  result=$(terraform state show "$target" | grep 'access_ip_v4' | cut -f2 -d '=' | tr -d '[:space:]')
+  result=$(terraform state show "$target" | grep -w 'access_ip_v4' | cut -f2 -d '=' | tr -d '[:space:]')
   # aws
   if [[ -z "$result" ]]; then
-    result=$(terraform state show "$target" | grep 'private_ip' | cut -f2 -d '=' | tr -d '[:space:]')
+    result=$(terraform state show "$target" | grep -w 'private_ip' | cut -f2 -d '=' | tr -d '[:space:]')
+  fi
+  # azure
+  if [[ -z "$result" ]]; then
+    result=$(terraform state show "$target" | grep -w 'private_ip_address' | cut -f2 -d '=' | tr -d '[:space:]')
   fi
   # gce
   if [[ -z "$result" ]]; then
-    result=$(terraform state show "$target" | grep 'network_interface.0.address' | cut -f2 -d '=' | tr -d '[:space:]')
+    result=$(terraform state show "$target" | grep -w 'network_interface.0.address' | cut -f2 -d '=' | tr -d '[:space:]')
   fi
   echo "$result"
 }
