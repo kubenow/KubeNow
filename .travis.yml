@@ -150,6 +150,7 @@ script:
   - kn kubectl get nodes # try to list nodes
   - kn helm list # try to helm list
   - kn ssh master 'uname && exit' # ssh to master and execute commands
+  - kn scale
 
 after_script:
   - export TERRAFORM_OPT="-force" && travis_retry kn destroy
