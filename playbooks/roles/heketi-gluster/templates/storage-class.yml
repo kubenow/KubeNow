@@ -10,4 +10,3 @@ provisioner: kubernetes.io/glusterfs
 parameters:
   resturl: "http://{{ heketi_endpoint }}"
   volumetype: {{volumetype}}
-  volumeoptions: {{volumeoptions}}
