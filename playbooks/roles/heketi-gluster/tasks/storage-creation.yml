@@ -71,13 +71,3 @@
   command: >
     kubectl apply -f
     $HOME/.kubernetes-yaml/heketi/storage-class.yml
-
-- name: render object-store storage-class
-  template:
-    src: object-store-sc.yml
-    dest: "~/.kubernetes-yaml/heketi/object-store-sc.yml"
-
-- name: create storage-class
-  command: >
-    kubectl apply -f
-    $HOME/.kubernetes-yaml/heketi/object-store-sc.yml
