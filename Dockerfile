@@ -38,6 +38,7 @@ RUN apt-get update -y && \
       mkisofs \
       openssl \
       python-pip \
+      libcrack2 \
       unzip && \
     `# Add google cloud` \
     echo "deb http://packages.cloud.google.com/apt cloud-sdk-xenial main" \
@@ -125,6 +126,51 @@ RUN curl "https://raw.githubusercontent.com/andersla/terraform-provider-libvirt-
     "terraform-provider-libvirt.zip" && \
     unzip "terraform-provider-libvirt.zip" -d /terraform_plugins/ && \
     rm -f "terraform-provider-libvirt.zip"
+
+#
+# This is for openstack and terraform to work with voms-auth-type
+#
+
+# install openstack-client voms plugin
+RUN pip install openstack-voms-auth-type
+
+# Install required certificate chain
+# Install repo
+RUN curl -s https://dist.eugridpma.info/distribution/igtf/current/GPG-KEY-EUGridPMA-RPM-3 | apt-key add -
+RUN echo "deb http://repository.egi.eu/sw/production/cas/1/current egi-igtf core" | tee /etc/apt/sources.list.d/egi-trustanchors.list
+
+# install certs
+RUN apt-get update -y && apt-get install -y \
+  ca-policy-egi-core \
+  fetch-crl \
+  ca-rcauth-pilot-ica-g1
+
+# Update python certificates
+RUN cat /etc/grid-security/certificates/*.pem | tee -a $(python -m requests.certs)
+
+#
+# This below is for enabling voms-proxy init
+#
+
+# install voms-clients
+RUN apt-get update -y && apt-get install -y \
+  voms-clients
+
+# Create voms-certificate-id:s
+RUN mkdir -p /etc/vomses
+RUN echo '"vo.elixir-europe.org" "voms1.grid.cesnet.cz" "15032" "/DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms1.grid.cesnet.cz" "vo.elixir-europe.org"' > "/etc/vomses/vo.elixir-europe.org.voms1.grid.cesnet.cz"
+RUN echo '"vo.elixir-europe.org" "voms2.grid.cesnet.cz" "15032" "/DC=cz/DC=cesnet-ca/O=CESNET/CN=voms2.grid.cesnet.cz" "vo.elixir-europe.org"' >  "/etc/vomses/vo.elixir-europe.org.voms2.grid.cesnet.cz"
+
+# Create another voms-dir with certificate-id:s
+RUN mkdir -p /etc/grid-security/vomsdir/vo.elixir-europe.org/
+RUN echo "/DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms1.grid.cesnet.cz" > "/etc/grid-security/vomsdir/vo.elixir-europe.org/voms1.grid.cesnet.cz.lsc"
+RUN echo "/C=NL/ST=Noord-Holland/L=Amsterdam/O=TERENA/CN=TERENA eScience SSL CA 3" >> "/etc/grid-security/vomsdir/vo.elixir-europe.org/voms1.grid.cesnet.cz.lsc"
+
+RUN echo "/DC=cz/DC=cesnet-ca/O=CESNET/CN=voms2.grid.cesnet.cz" > "/etc/grid-security/vomsdir/vo.elixir-europe.org/voms2.grid.cesnet.cz.lsc"
+RUN echo "/DC=cz/DC=cesnet-ca/O=CESNET CA/CN=CESNET CA 3" >> "/etc/grid-security/vomsdir/vo.elixir-europe.org/voms2.grid.cesnet.cz.lsc"
+
+# Update python certificates
+RUN cat /etc/grid-security/certificates/*.pem | tee -a $(python -m requests.certs)
 
 # Add KubeNow
 COPY . /opt/KubeNow
