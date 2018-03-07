@@ -4,9 +4,9 @@
 echo "127.0.0.1 $HOSTNAME" >>/etc/hosts
 
 # Make sure instance is updated with latest security fixes
-echo "Run unattended-upgrade"
-sudo apt-get update -y
-unattended-upgrade -d
+#echo "Run unattended-upgrade"
+#sudo apt-get update -y
+#unattended-upgrade -d
 
 # Taint and label
 node_labels="${node_labels}"
@@ -38,10 +38,10 @@ if [[ "$node_labels" == *"role=master"* ]]; then
 
   if [ -n "$API_ADVERTISE_ADDRESSES" ]; then
     # shellcheck disable=SC2154
-    kubeadm init --token "${kubeadm_token}" --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.9.2 --api-advertise-address="$API_ADVERTISE_ADDRESSES"
+    kubeadm init --token "${kubeadm_token}" --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.9.2 --api-advertise-address="$API_ADVERTISE_ADDRESSES"
   else
     # shellcheck disable=SC2154
-    kubeadm init --token "${kubeadm_token}" --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.9.2
+    kubeadm init --token "${kubeadm_token}" --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.9.2
   fi
 
   # Copy Kubernetes configuration created by kubeadm (admin.conf to .kube/config)

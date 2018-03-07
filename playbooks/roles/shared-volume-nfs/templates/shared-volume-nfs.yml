@@ -1,0 +1,14 @@
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: shared-volume-nfs
+spec:
+  capacity:
+    storage: {{nfs_vol_size}}
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: {{nfs_path}}
+    server: {{nfs_server}}
+  persistentVolumeReclaimPolicy: Retain

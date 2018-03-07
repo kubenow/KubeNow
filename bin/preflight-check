@@ -19,8 +19,8 @@ function check_password() {
     # Get text after last ': '
     result=${output##*': '}
     if [[ "$result" != "OK" ]]; then
-    	echo "Error: The $password_name in your config file is considered to weak: $result" >&2
-    	exit 1
+      echo "Error: The $password_name in your config file is considered to weak: $result" >&2
+      exit 1
     fi
   fi
 }

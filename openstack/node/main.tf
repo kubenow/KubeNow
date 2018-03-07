@@ -52,8 +52,6 @@ variable master_ip {
   default = ""
 }
 
-variable is_scaling {}
-
 # Bootstrap
 data "template_file" "instance_bootstrap" {
   template = "${file("${path.root}/../${ var.bootstrap_file }")}"
@@ -111,12 +109,6 @@ resource "openstack_compute_instance_v2" "instance" {
 
   security_groups = ["${var.secgroup_name}"]
   user_data       = "${data.template_cloudinit_config.cloudinit_bootstrap.rendered}"
-
-  # destroy-provisioner
-  provisioner "local-exec" {
-    when    = "destroy"
-    command = "echo destroy-provisioner from ${var.name_prefix}-${format("%03d", count.index)} is_scaling = ${var.is_scaling}"
-  }
 }
 
 # Allocate floating IPs (optional)

@@ -151,6 +151,10 @@ script:
   - kn helm list # try to helm list
   - kn ssh master 'uname && exit' # ssh to master and execute commands
 
+  - sed -i -e "s/node_count = \"3\"/node_count = \"2\"/g" config.tfvars
+  - kn scale
+
+
 after_script:
   - export TERRAFORM_OPT="-force" && travis_retry kn destroy
   - travis_retry terraform destroy -force "$HOST_CLOUD" # in case there is some problem with kn
