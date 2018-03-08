@@ -24,6 +24,7 @@ fi
 
 # Get OS_AUTH_TOKEN via voms-proxy
 if [[ "$OS_AUTH_TYPE" == "v2voms" ]]; then
+  # shellcheck disable=SC1091
   source /KubeNow_root/bin/voms-create-token
   skip_image_import="true"
 fi
