@@ -76,6 +76,7 @@ function docker_run() {
   # shellcheck disable=SC2068,SC2086
   docker run --rm -it \
     -v "$kubenow_root":/KubeNow_root:Z \
+    -v "/tmp":/tmp \
     -e "LOCAL_USER_ID=$UID" \
     -e "LOCAL_GROUP_IDS=$(id -G)" \
     -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
@@ -320,7 +321,7 @@ az | openstack | gcloud | bash | git)
   ;;
 
 # Commands that need PWD validation
-terraform | ansible | ansible-playbook)
+terraform | ansible | ansible-playbook | voms-config | voms-create-token)
   validate_pwd
   # shellcheck disable=SC2068
   docker_run "$KN_PROVISIONERS_IMG" "$PWD" "$subcommand" ${@:2}

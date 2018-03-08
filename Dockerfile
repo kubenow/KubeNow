@@ -141,12 +141,15 @@ RUN echo "deb http://repository.egi.eu/sw/production/cas/1/current egi-igtf core
 
 # install certs
 RUN apt-get update -y && apt-get install -y \
-  ca-policy-egi-core \
-  fetch-crl \
-  ca-rcauth-pilot-ica-g1
+      ca-policy-egi-core \
+      fetch-crl \
+      ca-rcauth-pilot-ica-g1 && \
+    `# Remove unwanted` \
+      apt-get clean && \
+      rm -rf /var/lib/apt/lists/*
 
 # Update python certificates
-RUN cat /etc/grid-security/certificates/*.pem | tee -a $(python -m requests.certs)
+RUN cat /etc/grid-security/certificates/*.pem | tee -a "$(python -m requests.certs)"
 
 #
 # This below is for enabling voms-proxy init
@@ -154,7 +157,10 @@ RUN cat /etc/grid-security/certificates/*.pem | tee -a $(python -m requests.cert
 
 # install voms-clients
 RUN apt-get update -y && apt-get install -y \
-  voms-clients
+      voms-clients  && \
+    `# Remove unwanted` \
+      apt-get clean && \
+      rm -rf /var/lib/apt/lists/*
 
 # Create voms-certificate-id:s
 RUN mkdir -p /etc/vomses
@@ -170,7 +176,7 @@ RUN echo "/DC=cz/DC=cesnet-ca/O=CESNET/CN=voms2.grid.cesnet.cz" > "/etc/grid-sec
 RUN echo "/DC=cz/DC=cesnet-ca/O=CESNET CA/CN=CESNET CA 3" >> "/etc/grid-security/vomsdir/vo.elixir-europe.org/voms2.grid.cesnet.cz.lsc"
 
 # Update python certificates
-RUN cat /etc/grid-security/certificates/*.pem | tee -a $(python -m requests.certs)
+RUN cat /etc/grid-security/certificates/*.pem | tee -a "$(python -m requests.certs)"
 
 # Add KubeNow
 COPY . /opt/KubeNow

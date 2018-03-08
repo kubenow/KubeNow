@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+# cert_file=/KubeNow_root/x509up_u$(id -u)
+
+cert_file=/tmp/x509up_u$(id -u)
+
+# copy certificate to correct name
+cp "voms-config/voms-proxy-cert" "$cert_file"
+chmod 600 "$cert_file"
+
+# init proxy (attach user info to certificates)
+voms-proxy-init -cert="$cert_file" --noregen --rfc --voms vo.elixir-europe.org
+
+export X509_USER_PROXY="$cert_file"
+export OS_X509_USER_PROXY="$X509_USER_PROXY"
+export OS_AUTH_URL=https://sbgcloud.in2p3.fr:5000/v2.0
+export OS_AUTH_TYPE=v2voms
+OS_CACERT=$(python -m requests.certs)
+export OS_CACERT
+
+# Set OS_PROJECT_ID - OBS must first be unset for openstack proect list to work
+unset OS_PROJECT_ID
+OS_PROJECT_ID=$(openstack project list -c "ID" -f value)
+export OS_PROJECT_ID
+
+echo -e "You should now set following environment variables:"
+echo
+echo -e export OS_AUTH_TYPE=v2voms
+echo -e export OS_X509_USER_PROXY=\""$X509_USER_PROXY"\"
+echo -e export OS_AUTH_URL="$OS_AUTH_URL"
+echo -e export OS_PROJECT_ID=\""$OS_PROJECT_ID"\"
+echo
+
+# openstack token issue
+#
+# +------------+----------------------------------+
+# | Field      | Value                            |
+# +------------+----------------------------------+
+# | expires    | 2018-02-14T09:15:42+0000         |
+# | id         | 46a54f0f151947a18c65b11ef2faf8c6 |
+# | project_id | a5eb30bba2c2497b90645fb199e34b39 |
+# | user_id    | f99e0a9a64cd4e6281ccf51d85a58e55 |
+# +------------+----------------------------------+
+#
+# The "id" field is the one to use in your terraform config.
+#
+# export OS_TOKEN=

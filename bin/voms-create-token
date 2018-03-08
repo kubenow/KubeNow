@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+# The commented onec should be set already
+#export cert_file=/tmp/x509up_u$(id -u)
+#export X509_USER_PROXY="$cert_file"
+#export OS_AUTH_TYPE=v2voms
+#export OS_X509_USER_PROXY=$X509_USER_PROXY
+OS_CACERT=$(python -m requests.certs)
+export OS_CACERT
+
+# Set OS_AUTH_TOKEN
+OS_AUTH_TOKEN=$(openstack token issue -c "id" -f value)
+export OS_AUTH_TOKEN="$OS_AUTH_TOKEN"
+
+# Set OS_USER_ID (has to be done after token issue)
+OS_USER_ID=$(openstack token issue -c "user_id" -f value)
+export OS_USER_ID="$OS_USER_ID"

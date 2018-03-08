@@ -25,7 +25,7 @@ function check_password() {
   fi
 }
 
-config_file=$1
+config_file="$1"
 
 # Read config file into variable as as json
 kn_config=$(json2hcl -reverse <"$config_file")
@@ -35,10 +35,13 @@ provider=$(jq -r '.provider' <<<"$kn_config")
 
 # Make sure that essential config are in place
 if [[ "$provider" == "openstack" ]]; then
-  if [ -z "$OS_USERNAME" ]; then
+  if [[ -z "$OS_USERNAME" && -z "$OS_AUTH_TYPE" ]]; then
     echo "Error: Could not read OS_USERNAME in environment" >&2
-    echo "Did you forget to source your credentials-file?" >&2
+    echo "- Did you forget to source your credentials-file?" >&2
     echo "e.g: source /path/to/credentials.rc" >&2
+    echo >&2
+    echo "- Or if you want to run on EGI Federated Cloud..." >&2
+    echo "- Did you forget to ...." >&2
     exit 1
   fi
 fi

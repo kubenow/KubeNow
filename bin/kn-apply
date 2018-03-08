@@ -22,8 +22,14 @@ if ! grep -qw "$host_cloud" <<<"openstack gce azure aws kvm"; then
   exit 1
 fi
 
+# Get OS_AUTH_TOKEN via voms-proxy
+if [[ "$OS_AUTH_TYPE" == "v2voms" ]]; then
+  source voms-create-token
+  skip_image_import="true"
+fi
+
 # Import image (AWS doesn't need it)
-if [ "$host_cloud" = 'openstack' ] || [ "$host_cloud" = 'gce' ] || [ "$host_cloud" = 'azure' ] || [ "$host_cloud" = 'kvm' ]; then
+if [[ -z "$skip_image_import" ]] && [[ "$host_cloud" != 'aws' ]]; then
   export KN_GCE_ACCOUNT_FILE_PATH="$PWD/service-account.json"
   export TF_VARS_FILE="$PWD/config.tfvars"
   export KN_IMAGE_NAME="$image_name"
@@ -55,6 +61,7 @@ for action_base64 in $actions; do
     playbook=$(echo "$action" | jq -r '.playbook')
     extra_vars=$(echo "$action" | jq -r --compact-output 'select(.extra_vars != null) | .extra_vars[]')
 
+    echo "Applying playbook $playbook"
     # shellcheck disable=SC2086
     ansible-playbook $ANSIBLE_OPT -e "$extra_vars" "/KubeNow_root/$playbook"
     echo "Done with ansible-playbook: $playbook"
@@ -90,6 +97,8 @@ for action_base64 in $actions; do
   local-exec)
     echo "Inside kn-apply local-exec"
     command=$(echo "$action" | jq -r '.command')
+
+    echo "Exec command: $command"
 
     # execute command
     $command

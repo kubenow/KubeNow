@@ -18,6 +18,11 @@ if ! grep -qw "$host_cloud" <<<"openstack gce azure aws kvm"; then
   exit 1
 fi
 
+# Get OS_AUTH_TOKEN via voms-proxy
+if [[ "$OS_AUTH_TYPE" == "v2voms" ]]; then
+  source voms-create-token
+fi
+
 # Destroy
 # shellcheck disable=SC2086
 terraform destroy $TERRAFORM_OPT -var-file=config.tfvars "/KubeNow_root/$host_cloud"
