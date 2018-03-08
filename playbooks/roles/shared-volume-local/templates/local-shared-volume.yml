@@ -6,7 +6,6 @@ metadata:
   labels:
     type: local
 spec:
-  storageClassName: local-storage
   capacity:
     storage: "{{ vol_size }}"
   accessModes:
