@@ -20,7 +20,7 @@ fi
 
 # Get OS_AUTH_TOKEN via voms-proxy
 if [[ "$OS_AUTH_TYPE" == "v2voms" ]]; then
-  source voms-create-token
+  source /KubeNow_root/bin/voms-create-token
 fi
 
 # Destroy
