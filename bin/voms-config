@@ -11,6 +11,9 @@ cert_file=/tmp/x509up_u$(id -u)
 cp "voms-config/voms-proxy-cert" "$cert_file"
 chmod 600 "$cert_file"
 
+# Add aditional voms certificate ids
+# cp -rf voms-config/etc /
+
 # init proxy (attach user info to certificates)
 voms-proxy-init -cert="$cert_file" --noregen --rfc --voms vo.elixir-europe.org
 
