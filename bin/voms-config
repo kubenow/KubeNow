@@ -3,6 +3,16 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
+if [ $# -ne 2 ]; then
+  echo -e "You need to specify <voms> and <os_auth_url>"
+  echo -e "e.g. kn voms-config \"vo.elixir-europe.org\" \"https://sbgcloud.in2p3.fr:5000/v2.0\""
+  exit 1
+fi
+
+# get params
+voms="$1"
+os_auth_url="$2"
+
 # cert_file=/KubeNow_root/x509up_u$(id -u)
 
 cert_file=/tmp/x509up_u$(id -u)
@@ -15,11 +25,11 @@ chmod 600 "$cert_file"
 # cp -rf voms-config/etc /
 
 # init proxy (attach user info to certificates)
-voms-proxy-init -cert="$cert_file" --noregen --rfc --voms vo.elixir-europe.org
+voms-proxy-init -cert="$cert_file" --noregen --rfc --voms "$voms"
 
 export X509_USER_PROXY="$cert_file"
 export OS_X509_USER_PROXY="$X509_USER_PROXY"
-export OS_AUTH_URL=https://sbgcloud.in2p3.fr:5000/v2.0
+export OS_AUTH_URL="$os_auth_url"
 export OS_AUTH_TYPE=v2voms
 OS_CACERT=$(python -m requests.certs)
 export OS_CACERT
