@@ -151,7 +151,7 @@ after_script:
   - >
     travis_retry rm -f .terraform/plugin_path
     && terraform init "$HOST_CLOUD"
-    && terraform destroy -force -var-file=config.tfvars "$HOST_CLOUD" # in case there is some problem with kn
+    && terraform destroy -force -var-file=terraform.tfvars "$HOST_CLOUD" # in case there is some problem with kn
 
 jobs:
   include:
