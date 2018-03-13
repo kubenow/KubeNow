@@ -75,8 +75,13 @@ before_install:
   # check YAML
   - yamllint -c .yamllint.yml -s $(find . -type f -name "*.yml")
 
-# Build Docker image
-install: docker build -t kubenow/provisioners:master .
+
+install:
+
+  # Build Docker image
+  # Create a docker image tag out of branch-name where / is replaced by -
+  - tag="${TRAVIS_BRANCH/\//-}"
+  - docker build -t kubenow/provisioners:$tag .
 
 before_script:
 
@@ -162,14 +167,16 @@ jobs:
         # Build and push Docker image (needs to be build again in this stage)
         - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         - >
-            if [ $TRAVIS_BRANCH == 'master' ]; then
-              docker build -t kubenow/provisioners:master .
-              docker push kubenow/provisioners:master
-            elif [ ! -z $TRAVIS_TAG ]; then
+            if [ -n "$TRAVIS_TAG" ]; then
               docker build -t kubenow/provisioners:$TRAVIS_TAG \
                 -t kubenow/provisioners:latest .
               docker push kubenow/provisioners:$TRAVIS_TAG
               docker push kubenow/provisioners:latest
+            else
+              # Create a docker image tag out of branch-name where / is replaced by -
+              tag="${TRAVIS_BRANCH/\//-}"
+              docker build -t kubenow/provisioners:$tag .
+              docker push kubenow/provisioners:$tag
             fi
         # If tag, create a versioned kn CLI
         - >
