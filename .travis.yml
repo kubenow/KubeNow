@@ -82,6 +82,7 @@ install:
   # Create a docker image tag out of branch-name where / is replaced by -
   - tag="${TRAVIS_BRANCH/\//-}"
   - docker build -t kubenow/provisioners:$tag .
+  - export KN_PROVISIONERS_IMG=kubenow/provisioners:$tag
 
 before_script:
 
