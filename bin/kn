@@ -86,8 +86,8 @@ function validate_pwd() {
     echo "Error: ssh_key not found. Are you in the right directory?" >&2
     exit 1
   fi
-  if [ ! -f terraform.tfvars ]; then
-    echo "Error: terraform.tfvars not found. Are you in the right directory?" >&2
+  if [ ! -f config.tfvars ]; then
+    echo "Error: config.tfvars not found. Are you in the right directory?" >&2
     exit 1
   fi
   if [ ! -f ansible.cfg ]; then

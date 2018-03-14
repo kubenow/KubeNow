@@ -152,8 +152,8 @@ module "security_group" {
   source      = "./security_group"
 }
 
-# Lookup image-id of kubenow-image
-data "aws_ami" "kubenow" {
+# Lookup image-id of boot_image
+data "aws_ami" "bootimg" {
   most_recent = true
 
   filter {
@@ -173,7 +173,7 @@ module "master" {
   count             = "${var.master_count}"
   name_prefix       = "${var.cluster_prefix}-master"
   instance_type     = "${var.master_instance_type}"
-  image_id          = "${data.aws_ami.kubenow.id}"
+  image_id          = "${data.aws_ami.bootimg.id}"
   availability_zone = "${var.availability_zone}"
 
   # SSH settings
@@ -189,7 +189,7 @@ module "master" {
   extra_disk_size = "0"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/master.sh"
+  bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = "${split(",", var.master_as_edge == "true" ? "role=edge" : "")}"
   node_taints    = [""]
@@ -202,7 +202,7 @@ module "node" {
   count             = "${var.node_count}"
   name_prefix       = "${var.cluster_prefix}-node"
   instance_type     = "${var.node_instance_type}"
-  image_id          = "${data.aws_ami.kubenow.id}"
+  image_id          = "${data.aws_ami.bootimg.id}"
   availability_zone = "${var.availability_zone}"
 
   # SSH settings
@@ -218,7 +218,7 @@ module "node" {
   extra_disk_size = "0"
 
   # Bootstrap settings
-  bootstrap_file = "bootstrap/node.sh"
+  bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["role=node"]
   node_taints    = [""]
@@ -231,7 +231,7 @@ module "edge" {
   count             = "${var.edge_count}"
   name_prefix       = "${var.cluster_prefix}-edge"
   instance_type     = "${var.edge_instance_type}"
-  image_id          = "${data.aws_ami.kubenow.id}"
+  image_id          = "${data.aws_ami.bootimg.id}"
   availability_zone = "${var.availability_zone}"
 
   # SSH settings
@@ -260,7 +260,7 @@ module "glusternode" {
   count             = "${var.glusternode_count}"
   name_prefix       = "${var.cluster_prefix}-glusternode"
   instance_type     = "${var.glusternode_instance_type}"
-  image_id          = "${data.aws_ami.kubenow.id}"
+  image_id          = "${data.aws_ami.bootimg.id}"
   availability_zone = "${var.availability_zone}"
 
   # SSH settings

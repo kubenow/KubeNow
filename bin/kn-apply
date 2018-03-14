@@ -3,24 +3,24 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-host_cloud=$(grep -w "provider" terraform.tfvars |
+host_cloud=$(grep -w "provider" config.tfvars |
   cut -d "=" -f 2- |
   awk -F\" '{print $(NF-1)}')
 
-image_name=$(grep -w "boot_image" terraform.tfvars |
+image_name=$(grep -w "boot_image" config.tfvars |
   cut -d "=" -f 2- |
   awk -F\" '{print $(NF-1)}')
 
 # Check for recognized cloud provider
 if ! grep -qw "$host_cloud" <<<"openstack gce azure aws"; then
-  echo >&2 "Error: unrecognized host cloud '$host_cloud' in config file terraform.tfvars"
+  echo >&2 "Error: unrecognized host cloud '$host_cloud' in config file config.tfvars"
   exit 1
 fi
 
 # Import image (AWS doesn't need it)
 if [ "$host_cloud" = 'openstack' ] || [ "$host_cloud" = 'gce' ] || [ "$host_cloud" = 'azure' ]; then
   export KN_GCE_ACCOUNT_FILE_PATH="$PWD/service-account.json"
-  export TF_VARS_FILE="$PWD/terraform.tfvars"
+  export TF_VARS_FILE="$PWD/config.tfvars"
   export KN_IMAGE_NAME="$image_name"
   /KubeNow_root/bin/image-create-"$host_cloud".sh
 fi
@@ -29,7 +29,7 @@ fi
 terraform init --plugin-dir=/terraform_plugins "/KubeNow_root/$host_cloud"
 
 # shellcheck disable=SC2086
-terraform apply $TERRAFORM_OPT "/KubeNow_root/$host_cloud"
+terraform apply $TERRAFORM_OPT -var-file=config.tfvars "/KubeNow_root/$host_cloud"
 
 # shellcheck disable=SC2086
 ansible-playbook $ANSIBLE_OPT "/KubeNow_root/playbooks/install-core.yml"
