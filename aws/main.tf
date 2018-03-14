@@ -3,7 +3,17 @@ variable cluster_prefix {}
 
 variable boot_image {}
 
-variable kubeadm_token {}
+variable bootstrap_script {
+  default = "bootstrap/bootstrap-default.sh"
+}
+
+variable inventory_template {
+  default = "inventory-template"
+}
+
+variable kubeadm_token {
+  default = ""
+}
 
 variable aws_access_key_id {}
 variable aws_secret_access_key {}
