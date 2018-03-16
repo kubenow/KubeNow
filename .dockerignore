@@ -5,3 +5,4 @@
 inventory
 **/*.retry
 test-deployment
+ssh_key
