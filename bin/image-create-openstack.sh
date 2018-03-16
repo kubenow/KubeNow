@@ -30,6 +30,33 @@ image_id="$(printf '%s' "$image_list" |
   awk -F "|" '{print $2;}' |
   tr -d '[:space:]')"
 
+# If it did exist then check md5sum
+if [ -n "$image_id" ]; then
+  # Get checksum of image file
+  image_details="$(glance image-show "$image_id")"
+  checksum="$(printf '%s' "$image_details" |
+    grep -w "checksum" |
+    awk -F "|" '{print $3;}' |
+    tr -d '[:space:]')"
+
+  # Get checksum of bucket image
+  echo "Download md5 sum file"
+  curl "$KN_IMAGE_BUCKET_URL/$file_name.md5" \
+    -o "/tmp/$file_name.md5" \
+    --connect-timeout 30 \
+    --max-time 1800
+
+  md5only=$(cut -f1 -d ' ' "/tmp/$file_name.md5")
+  if [ "$md5only" != "$checksum" ]; then
+    # try to delete image
+    echo "Wrong checksum, - deleting old version of image"
+    glance image-delete "$image_id"
+    image_id=""
+  else
+    echo "Checksum OK"
+  fi
+fi
+
 # If it doesn't exist then download it
 if [ -z "$image_id" ]; then
   echo "Image not present in OpenStack"
@@ -64,6 +91,8 @@ if [ -z "$image_id" ]; then
     --progress
 else
   echo "file exists - no need to upload"
+  echo "this version skips md5 verification - exit here"
+  exit 0
 fi
 
 echo "Verify md5 of present/uploaded image..."
