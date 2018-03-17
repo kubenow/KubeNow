@@ -1,7 +1,7 @@
 ---
 - name: "wait for server to respond on ssh port"
   local_action: wait_for
-    host={{ ansible_ssh_host | default(inventory_hostname) }}
+    host={{ ansible_host | default(inventory_hostname) }}
     port={{ ansible_port | default(22) }}
     state=started
     connect_timeout=10
@@ -9,7 +9,7 @@
 
 - name: "wait for server to respond on ssh port - second check"
   local_action: wait_for
-    host={{ ansible_ssh_host | default(inventory_hostname) }}
+    host={{ ansible_host | default(inventory_hostname) }}
     port={{ ansible_port | default(22) }}
     search_regex=OpenSSH
     connect_timeout=10
@@ -23,8 +23,8 @@
       path: /run/cloud-init/result.json
     register: stat_result
     until: stat_result.stat.exists == True
-    # Wait for 5 minutes
-    retries: 60
+    # Wait for 10 minutes
+    retries: 120
     delay: 5
 
   - name: "verify that master initialized ok"
@@ -40,8 +40,8 @@
       grep -o 'Ready' | wc -l
     register: get_ready_nodes
     until: (get_ready_nodes.stdout | int) == (nodes_count | int)
-    # Wait for 5 minutes
-    retries: 60
+    # Wait for 10 minutes
+    retries: 120
     delay: 5
 
   rescue:

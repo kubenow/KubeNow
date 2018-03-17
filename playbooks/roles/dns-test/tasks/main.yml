@@ -5,5 +5,5 @@
 
 - name: fail if edge IP is not in query result
   fail:
-    msg: "{{ansible_ssh_host}} is not in the DNS query result: {{query_result}}"
-  when: "'{{ansible_ssh_host}}' not in query_result"
+    msg: "{{ansible_host}} is not in the DNS query result: {{query_result}}"
+  when: "'{{ansible_host}}' not in query_result"
