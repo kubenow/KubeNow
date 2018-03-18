@@ -2,7 +2,7 @@ FROM ubuntu:xenial-20171006
 
 # Provisioners versions
 ENV TERRAFORM_VERSION=0.10.7
-ENV ANSIBLE_VERSION=2.3.1.0
+ENV ANSIBLE_VERSION=2.4.2.0
 ENV LIBCLOUD_VERSION=1.5.0
 ENV J2CLI_VERSION=0.3.1.post0
 ENV DNSPYTHON_VERSION=1.15.0
@@ -21,9 +21,11 @@ ENV PLUGIN_AZURERM=0.2.2
 ENV PLUGIN_NULL=1.0.0
 ENV PLUGIN_CLOUDFLARE=0.1.0
 ENV PLUGIN_TEMPLATE=1.0.0
+ENV PLUGIN_RANDOM=1.0.0
 
 # Install with apt and pip
-RUN apt-get update -y && apt-get install -y \
+RUN apt-get update -y && \
+      DEBIAN_FRONTEND=noninteractive apt-get install -y \
       apt-transport-https \
       bc \
       curl \
