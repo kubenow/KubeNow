@@ -107,5 +107,16 @@ RUN curl "https://releases.hashicorp.com/terraform-provider-template/${PLUGIN_TE
     unzip "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" -d /terraform_plugins/ && \
     rm -f "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip"
 
+RUN curl "https://releases.hashicorp.com/terraform-provider-random/${PLUGIN_RANDOM}/terraform-provider-random_${PLUGIN_RANDOM}_linux_amd64.zip" > \
+    "terraform-provider-random_${PLUGIN_RANDOM}_linux_amd64.zip" && \
+    unzip "terraform-provider-random_${PLUGIN_RANDOM}_linux_amd64.zip" -d /terraform_plugins/ && \
+    rm -f "terraform-provider-random_${PLUGIN_RANDOM}_linux_amd64.zip"
+
+# libvirt-plugin
+RUN curl "https://raw.githubusercontent.com/andersla/terraform-provider-libvirt-binary/master/${PLUGIN_LIBVIRT}-linux_x86/terraform-provider-libvirt.zip" > \
+    "terraform-provider-libvirt.zip" && \
+    unzip "terraform-provider-libvirt.zip" -d /terraform_plugins/ && \
+    rm -f "terraform-provider-libvirt.zip"
+
 # Add KubeNow
 COPY . /opt/KubeNow
