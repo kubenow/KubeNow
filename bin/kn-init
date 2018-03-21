@@ -5,6 +5,16 @@ set -e
 
 host_cloud="$1"
 
+# Clone and copy contents of plugin-repo if plugin-repo is specified
+if [ -n "$KN_PLUGIN_REPO" ]; then
+  echo "Clone plugin repo: $KN_PLUGIN_REPO"
+  plugin_dir="/opt/KubeNow/plugins/$KN_PLUGIN_NAME"
+  mkdir -p "$plugin_dir"
+  git clone "$KN_PLUGIN_REPO" "$plugin_dir"
+  cp -rf "$plugin_dir/*" /opt/KubeNow/
+  echo "Copy plugin repo done"
+fi
+
 # Set template dir name
 if [ -n "$KN_PLUGIN_NAME" ]; then
   echo "Using plugin configuration: $KN_PLUGIN_NAME"

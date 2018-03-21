@@ -204,8 +204,8 @@ function set_preset() {
   case $preset in
   phenomenal | pheno | phnmnl)
     tag="${kubenow_version/\//-}"
-    export KN_PROVISIONERS_IMG="phenomenal/provisioners:$tag"
     export KN_PLUGIN_NAME="phenomenal"
+    export KN_PLUGIN_REPO="https://github.com/phnmnl/KubeNow-plugin.git"
     ;;
   openrisknet | orn) ;;
 
