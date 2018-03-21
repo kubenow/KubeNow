@@ -207,6 +207,11 @@ function set_preset() {
     export KN_PLUGIN_NAME="phenomenal"
     export KN_PLUGIN_REPO="https://github.com/phnmnl/KubeNow-plugin.git"
     ;;
+  plain)
+    tag="${kubenow_version/\//-}"
+    export KN_PLUGIN_NAME="plain"
+    export KN_PLUGIN_REPO="https://github.com/KubeNow/plugin-plain.git"
+    ;;
   openrisknet | orn) ;;
 
   *)
@@ -244,6 +249,16 @@ while [[ "$1" == -* ]]; do
     shift # past option
     shift # past value
     ;;
+
+  -r | --plugin-repo)
+    plugin_repo="$2"
+    plugin_repo_name="${plugin_repo#*/}"
+    export KN_PLUGIN_NAME="$plugin_repo_name"
+    export KN_PLUGIN_REPO="https://github.com/$plugin_repo.git"
+    shift # past option
+    shift # past value
+    ;;
+
   *)
     echo "unrecognized option $1" >&2
     usage
