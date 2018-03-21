@@ -11,7 +11,7 @@ if [ -n "$KN_PLUGIN_REPO" ]; then
   plugin_dir="/opt/KubeNow/plugins/$KN_PLUGIN_NAME"
   mkdir -p "$plugin_dir"
   git clone "$KN_PLUGIN_REPO" "$plugin_dir"
-  cp -rf "$plugin_dir/*" /opt/KubeNow/
+  cp -rf "$plugin_dir"/* /opt/KubeNow/
   echo "Copy plugin repo done"
 fi
 
