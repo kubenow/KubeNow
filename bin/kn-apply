@@ -53,7 +53,7 @@ provision=$(echo "$kn_config" | jq -r --compact-output 'select(.provision != nul
 # The --compact-output creates one json-object per line from array of provision-actions
 # Convert to base64 to preserve whitespace and citations in bash loop
 # Execute actions (ansible or helm) with supplied variables/parameters
-actions=$(echo "$provision" | jq -r --compact-output '.action[] | @base64')
+actions=$(echo "$provision" | jq -r --compact-output '.action[]? | @base64')
 for action_base64 in $actions; do
   action=$(base64 --decode <<<"$action_base64")
 
