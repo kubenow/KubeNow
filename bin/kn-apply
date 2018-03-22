@@ -15,6 +15,7 @@ kn_config=$(json2hcl -reverse <config.tfvars)
 # Set variables from json-config
 host_cloud=$(jq -r '.provider' <<<"$kn_config")
 image_name=$(jq -r '.boot_image' <<<"$kn_config")
+skip_image_import=$(jq -r '.skip_image_import' <<<"$kn_config")
 
 # Check for recognized cloud provider
 if ! grep -qw "$host_cloud" <<<"openstack gce azure aws kvm"; then
@@ -26,6 +27,7 @@ fi
 if [[ "$OS_AUTH_TYPE" == "v2voms" ]]; then
   # shellcheck disable=SC1091
   source /KubeNow_root/bin/voms-create-token
+  # always skip_image_import
   skip_image_import="true"
 fi
 
