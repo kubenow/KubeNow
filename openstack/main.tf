@@ -41,7 +41,7 @@ variable kubeadm_token {
 
 # Master settings
 variable master_count {
-  default = 1
+  default = 0
 }
 
 variable master_flavor {
@@ -101,6 +101,36 @@ variable glusternode_extra_disk_size {
 
 variable gluster_volumetype {
   default = "none:1"
+}
+
+# Bastion settings
+variable bastion_count {
+  default = 0
+}
+
+variable bastion_flavor {
+  default = "nothing"
+}
+
+variable bastion_flavor_id {
+  default = ""
+}
+
+# Infra settings
+variable infra_count {
+  default = 0
+}
+
+variable infra_flavor {
+  default = "nothing"
+}
+
+variable infra_flavor_id {
+  default = ""
+}
+
+variable infra_extra_disk_size {
+  default = "100"
 }
 
 # Cloudflare settings
@@ -184,7 +214,7 @@ module "master" {
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
-  node_labels    = "${split(",", var.master_as_edge == "true" ? "role=master,role=edge" : "role=master")}"
+  node_labels    = ["{'zone': 'default'}"]
   node_taints    = [""]
   master_ip      = ""
 }
@@ -214,9 +244,9 @@ module "node" {
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
-  node_labels    = ["role=node"]
+  node_labels    = ["{'zone': 'worker'}"]
   node_taints    = [""]
-  master_ip      = "${element(module.master.local_ip_v4, 0)}"
+  master_ip      = ""
 }
 
 module "edge" {
@@ -246,7 +276,7 @@ module "edge" {
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["role=edge"]
   node_taints    = [""]
-  master_ip      = "${element(module.master.local_ip_v4, 0)}"
+  master_ip      = ""
 }
 
 module "glusternode" {
@@ -276,7 +306,67 @@ module "glusternode" {
   kubeadm_token  = "${var.kubeadm_token}"
   node_labels    = ["storagenode=glusterfs"]
   node_taints    = [""]
-  master_ip      = "${element(module.master.local_ip_v4, 0)}"
+  master_ip      = ""
+}
+
+module "bastion" {
+  # Core settings
+  source      = "./node"
+  count       = "${var.bastion_count}"
+  name_prefix = "${var.cluster_prefix}-bastion"
+  flavor_name = "${var.bastion_flavor}"
+  flavor_id   = "${var.bastion_flavor_id}"
+  image_name  = "${var.boot_image}"
+
+  # SSH settings
+  ssh_user     = "${var.ssh_user}"
+  keypair_name = "${module.keypair.keypair_name}"
+
+  # Network settings
+  network_name       = "${module.network.network_name}"
+  secgroup_name      = "${module.secgroup.secgroup_name}"
+  assign_floating_ip = "true"
+  floating_ip_pool   = "${var.floating_ip_pool}"
+
+  # Disk settings
+  extra_disk_size = "0"
+
+  # Bootstrap settings
+  bootstrap_file = "${var.bootstrap_script}"
+  kubeadm_token  = "${var.kubeadm_token}"
+  node_labels    = ["{'zone': 'default'}"]
+  node_taints    = [""]
+  master_ip      = ""
+}
+
+module "infra" {
+  # Core settings
+  source      = "./node"
+  count       = "${var.infra_count}"
+  name_prefix = "${var.cluster_prefix}-infra"
+  flavor_name = "${var.infra_flavor}"
+  flavor_id   = "${var.infra_flavor_id}"
+  image_name  = "${var.boot_image}"
+
+  # SSH settings
+  ssh_user     = "${var.ssh_user}"
+  keypair_name = "${module.keypair.keypair_name}"
+
+  # Network settings
+  network_name       = "${module.network.network_name}"
+  secgroup_name      = "${module.secgroup.secgroup_name}"
+  assign_floating_ip = "true"
+  floating_ip_pool   = "${var.floating_ip_pool}"
+
+  # Disk settings
+  extra_disk_size = "${var.infra_extra_disk_size}"
+
+  # Bootstrap settings
+  bootstrap_file = "${var.bootstrap_script}"
+  kubeadm_token  = "${var.kubeadm_token}"
+  node_labels    = ["{'zone': 'default', 'region': 'infra'}"]
+  node_taints    = [""]
+  master_ip      = "${element(concat(module.master.local_ip_v4, list("")),0)}"
 }
 
 # The code below (from here to end) should be identical for all cloud providers
@@ -318,8 +408,19 @@ module "generate-inventory" {
   node_hostnames         = "${module.node.hostnames}"
   node_public_ip         = "${module.node.public_ip}"
   node_private_ip        = "${module.node.local_ip_v4}"
+  infra_count            = "${var.infra_count}"
+  infra_hostnames        = "${module.infra.hostnames}"
+  infra_public_ip        = "${module.infra.public_ip}"
+  infra_private_ip       = "${module.infra.local_ip_v4}"
+  infra_extra_disk_dev   = "${element(concat(module.infra.extra_disk_device, list("")),0)}"
+  bastion_count          = "${var.bastion_count}"
+  bastion_hostnames      = "${module.bastion.hostnames}"
+  bastion_public_ip      = "${module.bastion.public_ip}"
+  bastion_private_ip     = "${module.bastion.local_ip_v4}"
   glusternode_count      = "${var.glusternode_count}"
   gluster_volumetype     = "${var.gluster_volumetype}"
   gluster_extra_disk_dev = "${element(concat(module.glusternode.extra_disk_device, list("")),0)}"
+  bastion_hostnames      = "${module.bastion.hostnames}"
+  bastion_public_ip      = "${module.bastion.public_ip}"
   inventory_template     = "${var.inventory_template}"
 }

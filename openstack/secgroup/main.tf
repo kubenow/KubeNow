@@ -29,6 +29,13 @@ resource "openstack_compute_secgroup_v2" "created" {
   }
 
   rule {
+    from_port   = 8443
+    to_port     = 8443
+    ip_protocol = "tcp"
+    cidr        = "0.0.0.0/0"
+  }
+
+  rule {
     from_port   = 1      # All internal tcp traffic
     to_port     = 65535
     ip_protocol = "tcp"
