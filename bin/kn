@@ -70,14 +70,14 @@ function get_libvirt_extra_opts() {
   provider=$(grep "^provider" "config.tfvars" |
     cut -d "=" -f 2- |
     awk -F\" '{print $(NF-1)}')
-    
+
   # Specify extra kvm/libvirt args
   if [[ $provider == "kvm" ]]; then
     opts="-v /var/run/libvirt/libvirt-sock:/var/run/libvirt/libvirt-sock --net=host --privileged=true"
   else
     opts=""
   fi
-  
+
   echo "$opts"
 }
 
@@ -85,20 +85,20 @@ function docker_run() {
   # parameters
   container=$1
   kubenow_root=$2
-  
+
   libvirt_extra_opts="$(get_libvirt_extra_opts)"
-  
+
   echo "libvirt-extra=$libvirt_extra_opts"
 
   # shellcheck disable=SC2068,SC2086
   docker run --rm -it \
     -v "$kubenow_root":/KubeNow_root:Z \
     -v "/tmp":/tmp \
+    $libvirt_extra_opts \
     -e "LOCAL_USER_ID=$UID" \
     -e "LOCAL_GROUP_IDS=$(id -G)" \
     -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
     -e "ANSIBLE_OPT=$ANSIBLE_OPT" \
-    $libvirt_extra_opts \
     --env-file <(env | grep OS_) \
     --env-file <(env | grep TF_) \
     --env-file <(env | grep GOOGLE_) \
