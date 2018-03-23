@@ -67,18 +67,28 @@ EOF
 
 function get_libvirt_extra_opts() {
   # Get var from tfvars-file
-  provider=$(grep "^provider" "config.tfvars" |
-    cut -d "=" -f 2- |
-    awk -F\" '{print $(NF-1)}')
+  opts=""
+  if [ -f config.tfvars ]; then
+    provider=$(grep "^provider" "config.tfvars" |
+      cut -d "=" -f 2- |
+      awk -F\" '{print $(NF-1)}')
 
-  # Specify extra kvm/libvirt args
-  if [[ $provider == "kvm" ]]; then
-    opts="-v /var/run/libvirt/libvirt-sock:/var/run/libvirt/libvirt-sock --net=host --privileged=true"
-  else
-    opts=""
+    # Specify extra kvm/libvirt args
+    if [[ $provider == "kvm" ]]; then
+      opts="-v /var/run/libvirt/libvirt-sock:/var/run/libvirt/libvirt-sock --net=host --privileged=true"
+    fi
   fi
-
   echo "$opts"
+}
+
+function read_provisioner_image_var() {
+  # Get var from tfvars-file
+  if [ -f config.tfvars ]; then
+    KN_PROVISIONERS_IMG=$(grep "^provisioner_image" "config.tfvars" |
+      cut -d "=" -f 2- |
+      awk -F\" '{print $(NF-1)}')
+    export KN_PROVISIONERS_IMG
+  fi
 }
 
 function docker_run() {
@@ -87,8 +97,6 @@ function docker_run() {
   kubenow_root=$2
 
   libvirt_extra_opts="$(get_libvirt_extra_opts)"
-
-  echo "libvirt-extra=$libvirt_extra_opts"
 
   # shellcheck disable=SC2068,SC2086
   docker run --rm -it \
@@ -125,13 +133,6 @@ function validate_pwd() {
   fi
 }
 
-function read_provisioner_image_var() {
-  # Get var from tfvars-file
-  KN_PROVISIONERS_IMG=$(grep "^provisioner_image" "config.tfvars" |
-    cut -d "=" -f 2- |
-    awk -F\" '{print $(NF-1)}')
-  export KN_PROVISIONERS_IMG
-}
 #
 # Adapted from stackoverflow-questions-59895
 #
