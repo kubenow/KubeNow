@@ -1,5 +1,5 @@
 ---
-- name: "test endpoint"
+- name: "test endpoint: http://{{cheese}}.{{cheese_domain_name}}"
   command: >
     curl --silent --head
     -H "host: {{cheese}}.{{cheese_domain_name}}"
@@ -9,7 +9,7 @@
   retries: 5
   delay: 30
 
-- name: "test page"
+- name: "test page: http://{{cheese}}.{{cheese_domain_name}}"
   action: >
     uri
     url=http://{{cheese}}.{{cheese_domain_name}}
