@@ -154,7 +154,10 @@ script:
 
 after_script:
   - export TERRAFORM_OPT="-force" && travis_retry kn destroy
-  - travis_retry terraform destroy -force "$HOST_CLOUD" # in case there is some problem with kn
+  - >
+    travis_retry rm -f .terraform/plugin_path
+    && terraform init "$HOST_CLOUD"
+    && terraform destroy -force -var-file=terraform.tfvars "$HOST_CLOUD" # in case there is some problem with kn
 
 jobs:
   include:

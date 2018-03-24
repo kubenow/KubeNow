@@ -62,6 +62,25 @@
                  {%- else %}replicate:3{% endif %}"
   when: volumetype is undefined
 
+- name: set fact volumeoptions
+  set_fact:
+    volumeoptions: "{% if (glusterpod_count | int) >= 3 %}
+    performance.quick-read off, performance.read-ahead off,
+    performance.io-cache off, performance.stat-prefetch off,
+    performance.low-prio-threads 32, network.remote-dio enable,
+    cluster.eager-lock enable, disperse.eager-lock enable,
+    cluster.quorum-type auto, cluster.server-quorum-type server,
+    cluster.data-self-heal-algorithm full, cluster.locking-scheme granular,
+    cluster.shd-max-threads 8, cluster.shd-wait-qlength 10000,
+    features.shard on, user.cifs off{%- else %}
+    performance.quick-read off, performance.read-ahead off,
+    performance.io-cache off, performance.stat-prefetch off,
+    performance.low-prio-threads 32, network.remote-dio enable,
+    cluster.eager-lock enable, disperse.eager-lock enable,
+    cluster.quorum-type auto, cluster.server-quorum-type server,
+    cluster.data-self-heal-algorithm full, cluster.locking-scheme granular,
+    cluster.shd-wait-qlength 10000, features.shard on, user.cifs off{% endif %}"
+
 - name: render storage-class
   template:
     src: storage-class.yml
@@ -71,3 +90,13 @@
   command: >
     kubectl apply -f
     $HOME/.kubernetes-yaml/heketi/storage-class.yml
+
+- name: render object-store storage-class
+  template:
+    src: object-store-sc.yml
+    dest: "~/.kubernetes-yaml/heketi/object-store-sc.yml"
+
+- name: create storage-class
+  command: >
+    kubectl apply -f
+    $HOME/.kubernetes-yaml/heketi/object-store-sc.yml
