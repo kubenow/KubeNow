@@ -65,23 +65,48 @@ CLOUD=<gce|aws|openstack|azure|kvm>
 EOF
 }
 
+function get_libvirt_extra_opts() {
+  # Get var from tfvars-file
+  opts=""
+  if [ -f config.tfvars ]; then
+    provider=$(grep "^provider" "config.tfvars" |
+      cut -d "=" -f 2- |
+      awk -F\" '{print $(NF-1)}')
+
+    # Specify extra kvm/libvirt args
+    if [[ $provider == "kvm" ]]; then
+      opts="-v /var/run/libvirt/libvirt-sock:/var/run/libvirt/libvirt-sock --net=host --privileged=true"
+    fi
+  fi
+  echo "$opts"
+}
+
+function read_provisioner_image_var() {
+  # Get var from tfvars-file
+  if [ -f config.tfvars ]; then
+    KN_PROVISIONERS_IMG=$(grep "^provisioner_image" "config.tfvars" |
+      cut -d "=" -f 2- |
+      awk -F\" '{print $(NF-1)}')
+    export KN_PROVISIONERS_IMG
+  fi
+}
+
 function docker_run() {
   # parameters
   container=$1
   kubenow_root=$2
 
-  # Specify extra kvm/libvirt args
-  LIBVIRT_EXTRA_OPTS="-v /var/run/libvirt/libvirt-sock:/var/run/libvirt/libvirt-sock --net=host --privileged=true"
+  libvirt_extra_opts="$(get_libvirt_extra_opts)"
 
   # shellcheck disable=SC2068,SC2086
   docker run --rm -it \
     -v "$kubenow_root":/KubeNow_root:Z \
     -v "/tmp":/tmp \
+    $libvirt_extra_opts \
     -e "LOCAL_USER_ID=$UID" \
     -e "LOCAL_GROUP_IDS=$(id -G)" \
     -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
     -e "ANSIBLE_OPT=$ANSIBLE_OPT" \
-    $LIBVIRT_EXTRA_OPTS \
     --env-file <(env | grep OS_) \
     --env-file <(env | grep TF_) \
     --env-file <(env | grep GOOGLE_) \
@@ -108,13 +133,6 @@ function validate_pwd() {
   fi
 }
 
-function read_provisioner_image_var() {
-  # Get var from tfvars-file
-  KN_PROVISIONERS_IMG=$(grep "^provisioner_image" "config.tfvars" |
-    cut -d "=" -f 2- |
-    awk -F\" '{print $(NF-1)}')
-  export KN_PROVISIONERS_IMG
-}
 #
 # Adapted from stackoverflow-questions-59895
 #
@@ -204,8 +222,13 @@ function set_preset() {
   case $preset in
   phenomenal | pheno | phnmnl)
     tag="${kubenow_version/\//-}"
-    export KN_PROVISIONERS_IMG="phenomenal/provisioners:$tag"
     export KN_PLUGIN_NAME="phenomenal"
+    export KN_PLUGIN_REPO="https://github.com/phnmnl/KubeNow-plugin.git"
+    ;;
+  plain)
+    tag="${kubenow_version/\//-}"
+    export KN_PLUGIN_NAME="plain"
+    export KN_PLUGIN_REPO="https://github.com/KubeNow/plugin-plain.git"
     ;;
   openrisknet | orn) ;;
 
@@ -244,6 +267,16 @@ while [[ "$1" == -* ]]; do
     shift # past option
     shift # past value
     ;;
+
+  -r | --plugin-repo)
+    plugin_repo="$2"
+    plugin_repo_name="${plugin_repo#*/}"
+    export KN_PLUGIN_NAME="$plugin_repo_name"
+    export KN_PLUGIN_REPO="https://github.com/$plugin_repo.git"
+    shift # past option
+    shift # past value
+    ;;
+
   *)
     echo "unrecognized option $1" >&2
     usage
