@@ -19,6 +19,11 @@ if [ -z "$KN_IMAGE_NAME" ]; then
   exit 1
 fi
 
+if [ -z "${KN_DISC_FORMAT}" ]; then
+  echo >&2 "env KN_DISC_FORMAT must be set for this script to run"
+  exit 1
+fi
+
 KN_IMAGE_BUCKET_URL=${KN_IMAGE_BUCKET_URL:-"https://s3.eu-central-1.amazonaws.com/kubenow-eu-central-1"}
 file_name="$KN_IMAGE_NAME.qcow2"
 
@@ -69,7 +74,7 @@ fi
 echo "Uploading image"
 glance image-create \
   --file "/tmp/$file_name" \
-  --disk-format qcow2 \
+  --disk-format ${KN_DISC_FORMAT} \
   --min-disk 20 \
   --container-format bare \
   --name "$KN_IMAGE_NAME" \
