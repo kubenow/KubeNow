@@ -32,7 +32,7 @@ if [[ "$OS_AUTH_TYPE" == "v2voms" ]]; then
 fi
 
 # Import image (AWS doesn't need it)
-if [[ -z "$skip_image_import" ]] && [[ "$host_cloud" != 'aws' ]]; then
+if [[ "$skip_image_import" != "true" ]] || [[ "$host_cloud" != 'aws' ]]; then
   export KN_GCE_ACCOUNT_FILE_PATH="$PWD/service-account.json"
   export TF_VARS_FILE="$PWD/config.tfvars"
   export KN_IMAGE_NAME="$image_name"
