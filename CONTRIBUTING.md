@@ -101,6 +101,10 @@ It is often best practice to keep development of cutting-edge features not embed
 6. Push the stable branch `git push`
 7. Make sure that CI passes for the last push
 
+**Note:** Regarding step 6, it is important to keep in mind that based on your local `push.default` behaviour, other commits from other branches may be pushed as well. Therefore local customised tweakings may be necessary.
+
+Last but not least, even when pushing only the stable branch GitHub will still ask you whether a PR needs to be created. Given the scenario, such PR should not be necessary, thus the GitHub message can be ignored.
+
 ## Support Channels
 
 Whether you are a user or contributor, official support channels include:
