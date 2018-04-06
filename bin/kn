@@ -154,8 +154,8 @@ function resolve_links() {
 # Description of function
 #
 function upgrade() {
-  # parameters
-  version="$kubenow_version"
+  # version is first arg or otherwise default
+  version=${1:-$kubenow_version}
   echo "upgrade version: $version"
   branch=""
   case "$version" in
@@ -185,7 +185,8 @@ function upgrade() {
   echo "Download new version to /tmp"
   tmpfile=$(mktemp)
   curl -f "$url" -o "$tmpfile" || (
-    echo -e "\nError trying to download file $url\n" >&2
+    echo -e "\nError trying to download file $url" >&2
+    echo -e "Are you sure \"$version\" is an available version?\n" >&2
     exit 1
   )
 
@@ -305,7 +306,8 @@ version)
 
 upgrade)
 
-  upgrade
+  # shellcheck disable=SC2068
+  upgrade ${@:2}
 
   exit
   ;;
