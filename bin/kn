@@ -19,33 +19,33 @@ Usage: kn [options] <command>
 
 Commands:
 basic:
-  help                   print this message
-  version                print version of this software
-  init <CLOUD> <DIR>     creates a new project in the supplied directory
-                         CLOUD=<gce|aws|openstack|azure>
-  apply                  apply configuration
-  destroy                destroy deployment
-  scale                  resizes cluster after manual modifications in config.tfvars
-  ssh <host>             ssh to <host> defined in ansible inventory file.
-                         Default <host> is master
-  upgrade <version>      upgrade kn to <latest|latest-stable|master|"tag">
-                         Default <version> is the one currently in use
-
-kubernetes:
-  kubectl                run kubectl on the master. More help: kn kubectl help
-  helm                   run helm on the master. More help: kn helm help
-cloud tools:
-  terraform              run Terraform. More help: kn terraform --help
-  ansible                run Ansible. More help: kn ansible --help
-  ansible-playbook       run an Ansible playbook.
-                         More help: kn ansible-playbook --help
-cloud providers CLI:
-  gcloud                 run Google Cloud Platform CLI. More help: kn gcloud help
-  openstack              run OpenStack CLI. More help: kn openstack help
-  az                     run Microsoft Azure CLI. More help: kn az help
-developers:
-  bash                   run an interactive bash promt in the provisioners container
-  kubetoken              generate and print a kubeadm token
+  help                       print this message
+  version                    print version of this software
+  init <CLOUD> <DIR>         creates a new project in the supplied directory
+                             CLOUD=<gce|aws|openstack|azure>
+  apply [terraform args]     apply configuration (with optional terraform args)
+  destroy [terraform args]   destroy deployment (with optional terraform args)
+  scale                      resizes cluster after manual modifications in config.tfvars
+  ssh <host>                 ssh to <host> defined in ansible inventory file.
+                             Default <host> is master
+  upgrade <version>          upgrade kn to <latest|latest-stable|master|"tag">
+                             Default <version> is the one currently in use
+                             
+kubernetes:                  
+  kubectl                    run kubectl on the master. More help: kn kubectl help
+  helm                       run helm on the master. More help: kn helm help
+cloud tools:                 
+  terraform                  run Terraform. More help: kn terraform --help
+  ansible                    run Ansible. More help: kn ansible --help
+  ansible-playbook           run an Ansible playbook.
+                             More help: kn ansible-playbook --help
+cloud providers CLI:         
+  gcloud                     run Google Cloud Platform CLI. More help: kn gcloud help
+  openstack                  run OpenStack CLI. More help: kn openstack help
+  az                         run Microsoft Azure CLI. More help: kn az help
+developers:                  
+  bash                       run an interactive bash promt in the provisioners container
+  kubetoken                  generate and print a kubeadm token
   git
 
 Options:

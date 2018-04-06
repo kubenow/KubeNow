@@ -1,5 +1,7 @@
 [master]
 ${masters}
+[node]
+${nodes}
 [edge]
 ${edges}
 [all:vars]

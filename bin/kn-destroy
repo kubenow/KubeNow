@@ -25,5 +25,5 @@ if [[ "$OS_AUTH_TYPE" == "v2voms" ]]; then
 fi
 
 # Destroy
-# shellcheck disable=SC2086
-terraform destroy $TERRAFORM_OPT -var-file=config.tfvars "/KubeNow_root/$host_cloud"
+# shellcheck disable=SC2068,SC2086
+terraform destroy $TERRAFORM_OPT -var-file=config.tfvars ${@:1} "/KubeNow_root/$host_cloud"
