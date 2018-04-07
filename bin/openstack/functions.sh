@@ -99,18 +99,18 @@ function verify_downloaded_image() {
   local download_url=$2
 
   echo "Download md5 sum file"
-  curl "${download_url}/$filename.md5" \
-    -o "/tmp/$filename.md5" \
+  curl "${download_url}/${filename}.md5" \
+    -o "/tmp/${filename}.md5" \
     --connect-timeout 30 \
-    --max-time 1800
+    --max-time 30
 
   # Verify md5sum of downloaded file
   echo "Check md5 sum"
   md5result=$(
     cd /tmp
-    md5sum -c "$filename.md5"
+    md5sum -c "${filename}.md5"
   )
-  if [[ "$md5result" != *": OK"* ]]; then
+  if [[ "${md5result}" != *": OK"* ]]; then
     echo >&2 "Wrong checksum of downloaded image."
     echo >&2 "Something might have failed on file transfer."
     echo >&2 "Please try again."
