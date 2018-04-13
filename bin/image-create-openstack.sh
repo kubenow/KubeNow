@@ -90,21 +90,26 @@ checksum="$(printf '%s' "$image_details" |
   awk -F "|" '{print $3;}' |
   tr -d '[:space:]')"
 
-# Get checksum of bucket image
-echo "Download md5 sum file"
-curl "$KN_IMAGE_BUCKET_URL/$file_name.md5" \
-  -o "/tmp/$file_name.md5" \
-  --connect-timeout 30 \
-  --max-time 1800
-
-md5only=$(cut -f1 -d ' ' "/tmp/$file_name.md5")
-if [ "$md5only" != "$checksum" ]; then
-  echo >&2 "Wrong checksum of present/uploaded image."
-  echo >&2 "Something might have failed on file transfer."
-  echo >&2 "Please delete image $KN_IMAGE_NAME from Openstack and try again."
-  exit 1
+# only verify checksum if there is one on server (a 32 char value in the checksum field)
+if [[ ${#checksum} != 32 ]]; then
+  echo "No valid checksum field on server, skipping checksum verification"
 else
-  echo "Checksum OK"
+  # Get checksum of bucket image
+  echo "Download md5 sum file :-)"
+  curl "$KN_IMAGE_BUCKET_URL/$file_name.md5" \
+    -o "/tmp/$file_name.md5" \
+    --connect-timeout 30 \
+    --max-time 1800
+
+  md5only=$(cut -f1 -d ' ' "/tmp/$file_name.md5")
+  if [ "$md5only" != "$checksum" ]; then
+    echo >&2 "Wrong checksum of present/uploaded image."
+    echo >&2 "Something might have failed on file transfer."
+    echo >&2 "Please delete image $KN_IMAGE_NAME from Openstack and try again."
+    exit 1
+  else
+    echo "Checksum OK"
+  fi
 fi
 
 echo "Image upload done"
