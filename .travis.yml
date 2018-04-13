@@ -30,11 +30,8 @@ env:
     - HOST_CLOUD=azure
 
 addons:
-  apt:
-    sources:
-      - debian-sid
-    packages:
-      - shellcheck # code review tool
+
+  # Currently no addons used
 
 before_install:
 
