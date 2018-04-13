@@ -29,10 +29,6 @@ env:
     - HOST_CLOUD=aws
     - HOST_CLOUD=azure
 
-addons:
-
-  # Currently no addons used
-
 before_install:
 
   # Install code review tools
