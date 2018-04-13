@@ -210,6 +210,8 @@ jobs:
 notifications:
   email: false
   slack:
+    on_success: change
+    on_failure: always
     secure: >
       ed+rC8Oc4EdZfptHGX1Xr5sNc+wQTyjb4rjJT0P/U/NBStmik7dnUfAK9vk6XYVDrrPZxmAz6A
       cJmEaxY4kdG2HBLBPD0keRxKh2rN2ZbjCTWuGlAomMkmNDcyeVoQI95HcT0nYHzgoUCGn7lgZ7
