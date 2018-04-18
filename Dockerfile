@@ -49,9 +49,7 @@ RUN apt-get update -y && \
     apt-get update -y && apt-get install -y \
       google-cloud-sdk="$GOOGLE_CLOUD_SDK_VERSION" && \
     `# Upgrade pip and install pip deps` \
-    pip install --no-cache-dir --upgrade pip=="${PIP_VERSION}" && \
-    pip install --no-cache-dir --upgrade \
-      pip && \
+    pip install --no-cache-dir --upgrade pip=="$PIP_VERSION" && \
     pip install --no-cache-dir \
       ansible=="$ANSIBLE_VERSION" \
       j2cli=="$J2CLI_VERSION" \
