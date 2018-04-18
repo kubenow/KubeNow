@@ -3,6 +3,7 @@ FROM ubuntu:xenial-20171006
 # Provisioners versions
 ENV TERRAFORM_VERSION=0.10.7
 ENV ANSIBLE_VERSION=2.4.2.0
+ENV PIP_VERSION=9.0.3
 ENV LIBCLOUD_VERSION=1.5.0
 ENV J2CLI_VERSION=0.3.1.post0
 ENV DNSPYTHON_VERSION=1.15.0
@@ -47,7 +48,8 @@ RUN apt-get update -y && \
       | apt-key add - && \
     apt-get update -y && apt-get install -y \
       google-cloud-sdk="$GOOGLE_CLOUD_SDK_VERSION" && \
-    `# Pip` \
+    `# Upgrade pip and install pip deps` \
+    pip install --no-cache-dir --upgrade pip=="$PIP_VERSION" && \
     pip install --no-cache-dir --upgrade \
       pip && \
     pip install --no-cache-dir \
