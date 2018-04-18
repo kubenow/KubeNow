@@ -21,6 +21,8 @@ ENV PLUGIN_AZURERM=0.2.2
 ENV PLUGIN_NULL=1.0.0
 ENV PLUGIN_CLOUDFLARE=0.1.0
 ENV PLUGIN_TEMPLATE=1.0.0
+# Pip version
+ENV PIP=9.0.3
 
 # Install with apt and pip
 RUN apt-get update -y && apt-get install -y \
@@ -41,9 +43,8 @@ RUN apt-get update -y && apt-get install -y \
       | apt-key add - && \
     apt-get update -y && apt-get install -y \
       google-cloud-sdk="$GOOGLE_CLOUD_SDK_VERSION" && \
-    `# Pip` \
-    pip install --no-cache-dir --upgrade \
-      pip && \
+    `# Upgrade pip and install pip deps` \
+    pip install --no-cache-dir --upgrade pip=="${PIP}" && \
     pip install --no-cache-dir \
       ansible=="$ANSIBLE_VERSION" \
       j2cli=="$J2CLI_VERSION" \
