@@ -30,9 +30,9 @@ resource "openstack_networking_subnet_v2" "created" {
 
 resource "openstack_networking_router_v2" "created" {
   # create only if not specified in var.network_name
-  count               = "${var.network_name == "" ? 1 : 0}"
-  name                = "${var.name_prefix}-router"
-  external_network_id = "${var.external_net_uuid}"
+  count            = "${var.network_name == "" ? 1 : 0}"
+  name             = "${var.name_prefix}-router"
+  external_gateway = "${var.external_net_uuid}"
 }
 
 resource "openstack_networking_router_interface_v2" "created" {
