@@ -29,13 +29,6 @@ env:
     - HOST_CLOUD=aws
     - HOST_CLOUD=azure
 
-addons:
-  apt:
-    sources:
-      - debian-sid
-    packages:
-      - shellcheck # code review tool
-
 before_install:
 
   # Install code review tools
@@ -65,8 +58,8 @@ before_install:
   # skip ANSIBLE0012: missing change_when on command/shell etc.
   - ansible-lint -x ANSIBLE0006,ANSIBLE0012 playbooks/*.yml
   # check Shell
-  - shellcheck bootstrap/*
-  - shellcheck bin/*
+  - docker run -v "$(pwd)":/mnt koalaman/shellcheck:stable bootstrap/*
+  - docker run -v "$(pwd)":/mnt koalaman/shellcheck:stable bin/*
   - docker run -v "$(pwd)":/sh -w /sh jamesmstone/shfmt -i 2 -w bin/*
   - docker run -v "$(pwd)":/sh -w /sh jamesmstone/shfmt -i 2 -w bootstrap/*
   - git diff --exit-code
@@ -75,8 +68,13 @@ before_install:
   # check YAML
   - yamllint -c .yamllint.yml -s $(find . -type f -name "*.yml")
 
-# Build Docker image
-install: docker build -t kubenow/provisioners:master .
+
+install:
+
+  # Build Docker image
+  # Create a docker image tag out of branch-name where / is replaced by -
+  - tag="${TRAVIS_BRANCH/\//-}"
+  - docker build -t kubenow/provisioners:$tag .
 
 before_script:
 
@@ -84,6 +82,7 @@ before_script:
   - sudo cp bin/kn /usr/local/bin/
 
   # Init test deployment
+  - export KN_PROVISIONERS_IMG=kubenow/provisioners:$tag
   - kn init ${HOST_CLOUD} test-deployment
   - cd test-deployment
 
@@ -94,39 +93,39 @@ before_script:
   # RENDER CONFIGURATION
 
   # Common
-  - sed -i -e "s/your-cluster-prefix/kubenow-ci-${TRAVIS_BUILD_NUMBER}-${HOST_CLOUD}/g" terraform.tfvars
+  - sed -i -e "s/your-cluster-prefix/kubenow-ci-${TRAVIS_BUILD_NUMBER}-${HOST_CLOUD}/g" config.tfvars
   # AWS
-  - sed -i -e "s/your-acces-key-id/${AWS_ACCESS_KEY_ID}/g" terraform.tfvars
-  - sed -i -e "s#your-secret-access-key#${AWS_SECRET_ACCESS_KEY}#g" terraform.tfvars
-  - sed -i -e "s/eu-west-1/${AWS_DEFAULT_REGION}/g" terraform.tfvars
+  - sed -i -e "s/your-acces-key-id/${AWS_ACCESS_KEY_ID}/g" config.tfvars
+  - sed -i -e "s#your-secret-access-key#${AWS_SECRET_ACCESS_KEY}#g" config.tfvars
+  - sed -i -e "s/eu-west-1/${AWS_DEFAULT_REGION}/g" config.tfvars
   # GCE
   - printf '%s\n' "$GCE_CREDENTIALS" > "./service-account.json"
-  - sed -i -e "s/your_project_id/${GCE_PROJECT_ID}/g" terraform.tfvars
+  - sed -i -e "s/your_project_id/${GCE_PROJECT_ID}/g" config.tfvars
   # AZURE
-  - sed -i -e "s/your-subscription_id/${AZURE_SUBSCRIPTION_ID}/g" terraform.tfvars
-  - sed -i -e "s/your-client_id/${AZURE_CLIENT_ID}/g" terraform.tfvars
-  - sed -i -e "s/your-client_secret/${AZURE_CLIENT_SECRET}/g" terraform.tfvars
-  - sed -i -e "s/your-tenant_id/${AZURE_TENANT_ID}/g" terraform.tfvars
+  - sed -i -e "s/your-subscription_id/${AZURE_SUBSCRIPTION_ID}/g" config.tfvars
+  - sed -i -e "s/your-client_id/${AZURE_CLIENT_ID}/g" config.tfvars
+  - sed -i -e "s/your-client_secret/${AZURE_CLIENT_SECRET}/g" config.tfvars
+  - sed -i -e "s/your-tenant_id/${AZURE_TENANT_ID}/g" config.tfvars
   # OS
-  - sed -i -e "s/your-pool-name/${OS_POOL_NAME}/g" terraform.tfvars
-  - sed -i -e "s/external-net-uuid/${OS_EXTERNAL_NET_UUID}/g" terraform.tfvars
-  - sed -i -e "s/your-master-flavor/${OS_MASTER_FLAVOR}/g" terraform.tfvars
-  - sed -i -e "s/your-node-flavor/${OS_NODE_FLAVOR}/g" terraform.tfvars
-  - sed -i -e "s/your-edge-flavor/${OS_EDGE_FLAVOR}/g" terraform.tfvars
-  - sed -i -e "s/your-glusternode-flavor/${OS_NODE_FLAVOR}/g" terraform.tfvars
+  - sed -i -e "s/your-pool-name/${OS_POOL_NAME}/g" config.tfvars
+  - sed -i -e "s/external-net-uuid/${OS_EXTERNAL_NET_UUID}/g" config.tfvars
+  - sed -i -e "s/your-master-flavor/${OS_MASTER_FLAVOR}/g" config.tfvars
+  - sed -i -e "s/your-node-flavor/${OS_NODE_FLAVOR}/g" config.tfvars
+  - sed -i -e "s/your-edge-flavor/${OS_EDGE_FLAVOR}/g" config.tfvars
+  - sed -i -e "s/your-glusternode-flavor/${OS_NODE_FLAVOR}/g" config.tfvars
   # Enable edges
-  - sed -i -e "s/# edge/edge/g" terraform.tfvars
+  - sed -i -e "s/# edge/edge/g" config.tfvars
   # Enable glusternodes
-  - sed -i -e "s/# glusternode/glusternode/g" terraform.tfvars
+  - sed -i -e "s/# glusternode/glusternode/g" config.tfvars
   # Cloudflare
-  - sed -i -e "s/# use_cloudflare/use_cloudflare/g" terraform.tfvars
-  - sed -i -e "s/# cloudflare_email = \"your-cloudflare-email\"/cloudflare_email = \"${CI_CLOUDFLARE_EMAIL}\"/g" terraform.tfvars
-  - sed -i -e "s/# cloudflare_token = \"your-cloudflare-token\"/cloudflare_token = \"${CI_CLOUDFLARE_TOKEN}\"/g" terraform.tfvars
-  - sed -i -e "s/# cloudflare_domain = \"your-domain-name\"/cloudflare_domain = \"${CI_CLOUDFLARE_DOMAIN}\"/g" terraform.tfvars
+  - sed -i -e "s/# use_cloudflare/use_cloudflare/g" config.tfvars
+  - sed -i -e "s/# cloudflare_email = \"your-cloudflare-email\"/cloudflare_email = \"${CI_CLOUDFLARE_EMAIL}\"/g" config.tfvars
+  - sed -i -e "s/# cloudflare_token = \"your-cloudflare-token\"/cloudflare_token = \"${CI_CLOUDFLARE_TOKEN}\"/g" config.tfvars
+  - sed -i -e "s/# cloudflare_domain = \"your-domain-name\"/cloudflare_domain = \"${CI_CLOUDFLARE_DOMAIN}\"/g" config.tfvars
   - >
     sed -i -e
     "s/# cloudflare_subdomain = \"your-subdomain-name\"/cloudflare_subdomain = \"kubenow-ci-${TRAVIS_BUILD_NUMBER}-${HOST_CLOUD}\"/g"
-    terraform.tfvars
+    config.tfvars
 
 
 script:
@@ -151,7 +150,7 @@ after_script:
   - >
     travis_retry rm -f .terraform/plugin_path
     && terraform init "$HOST_CLOUD"
-    && terraform destroy -force -var-file=terraform.tfvars "$HOST_CLOUD" # in case there is some problem with kn
+    && terraform destroy -force -var-file=config.tfvars "$HOST_CLOUD" # in case there is some problem with kn
 
 jobs:
   include:
@@ -165,14 +164,18 @@ jobs:
         # Build and push Docker image (needs to be build again in this stage)
         - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         - >
-            if [ $TRAVIS_BRANCH == 'master' ]; then
-              docker build -t kubenow/provisioners:master .
-              docker push kubenow/provisioners:master
-            elif [ ! -z $TRAVIS_TAG ]; then
+            if [[ -n "$TRAVIS_TAG" ]]; then
               docker build -t kubenow/provisioners:$TRAVIS_TAG \
                 -t kubenow/provisioners:latest .
               docker push kubenow/provisioners:$TRAVIS_TAG
               docker push kubenow/provisioners:latest
+            elseif [[ "$TRAVIS_BRANCH" == "master" ||
+                      "$TRAVIS_BRANCH" == *"stable"* ||
+                      "$TRAVIS_BRANCH" == *"development"* ]]
+              # Create a docker image tag out of branch-name where / is replaced by -
+              tag="${TRAVIS_BRANCH/\//-}"
+              docker build -t kubenow/provisioners:$tag .
+              docker push kubenow/provisioners:$tag
             fi
         # If tag, create a versioned kn CLI
         - >
@@ -200,6 +203,8 @@ jobs:
 notifications:
   email: false
   slack:
+    on_success: change
+    on_failure: always
     secure: >
       ed+rC8Oc4EdZfptHGX1Xr5sNc+wQTyjb4rjJT0P/U/NBStmik7dnUfAK9vk6XYVDrrPZxmAz6A
       cJmEaxY4kdG2HBLBPD0keRxKh2rN2ZbjCTWuGlAomMkmNDcyeVoQI95HcT0nYHzgoUCGn7lgZ7

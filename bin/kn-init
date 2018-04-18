@@ -8,7 +8,7 @@ host_cloud="$1"
 echo "Initializing $INIT_DIR deployment directory for cloud provider $host_cloud"
 
 # Copy config, scripts and template files to init dir
-cp "/opt/KubeNow/templates/terraform.tfvars.$host_cloud-template" "/KubeNow_root/terraform.tfvars"
+cp "/opt/KubeNow/templates/config.tfvars.$host_cloud-template" "/KubeNow_root/config.tfvars"
 cp -r "/opt/KubeNow/$host_cloud" "/KubeNow_root/"
 cp -r "/opt/KubeNow/common" "/KubeNow_root/"
 cp -r "/opt/KubeNow/bootstrap" "/KubeNow_root/"
@@ -22,7 +22,7 @@ tokenID=$(openssl rand -hex 3)
 tokenVal=$(openssl rand -hex 8)
 token="$tokenID.$tokenVal"
 
-sed -i "s/your-kubeadm-token/${token}/g" terraform.tfvars
+sed -i "s/your-kubeadm-token/${token}/g" config.tfvars
 
 # Generate SSH keys
 ssh-keygen -t rsa -N '' -f ssh_key

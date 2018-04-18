@@ -75,6 +75,26 @@ glance image-create \
   --name "$KN_IMAGE_NAME" \
   --progress
 
+# Wait until image status is "active"
+wait_time=0
+max_wait=300
+sleep_time=3
+status="nothing"
+echo "Wait until image status is active"
+while [[ $status != "active" && $wait_time -lt $max_wait ]]; do
+  # allow for image to be ready
+  sleep $sleep_time
+  wait_time=$((wait_time + sleep_time))
+
+  # get status of image
+  image_details="$(glance image-show "$image_id")"
+  status="$(printf '%s' "$image_details" |
+    grep -w "status" |
+    awk -F "|" '{print $3;}' |
+    tr -d '[:space:]')"
+done
+
+# Verify md5 of uploaded image
 echo "Verify md5 of present/uploaded image..."
 echo "List images available in OpenStack..."
 image_list="$(glance image-list)"
@@ -90,21 +110,26 @@ checksum="$(printf '%s' "$image_details" |
   awk -F "|" '{print $3;}' |
   tr -d '[:space:]')"
 
-# Get checksum of bucket image
-echo "Download md5 sum file"
-curl "$KN_IMAGE_BUCKET_URL/$file_name.md5" \
-  -o "/tmp/$file_name.md5" \
-  --connect-timeout 30 \
-  --max-time 1800
-
-md5only=$(cut -f1 -d ' ' "/tmp/$file_name.md5")
-if [ "$md5only" != "$checksum" ]; then
-  echo >&2 "Wrong checksum of present/uploaded image."
-  echo >&2 "Something might have failed on file transfer."
-  echo >&2 "Please delete image $KN_IMAGE_NAME from Openstack and try again."
-  exit 1
+# Only verify checksum if there is one on server (a 32 char value in the checksum field)
+if [[ ${#checksum} != 32 ]]; then
+  echo "No valid checksum field on server, skipping checksum verification"
 else
-  echo "Checksum OK"
+  # Get checksum of bucket image
+  echo "Download md5 sum file :-)"
+  curl "$KN_IMAGE_BUCKET_URL/$file_name.md5" \
+    -o "/tmp/$file_name.md5" \
+    --connect-timeout 30 \
+    --max-time 1800
+
+  md5only=$(cut -f1 -d ' ' "/tmp/$file_name.md5")
+  if [ "$md5only" != "$checksum" ]; then
+    echo >&2 "Wrong checksum of present/uploaded image."
+    echo >&2 "Something might have failed on file transfer."
+    echo >&2 "Please delete image $KN_IMAGE_NAME from Openstack and try again."
+    exit 1
+  else
+    echo "Checksum OK"
+  fi
 fi
 
 echo "Image upload done"
