@@ -88,7 +88,9 @@ When a PR from an external contributor has been submitted, an owner needs to mer
 3. Checkout the master and pull it: `git checkout master && git pull`
 4. Checkout a new test branch from the master: `git checkout -b pr-test-<ID>`
 5. Merge the PR in the new test branch: `git merge pr-<ID>`
-7. Merge the original PR if the CI for `pr-test-<ID>` passes
+6. Push the new test branch (so the CI can start):`git push -u origin pr-test-<ID>`
+7. Repeat 2,5,6 for new PR commits, if necessary (so they get tested)
+8. Merge the original PR if the CI for `pr-test-<ID>` passes
 
 ### Merging a Fixes into an Existing Stable Branch (if any)
 It is often best practice to keep development of cutting-edge features not embedded into a stable branch, rather in the master. However, just as often hot fixies need to be merged both in the master and in the stable branch. While in the former case this will happen automatically via a related pull requested, in the latter scenario it is necessary to perform a manual merge of any fixes in the stable branch (unless an automated process is in place). Thus this section's goal is to provide a short useful workflow on how to merge any fixes into an existing stable branch:
