@@ -6,7 +6,7 @@ set -e # exit at first error
 # Set version #
 ###############
 
-kubenow_version="phenomenal/stable"
+kubenow_version="development/phenomenal-dalcotidine"
 
 #############
 # Functions #
