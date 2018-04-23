@@ -3,11 +3,6 @@
 # Add hostname
 echo "127.0.0.1 $HOSTNAME" >>/etc/hosts
 
-# Make sure instance is updated with latest security fixes
-#echo "Run unattended-upgrade"
-#sudo apt-get update -y
-#unattended-upgrade -d
-
 # Taint and label
 node_labels="${node_labels}"
 node_taints="${node_taints}"
