@@ -3,6 +3,11 @@
 # Add hostname
 echo "127.0.0.1 $HOSTNAME" >>/etc/hosts
 
+# Make sure instance is updated with latest security fixes
+# Run upgrades in a subshell that always succeeds so boot is not interrupted
+echo "Run unattended-upgrade in subshell"
+sudo bash -c 'apt-get update -y && unattended-upgrade -d'
+
 # Taint and label
 node_labels="${node_labels}"
 node_taints="${node_taints}"
