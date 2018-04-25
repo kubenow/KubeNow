@@ -223,13 +223,13 @@ function set_preset() {
   case $preset in
   phenomenal | pheno | phnmnl)
     tag="${kubenow_version/\//-}"
-    export KN_PLUGIN_NAME="phenomenal"
     export KN_PLUGIN_REPO="https://github.com/phnmnl/KubeNow-plugin.git"
+    export KN_PLUGIN_NAME="phnmnl/KubeNow-plugin"
     ;;
   plain)
     tag="${kubenow_version/\//-}"
-    export KN_PLUGIN_NAME="plain"
     export KN_PLUGIN_REPO="https://github.com/KubeNow/plugin-plain.git"
+    export KN_PLUGIN_NAME="KubeNow/plugin-plain"
     ;;
   openrisknet | orn) ;;
 
