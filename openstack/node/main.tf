@@ -101,6 +101,16 @@ resource "openstack_compute_volume_attach_v2" "attach_extra_disk" {
   volume_id   = "${element(openstack_blockstorage_volume_v2.extra_disk.*.id, count.index)}"
 }
 
+# Generates a list of ip-numbers with public ip first if available
+data "null_data_source" "access_ip" {
+  count = "${var.count}"
+
+  inputs = {
+    # Need to attach empty element to list since it sometimes is empty terraform workaround issues/11210
+    ip = "${ var.assign_floating_ip == true ?  element(concat(openstack_compute_floatingip_v2.floating_ip.*.address, list("")), count.index) : element(openstack_compute_instance_v2.instance.*.network.0.fixed_ip_v4, count.index) }"
+  }
+}
+
 # Module outputs
 output "extra_disk_device" {
   value = ["${openstack_compute_volume_attach_v2.attach_extra_disk.*.device}"]
@@ -111,7 +121,7 @@ output "local_ip_v4" {
 }
 
 output "public_ip" {
-  value = ["${openstack_compute_floatingip_v2.floating_ip.*.address}"]
+  value = ["${data.null_data_source.access_ip.*.inputs.ip}"]
 }
 
 output "hostnames" {

@@ -9,6 +9,7 @@ echo "Initializing $INIT_DIR deployment directory for cloud provider $host_cloud
 
 # Copy config, scripts and template files to init dir
 cp "/opt/KubeNow/templates/config.tfvars.$host_cloud-template" "/KubeNow_root/config.tfvars"
+cp "/opt/KubeNow/templates/inventory"*"-template" "/KubeNow_root/"
 cp -r "/opt/KubeNow/$host_cloud" "/KubeNow_root/"
 cp -r "/opt/KubeNow/common" "/KubeNow_root/"
 cp -r "/opt/KubeNow/bootstrap" "/KubeNow_root/"

@@ -16,6 +16,9 @@
     return_content=yes
   register: body
 
+- debug:
+    msg: "Test page body: {{body.content}}"
+
 - name: "fail on missing '{{search_for}}' in page"
   fail: msg="missing '{{search_for}}' in page"
   when: "'{{search_for}}' not in body.content"
