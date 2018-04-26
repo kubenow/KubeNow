@@ -22,7 +22,7 @@ else
   template_dir="templates"
 fi
 
-echo "Initializing $INIT_DIR deployment directory for cloud provider $host_cloud"
+echo "Initializing deployment directory for cloud provider $host_cloud"
 
 # Copy template files to init dir
 cp "/opt/KubeNow/$template_dir/config.tfvars.$host_cloud"* "/KubeNow_root/"
