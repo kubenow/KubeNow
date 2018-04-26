@@ -88,7 +88,22 @@ When a PR from an external contributor has been submitted, an owner needs to mer
 3. Checkout the master and pull it: `git checkout master && git pull`
 4. Checkout a new test branch from the master: `git checkout -b pr-test-<ID>`
 5. Merge the PR in the new test branch: `git merge pr-<ID>`
-7. Merge the original PR if the CI for `pr-test-<ID>` passes
+6. Push the new test branch (so the CI can start):`git push -u origin pr-test-<ID>`
+7. Repeat 2,5,6 for new PR commits, if necessary (so they get tested)
+8. Merge the original PR if the CI for `pr-test-<ID>` passes
+
+### Merging a Fixes into an Existing Stable Branch (if any)
+It is often best practice to keep development of cutting-edge features not embedded into a stable branch, rather in the master. However, just as often hot fixies need to be merged both in the master and in the stable branch. While in the former case this will happen automatically via a related pull requested, in the latter scenario it is necessary to perform a manual merge of any fixes in the stable branch (unless an automated process is in place). Thus this section's goal is to provide a short useful workflow on how to merge any fixes into an existing stable branch:
+
+1. Checkout the master and pull it: `git checkout master && git pull`
+2. Checkout the fix branch in order to pull it locally if not present: `git checkout latest-fix-branch`
+3. Mve into the stable branch by checking it out: `git checkout existing-stable-branch`
+4. Merge the pulled fix branch inside the stable branch `git merge latest-fix-branch`
+5. Make sure there are no unsolved conflicts and that the fix's code have been correctly embedded
+6. Push the stable branch `git push`
+7. Make sure that CI passes for the last push
+
+> **Note:** Regarding step 6, it is important to keep in mind that, based on your local `push.default` behaviour, other commits from other branches may be pushed as well. Therefore, local customised tweakings may be necessary. Last but not least, even when pushing only the stable branch GitHub will still ask you whether a PR needs to be created. Given the scenario, such PR should not be necessary, thus the GitHub message can be ignored.
 
 ## Support Channels
 

@@ -1,0 +1,16 @@
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: object-store-sc
+  namespace: storage-heketi
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
+provisioner: kubernetes.io/glusterfs
+parameters:
+  resturl: "http://{{ heketi_endpoint }}"
+  volumetype: {{volumetype}}
+  volumeoptions: {{volumeoptions}}
+mountOptions:
+  - entry-timeout=0
+  - attribute-timeout=0
