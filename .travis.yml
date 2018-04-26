@@ -201,7 +201,7 @@ jobs:
         on: # yamllint disable-line rule:truthy
           tags: true
 notifications:
-  email: false
+  email: true
   slack:
     on_success: change
     on_failure: always
