@@ -2,7 +2,7 @@ FROM ubuntu:xenial-20171006
 
 # Provisioners versions
 ENV TERRAFORM_VERSION=0.10.7
-ENV ANSIBLE_VERSION=2.3.1.0
+ENV ANSIBLE_VERSION=2.4.2.0
 ENV LIBCLOUD_VERSION=1.5.0
 ENV J2CLI_VERSION=0.3.1.post0
 ENV DNSPYTHON_VERSION=1.15.0
@@ -21,11 +21,13 @@ ENV PLUGIN_AZURERM=0.2.2
 ENV PLUGIN_NULL=1.0.0
 ENV PLUGIN_CLOUDFLARE=0.1.0
 ENV PLUGIN_TEMPLATE=1.0.0
-# Pip version
+ENV PLUGIN_RANDOM=1.0.0
+# Pip version, PIP_VERSION env is reserved by Pip
 ENV PIP=9.0.3
 
 # Install with apt and pip
-RUN apt-get update -y && apt-get install -y \
+RUN apt-get update -y && \
+      DEBIAN_FRONTEND=noninteractive apt-get install -y \
       apt-transport-https \
       bc \
       curl \
@@ -105,6 +107,11 @@ RUN curl "https://releases.hashicorp.com/terraform-provider-template/${PLUGIN_TE
     "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" && \
     unzip "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip" -d /terraform_plugins/ && \
     rm -f "terraform-provider-template_${PLUGIN_TEMPLATE}_linux_amd64.zip"
+
+RUN curl "https://releases.hashicorp.com/terraform-provider-random/${PLUGIN_RANDOM}/terraform-provider-random_${PLUGIN_RANDOM}_linux_amd64.zip" > \
+    "terraform-provider-random_${PLUGIN_RANDOM}_linux_amd64.zip" && \
+    unzip "terraform-provider-random_${PLUGIN_RANDOM}_linux_amd64.zip" -d /terraform_plugins/ && \
+    rm -f "terraform-provider-random_${PLUGIN_RANDOM}_linux_amd64.zip"
 
 # Add KubeNow
 COPY . /opt/KubeNow
