@@ -25,6 +25,7 @@ basic:
                              CLOUD=<gce|aws|openstack|azure>
   apply [terraform args]     apply configuration (with optional terraform args)
   destroy [terraform args]   destroy deployment (with optional terraform args)
+  provision                  apply the provisioner block in the config.tfvars
   scale                      resizes cluster after manual modifications in config.tfvars
   ssh <host>                 ssh to <host> defined in ansible inventory file.
                              Default <host> is master
@@ -369,7 +370,7 @@ kubetoken | openstack)
   ;;
 
 # KubeNow-defined commands that need PWD validation
-apply | destroy | scale | kubectl | helm | ssh)
+apply | destroy | provision | scale | kubectl | helm | ssh)
   validate_pwd
   # get provisioner image from tfvar-file
   read_provisioner_image_var

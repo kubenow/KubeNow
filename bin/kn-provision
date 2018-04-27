@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+echo "Inside kn-provision"
+
+# Read config file into variable as as json
+kn_config=$(json2hcl -reverse <config.tfvars)
+
+# Read the provision list from the kn_config
+provision=$(echo "$kn_config" | jq -r --compact-output 'select(.provision != null) | .provision[]')
+
+# The --compact-output creates one json-object per line from array of provision-actions
+# Convert to base64 to preserve whitespace and citations in bash loop
+# Execute actions (ansible or helm) with supplied variables/parameters
+actions=$(echo "$provision" | jq -r --compact-output '.action[]? | @base64')
+for action_base64 in $actions; do
+  action=$(base64 --decode <<<"$action_base64")
+
+  type=$(echo "$action" | jq -r '.type')
+  case "$type" in
+  ansible-playbook)
+    echo "Inside kn-provision ansible-playbook"
+    playbook=$(echo "$action" | jq -r '.playbook')
+    extra_vars=$(echo "$action" | jq -r --compact-output 'select(.extra_vars != null) | .extra_vars[]')
+
+    echo "Applying playbook $playbook"
+    # shellcheck disable=SC2086
+    ansible-playbook $ANSIBLE_OPT -e "$extra_vars" "/KubeNow_root/$playbook"
+    echo "Done with ansible-playbook: $playbook"
+    ;;
+
+  helm)
+    echo "Inside kn-provision helm"
+    chart_repo=$(echo "$action" | jq -r '.chart_repo')
+    chart_repo_name=$(echo "$action" | jq -r '.chart_repo_name')
+    chart_name=$(echo "$action" | jq -r '.chart_name')
+    release_name=$(echo "$action" | jq -r '.release_name')
+    values=$(echo "$action" | jq -r --compact-output 'select(.values != null) | .values[]')
+    target_host="master"
+
+    # Add repo if specified
+    if [ -n "$chart_repo" ]; then
+      echo "Add helm chart-repo: $chart_repo"
+      ansible "$target_host" -a "helm repo add $chart_repo_name $chart_repo"
+    fi
+
+    # Create and upload values-file
+    tmpfile=$(mktemp)
+    echo "$values" >tmpfile
+    ansible "$target_host" -m copy -a "src=$tmpfile dest=/tmp/helm-values-release-$release_name.json"
+
+    # Install chart
+    echo "Install helm chart: $chart_name"
+    ansible "$target_host" -a "helm upgrade --install -f /tmp/helm-values-release-$release_name.json $release_name $chart_repo_name/$chart_name"
+
+    echo "Done with helm chart: $chart_name"
+    ;;
+
+  local-exec)
+    echo "Inside kn-provision local-exec"
+    command=$(echo "$action" | jq -r '.command')
+
+    echo "Exec command: $command"
+
+    # execute command
+    $command
+    echo "Done with local-exec"
+    ;;
+
+  esac
+done
+
+echo "Done with kn-provision"
