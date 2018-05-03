@@ -36,7 +36,7 @@ variable dns_nameservers {
 variable floating_ip_pool {}
 
 variable kubeadm_token {
-  default = "0123456.0123456789abcdef"
+  default = ""
 }
 
 # Master settings

@@ -29,7 +29,7 @@ variable image_resource_group_prefix {
 }
 
 variable kubeadm_token {
-  default = "0123456.0123456789abcdef"
+  default = ""
 }
 
 variable subscription_id {}

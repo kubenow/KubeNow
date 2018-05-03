@@ -3,7 +3,6 @@ FROM ubuntu:xenial-20171006
 # Provisioners versions
 ENV TERRAFORM_VERSION=0.10.7
 ENV ANSIBLE_VERSION=2.4.2.0
-ENV PIP_VER=9.0.3
 ENV LIBCLOUD_VERSION=1.5.0
 ENV J2CLI_VERSION=0.3.1.post0
 ENV DNSPYTHON_VERSION=1.15.0
@@ -24,6 +23,8 @@ ENV PLUGIN_CLOUDFLARE=0.1.0
 ENV PLUGIN_TEMPLATE=1.0.0
 ENV PLUGIN_RANDOM=1.0.0
 ENV PLUGIN_LIBVIRT=master-180127
+# Pip version, PIP_VERSION env is reserved by Pip
+ENV PIP=9.0.3
 
 # Install with apt and pip
 RUN apt-get update -y && \
@@ -49,7 +50,7 @@ RUN apt-get update -y && \
     apt-get update -y && apt-get install -y \
       google-cloud-sdk="$GOOGLE_CLOUD_SDK_VERSION" && \
     `# Upgrade pip and install pip deps` \
-    pip install --no-cache-dir --upgrade pip=="$PIP_VER" && \
+    pip install --no-cache-dir --upgrade pip=="${PIP}" && \
     pip install --no-cache-dir \
       ansible=="$ANSIBLE_VERSION" \
       j2cli=="$J2CLI_VERSION" \
