@@ -6,7 +6,7 @@ set -e # exit at first error
 # Set version #
 ###############
 
-kubenow_version="development/phenomenal-dalcotidine"
+kubenow_version="phenomenal/stable"
 
 #############
 # Functions #
@@ -31,20 +31,20 @@ basic:
                              Default <host> is master
   upgrade <version>          upgrade kn to <latest|latest-stable|master|"tag">
                              Default <version> is the one currently in use
-                             
-kubernetes:                  
+
+kubernetes:
   kubectl                    run kubectl on the master. More help: kn kubectl help
   helm                       run helm on the master. More help: kn helm help
-cloud tools:                 
+cloud tools:
   terraform                  run Terraform. More help: kn terraform --help
   ansible                    run Ansible. More help: kn ansible --help
   ansible-playbook           run an Ansible playbook.
                              More help: kn ansible-playbook --help
-cloud providers CLI:         
+cloud providers CLI:
   gcloud                     run Google Cloud Platform CLI. More help: kn gcloud help
   openstack                  run OpenStack CLI. More help: kn openstack help
   az                         run Microsoft Azure CLI. More help: kn az help
-developers:                  
+developers:
   bash                       run an interactive bash promt in the provisioners container
   kubetoken                  generate and print a kubeadm token
   git
