@@ -5,7 +5,11 @@ variable name_prefix {}
 variable resource_group_name {}
 variable location {}
 variable vm_size {}
-variable image_id {}
+variable boot_image_private_id {}
+
+variable boot_image_public {
+  type = "map"
+}
 
 # SSH settings
 variable ssh_user {}
@@ -95,7 +99,11 @@ resource "azurerm_virtual_machine" "vm" {
   network_interface_ids = ["${element(azurerm_network_interface.nic.*.id, count.index)}"]
 
   storage_image_reference {
-    id = "${var.image_id}"
+    id        = "${var.boot_image_private_id}"
+    publisher = "${var.boot_image_public["publisher"]}"
+    offer     = "${var.boot_image_public["offer"]}"
+    sku       = "${var.boot_image_public["sku"]}"
+    version   = "${var.boot_image_public["version"]}"
   }
 
   storage_os_disk {

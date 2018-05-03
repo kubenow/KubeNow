@@ -78,9 +78,9 @@ locals {
   edge_private_ip = "${split(",", length(var.edge_private_ip) == 0 ? join(",", list("")) : join(",", var.edge_private_ip))}"
 
   # Format list of different node types
-  masters    = "${join("\n",formatlist("%s ansible_host=%s ansible_user=%s", local.master_hostnames , local.master_public_ip, var.ssh_user ))}"
-  nodes      = "${join("\n",formatlist("%s ansible_host=%s ansible_user=%s", local.node_hostnames , local.node_public_ip, var.ssh_user))}"
-  pure_edges = "${join("\n",formatlist("%s ansible_host=%s ansible_user=%s", local.edge_hostnames , local.edge_public_ip, var.ssh_user))}"
+  masters    = "${join("\n",formatlist("%s ansible_host=%s ansible_user=%s private_ip=%s", local.master_hostnames, local.master_public_ip, var.ssh_user, local.master_private_ip ))}"
+  nodes      = "${join("\n",formatlist("%s ansible_host=%s ansible_user=%s private_ip=%s", local.node_hostnames,   local.node_public_ip,   var.ssh_user, local.node_private_ip   ))}"
+  pure_edges = "${join("\n",formatlist("%s ansible_host=%s ansible_user=%s private_ip=%s", local.edge_hostnames,   local.edge_public_ip,   var.ssh_user, local.edge_private_ip   ))}"
 
   # Add master to edges if that is the case
   edges = "${var.master_as_edge == true ? "${format("%s\n%s", local.masters, local.pure_edges)}" : local.pure_edges}"
