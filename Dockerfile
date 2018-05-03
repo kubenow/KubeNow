@@ -65,6 +65,11 @@ RUN apt-get update -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Install json2hcl
+RUN curl -L "https://github.com/kvz/json2hcl/releases/download/v0.0.6/json2hcl_v0.0.6_linux_amd64" > \
+    "/bin/json2hcl" && \
+    chmod a+rx /bin/json2hcl
+
 # Install Terraform
 RUN curl "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" > \
     "terraform_${TERRAFORM_VERSION}_linux_amd64.zip" && \
