@@ -5,8 +5,13 @@ variable name_prefix {}
 variable resource_group_name {}
 variable location {}
 variable vm_size {}
+
+# This var is for KubeNow boot image version
+# will be empty if public image is specified
 variable boot_image_private_id {}
 
+# This var is for any Azure boot image
+# will be empty if KubeNow image is specified
 variable boot_image_public {
   type = "map"
 }
@@ -98,6 +103,8 @@ resource "azurerm_virtual_machine" "vm" {
   vm_size               = "${var.vm_size}"
   network_interface_ids = ["${element(azurerm_network_interface.nic.*.id, count.index)}"]
 
+  # if id specified, other params will be empty
+  # if id is not specified, other params will be set
   storage_image_reference {
     id        = "${var.boot_image_private_id}"
     publisher = "${var.boot_image_public["publisher"]}"

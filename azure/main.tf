@@ -1,10 +1,14 @@
 # Cluster settings
 variable cluster_prefix {}
 
+# This var is for KubeNow boot image version
+# leave empty if public image is specified
 variable boot_image {
   default = ""
 }
 
+# This var is for any Azure boot image
+# leave empty if KubeNow image is specified
 variable boot_image_public {
   type = "map"
 
@@ -133,6 +137,7 @@ provider "azurerm" {
 # Data-lookup, subscriptin_id etc.
 data "azurerm_client_config" "current" {}
 
+# This is for KubeNow boot image only
 # Generates image resource group name by adding location as suffix (without spaces)
 data "null_data_source" "image_rg" {
   inputs = {
@@ -140,13 +145,16 @@ data "null_data_source" "image_rg" {
   }
 }
 
-# Generates image resource group name by adding location as suffix (without spaces)
+# This is for KubeNow boot image only
+# Generates KubeNow image_id
 data "null_data_source" "private_img" {
   inputs = {
     image_id = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${data.null_data_source.image_rg.inputs.name}/providers/Microsoft.Compute/images/${var.boot_image}"
   }
 }
 
+# This is for KubeNow boot image only
+# Sets image_id to KubeNow image id if KubeNow image is specified otherwise ""
 data "null_data_source" "boot_image_private_id_lookup" {
   inputs = {
     image_id = "${var.boot_image == "" ? "" : data.null_data_source.private_img.inputs.image_id}"
