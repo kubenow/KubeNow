@@ -25,6 +25,7 @@ basic:
                          CLOUD=<gce|aws|openstack|azure>
   apply                  apply configuration
   destroy                destroy deployment
+  scale                  resizes cluster after manual modifications in config.tfvars
   ssh <host>             ssh to <host> defined in ansible inventory file.
                          Default <host> is master
 kubernetes:
@@ -187,7 +188,7 @@ kubetoken)
   ;;
 
 # KubeNow-defined commands that need PWD validation
-apply | destroy | kubectl | helm | ssh)
+apply | destroy | scale | kubectl | helm | ssh)
   validate_pwd
   # shellcheck disable=SC2068
   docker_run "$KN_PROVISIONERS_IMG" "$PWD" "kn-$subcommand" ${@:2}
