@@ -41,3 +41,9 @@ node_disk_size = "20" # Size in GB
 # cloudflare_proxied = "true"
 # cloudflare_record_texts = ["record1","record2",...] # Warn: wildcards are not supported when using proxied records
 
+provision = {
+  "action" = {
+    "type"       = "ansible-playbook"
+    "playbook"   = "playbooks/install-core.yml"
+  }
+}
