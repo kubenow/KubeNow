@@ -24,8 +24,13 @@ systemctl daemon-reload
 systemctl restart kubelet
 
 # execute modprobe on node - workaround for heketi gluster
-echo "Modprobe dm_thin_pool"
+echo "Modprobe dm_thin_pool..."
 modprobe dm_thin_pool
+
+# make sure swap is off
+sudo swapoff -a
+# make sure any line with swap is removed from fstab
+sudo sed -i '/swap/d' /etc/fstab
 
 echo "Try to join master..."
 # shellcheck disable=SC2154

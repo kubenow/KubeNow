@@ -27,6 +27,11 @@ systemctl restart kubelet
 echo "Modprobe dm_thin_pool..."
 modprobe dm_thin_pool
 
+# make sure swap is off
+sudo swapoff -a
+# make sure any line with swap is removed from fstab
+sudo sed -i '/swap/d' /etc/fstab
+
 echo "Inititializing the master...."
 
 if [ -n "$API_ADVERTISE_ADDRESSES" ]; then
