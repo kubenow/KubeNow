@@ -1,7 +1,24 @@
 # Cluster settings
 variable cluster_prefix {}
 
-variable boot_image {}
+# This var is for KubeNow boot image version
+# leave empty if public image is specified
+variable boot_image {
+  default = ""
+}
+
+# This var is for any Azure boot image
+# leave empty if KubeNow image is specified
+variable boot_image_public {
+  type = "map"
+
+  default = {
+    publisher = ""
+    offer     = ""
+    sku       = ""
+    version   = ""
+  }
+}
 
 variable bootstrap_script {
   default = "bootstrap/bootstrap-default.sh"
@@ -120,10 +137,27 @@ provider "azurerm" {
 # Data-lookup, subscriptin_id etc.
 data "azurerm_client_config" "current" {}
 
+# This is for KubeNow boot image only
 # Generates image resource group name by adding location as suffix (without spaces)
 data "null_data_source" "image_rg" {
   inputs = {
     name = "${var.image_resource_group_prefix}-${replace(var.location, " " , "")}"
+  }
+}
+
+# This is for KubeNow boot image only
+# Generates KubeNow image_id
+data "null_data_source" "private_img" {
+  inputs = {
+    image_id = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${data.null_data_source.image_rg.inputs.name}/providers/Microsoft.Compute/images/${var.boot_image}"
+  }
+}
+
+# This is for KubeNow boot image only
+# Sets image_id to KubeNow image id if KubeNow image is specified otherwise ""
+data "null_data_source" "boot_image_private_id_lookup" {
+  inputs = {
+    image_id = "${var.boot_image == "" ? "" : data.null_data_source.private_img.inputs.image_id}"
   }
 }
 
@@ -151,13 +185,14 @@ module "network" {
 
 module "master" {
   # Core settings
-  source              = "./node"
-  count               = "${var.master_count}"
-  name_prefix         = "${var.cluster_prefix}-master"
-  vm_size             = "${var.master_vm_size}"
-  resource_group_name = "${azurerm_resource_group.rg.name}"
-  image_id            = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${data.null_data_source.image_rg.inputs.name}/providers/Microsoft.Compute/images/${var.boot_image}"
-  location            = "${var.location}"
+  source                = "./node"
+  count                 = "${var.master_count}"
+  name_prefix           = "${var.cluster_prefix}-master"
+  vm_size               = "${var.master_vm_size}"
+  resource_group_name   = "${azurerm_resource_group.rg.name}"
+  boot_image_public     = "${var.boot_image_public}"
+  boot_image_private_id = "${data.null_data_source.boot_image_private_id_lookup.inputs.image_id}"
+  location              = "${var.location}"
 
   # SSH settings
   ssh_user = "${var.ssh_user}"
@@ -178,13 +213,14 @@ module "master" {
 
 module "node" {
   # Core settings
-  source              = "./node"
-  count               = "${var.node_count}"
-  name_prefix         = "${var.cluster_prefix}-node"
-  vm_size             = "${var.node_vm_size}"
-  resource_group_name = "${azurerm_resource_group.rg.name}"
-  image_id            = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${data.null_data_source.image_rg.inputs.name}/providers/Microsoft.Compute/images/${var.boot_image}"
-  location            = "${var.location}"
+  source                = "./node"
+  count                 = "${var.node_count}"
+  name_prefix           = "${var.cluster_prefix}-node"
+  vm_size               = "${var.node_vm_size}"
+  resource_group_name   = "${azurerm_resource_group.rg.name}"
+  boot_image_public     = "${var.boot_image_public}"
+  boot_image_private_id = "${data.null_data_source.boot_image_private_id_lookup.inputs.image_id}"
+  location              = "${var.location}"
 
   # SSH settings
   ssh_user = "${var.ssh_user}"
@@ -205,13 +241,14 @@ module "node" {
 
 module "edge" {
   # Core settings
-  source              = "./node"
-  count               = "${var.edge_count}"
-  name_prefix         = "${var.cluster_prefix}-edge"
-  vm_size             = "${var.node_vm_size}"
-  resource_group_name = "${azurerm_resource_group.rg.name}"
-  image_id            = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${data.null_data_source.image_rg.inputs.name}/providers/Microsoft.Compute/images/${var.boot_image}"
-  location            = "${var.location}"
+  source                = "./node"
+  count                 = "${var.edge_count}"
+  name_prefix           = "${var.cluster_prefix}-edge"
+  vm_size               = "${var.node_vm_size}"
+  resource_group_name   = "${azurerm_resource_group.rg.name}"
+  boot_image_public     = "${var.boot_image_public}"
+  boot_image_private_id = "${data.null_data_source.boot_image_private_id_lookup.inputs.image_id}"
+  location              = "${var.location}"
 
   # SSH settings
   ssh_user = "${var.ssh_user}"
@@ -232,13 +269,14 @@ module "edge" {
 
 module "glusternode" {
   # Core settings
-  source              = "./node-extra-disk"
-  count               = "${var.glusternode_count}"
-  name_prefix         = "${var.cluster_prefix}-glusternode"
-  vm_size             = "${var.glusternode_vm_size}"
-  resource_group_name = "${azurerm_resource_group.rg.name}"
-  image_id            = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${data.null_data_source.image_rg.inputs.name}/providers/Microsoft.Compute/images/${var.boot_image}"
-  location            = "${var.location}"
+  source                = "./node-extra-disk"
+  count                 = "${var.glusternode_count}"
+  name_prefix           = "${var.cluster_prefix}-glusternode"
+  vm_size               = "${var.glusternode_vm_size}"
+  resource_group_name   = "${azurerm_resource_group.rg.name}"
+  boot_image_public     = "${var.boot_image_public}"
+  boot_image_private_id = "${data.null_data_source.boot_image_private_id_lookup.inputs.image_id}"
+  location              = "${var.location}"
 
   # SSH settings
   ssh_user = "${var.ssh_user}"

@@ -5,7 +5,6 @@
 <span class="badge-slack"><a href="https://kubenow-slackin.herokuapp.com" title="Invite yourself to our Slack team"><img src="https://kubenow-slackin.herokuapp.com/badge.svg" alt="Slackin button"/></a></span>
 <span class="badge-patreon"><a href="https://patreon.com/kubenow" title="Donate to this project using Patreon"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate button" /></a></span>
 
-
 KubeNow is a cloud agnostic platform for microservices, based on Docker and Kubernetes. Other than lighting-fast Kubernetes operations, KubeNow helps you in lifting your final application configuring DNS records and distributed storage. Once you have defined your application as a Helm package, lifting it is as simple as:
 
 ```bash

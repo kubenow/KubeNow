@@ -3,13 +3,13 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-host_cloud=$(grep -w "provider" config.tfvars |
-  cut -d "=" -f 2- |
-  awk -F\" '{print $(NF-1)}')
+# Read config file into variable as as json
+kn_config=$(json2hcl -reverse <config.tfvars)
 
-image_name=$(grep -w "boot_image" config.tfvars |
-  cut -d "=" -f 2- |
-  awk -F\" '{print $(NF-1)}')
+# Set variables from json-config
+host_cloud=$(jq -r '.provider' <<<"$kn_config")
+image_name=$(jq -r '.boot_image' <<<"$kn_config")
+skip_image_import=$(jq -r '.skip_image_import' <<<"$kn_config")
 
 # Check for recognized cloud provider
 if ! grep -qw "$host_cloud" <<<"openstack gce azure aws"; then
@@ -18,7 +18,7 @@ if ! grep -qw "$host_cloud" <<<"openstack gce azure aws"; then
 fi
 
 # Import image (AWS doesn't need it)
-if [ "$host_cloud" = 'openstack' ] || [ "$host_cloud" = 'gce' ] || [ "$host_cloud" = 'azure' ]; then
+if [[ "$skip_image_import" != "true" ]] && [[ "$host_cloud" != 'aws' ]]; then
   export KN_GCE_ACCOUNT_FILE_PATH="$PWD/service-account.json"
   export TF_VARS_FILE="$PWD/config.tfvars"
   export KN_IMAGE_NAME="$image_name"
