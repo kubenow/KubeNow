@@ -1,7 +1,9 @@
 [master]
 ${masters}
+
 [edge]
 ${edges}
+
 [all:vars]
 nodes_count=${nodes_count}
 domain=${domain}
