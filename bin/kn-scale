@@ -56,7 +56,8 @@ if ! grep -qw "$host_cloud" <<<"openstack gce azure aws kvm"; then
   exit 1
 fi
 
-# get the planned changes and save them into the file terraform.plan shellcheck disable=SC2086
+# get the planned changes and save them into the file terraform.plan
+# shellcheck disable=SC2086
 terraform plan $TERRAFORM_OPT -out terraform.plan -var-file=config.tfvars "/KubeNow_root/$host_cloud" &>/dev/null
 
 # get lines that contains objects to be destroyed from the terraform plan output-file
