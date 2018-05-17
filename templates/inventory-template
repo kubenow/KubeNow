@@ -4,9 +4,13 @@ ${masters}
 [edge]
 ${edges}
 
+[nodes:vars]
+ansible_ssh_common_args: '-i {{ ssh_key }} -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p -q ubuntu@{{ master_ip }} -i {{ ssh_key }}"'
+
 [all:vars]
 nodes_count=${nodes_count}
 domain=${domain}
 extra_disk_device=${gluster_extra_disk_dev}
 glusternode_count=${glusternode_count}
 gluster_volumetype=${gluster_volumetype}
+
