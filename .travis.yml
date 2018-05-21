@@ -144,10 +144,8 @@ script:
   - kn kubectl get nodes # try to list nodes
   - kn helm list # try to helm list
   - kn ssh master 'uname && exit' # ssh to master and execute commands
-
-  - sed -i -e "s/node_count = \"3\"/node_count = \"2\"/g" config.tfvars
-  - kn scale
-
+  - sed -i -e "s/node_count = \"3\"/node_count = \"2\"/g" config.tfvars # test scaling function
+  - kn scale 
 
 after_script:
   - export TERRAFORM_OPT="-force" && travis_retry kn destroy
