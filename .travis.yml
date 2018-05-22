@@ -143,9 +143,13 @@ script:
   - kn ansible-playbook /opt/KubeNow/playbooks/infra-test.yml
   - kn kubectl get nodes # try to list nodes
   - kn helm list # try to helm list
+  - kn helm del --purge cheese # in order to allow other test later
   - kn ssh master 'uname && exit' # ssh to master and execute commands
   - sed -i -e "s/node_count = \"3\"/node_count = \"2\"/g" config.tfvars # test scaling function
-  - kn scale 
+  - kn scale
+  # Making sure cluster is ok after kn scale
+  - kn kubectl get nodes # try to list nodes
+  - kn ansible-playbook /opt/KubeNow/playbooks/infra-test.yml
 
 after_script:
   - export TERRAFORM_OPT="-force" && travis_retry kn destroy
