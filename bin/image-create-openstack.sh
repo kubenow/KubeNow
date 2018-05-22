@@ -85,7 +85,7 @@ while [[ $status != "active" && $wait_time -lt $max_wait ]]; do
   # allow for image to be ready
   sleep $sleep_time
   wait_time=$((wait_time + sleep_time))
-  
+
   # get image id from image-name
   image_list="$(glance image-list)"
   image_id="$(printf '%s' "$image_list" |
