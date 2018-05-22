@@ -60,7 +60,7 @@ You can support KubeNow throug [Patreon](https://patreon.com/kubenow), more info
 ### Core
 - [x] Kubernetes
 - [ ] High Availability
-- [ ] Scaling (it lacks documentation, but it should work)
+- [x] Scaling
 - [ ] Autoscaling
 - [ ] Dashboard
 
