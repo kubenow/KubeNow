@@ -86,6 +86,13 @@ while [[ $status != "active" && $wait_time -lt $max_wait ]]; do
   sleep $sleep_time
   wait_time=$((wait_time + sleep_time))
 
+  # get image id from image-name
+  image_list="$(glance image-list)"
+  image_id="$(printf '%s' "$image_list" |
+    grep "\s$KN_IMAGE_NAME\s" |
+    awk -F "|" '{print $2;}' |
+    tr -d '[:space:]')"
+
   # get status of image
   image_details="$(glance image-show "$image_id")"
   status="$(printf '%s' "$image_details" |
