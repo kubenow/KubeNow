@@ -3,7 +3,7 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-echo "Inside kn-provision"
+echo "Executing provisioners"
 
 # Read config file into variable as as json
 kn_config=$(json2hcl -reverse <config.tfvars)
@@ -21,7 +21,6 @@ for action_base64 in $actions; do
   type=$(echo "$action" | jq -r '.type')
   case "$type" in
   ansible-playbook)
-    echo "Inside kn-provision ansible-playbook"
     playbook=$(echo "$action" | jq -r '.playbook')
     extra_vars=$(echo "$action" | jq -r --compact-output 'select(.extra_vars != null) | .extra_vars[]')
 
@@ -35,12 +34,17 @@ for action_base64 in $actions; do
     echo "Inside kn-provision local-exec"
     command=$(echo "$action" | jq -r '.command')
 
-    echo "Exec command: $command"
+    echo "Applying exec command: $command"
 
     # execute command
     $command
     echo "Done with local-exec"
     ;;
+  *)
+    echo "Error: Unknown action-type in provisioner-block: $type" >&2
+    echo "Exiting"
+    exit 1
+  ;;
 
   esac
 done
