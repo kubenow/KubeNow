@@ -40,12 +40,16 @@ for action_base64 in $actions; do
     $command
     echo "Done with local-exec"
     ;;
+  "")
+    echo "Error: No action-type specified in provisioner-block" >&2
+    echo "Exiting"
+    exit 1
+    ;;
   *)
     echo "Error: Unknown action-type in provisioner-block: $type" >&2
     echo "Exiting"
     exit 1
-  ;;
-
+    ;;
   esac
 done
 
