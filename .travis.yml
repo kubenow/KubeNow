@@ -10,7 +10,6 @@ branches:
   except:
     - /^experimental\/.*$/
     - /^exp\/.*$/
-    - /^development\/.*$/
     - /^dev\/.*$/
     - /^testing\/.*$/
     - /^test\/.*$/
