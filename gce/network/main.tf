@@ -21,6 +21,7 @@ resource "google_compute_firewall" "kn-firewall-external" {
 
     ports = [
       "22",  # SSH
+      "44",  # Galaxy sftp
       "80",  # HTTP
       "443",
     ] # HTTPS
