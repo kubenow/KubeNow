@@ -372,7 +372,7 @@ terraform | ansible | ansible-playbook | voms-config | voms-create-token)
   ;;
 
 # KubeNow-defined commands that do no need PWD validation
-kubetoken | openstack)
+kubetoken)
   # shellcheck disable=SC2068
   docker_run "$KN_PROVISIONERS_IMG" "$PWD" "kn-$subcommand" ${@:2}
   ;;
