@@ -14,6 +14,10 @@ if [ -n "$KN_PLUGIN_REPO" ]; then
   echo "Clone plugin repo done"
 fi
 
+if [ -n "$KN_PLUGIN_REPO_BRANCH" ]; then
+  git -C "/opt/KubeNow/plugins/$KN_PLUGIN_NAME" checkout "$KN_PLUGIN_REPO_BRANCH"
+fi
+
 # Set template dir name
 if [ -n "$KN_PLUGIN_NAME" ]; then
   echo "Using plugin configuration: $KN_PLUGIN_NAME"
