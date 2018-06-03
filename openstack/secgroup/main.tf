@@ -14,7 +14,7 @@ resource "openstack_compute_secgroup_v2" "created" {
     cidr        = "0.0.0.0/0"
   }
 
-    rule {
+  rule {
     from_port   = 44
     to_port     = 44
     ip_protocol = "tcp"
