@@ -226,11 +226,13 @@ function set_preset() {
     tag="${kubenow_version/\//-}"
     export KN_PLUGIN_REPO="https://github.com/phnmnl/KubeNow-plugin.git"
     export KN_PLUGIN_NAME="phnmnl/KubeNow-plugin"
+    export KN_PLUGIN_REPO_BRANCH="master"
     ;;
   plain)
     tag="${kubenow_version/\//-}"
     export KN_PLUGIN_REPO="https://github.com/KubeNow/plugin-plain.git"
     export KN_PLUGIN_NAME="KubeNow/plugin-plain"
+    export KN_PLUGIN_REPO_BRANCH="master"
     ;;
   openrisknet | orn) ;;
 
