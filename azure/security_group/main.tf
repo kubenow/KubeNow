@@ -21,6 +21,19 @@ resource "azurerm_network_security_group" "main" {
   }
 
   security_rule {
+    name                       = "allow_SSH_44_all"
+    description                = "Allow SFTP on port from all locations"
+    priority                   = 150
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "44"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
     name                       = "allow_HTTP_80_all"
     description                = "Allow HTTP connections from all locations"
     priority                   = 200

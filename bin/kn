@@ -226,11 +226,13 @@ function set_preset() {
     tag="${kubenow_version/\//-}"
     export KN_PLUGIN_REPO="https://github.com/phnmnl/KubeNow-plugin.git"
     export KN_PLUGIN_NAME="phnmnl/KubeNow-plugin"
+    export KN_PLUGIN_REPO_BRANCH="master"
     ;;
   plain)
     tag="${kubenow_version/\//-}"
     export KN_PLUGIN_REPO="https://github.com/KubeNow/plugin-plain.git"
     export KN_PLUGIN_NAME="KubeNow/plugin-plain"
+    export KN_PLUGIN_REPO_BRANCH="master"
     ;;
   openrisknet | orn) ;;
 
@@ -275,6 +277,12 @@ while [[ "$1" == -* ]]; do
     plugin_repo_name="${plugin_repo#*/}"
     export KN_PLUGIN_NAME="$plugin_repo_name"
     export KN_PLUGIN_REPO="https://github.com/$plugin_repo.git"
+    shift # past option
+    shift # past value
+    ;;
+
+  -rb | --plugin-repo-branch)
+    export KN_PLUGIN_REPO_BRANCH="$2"
     shift # past option
     shift # past value
     ;;
@@ -364,7 +372,7 @@ terraform | ansible | ansible-playbook | voms-config | voms-create-token)
   ;;
 
 # KubeNow-defined commands that do no need PWD validation
-kubetoken | openstack)
+kubetoken)
   # shellcheck disable=SC2068
   docker_run "$KN_PROVISIONERS_IMG" "$PWD" "kn-$subcommand" ${@:2}
   ;;

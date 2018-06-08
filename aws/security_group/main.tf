@@ -14,6 +14,13 @@ resource "aws_security_group" "main" {
   }
 
   ingress {
+    from_port   = 44            # Galaxy Sftp
+    to_port     = 44
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
     from_port   = 80            # HTTP
     to_port     = 80
     protocol    = "tcp"
