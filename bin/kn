@@ -61,6 +61,16 @@ CLOUD=<gce|aws|openstack|azure>
 EOF
 }
 
+function read_provisioner_image_var() {
+  # Get var from tfvars-file
+  if [ -f config.tfvars ]; then
+    KN_PROVISIONERS_IMG=$(grep "^provisioner_image" "config.tfvars" |
+      cut -d "=" -f 2- |
+      awk -F\" '{print $(NF-1)}')
+    export KN_PROVISIONERS_IMG
+  fi
+}
+
 function docker_run() {
   # parameters
   container=$1
