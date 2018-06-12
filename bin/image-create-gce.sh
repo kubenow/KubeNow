@@ -31,7 +31,7 @@ gcloud config set project "$project_id"
 
 echo "Check if image exists already"
 image_status="$(gcloud compute images list)"
-existing_image=$(echo "$image_status" | grep "\b$KN_IMAGE_NAME\s" || true)
+existing_image=$(echo "$image_status" | grep "\\b$KN_IMAGE_NAME\\s" || true)
 if [ -z "$existing_image" ]; then
 
   echo "Image does not exist in this account"
@@ -55,14 +55,14 @@ if [ -z "$existing_image" ]; then
     min=$((SECONDS/60 % 60))
     hrs=$((SECONDS/60/60))
     i=$(((i + 1) % 4))
-    printf "\r%s Creating image (usually takes 3-10min) time elapsed: %d:%02d:%02d" \
+    printf '\r%s Creating image (usually takes 3-10min) time elapsed: %d:%02d:%02d' \
       "${spin_char:$i:1}" "$hrs" "$min" "$sec"
     sleep .3
   done
 
   # print output from background job
   result=$(cat <&3)
-  printf "\n%s\n" "$result"
+  printf '\n%s\n' "$result"
 
 else
   echo "Image exists - no need to create"
