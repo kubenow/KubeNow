@@ -31,7 +31,6 @@ for action_base64 in $actions; do
     ;;
 
   local-exec)
-    echo "Inside kn-provision local-exec"
     command=$(echo "$action" | jq -r '.command')
 
     echo "Applying exec command: $command"
