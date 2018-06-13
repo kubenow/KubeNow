@@ -9,11 +9,8 @@ kn_config=$(json2hcl -reverse <config.tfvars)
 # Set variables from json-config
 host_cloud=$(jq -r '.provider' <<<"$kn_config")
 image_name=$(jq -r '.boot_image' <<<"$kn_config")
+disc_format=$(jq -r '.disc_format' <<<"$kn_config")
 skip_image_import=$(jq -r '.skip_image_import' <<<"$kn_config")
-
-disc_format=$(grep -w "disc_format" config.tfvars |
-  cut -d "=" -f 2- |
-  awk -F\" '{print $(NF-1)}')
 
 # Check for recognized cloud provider
 if ! grep -qw "$host_cloud" <<<"openstack gce azure aws"; then
