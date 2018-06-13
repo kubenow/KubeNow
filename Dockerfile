@@ -37,6 +37,7 @@ RUN apt-get update -y && \
       libffi-dev \
       openssl \
       python-pip \
+      qemu-utils \
       unzip && \
     `# Add google cloud` \
     echo "deb http://packages.cloud.google.com/apt cloud-sdk-xenial main" \

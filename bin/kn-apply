@@ -11,6 +11,10 @@ host_cloud=$(jq -r '.provider' <<<"$kn_config")
 image_name=$(jq -r '.boot_image' <<<"$kn_config")
 skip_image_import=$(jq -r '.skip_image_import' <<<"$kn_config")
 
+disc_format=$(grep -w "disc_format" config.tfvars |
+  cut -d "=" -f 2- |
+  awk -F\" '{print $(NF-1)}')
+
 # Check for recognized cloud provider
 if ! grep -qw "$host_cloud" <<<"openstack gce azure aws"; then
   echo >&2 "Error: unrecognized host cloud '$host_cloud' in config file config.tfvars"
@@ -22,6 +26,7 @@ if [[ "$skip_image_import" != "true" ]] && [[ "$host_cloud" != 'aws' ]]; then
   export KN_GCE_ACCOUNT_FILE_PATH="$PWD/service-account.json"
   export TF_VARS_FILE="$PWD/config.tfvars"
   export KN_IMAGE_NAME="$image_name"
+  export KN_DISC_FORMAT="$disc_format"
   /KubeNow_root/bin/image-create-"$host_cloud".sh
 fi
 
