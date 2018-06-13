@@ -58,8 +58,8 @@ before_install:
   # skip ANSIBLE0012: missing change_when on command/shell etc.
   - ansible-lint -x ANSIBLE0006,ANSIBLE0012 playbooks/*.yml
   # check Shell
-  - docker run -v "$(pwd)":/mnt koalaman/shellcheck:stable bootstrap/*
-  - docker run -v "$(pwd)":/mnt koalaman/shellcheck:stable bin/*
+  - docker run -v "$(pwd)":/mnt koalaman/shellcheck:v0.5.0 bootstrap/*
+  - docker run -v "$(pwd)":/mnt koalaman/shellcheck:v0.5.0 bin/*
   - docker run -v "$(pwd)":/sh -w /sh jamesmstone/shfmt -i 2 -w bin/*
   - docker run -v "$(pwd)":/sh -w /sh jamesmstone/shfmt -i 2 -w bootstrap/*
   - git diff --exit-code

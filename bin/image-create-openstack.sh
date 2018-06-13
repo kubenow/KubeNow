@@ -26,7 +26,7 @@ file_name="$KN_IMAGE_NAME.qcow2"
 echo "List images available in OpenStack..."
 image_list="$(glance image-list)"
 image_id="$(printf '%s' "$image_list" |
-  grep "\s$KN_IMAGE_NAME\s" |
+  grep "\\s$KN_IMAGE_NAME\\s" |
   awk -F "|" '{print $2;}' |
   tr -d '[:space:]')"
 
@@ -86,6 +86,13 @@ while [[ $status != "active" && $wait_time -lt $max_wait ]]; do
   sleep $sleep_time
   wait_time=$((wait_time + sleep_time))
 
+  # get image id from image-name
+  image_list="$(glance image-list)"
+  image_id="$(printf '%s' "$image_list" |
+    grep "\\s$KN_IMAGE_NAME\\s" |
+    awk -F "|" '{print $2;}' |
+    tr -d '[:space:]')"
+
   # get status of image
   image_details="$(glance image-show "$image_id")"
   status="$(printf '%s' "$image_details" |
@@ -99,7 +106,7 @@ echo "Verify md5 of present/uploaded image..."
 echo "List images available in OpenStack..."
 image_list="$(glance image-list)"
 image_id="$(printf '%s' "$image_list" |
-  grep "\s$KN_IMAGE_NAME\s" |
+  grep "\\s$KN_IMAGE_NAME\\s" |
   awk -F "|" '{print $2;}' |
   tr -d '[:space:]')"
 
