@@ -31,5 +31,5 @@ terraform init --plugin-dir=/terraform_plugins "/KubeNow_root/$host_cloud"
 # shellcheck disable=SC2086
 terraform apply $TERRAFORM_OPT -var-file=config.tfvars "/KubeNow_root/$host_cloud"
 
-# shellcheck disable=SC2086
-ansible-playbook $ANSIBLE_OPT "/KubeNow_root/playbooks/install-core.yml"
+# Provision
+/KubeNow_root/bin/kn-provision

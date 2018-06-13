@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+echo "Executing provisioners"
+
+# Read config file into variable as as json
+kn_config=$(json2hcl -reverse <config.tfvars)
+
+# Read the provision list from the kn_config
+provision=$(echo "$kn_config" | jq -r --compact-output 'select(.provision != null) | .provision[]')
+
+# The --compact-output creates one json-object per line from array of provision-actions
+# Convert to base64 to preserve whitespace and citations in bash loop
+# Execute actions (ansible or local-exec) with supplied variables/parameters
+actions=$(echo "$provision" | jq -r --compact-output '.action[]? | @base64')
+for action_base64 in $actions; do
+  action=$(base64 --decode <<<"$action_base64")
+
+  type=$(echo "$action" | jq -r '.type')
+  case "$type" in
+  ansible-playbook)
+    playbook=$(echo "$action" | jq -r '.playbook')
+    extra_vars=$(echo "$action" | jq -r --compact-output 'select(.extra_vars != null) | .extra_vars[]')
+
+    echo "Applying playbook $playbook"
+    # shellcheck disable=SC2086
+    ansible-playbook $ANSIBLE_OPT -e "$extra_vars" "/KubeNow_root/$playbook"
+    echo "Done with ansible-playbook: $playbook"
+    ;;
+
+  local-exec)
+    command=$(echo "$action" | jq -r '.command')
+
+    echo "Applying exec command: $command"
+
+    # execute command
+    $command
+    echo "Done with local-exec"
+    ;;
+  "")
+    echo "Error: No action-type specified in provisioner-block" >&2
+    echo "Exiting"
+    exit 1
+    ;;
+  *)
+    echo "Error: Unknown action-type in provisioner-block: $type" >&2
+    echo "Exiting"
+    exit 1
+    ;;
+  esac
+done
+
+echo "Done with kn-provision"
