@@ -7,57 +7,5 @@
 set -e
 
 #
-# Description
+# Create checks here :-)
 #
-function check_password() {
-  # parameters
-  password_name="$1"
-  password="$2"
-
-  if [[ -n "$password" ]]; then
-    output="$(cracklib-check <<<"$password")"
-    # Get text after last ': '
-    result=${output##*': '}
-    if [[ "$result" != "OK" ]]; then
-      echo "Error: The $password_name in your config file is considered to weak: $result" >&2
-      exit 1
-    fi
-  fi
-}
-
-config_file="$1"
-
-# Read config file into variable as as json
-kn_config=$(json2hcl -reverse <"$config_file")
-
-# Set variables from json-config
-provider=$(jq -r '.provider' <<<"$kn_config")
-
-# Make sure that essential config are in place
-if [[ "$provider" == "openstack" ]]; then
-  if [[ -z "$OS_USERNAME" && -z "$OS_AUTH_TYPE" ]]; then
-    echo "Error: Could not read OS_USERNAME in environment" >&2
-    echo "- Did you forget to source your credentials-file?" >&2
-    echo "e.g: source /path/to/credentials.rc" >&2
-    echo >&2
-    echo "- Or if you want to run on EGI Federated Cloud..." >&2
-    echo "- Did you forget to ...." >&2
-    exit 1
-  fi
-fi
-
-#
-# check passwords strength
-#
-
-# select all dashboard_password keys in config
-dash_passw=$(echo "$kn_config" | jq -r '..|.dashboard_password? | select (.!=null)')
-check_password "dashboard_password" "$dash_passw"
-
-# select all galaxy_admin_password keys in config
-galaxy_adm_passw=$(echo "$kn_config" | jq -r '..|.galaxy_admin_password? | select (.!=null)')
-check_password "galaxy_admin_password" "$galaxy_adm_passw"
-
-# select all jupyter_password keys in config
-jupyter_passw=$(echo "$kn_config" | jq -r '..|.jupyter_password? | select (.!=null)')
-check_password "jupyter_password" "$jupyter_passw"

@@ -3,12 +3,6 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-# Run preflight-check
-/KubeNow_root/bin/preflight-check config.tfvars
-
-# Run pre-apply hook
-/KubeNow_root/bin/pre-apply
-
 # Read config file into variable as as json
 kn_config=$(json2hcl -reverse <config.tfvars)
 
@@ -16,6 +10,12 @@ kn_config=$(json2hcl -reverse <config.tfvars)
 host_cloud=$(jq -r '.provider' <<<"$kn_config")
 image_name=$(jq -r '.boot_image' <<<"$kn_config")
 skip_image_import=$(jq -r '.skip_image_import' <<<"$kn_config")
+
+# Run preflight-check
+preflight_script=$(jq -r '.preflight_script' <<<"$kn_config")
+if [ -z "$preflight_script" ]; then
+  "$preflight_script" config.tfvars
+fi
 
 # Check for recognized cloud provider
 if ! grep -qw "$host_cloud" <<<"openstack gce azure aws kvm"; then
