@@ -186,8 +186,8 @@ function upgrade() {
   echo "Download new version to /tmp"
   tmpfile=$(mktemp)
   curl -f "$url" -o "$tmpfile" || (
-    echo -e "\nError trying to download file $url" >&2
-    echo -e "Are you sure \"$version\" is an available version?\n" >&2
+    echo -e "\\nError trying to download file $url" >&2
+    echo -e "Are you sure \"$version\" is an available version?\\n" >&2
     exit 1
   )
 
@@ -195,14 +195,14 @@ function upgrade() {
   echo "Verify downloaded file"
   chmod +x "$tmpfile"
   "$tmpfile" help >/dev/null 2>&1 || (
-    echo -e "\nCould not verify functionality of downloaded kn script - skipping upgrade\n" >&2
+    echo -e "\\nCould not verify functionality of downloaded kn script - skipping upgrade\\n" >&2
     exit 1
   )
 
   # Copy new file over old (preserves file attr from original file)
   echo "Replace file $absolute_file with downloaded"
   rsync --no-perms --no-owner --no-group "$tmpfile" "$absolute_file" || (
-    echo -e "\nError replacing file: $absolute_file - do you have sudo rights?\n" >&2
+    echo -e "\\nError replacing file: $absolute_file - do you have sudo rights?\\n" >&2
     exit 1
   )
 
@@ -213,7 +213,7 @@ function upgrade() {
 
   docker pull "$KN_PROVISIONERS_IMG"
 
-  echo -e "\nUpdated ok to version $KN_PROVISIONERS_IMG\n"
+  echo -e "\\nUpdated ok to version $KN_PROVISIONERS_IMG\\n"
 }
 
 function set_preset() {
