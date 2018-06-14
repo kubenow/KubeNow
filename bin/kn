@@ -113,7 +113,7 @@ function set_preset() {
   # parameters
   preset="$1"
   echo "Setting preset: $preset"
-  source ./presets "$preset"
+  source bin/presets "$preset"
 }
 
 ###########
