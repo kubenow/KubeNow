@@ -113,29 +113,7 @@ function set_preset() {
   # parameters
   preset="$1"
   echo "Setting preset: $preset"
-
-  case $preset in
-  phenomenal | pheno | phnmnl)
-    tag="${kubenow_version/\//-}"
-    export KN_PLUGIN_REPO="https://github.com/phnmnl/KubeNow-plugin.git"
-    export KN_PLUGIN_NAME="phnmnl/KubeNow-plugin"
-    export KN_PLUGIN_REPO_BRANCH="master"
-    ;;
-  plain)
-    tag="${kubenow_version/\//-}"
-    export KN_PLUGIN_REPO="https://github.com/KubeNow/plugin-plain.git"
-    export KN_PLUGIN_NAME="KubeNow/plugin-plain"
-    export KN_PLUGIN_REPO_BRANCH="master"
-    ;;
-  openrisknet | orn) ;;
-
-  *)
-
-    echo "unrecognized preset $preset" >&2
-    usage
-    exit 1
-    ;;
-  esac
+  source ./presets "$preset"
 }
 
 ###########
