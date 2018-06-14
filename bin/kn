@@ -47,6 +47,7 @@ developers:
 
 Options:
   -i, --docker-image <image>    specifies the provisioners docker image to be used.
+  -p, --preset <plugin>         specifies a preset plugin to be used
   KN_PROVISIONERS_IMG           Default: kubenow/provisioners:$kubenow_version
 
 EOF
@@ -108,6 +109,35 @@ function validate_pwd() {
   fi
 }
 
+function set_preset() {
+  # parameters
+  preset="$1"
+  echo "Setting preset: $preset"
+
+  case $preset in
+  phenomenal | pheno | phnmnl)
+    tag="${kubenow_version/\//-}"
+    export KN_PLUGIN_REPO="https://github.com/phnmnl/KubeNow-plugin.git"
+    export KN_PLUGIN_NAME="phnmnl/KubeNow-plugin"
+    export KN_PLUGIN_REPO_BRANCH="master"
+    ;;
+  plain)
+    tag="${kubenow_version/\//-}"
+    export KN_PLUGIN_REPO="https://github.com/KubeNow/plugin-plain.git"
+    export KN_PLUGIN_NAME="KubeNow/plugin-plain"
+    export KN_PLUGIN_REPO_BRANCH="master"
+    ;;
+  openrisknet | orn) ;;
+
+  *)
+
+    echo "unrecognized preset $preset" >&2
+    usage
+    exit 1
+    ;;
+  esac
+}
+
 ###########
 # Options #
 ###########
@@ -128,6 +158,28 @@ while [[ "$1" == -* ]]; do
     shift # past option
     shift # past value
     ;;
+
+  -p | --preset)
+    set_preset "$2"
+    shift # past option
+    shift # past value
+    ;;
+
+  -r | --plugin-repo)
+    plugin_repo="$2"
+    plugin_repo_name="${plugin_repo#*/}"
+    export KN_PLUGIN_NAME="$plugin_repo_name"
+    export KN_PLUGIN_REPO="https://github.com/$plugin_repo.git"
+    shift # past option
+    shift # past value
+    ;;
+
+  -rb | --plugin-repo-branch)
+    export KN_PLUGIN_REPO_BRANCH="$2"
+    shift # past option
+    shift # past value
+    ;;
+
   *)
     echo "unrecognized option $1" >&2
     usage
@@ -177,13 +229,14 @@ init)
     usage_init
     exit 1
   fi
+
   # Init deployment
   mkdir -p "$init_dir"
   docker_run "$KN_PROVISIONERS_IMG" "$init_dir" "kn-init" "$host_cloud"
   ;;
 
 # Commands that do not need PWD validation
-az | openstack | gcloud | bash)
+az | openstack | gcloud | bash | git)
   # shellcheck disable=SC2068
   docker_run "$KN_PROVISIONERS_IMG" "$PWD" "$subcommand" ${@:2}
   ;;
