@@ -3,9 +3,6 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-# Run pre-destroy hook
-/KubeNow_root/bin/pre-destroy
-
 # Read config file into variable as as json
 kn_config=$(json2hcl -reverse <config.tfvars)
 
