@@ -32,6 +32,11 @@ systemctl restart kubelet
 echo "Modprobe dm_thin_pool..."
 modprobe dm_thin_pool
 
+# make sure swap is off
+sudo swapoff -a
+# make sure any line with swap is removed from fstab
+sudo sed -i '/swap/d' /etc/fstab
+
 # Execute kubeadm init vs. kubeadm join depending on node type
 if [[ "$node_labels" == *"role=master"* ]]; then
   echo "Inititializing the master...."
