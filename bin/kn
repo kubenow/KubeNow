@@ -61,13 +61,23 @@ CLOUD=<gce|aws|openstack|azure>
 EOF
 }
 
+function read_provisioner_image_var() {
+  # Get var from tfvars-file
+  if [ -f config.tfvars ]; then
+    KN_PROVISIONERS_IMG=$(grep "^provisioner_image" "config.tfvars" |
+      cut -d "=" -f 2- |
+      awk -F\" '{print $(NF-1)}')
+    export KN_PROVISIONERS_IMG
+  fi
+}
+
 function docker_run() {
   # parameters
   container=$1
   kubenow_root=$2
   # shellcheck disable=SC2068
   docker run --rm -it \
-    -v "$kubenow_root":/KubeNow_root \
+    -v "$kubenow_root":/KubeNow_root:Z \
     -e "LOCAL_USER_ID=$UID" \
     -e "LOCAL_GROUP_IDS=$(id -G)" \
     -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
@@ -104,7 +114,8 @@ function validate_pwd() {
 
 # Set defaults if not specified in the environment
 if [ -z "$KN_PROVISIONERS_IMG" ]; then
-  KN_PROVISIONERS_IMG="kubenow/provisioners:$kubenow_version"
+  tag="${kubenow_version/\//-}"
+  export KN_PROVISIONERS_IMG="kubenow/provisioners:$tag"
 fi
 
 # While current command starts with "-" parse options
@@ -113,8 +124,8 @@ while [[ "$1" == -* ]]; do
   option="$1"
   case $option in
   -i | --docker-image)
-    KN_PROVISIONERS_IMG="$2"
-    shift # past argument
+    export KN_PROVISIONERS_IMG="$2"
+    shift # past option
     shift # past value
     ;;
   *)
@@ -124,6 +135,8 @@ while [[ "$1" == -* ]]; do
     ;;
   esac
 done
+
+echo "Using provisioner version: $KN_PROVISIONERS_IMG"
 
 ###############
 # Subcommands #
@@ -156,7 +169,7 @@ init)
     usage_init
     exit 1
   fi
-  # Parts INIT_DIR
+  # Parse INIT_DIR
   # shellcheck disable=SC2086,SC2046
   init_dir=$(cd $(dirname $3) && echo $PWD/$(basename $3))
   if [ -f "$init_dir" ] || [ -d "$init_dir" ]; then
@@ -191,6 +204,9 @@ kubetoken)
 # KubeNow-defined commands that need PWD validation
 apply | destroy | provision | scale | kubectl | helm | ssh)
   validate_pwd
+  # get provisioner image from tfvar-file
+  read_provisioner_image_var
+  echo "Using provisioner version: $KN_PROVISIONERS_IMG"
   # shellcheck disable=SC2068
   docker_run "$KN_PROVISIONERS_IMG" "$PWD" "kn-$subcommand" ${@:2}
   ;;
