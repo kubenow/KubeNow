@@ -11,7 +11,7 @@ host_cloud=$(jq -r '.provider' <<<"$kn_config")
 image_name=$(jq -r '.boot_image' <<<"$kn_config")
 skip_image_import=$(jq -r '.skip_image_import' <<<"$kn_config")
 
-# Run preflight-check
+# Run preflight-check if file is specified
 preflight_script=$(jq -r '.preflight_script' <<<"$kn_config")
 if [ -z "$preflight_script" ]; then
   "$preflight_script" config.tfvars

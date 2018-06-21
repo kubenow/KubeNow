@@ -46,8 +46,12 @@ developers:
   kubetoken              generate and print a kubeadm token
 
 Options:
-  -i, --docker-image <image>    specifies the provisioners docker image to be used.
-  -p, --preset <plugin>         specifies a preset plugin to be used
+  -i,  --docker-image <image>   specifies the provisioners docker image to be used.
+  -p,  --preset <plugin>        specifies a preset plugin to be used
+  -r,  --plugin-repo            specifies a plugin repo (e.g. https://github.com/KubeNow/plugin-plain.git)
+  -rb, --plugin-repo-branch     specifies a branch on plugin-repo
+
+Environment:
   KN_PROVISIONERS_IMG           Default: kubenow/provisioners:$kubenow_version
 
 EOF
