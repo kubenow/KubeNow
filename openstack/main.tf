@@ -52,6 +52,10 @@ variable master_flavor_id {
   default = ""
 }
 
+variable master_assign_floating_ip {
+  default = "true"
+}
+
 variable master_as_edge {
   default = "true"
 }
@@ -69,6 +73,10 @@ variable node_flavor_id {
   default = ""
 }
 
+variable node_assign_floating_ip {
+  default = "false"
+}
+
 # Edges settings
 variable edge_count {
   default = 0
@@ -82,6 +90,10 @@ variable edge_flavor_id {
   default = ""
 }
 
+variable edge_assign_floating_ip {
+  default = "false"
+}
+
 # Glusternode settings
 variable glusternode_count {
   default = 0
@@ -93,6 +105,10 @@ variable glusternode_flavor {
 
 variable glusternode_flavor_id {
   default = ""
+}
+
+variable glusternode_assign_floating_ip {
+  default = "false"
 }
 
 variable glusternode_extra_disk_size {
@@ -175,7 +191,7 @@ module "master" {
   # Network settings
   network_name       = "${module.network.network_name}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
-  assign_floating_ip = "true"
+  assign_floating_ip = "${var.master_assign_floating_ip}"
   floating_ip_pool   = "${var.floating_ip_pool}"
 
   # Disk settings
@@ -205,7 +221,7 @@ module "node" {
   # Network settings
   network_name       = "${module.network.network_name}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
-  assign_floating_ip = "false"
+  assign_floating_ip = "${var.node_assign_floating_ip}"
   floating_ip_pool   = ""
 
   # Disk settings
@@ -235,7 +251,7 @@ module "edge" {
   # Network settings
   network_name       = "${module.network.network_name}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
-  assign_floating_ip = "true"
+  assign_floating_ip = "${var.edge_assign_floating_ip}"
   floating_ip_pool   = "${var.floating_ip_pool}"
 
   # Disk settings
@@ -266,7 +282,7 @@ module "glusternode" {
   network_name       = "${module.network.network_name}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "false"
-  floating_ip_pool   = "${var.floating_ip_pool}"
+  floating_ip_pool   = "${var.glusternode_assign_floating_ip}"
 
   # Disk settings
   extra_disk_size = "${var.glusternode_extra_disk_size}"
