@@ -207,12 +207,12 @@ function upload_image() {
 
   # Upload image
   echo "Starting upload of ${image_name}"
-  echo -e "\n"
+  echo ""
   echo "image source: ${upload_filepath}"
   echo "image name: ${image_name}"
   echo "image format: ${glance_disc_format}"
   echo "image size: ${image_size_number} GB"
-  echo -e "\n"
+  echo ""
   glance image-create \
     --file "${upload_filepath}" \
     --disk-format "${glance_disc_format}" \
@@ -225,7 +225,7 @@ function upload_image() {
   wait_for_image_activation "$image_name"
 
   echo "Verifying the uploaded image"
-  echo -e "\n"
+  echo ""
 
   post_image_upload_checks "${image_name}" "${glance_disc_format}" "${image_url}"
 }
@@ -286,14 +286,14 @@ function download_image() {
   local download_filepath="/tmp/${download_filename}"
 
   echo "Downloading image to local /tmp/"
-  echo -e "\n"
+  echo ""
   curl "${download_url}/${download_filename}" \
     -o "${download_filepath}" \
     --connect-timeout 30 \
     --max-time 1800
 
   echo "Verifying the md5 checksum of the downloaded image"
-  echo -e "\n"
+  echo ""
   verify_downloaded_image "${download_filename}" "${download_url}"
 }
 
@@ -311,7 +311,7 @@ function maybe_download_image() {
   else
     echo "${download_filename} is already downloaded"
     echo "Verifying the downloaded image checksum"
-    echo -e "\n"
+    echo ""
 
     verify_downloaded_image "${download_filename}" "${download_url}"
   fi
@@ -336,7 +336,7 @@ function maybe_convert_image() {
 
     echo "${download_filepath} has not yet been converted to the ${glance_disc_format} format"
     echo "Starting the image conversion from qcow2 to ${glance_disc_format}..."
-    echo -e "\n"
+    echo ""
 
     qemu-img convert -q -f qcow2 -O "${glance_disc_format}" "${download_filepath}" "${upload_filepath}"
 
