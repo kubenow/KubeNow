@@ -324,31 +324,23 @@ function maybe_convert_image() {
   local download_filename="${image_name}.qcow2"
   local download_filepath="/tmp/${image_name}.qcow2"
   local upload_filepath="/tmp/${image_name}.${glance_disc_format}"
-  local qemu_installed
   local is_image_downloaded_already
   is_image_downloaded_already=$(is_image_downloaded_already "${download_filepath}")
-  qemu_installed=$(which qemu-img)
 
   if [[ ! -e ${upload_filepath} ]]; then
-    if [[ "${qemu_installed}" == "" ]]; then
-      echo >&2 "qemu-utils package is missing - image cannot be converted"
-      echo >&2 "Please ensure that qemu-img is available."
+    if [[ "${is_image_downloaded_already}" == "false" ]]; then
+      echo >&2 "No file found at ${download_filepath}"
+      echo >&2 "Please ensure image has been downloaded"
       exit 1
-    else
-      if [[ "${is_image_downloaded_already}" == "false" ]]; then
-        echo >&2 "No file found at ${download_filepath}"
-        echo >&2 "Please ensure image has been downloaded"
-        exit 1
-      fi
-
-      echo "${download_filepath} has not yet been converted to the ${glance_disc_format} format"
-      echo "Starting the image conversion from qcow2 to ${glance_disc_format}..."
-      echo -e "\n"
-
-      qemu-img convert -q -f qcow2 -O "${glance_disc_format}" "${download_filepath}" "${upload_filepath}"
-
-      echo "${image_name}.qcow2 conversion to ${upload_filepath} complete"
     fi
+
+    echo "${download_filepath} has not yet been converted to the ${glance_disc_format} format"
+    echo "Starting the image conversion from qcow2 to ${glance_disc_format}..."
+    echo -e "\n"
+
+    qemu-img convert -q -f qcow2 -O "${glance_disc_format}" "${download_filepath}" "${upload_filepath}"
+
+    echo "${image_name}.qcow2 conversion to ${upload_filepath} complete"
   else
     echo "${upload_filepath} already exists and so does not require conversion"
   fi
