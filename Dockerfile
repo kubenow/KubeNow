@@ -38,6 +38,7 @@ RUN apt-get update -y && \
       openssl \
       python-pip \
       qemu-utils \
+      libcrack2 \
       unzip && \
     `# Add google cloud` \
     echo "deb http://packages.cloud.google.com/apt cloud-sdk-xenial main" \
