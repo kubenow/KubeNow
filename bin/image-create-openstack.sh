@@ -116,7 +116,7 @@ function is_image_already_uploaded() {
 }
 
 function wait_for_image_activation() {
-  local image_name=$1;
+  local image_name=$1
   local wait_time
   local max_wait
   local sleep_time
@@ -202,7 +202,7 @@ function upload_image() {
   image_size_number=${image_size::-1}
 
   if [[ "${glance_disc_format}" == "raw" ]]; then
-    min_disc=${image_size_number};
+    min_disc=${image_size_number}
   fi
 
   # Upload image
@@ -244,7 +244,7 @@ function verify_downloaded_image() {
   # Verify md5sum of downloaded file
   echo "Checking md5 sum"
   md5result=$(
-    cd /tmp || exit;
+    cd /tmp || exit
     md5sum -c "${download_filename}.md5"
   )
   if [[ "${md5result}" != *": OK"* ]]; then
@@ -297,7 +297,7 @@ function download_image() {
   verify_downloaded_image "${download_filename}" "${download_url}"
 }
 
-function maybe_download_image(){
+function maybe_download_image() {
   local image_name=$1
   local glance_disc_format=$2
   local download_url=$3
@@ -317,7 +317,7 @@ function maybe_download_image(){
   fi
 }
 
-function maybe_convert_image(){
+function maybe_convert_image() {
   local image_name=$1
   local glance_disc_format=$2
   local download_url=$3
@@ -389,6 +389,3 @@ fi
 main "${KN_IMAGE_NAME}" "${KN_GLANCE_DISC_FORMAT}" "${KN_IMAGE_BUCKET_URL}"
 
 echo "Finished script image-create-openstack"
-
-
-
