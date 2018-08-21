@@ -222,7 +222,7 @@ module "node" {
   network_name       = "${module.network.network_name}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "${var.node_assign_floating_ip}"
-  floating_ip_pool   = ""
+  floating_ip_pool   = "${var.floating_ip_pool}"
 
   # Disk settings
   extra_disk_size = "0"
