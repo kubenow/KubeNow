@@ -59,5 +59,5 @@ if [[ "$node_labels" == *"role=master"* ]]; then
 else
   echo "Try to join master..."
   # shellcheck disable=SC2154
-  kubeadm join --discovery-token-unsafe-skip-ca-verification --token "${kubeadm_token}" "${master_ip}:6443"
+  kubeadm join --discovery-token-unsafe-skip-ca-verification --ignore-preflight-errors=cri --token "${kubeadm_token}" "${master_ip}:6443"
 fi
