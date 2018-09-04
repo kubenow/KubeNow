@@ -281,8 +281,8 @@ module "glusternode" {
   # Network settings
   network_name       = "${module.network.network_name}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
-  assign_floating_ip = "false"
-  floating_ip_pool   = "${var.glusternode_assign_floating_ip}"
+  assign_floating_ip = "${var.glusternode_assign_floating_ip}"
+  floating_ip_pool   = "${var.floating_ip_pool}"
 
   # Disk settings
   extra_disk_size = "${var.glusternode_extra_disk_size}"
