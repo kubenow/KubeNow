@@ -6,7 +6,7 @@ set -e # exit at first error
 # Set version #
 ###############
 
-kubenow_version="phenomenal/development"
+provisioner_image="phenomenal/development"
 
 #############
 # Functions #
@@ -51,6 +51,7 @@ developers:
 
 Options:
   -i,  --docker-image <image>   specifies the provisioners docker image to be used.
+  -b,  --branch <branch>        specifies the KubeNow branch to use when initializing deployment
   -p,  --preset <plugin>        specifies a preset plugin to be used
   -r,  --plugin-repo            specifies a plugin repo (e.g. https://github.com/KubeNow/plugin-plain.git)
   -rb, --plugin-repo-branch     specifies a branch on plugin-repo
@@ -157,7 +158,7 @@ function resolve_links() {
 #
 function upgrade() {
   # version is first arg or otherwise default
-  version=${1:-$kubenow_version}
+  version=${1:-$provisioner_image}
   echo "upgrade version: $version"
   branch=""
   case "$version" in
@@ -224,13 +225,22 @@ function set_preset() {
 
   case $preset in
   phenomenal | pheno | phnmnl)
-    tag="${kubenow_version/\//-}"
+    tag="${provisioner_image/\//-}"
+    export KN_BRANCH="phenomenal/stable"
+    export KN_PLUGIN_REPO="https://github.com/phnmnl/KubeNow-plugin.git"
+    export KN_PLUGIN_NAME="phnmnl/KubeNow-plugin"
+    export KN_PLUGIN_REPO_BRANCH="master"
+    ;;
+  phenomenal-dev | pheno-dev | phnmnl-dev)
+    tag="${provisioner_image/\//-}"
+    export KN_BRANCH="phenomenal/development"
     export KN_PLUGIN_REPO="https://github.com/phnmnl/KubeNow-plugin.git"
     export KN_PLUGIN_NAME="phnmnl/KubeNow-plugin"
     export KN_PLUGIN_REPO_BRANCH="master"
     ;;
   plain)
-    tag="${kubenow_version/\//-}"
+    tag="${provisioner_image/\//-}"
+    export KN_BRANCH="phenomenal/stable"
     export KN_PLUGIN_REPO="https://github.com/KubeNow/plugin-plain.git"
     export KN_PLUGIN_NAME="KubeNow/plugin-plain"
     export KN_PLUGIN_REPO_BRANCH="master"
@@ -252,7 +262,7 @@ function set_preset() {
 
 # Set defaults if not specified in the environment
 if [ -z "$KN_PROVISIONERS_IMG" ]; then
-  tag="${kubenow_version/\//-}"
+  tag="${provisioner_image/\//-}"
   export KN_PROVISIONERS_IMG="kubenow/provisioners:$tag"
 fi
 
@@ -269,6 +279,12 @@ while [[ "$1" == -* ]]; do
 
   -p | --preset)
     set_preset "$2"
+    shift # past option
+    shift # past value
+    ;;
+
+  -b | --branch)
+    export KN_BRANCH="$2"
     shift # past option
     shift # past value
     ;;
@@ -310,7 +326,7 @@ help)
   ;;
 
 version)
-  echo "KubeNow version: $kubenow_version"
+  echo "KubeNow provisioner image version: $provisioner_image"
   exit
   ;;
 
