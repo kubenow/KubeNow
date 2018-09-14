@@ -2,11 +2,16 @@
 
 set -e # exit at first error
 
-###############
-# Set version #
-###############
-
-provisioner_image="phenomenal/development"
+##########################
+# Set version parameters #
+##########################
+kn_repo=${KN_REPO:"https://github.com/kubenow/KubeNow.git"}
+kn_branch=${KN_BRANCH:"phenomenal/stable"}
+kn_plugin_repo=${KN_PLUGIN_REPO:"https://github.com/phnmnl/KubeNow-plugin.git"}
+kn_plugin_name=${KN_PLUGIN_NAME:"phnmnl/KubeNow-plugin"}
+kn_plugin_repo_branch=${KN_PLUGIN_REPO_BRANCH:"master"}
+kn_provisioner_image=${KN_PROVISIONER_IMAGE:"kubenow/provisioners"}
+kn_provisioner_image_tag=${KN_PROVISIONER_IMAGE_TAG:"phenomenal-stable"}
 
 #############
 # Functions #
@@ -158,7 +163,7 @@ function resolve_links() {
 #
 function upgrade() {
   # version is first arg or otherwise default
-  version=${1:-$provisioner_image}
+  version=${1:-$kn_provisioner_image}
   echo "upgrade version: $version"
   branch=""
   case "$version" in
@@ -218,44 +223,6 @@ function upgrade() {
   echo -e "\\nUpdated ok to version $KN_PROVISIONERS_IMG\\n"
 }
 
-function set_preset() {
-  # parameters
-  preset="$1"
-  echo "Setting preset: $preset"
-
-  case $preset in
-  phenomenal | pheno | phnmnl)
-    tag="${provisioner_image/\//-}"
-    export KN_BRANCH="phenomenal/stable"
-    export KN_PLUGIN_REPO="https://github.com/phnmnl/KubeNow-plugin.git"
-    export KN_PLUGIN_NAME="phnmnl/KubeNow-plugin"
-    export KN_PLUGIN_REPO_BRANCH="master"
-    ;;
-  phenomenal-dev | pheno-dev | phnmnl-dev)
-    tag="${provisioner_image/\//-}"
-    export KN_BRANCH="phenomenal/development"
-    export KN_PLUGIN_REPO="https://github.com/phnmnl/KubeNow-plugin.git"
-    export KN_PLUGIN_NAME="phnmnl/KubeNow-plugin"
-    export KN_PLUGIN_REPO_BRANCH="master"
-    ;;
-  plain)
-    tag="${provisioner_image/\//-}"
-    export KN_BRANCH="phenomenal/stable"
-    export KN_PLUGIN_REPO="https://github.com/KubeNow/plugin-plain.git"
-    export KN_PLUGIN_NAME="KubeNow/plugin-plain"
-    export KN_PLUGIN_REPO_BRANCH="master"
-    ;;
-  openrisknet | orn) ;;
-
-  *)
-
-    echo "unrecognized preset $preset" >&2
-    usage
-    exit 1
-    ;;
-  esac
-}
-
 ###########
 # Options #
 ###########
@@ -271,35 +238,34 @@ fi
 while [[ "$1" == -* ]]; do
   option="$1"
   case $option in
-  -i | --docker-image)
-    export KN_PROVISIONERS_IMG="$2"
+  -p | --preset)
+    source preset "$2"
     shift # past option
     shift # past value
     ;;
-
-  -p | --preset)
-    set_preset "$2"
+    
+  -i | --docker-image)
+    kn_provisioners_img="$2"
     shift # past option
     shift # past value
     ;;
 
   -b | --branch)
-    export KN_BRANCH="$2"
+    kn_branch="$2"
     shift # past option
     shift # past value
     ;;
 
   -r | --plugin-repo)
-    plugin_repo="$2"
-    plugin_repo_name="${plugin_repo#*/}"
-    export KN_PLUGIN_NAME="$plugin_repo_name"
-    export KN_PLUGIN_REPO="https://github.com/$plugin_repo.git"
+    plugin_repo_short="$2"
+    kn_plugin_repo="https://github.com/$plugin_repo.git"
+    kn_plugin_name="${plugin_repo#*/}"
     shift # past option
     shift # past value
     ;;
 
   -rb | --plugin-repo-branch)
-    export KN_PLUGIN_REPO_BRANCH="$2"
+    kn_plugin_repo_branch="$2"
     shift # past option
     shift # past value
     ;;
@@ -311,6 +277,16 @@ while [[ "$1" == -* ]]; do
     ;;
   esac
 done
+
+# Export settings (so that they are included in provisioner docker image)
+export KN_REPO=kn_repo
+export KN_BRANCH=kn_branch
+export KN_PLUGIN_REPO=kn_plugin_repo
+export KN_PLUGIN_NAME=kn_plugin_name
+export KN_PLUGIN_REPO_BRANCH=kn_plugin_repo_branch
+export KN_PROVISIONER_IMAGE=kn_provisioner_image
+export KN_PROVISIONER_IMAGE_TAG=kn_provisioner_image_tag
+
 
 echo "Using provisioner version: $KN_PROVISIONERS_IMG"
 

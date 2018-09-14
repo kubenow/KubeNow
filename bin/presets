@@ -1,0 +1,48 @@
+#!/bin/bash
+set -e # exit at first error
+
+preset="$1"
+echo "Setting preset: $preset"
+
+case $preset in
+
+  phenomenal)
+    kn_repo="https://github.com/kubenow/KubeNow.git"
+    kn_branch="phenomenal/stable"
+    kn_plugin_repo="https://github.com/phnmnl/KubeNow-plugin.git"
+    kn_plugin_name="phnmnl/KubeNow-plugin"
+    kn_plugin_repo_branch="master"
+    kn_provisioner_image="kubenow/provisioners"
+    kn_provisioner_image_tag="phenomenal-stable"
+    ;;
+    
+  phenomenal-dev)
+    kn_repo="https://github.com/kubenow/KubeNow.git"
+    kn_branch="phenomenal/development"
+    kn_plugin_repo="https://github.com/phnmnl/KubeNow-plugin.git"  ;;
+    kn_plugin_name="phnmnl/KubeNow-plugin"
+    kn_plugin_repo_branch="development"
+    kn_provisioner_image="kubenow/provisioners"
+    kn_provisioner_image_tag="phenomenal-development
+    ;;
+    
+  plain)
+    kn_repo="https://github.com/kubenow/KubeNow.git"
+    kn_branch="phenomenal/stable"
+    kn_plugin_repo="https://github.com/KubeNow/plugin-plain.git"
+    kn_plugin_name="KubeNow/plugin-plain"
+    kn_plugin_repo_branch="master"
+    kn_provisioner_image="kubenow/provisioners"
+    kn_provisioner_image_tag="master"
+    ;;
+    
+  openrisknet)
+    ;;
+  
+  *)
+    echo "unrecognized preset $preset" >&2
+    usage
+    exit 1
+    ;;
+    
+esac
