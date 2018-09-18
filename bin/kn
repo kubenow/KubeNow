@@ -5,13 +5,12 @@ set -e # exit at first error
 ##########################
 # Set version parameters #
 ##########################
-kn_repo=${KN_REPO:"https://github.com/kubenow/KubeNow.git"}
-kn_branch=${KN_BRANCH:"phenomenal/stable"}
-kn_plugin_repo=${KN_PLUGIN_REPO:"https://github.com/phnmnl/KubeNow-plugin.git"}
-kn_plugin_name=${KN_PLUGIN_NAME:"phnmnl/KubeNow-plugin"}
-kn_plugin_repo_branch=${KN_PLUGIN_REPO_BRANCH:"master"}
-kn_provisioner_image=${KN_PROVISIONER_IMAGE:"kubenow/provisioners"}
-kn_provisioner_image_tag=${KN_PROVISIONER_IMAGE_TAG:"phenomenal-stable"}
+KN_REPO=${KN_REPO:"https://github.com/kubenow/KubeNow.git"}
+KN_BRANCH=${KN_BRANCH:"phenomenal/stable"}
+KN_PLUGIN_REPO=${KN_PLUGIN_REPO:"https://github.com/phnmnl/KubeNow-plugin.git"}
+KN_PLUGIN_NAME=${KN_PLUGIN_NAME:"phnmnl/KubeNow-plugin"}
+KN_PLUGIN_REPO_BRANCH=${KN_PLUGIN_REPO_BRANCH:"master"}
+KN_PROVISIONER_IMAGE=${KN_PROVISIONER_IMAGE:"kubenow/provisioners:phenomenal-stable"}
 
 #############
 # Functions #
@@ -89,14 +88,15 @@ function get_libvirt_extra_opts() {
   echo "$opts"
 }
 
-function read_provisioner_image_var() {
+function get_provisioner_image_var() {
   # Get var from tfvars-file
+  provisioner_image=""
   if [ -f config.tfvars ]; then
-    KN_PROVISIONERS_IMG=$(grep "^provisioner_image" "config.tfvars" |
+    provisioner_image=$(grep "^provisioner_image" "config.tfvars" |
       cut -d "=" -f 2- |
       awk -F\" '{print $(NF-1)}')
-    export KN_PROVISIONERS_IMG
   fi
+  echo "$provisioner_image"
 }
 
 function docker_run() {
@@ -232,6 +232,8 @@ if [ -z "$KN_PROVISIONERS_IMG" ]; then
   tag="${provisioner_image/\//-}"
   export KN_PROVISIONERS_IMG="kubenow/provisioners:$tag"
 fi
+
+KN_PROVISIONERS_IMGAGE=get_provisioner_image_var
 
 # While current command starts with "-" parse options
 # in environment variables
