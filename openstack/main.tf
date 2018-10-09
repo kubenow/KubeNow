@@ -77,6 +77,10 @@ variable node_assign_floating_ip {
   default = "false"
 }
 
+variable node_extra_disk_size {
+  default = "10"
+}
+
 # Edges settings
 variable edge_count {
   default = 0

@@ -19,6 +19,8 @@ master_as_edge = "true"
 # Node configuration
 node_count = "3"
 node_flavor = "your-node-flavor"
+# node_assign_floating_ip = "true"
+# node_extra_disk_size = "10"
 
 # Edge configuration
 # edge_count = "2"
