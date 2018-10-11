@@ -44,6 +44,7 @@ cp -r "/opt/KubeNow/common" "/KubeNow_root/"
 cp -r "/opt/KubeNow/bootstrap" "/KubeNow_root/"
 cp -r "/opt/KubeNow/bin" "/KubeNow_root/"
 cp -r "/opt/KubeNow/playbooks" "/KubeNow_root/"
+cp -r "/opt/KubeNow/.git" "/KubeNow_root/"
 cp "/opt/KubeNow/ansible.cfg" "/KubeNow_root/"
 if [ -d "/opt/KubeNow/plugins" ]; then
   cp -r "/opt/KubeNow/plugins" "/KubeNow_root/"
