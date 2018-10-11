@@ -26,7 +26,7 @@ fi
 
 echo "Enable kublet metrics"
 sed -i '/\[Service\]/a Environment="KUBELET_EXTRA_ARGS=--authentication-token-webhook"' \
-    /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+  /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 
 # reload and restart after systemd dropin edits
 systemctl daemon-reload
