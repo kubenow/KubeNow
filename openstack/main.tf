@@ -44,7 +44,9 @@ variable master_count {
   default = 1
 }
 
-variable master_flavor {}
+variable master_flavor {
+  default = "nothing"
+}
 
 variable master_flavor_id {
   default = ""
@@ -55,9 +57,13 @@ variable master_as_edge {
 }
 
 # Nodes settings
-variable node_count {}
+variable node_count {
+  default = 0
+}
 
-variable node_flavor {}
+variable node_flavor {
+  default = "nothing"
+}
 
 variable node_flavor_id {
   default = ""
