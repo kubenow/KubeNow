@@ -44,6 +44,7 @@ cloud providers CLI:
 developers:
   bash                   run an interactive bash promt in the provisioners container
   kubetoken              generate and print a kubeadm token
+  git
 
 Options:
   -i,  --docker-image <image>   specifies the provisioners docker image to be used.
