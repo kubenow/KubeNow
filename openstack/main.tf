@@ -77,6 +77,10 @@ variable node_assign_floating_ip {
   default = "false"
 }
 
+variable node_extra_disk_size {
+  default = "0"
+}
+
 # Edges settings
 variable edge_count {
   default = 0
@@ -225,7 +229,7 @@ module "node" {
   floating_ip_pool   = "${var.floating_ip_pool}"
 
   # Disk settings
-  extra_disk_size = "0"
+  extra_disk_size = "${var.node_extra_disk_size}"
 
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
