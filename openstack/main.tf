@@ -229,7 +229,7 @@ module "node" {
   floating_ip_pool   = "${var.floating_ip_pool}"
 
   # Disk settings
-  extra_disk_size = "0"
+  extra_disk_size = "${var.node_extra_disk_size}"
 
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
