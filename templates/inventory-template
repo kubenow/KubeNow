@@ -1,6 +1,7 @@
 [master]
 ${masters}
-
+[node]
+${nodes}
 [edge]
 ${edges}
 
