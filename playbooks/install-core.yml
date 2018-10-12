@@ -6,5 +6,5 @@
     - {role: flannel-network, tags: ['minimal']}
     - {role: wait-kube-dns, tags: ['minimal']}
     - {role: start-helm, tags: ['minimal']}
-    - {role: traefik, tags: ['traefik']}
+    - {role: traefik, tags: ['traefik'], when: ingress_controller is undefined or (ingress_controller is defined and ingress_controller == "traefik")}
     - {role: heketi-gluster, tags: ['heketi-glusterfs'], when: glusternode_count is defined and glusternode_count > 0}
