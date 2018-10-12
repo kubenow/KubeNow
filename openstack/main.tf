@@ -52,6 +52,10 @@ variable master_flavor_id {
   default = ""
 }
 
+variable master_extra_disk_size {
+  default = "0"
+}
+
 variable master_assign_floating_ip {
   default = "true"
 }
@@ -77,6 +81,10 @@ variable node_assign_floating_ip {
   default = "false"
 }
 
+variable node_extra_disk_size {
+  default = "0"
+}
+
 # Edges settings
 variable edge_count {
   default = 0
@@ -92,6 +100,10 @@ variable edge_flavor_id {
 
 variable edge_assign_floating_ip {
   default = "false"
+}
+
+variable edge_extra_disk_size {
+  default = "0"
 }
 
 # Glusternode settings
@@ -191,11 +203,11 @@ module "master" {
   # Network settings
   network_name       = "${module.network.network_name}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
-  assign_floating_ip = "true"
+  assign_floating_ip = "${var.master_assign_floating_ip}"
   floating_ip_pool   = "${var.floating_ip_pool}"
 
   # Disk settings
-  extra_disk_size = "0"
+  extra_disk_size = "${var.master_extra_disk_size}"
 
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
@@ -225,7 +237,7 @@ module "node" {
   floating_ip_pool   = "${var.floating_ip_pool}"
 
   # Disk settings
-  extra_disk_size = "0"
+  extra_disk_size = "${var.node_extra_disk_size}"
 
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
@@ -255,7 +267,7 @@ module "edge" {
   floating_ip_pool   = "${var.floating_ip_pool}"
 
   # Disk settings
-  extra_disk_size = "0"
+  extra_disk_size = "${var.edge_extra_disk_size}"
 
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
