@@ -37,6 +37,7 @@ RUN apt-get update -y && \
       libffi-dev \
       openssl \
       python-pip \
+      qemu-utils \
       libcrack2 \
       unzip && \
     `# Add google cloud` \
