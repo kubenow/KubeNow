@@ -2,7 +2,7 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{name}}
+  name: {{claim_name}}
 spec:
   accessModes:
     - ReadWriteMany

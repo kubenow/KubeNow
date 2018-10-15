@@ -4,12 +4,12 @@
     path: ~/.kubernetes-yaml/pvc/
     state: directory
     mode: 0755
-- name: template {{name}}-pvc
+- name: template {{claim_name}}-pvc
   template:
     src: template-pvc.yml.tpl
-    dest: "~/.kubernetes-yaml/pvc/pvc-{{name}}.yml"
+    dest: "~/.kubernetes-yaml/pvc/pvc-{{claim_name}}.yml"
 
-- name: create {{name}}-pvc
+- name: create {{claim_name}}-pvc
   command: >
     kubectl apply -f
-    $HOME/.kubernetes-yaml/pvc/pvc-{{name}}.yml
+    $HOME/.kubernetes-yaml/pvc/pvc-{{claim_name}}.yml
