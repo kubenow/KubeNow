@@ -141,7 +141,6 @@ function upgrade() {
       jq -r '.[0].tag_name')"
     ;;
   latest-stable)
-    echo "lateststable"
     branch="$(curl https://api.github.com/repos/kubenow/KubeNow/releases |
       jq -r '[.[] | select(.prerelease==false) | .tag_name'][0])"
     ;;
