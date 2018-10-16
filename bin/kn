@@ -3,14 +3,14 @@
 set -e # exit at first error
 
 ##########################
-# Set default version parameters #
+# Set global vars (from Environment or Default)
 ##########################
-KN_REPO=${KN_REPO:'https://github.com/kubenow/KubeNow.git'}
-KN_BRANCH=${KN_BRANCH:'feature/improved-repo-and-branch-vars'}
-KN_PLUGIN_REPO=${KN_PLUGIN_REPO:''} # https://github.com/phnmnl/KubeNow-plugin.git
-KN_PLUGIN_REPO_BRANCH=${KN_PLUGIN_REPO_BRANCH:'master'}
-KN_PLUGIN_NAME=${KN_PLUGIN_NAME:''} # phnmnl/KubeNow-plugin
-KN_PROVISIONERS_IMG=${KN_PROVISIONERS_IMG:'kubenow/provisioners:phenomenal-stable'}
+KN_REPO=${KN_REPO:-'https://github.com/kubenow/KubeNow.git'}
+KN_BRANCH=${KN_BRANCH:-'feature/improved-repo-and-branch-vars'}
+KN_PLUGIN_REPO=${KN_PLUGIN_REPO:-''} # https://github.com/phnmnl/KubeNow-plugin.git
+KN_PLUGIN_REPO_BRANCH=${KN_PLUGIN_REPO_BRANCH:-'master'}
+KN_PLUGIN_NAME=${KN_PLUGIN_NAME:-''} # phnmnl/KubeNow-plugin
+KN_PROVISIONERS_IMG=${KN_PROVISIONERS_IMG:-'kubenow/provisioners:phenomenal-stable'}
 
 #############
 # Functions #
@@ -60,14 +60,15 @@ Options:
   -rb, --plugin-repo-branch     specifies a branch on plugin-repo
 
 Environment:
-  KN_PROVISIONERS_IMG           Current: "$KN_PROVISIONERS_IMG"
-  KN_REPO                       Current: "$KN_REPO"
-  KN_BRANCH                     Current: "$KN_BRANCH"
-  KN_PLUGIN_REPO                Current: "$KN_PLUGIN_REPO"
-  KN_PLUGIN_REPO_BRANCH         Current: "$KN_PLUGIN_REPO_BRANCH"
-  KN_PLUGIN_NAME                Current: "$KN_PLUGIN_NAME"
+  KN_PROVISIONERS_IMG           Current/Default: "$KN_PROVISIONERS_IMG"
+  KN_REPO                       Current/Default: "$KN_REPO"
+  KN_BRANCH                     Current/Default: "$KN_BRANCH"
+  KN_PLUGIN_REPO                Current/Default: "$KN_PLUGIN_REPO"
+  KN_PLUGIN_REPO_BRANCH         Current/Default: "$KN_PLUGIN_REPO_BRANCH"
+  KN_PLUGIN_NAME                Current/Default: "$KN_PLUGIN_NAME"
 
 EOF
+
 }
 
 function usage_init() {
@@ -82,10 +83,9 @@ EOF
 function set_vars_from_config_file() {
   # Get var from tfvars-file
   if [ -f config.tfvars ]; then
-    KN_PROVISIONERS_IMG=$(grep "^provisioner_image" "config.tfvars" |
+    kn_provisioners_img=$(grep "^provisioner_image" "config.tfvars" |
       cut -d "=" -f 2- |
       awk -F\" '{print $(NF-1)}')
-    export KN_PROVISIONERS_IMG
   fi
 }
 
@@ -201,12 +201,6 @@ function upgrade() {
   echo -e "\\nUpdated ok to version $KN_PROVISIONERS_IMG\\n"
 }
 
-function set_preset() {
-  # parameters
-  preset="$1"
-  echo "Setting preset: $preset"
-  source bin/presets "$preset"
-}
 
 ###########
 # Options #
@@ -222,34 +216,35 @@ while [[ "$1" == -* ]]; do
   option="$1"
   case $option in
   -p | --preset)
-    set_preset "$2"
+    preset="$2"
+    echo "Setting preset: $preset"
+    source bin/presets "$preset"
     shift # past option
     shift # past value
     ;;
 
   -i | --docker-image)
-    export KN_PROVISIONERS_IMG="$2"
+    KN_PROVISIONERS_IMG="$2"
     shift # past option
     shift # past value
     ;;
 
   -b | --branch)
-    export KN_BRANCH="$2"
+    KN_BRANCH="$2"
     shift # past option
     shift # past value
     ;;
 
   -r | --plugin-repo)
-    plugin_repo="$2"
-    plugin_repo_name="${plugin_repo#*/}"
-    export KN_PLUGIN_NAME="$plugin_repo_name"
-    export KN_PLUGIN_REPO="https://github.com/$plugin_repo.git"
+    KN_PLUGIN_REPO="$2"
+    # create plugin name from plugin repo
+    KN_PLUGIN_NAME=$(echo "$KN_PLUGIN_REPO" | sed -e 's/.*com\/\(.*\).git/\1/')
     shift # past option
     shift # past value
     ;;
 
   -rb | --plugin-repo-branch)
-    export KN_PLUGIN_REPO_BRANCH="$2"
+    KN_PLUGIN_REPO_BRANCH="$2"
     shift # past option
     shift # past value
     ;;
@@ -262,7 +257,13 @@ while [[ "$1" == -* ]]; do
   esac
 done
 
-echo "Using provisioner version: $KN_PROVISIONERS_IMG"
+# Export variables (so they become available in our Docker-call)
+export KN_PROVISIONERS_IMG
+export KN_REPO
+export KN_BRANCH
+export KN_PLUGIN_REPO
+export KN_PLUGIN_REPO_BRANCH
+export KN_PLUGIN_NAME
 
 ###############
 # Subcommands #

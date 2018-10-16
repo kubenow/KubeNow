@@ -6,14 +6,14 @@ preset="$1"
 
 case $preset in
 phenomenal | pheno | phnmnl)
-  export KN_PLUGIN_REPO="https://github.com/phnmnl/KubeNow-plugin.git"
-  export KN_PLUGIN_NAME="phnmnl/KubeNow-plugin"
-  export KN_PLUGIN_REPO_BRANCH="master"
+  KN_PLUGIN_REPO="https://github.com/phnmnl/KubeNow-plugin.git"
+  KN_PLUGIN_NAME="phnmnl/KubeNow-plugin"
+  KN_PLUGIN_REPO_BRANCH="master"
   ;;
 plain)
-  export KN_PLUGIN_REPO="https://github.com/KubeNow/plugin-plain.git"
-  export KN_PLUGIN_NAME="KubeNow/plugin-plain"
-  export KN_PLUGIN_REPO_BRANCH="master"
+  KN_PLUGIN_REPO="https://github.com/KubeNow/plugin-plain.git"
+  KN_PLUGIN_NAME="KubeNow/plugin-plain"
+  KN_PLUGIN_REPO_BRANCH="master"
   ;;
 *)
   echo "Unrecognized preset $preset" >&2
