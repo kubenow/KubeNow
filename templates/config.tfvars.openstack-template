@@ -39,6 +39,11 @@ provision = {
   "action" = {
     "type"       = "ansible-playbook"
     "playbook"   = "playbooks/install-core.yml"
+    "extra_vars" = {
+      # To disable traefik in favor for an external ingress controller replace "traefik" with "none".
+      # To use nginx instead of traefik replace "traefik" with "nginx" on the line below.
+      "ingress_controller" = "traefik"
+    }
   }
 }
 
