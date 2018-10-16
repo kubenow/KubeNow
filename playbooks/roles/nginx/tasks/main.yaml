@@ -1,0 +1,8 @@
+- name: copy helm yaml template for nginx
+  template:
+    src: nginx-config.yaml
+    dest: /tmp/nginx-config.yaml
+
+- name: install nginx
+  command: >
+    helm install --name nginx-ingress --namespace=nginx-ingress stable/nginx-ingress --values /tmp/nginx-config.yml
