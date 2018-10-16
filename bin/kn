@@ -2,11 +2,15 @@
 
 set -e # exit at first error
 
-###############
-# Set version #
-###############
-
-kubenow_version="master"
+##########################
+# Set default version parameters #
+##########################
+KN_REPO=${KN_REPO:"https://github.com/kubenow/KubeNow.git"}
+KN_BRANCH=${KN_BRANCH:"feature/improved-repo-and-branch-vars"}
+KN_PLUGIN_REPO=${KN_PLUGIN_REPO:""} # https://github.com/phnmnl/KubeNow-plugin.git
+KN_PLUGIN_REPO_BRANCH=${KN_PLUGIN_REPO_BRANCH:"master"}
+KN_PLUGIN_NAME=${KN_PLUGIN_NAME:""} # phnmnl/KubeNow-plugin
+KN_PROVISIONERS_IMG=${KN_PROVISIONERS_IMG:"kubenow/provisioners:phenomenal-stable"}
 
 #############
 # Functions #
@@ -50,12 +54,18 @@ developers:
 
 Options:
   -i,  --docker-image <image>   specifies the provisioners docker image to be used.
+  -b,  --branch <branch>        specifies the KubeNow branch to use when initializing deployment
   -p,  --preset <plugin>        specifies a preset plugin to be used
   -r,  --plugin-repo            specifies a plugin repo (e.g. https://github.com/KubeNow/plugin-plain.git)
   -rb, --plugin-repo-branch     specifies a branch on plugin-repo
 
 Environment:
-  KN_PROVISIONERS_IMG           Default: kubenow/provisioners:$kubenow_version
+  KN_PROVISIONERS_IMG           Current: "$KN_PROVISIONERS_IMG"
+  KN_REPO                       Current: "$KN_REPO"
+  KN_BRANCH                     Current: "$KN_BRANCH"
+  KN_PLUGIN_REPO                Current: "$KN_PLUGIN_REPO"
+  KN_PLUGIN_REPO_BRANCH         Current: "$KN_PLUGIN_REPO_BRANCH"
+  KN_PLUGIN_NAME                Current: "$KN_PLUGIN_NAME"
 
 EOF
 }
@@ -69,7 +79,7 @@ CLOUD=<gce|aws|openstack|azure>
 EOF
 }
 
-function read_provisioner_image_var() {
+function set_vars_from_config_file() {
   # Get var from tfvars-file
   if [ -f config.tfvars ]; then
     KN_PROVISIONERS_IMG=$(grep "^provisioner_image" "config.tfvars" |
@@ -132,7 +142,7 @@ function resolve_links() {
 
 function upgrade() {
   # version is first arg or otherwise default
-  version=${1:-$kubenow_version}
+  version=${1:-$KN_BRANCH}
   echo "upgrade version: $version"
   branch=""
   case "$version" in
@@ -202,25 +212,28 @@ function set_preset() {
 # Options #
 ###########
 
-# Set defaults if not specified in the environment
-if [ -z "$KN_PROVISIONERS_IMG" ]; then
-  tag="${kubenow_version/\//-}"
-  export KN_PROVISIONERS_IMG="kubenow/provisioners:$tag"
-fi
+# Read vars specified in config file
+set_vars_from_config_file
 
 # While current command starts with "-" parse options
 # in environment variables
 while [[ "$1" == -* ]]; do
   option="$1"
   case $option in
+  -p | --preset)
+    set_preset "$2"
+    shift # past option
+    shift # past value
+    ;;
+
   -i | --docker-image)
     export KN_PROVISIONERS_IMG="$2"
     shift # past option
     shift # past value
     ;;
 
-  -p | --preset)
-    set_preset "$2"
+  -b | --branch)
+    export KN_BRANCH="$2"
     shift # past option
     shift # past value
     ;;
@@ -262,7 +275,8 @@ help)
   ;;
 
 version)
-  echo "KubeNow version: $kubenow_version"
+  echo "KubeNow version: $KN_BRANCH"
+  echo "KubeNow provirioner image: $KN_PROVISIONERS_IMG"
   exit
   ;;
 
