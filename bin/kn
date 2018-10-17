@@ -5,12 +5,12 @@ set -e # exit at first error
 ##########################
 # Set global vars (from Environment or Default)
 ##########################
-KN_REPO=${KN_REPO:-'https://github.com/kubenow/KubeNow.git'}
-KN_BRANCH=${KN_BRANCH:-'feature/improved-repo-and-branch-vars'}
-KN_PLUGIN_REPO=${KN_PLUGIN_REPO:-''} # https://github.com/phnmnl/KubeNow-plugin.git
-KN_PLUGIN_REPO_BRANCH=${KN_PLUGIN_REPO_BRANCH:-'master'}
-KN_PLUGIN_NAME=${KN_PLUGIN_NAME:-''} # phnmnl/KubeNow-plugin
-KN_PROVISIONERS_IMG=${KN_PROVISIONERS_IMG:-'kubenow/provisioners:phenomenal-stable'}
+export KN_REPO=${KN_REPO:-'https://github.com/kubenow/KubeNow.git'}
+export KN_BRANCH=${KN_BRANCH:-'feature/improved-repo-and-branch-vars'}
+export KN_PLUGIN_REPO=${KN_PLUGIN_REPO:-''} # https://github.com/phnmnl/KubeNow-plugin.git
+export KN_PLUGIN_REPO_BRANCH=${KN_PLUGIN_REPO_BRANCH:-'master'}
+export KN_PLUGIN_NAME=${KN_PLUGIN_NAME:-''} # phnmnl/KubeNow-plugin
+export KN_PROVISIONERS_IMG=${KN_PROVISIONERS_IMG:-'kubenow/provisioners:phenomenal-stable'}
 
 #############
 # Functions #
@@ -256,14 +256,6 @@ while [[ "$1" == -* ]]; do
     ;;
   esac
 done
-
-# Export variables (so they become available in our Docker-call)
-export KN_PROVISIONERS_IMG
-export KN_REPO
-export KN_BRANCH
-export KN_PLUGIN_REPO
-export KN_PLUGIN_REPO_BRANCH
-export KN_PLUGIN_NAME
 
 ###############
 # Subcommands #
