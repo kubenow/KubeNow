@@ -83,7 +83,7 @@ EOF
 function set_vars_from_config_file() {
   # Get var from tfvars-file
   if [ -f config.tfvars ]; then
-    kn_provisioners_img=$(grep "^provisioner_image" "config.tfvars" |
+    KN_PROVISIONERS_IMG=$(grep "^provisioner_image" "config.tfvars" |
       cut -d "=" -f 2- |
       awk -F\" '{print $(NF-1)}')
   fi
