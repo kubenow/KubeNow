@@ -201,7 +201,6 @@ function upgrade() {
   echo -e "\\nUpdated ok to version $KN_PROVISIONERS_IMG\\n"
 }
 
-
 ###########
 # Options #
 ###########
