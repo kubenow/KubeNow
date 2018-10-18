@@ -7,9 +7,9 @@ set -e # exit at first error
 ##########################
 export KN_REPO=${KN_REPO:-'https://github.com/kubenow/KubeNow.git'}
 export KN_BRANCH=${KN_BRANCH:-'feature/improved-repo-and-branch-vars'}
-export KN_PLUGIN_REPO=${KN_PLUGIN_REPO:-''} # https://github.com/phnmnl/KubeNow-plugin.git
+export KN_PLUGIN_REPO=${KN_PLUGIN_REPO:-''}
 export KN_PLUGIN_REPO_BRANCH=${KN_PLUGIN_REPO_BRANCH:-'master'}
-export KN_PLUGIN_NAME=${KN_PLUGIN_NAME:-''} # phnmnl/KubeNow-plugin
+export KN_PLUGIN_NAME=${KN_PLUGIN_NAME:-''}
 export KN_PROVISIONERS_IMG=${KN_PROVISIONERS_IMG:-'kubenow/provisioners:phenomenal-stable'}
 
 #############
@@ -60,12 +60,12 @@ Options:
   -rb, --plugin-repo-branch     specifies a branch on plugin-repo
 
 Environment:
-  KN_PROVISIONERS_IMG           Current/Default: "$KN_PROVISIONERS_IMG"
-  KN_REPO                       Current/Default: "$KN_REPO"
-  KN_BRANCH                     Current/Default: "$KN_BRANCH"
-  KN_PLUGIN_REPO                Current/Default: "$KN_PLUGIN_REPO"
-  KN_PLUGIN_REPO_BRANCH         Current/Default: "$KN_PLUGIN_REPO_BRANCH"
-  KN_PLUGIN_NAME                Current/Default: "$KN_PLUGIN_NAME"
+  KN_PROVISIONERS_IMG           Current: "$KN_PROVISIONERS_IMG"
+  KN_REPO                       Current: "$KN_REPO"
+  KN_BRANCH                     Current: "$KN_BRANCH"
+  KN_PLUGIN_REPO                Current: "$KN_PLUGIN_REPO"
+  KN_PLUGIN_REPO_BRANCH         Current: "$KN_PLUGIN_REPO_BRANCH"
+  KN_PLUGIN_NAME                Current: "$KN_PLUGIN_NAME"
 
 EOF
 
@@ -83,7 +83,7 @@ EOF
 function set_vars_from_config_file() {
   # Get var from tfvars-file
   if [ -f config.tfvars ]; then
-    KN_PROVISIONERS_IMG=$(grep "^provisioner_image" "config.tfvars" |
+    export KN_PROVISIONERS_IMG=$(grep "^provisioner_image" "config.tfvars" |
       cut -d "=" -f 2- |
       awk -F\" '{print $(NF-1)}')
   fi
@@ -91,8 +91,8 @@ function set_vars_from_config_file() {
 
 function docker_run() {
   # parameters
-  container=$1
-  kubenow_root=$2
+  local container=$1
+  local kubenow_root=$2
   # shellcheck disable=SC2068
   docker run --rm -it \
     -v "$kubenow_root":/KubeNow_root:Z \
@@ -128,7 +128,7 @@ function validate_pwd() {
 
 function resolve_links() {
   # parameters
-  source="$1"
+  local source="$1"
   # resolve $source until the file is no longer a symlink
   while [ -h "$source" ]; do
     dir="$(cd -P "$(dirname "$source")" && pwd)"
@@ -142,9 +142,9 @@ function resolve_links() {
 
 function upgrade() {
   # version is first arg or otherwise default
-  version=${1:-$KN_BRANCH}
+  local version=${1:-$KN_BRANCH}
+  local branch=""
   echo "upgrade version: $version"
-  branch=""
   case "$version" in
   latest)
     branch="$(curl https://api.github.com/repos/kubenow/KubeNow/releases |
@@ -159,17 +159,17 @@ function upgrade() {
     ;;
   esac
 
-  url="https://raw.githubusercontent.com/kubenow/KubeNow/$branch/bin/kn"
+  local url="https://raw.githubusercontent.com/kubenow/KubeNow/$branch/bin/kn"
 
   # Add a random suffix to prevent url caching
-  random="$(openssl rand -base64 16)"
+  local random="$(openssl rand -base64 16)"
   url="$url?rnd=$random"
 
   # Get full filename of this script
-  absolute_file="$(resolve_links "${BASH_SOURCE[0]}")"
+  local absolute_file="$(resolve_links "${BASH_SOURCE[0]}")"
 
   echo "Download new version to /tmp"
-  tmpfile=$(mktemp)
+  local tmpfile=$(mktemp)
   curl -f "$url" -o "$tmpfile" || (
     echo -e "\\nError trying to download file $url" >&2
     echo -e "Are you sure \"$version\" is an available version?\\n" >&2
@@ -212,7 +212,7 @@ function upgrade() {
 # While current command starts with "-" parse options
 # in environment variables
 while [[ "$1" == -* ]]; do
-  option="$1"
+  local option="$1"
   case $option in
   -p | --preset)
     preset="$2"
@@ -260,7 +260,7 @@ done
 # Subcommands #
 ###############
 
-subcommand="$1"
+local subcommand="$1"
 case "$subcommand" in
 help)
   usage
