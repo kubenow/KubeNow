@@ -19,7 +19,6 @@ branches:
 env:
   global:
     - TERRAFORM_VERSION=0.10.7
-    - ANSIBLE_LINT_VERSION=3.4.15
     - YAMLLINT_VERSION=1.8.1
   matrix:
     - HOST_CLOUD=openstack
@@ -41,7 +40,6 @@ before_install:
   - sudo pip install --upgrade pip
   - >
     sudo pip install
-    ansible-lint=="${ANSIBLE_LINT_VERSION}"
     yamllint=="${YAMLLINT_VERSION}"
   # Pull hadolint
   - docker pull lukasmartinelli/hadolint
@@ -54,7 +52,7 @@ before_install:
   # check Ansible
   # skip ANSIBLE0006: avoid using curl
   # skip ANSIBLE0012: missing change_when on command/shell etc.
-  - ansible-lint -x ANSIBLE0006,ANSIBLE0012 playbooks/*.yml
+  - docker run --rm -v ${PWD}/playbooks:/playbooks yokogawa/ansible-lint:v3.4.16 sh -c 'ansible-lint -x ANSIBLE0006,ANSIBLE0012 /playbooks/*.yml'
   # check Shell
   - docker run -v "$(pwd)":/mnt koalaman/shellcheck:v0.5.0 bootstrap/*
   - docker run -v "$(pwd)":/mnt koalaman/shellcheck:v0.5.0 bin/*
@@ -62,10 +60,9 @@ before_install:
   - docker run -v "$(pwd)":/sh -w /sh jamesmstone/shfmt -i 2 -w bootstrap/*
   - git diff --exit-code
   # check Dockerfile
-  - docker run --rm -i lukasmartinelli/hadolint hadolint --ignore DL3008 --ignore DL3015 --ignore DL3013 - < Dockerfile
+  - docker run --rm -i hadolint/hadolint:v1.13.0 hadolint --ignore DL3008 --ignore DL3015 --ignore DL3013 - < Dockerfile
   # check YAML
   - yamllint -c .yamllint.yml -s $(find . -type f -name "*.yml")
-
 
 install:
 
