@@ -81,23 +81,25 @@ EOF
 }
 
 ########################################
-# Reads variables from config file and
+# Reads variable from config file and
 # sets selected environment vars
 #
 # Globals:
-#   KN_PROVISIONERS_IMG
+#   None
 # Arguments:
 #   None
 # Returns:
-#   None
+#   provisioner_image
 ########################################
-function set_vars_from_config_file() {
+function read_provisioner_image_from_config() {
+  local provisioner_image
   # Get var from tfvars-file
   if [ -f config.tfvars ]; then
-    KN_PROVISIONERS_IMG=$(grep "^provisioner_image" "config.tfvars" |
+    provisioner_image=$(grep "^provisioner_image" "config.tfvars" |
       cut -d "=" -f 2- |
       awk -F\" '{print $(NF-1)}')
   fi
+  echo "$provisioner_image"
 }
 
 ########################################
@@ -263,12 +265,12 @@ function upgrade() {
   echo -e "\\nUpdated ok to version $KN_PROVISIONERS_IMG\\n"
 }
 
+# First read vars specified in config file
+KN_PROVISIONERS_IMG=$(read_provisioner_image_from_config)
+
 ###########
 # Options #
 ###########
-
-# Read vars specified in config file
-set_vars_from_config_file
 
 # While current command starts with "-" parse options
 # in environment variables
