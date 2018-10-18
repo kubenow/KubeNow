@@ -25,6 +25,8 @@ ENV PLUGIN_RANDOM=1.0.0
 # Pip version, PIP_VERSION env is reserved by Pip
 ENV PIP=9.0.3
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 # Install with apt and pip
 RUN apt-get update -y && \
       DEBIAN_FRONTEND=noninteractive apt-get install -y \
