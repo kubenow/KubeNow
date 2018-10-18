@@ -47,10 +47,10 @@ if [[ "$node_labels" == *"role=master"* ]]; then
 
   if [ -n "$API_ADVERTISE_ADDRESSES" ]; then
     # shellcheck disable=SC2154
-    kubeadm init --token "${kubeadm_token}" --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.9.2 --api-advertise-address="$API_ADVERTISE_ADDRESSES"
+    kubeadm init --token "${kubeadm_token}" --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.10.9 --api-advertise-address="$API_ADVERTISE_ADDRESSES"
   else
     # shellcheck disable=SC2154
-    kubeadm init --token "${kubeadm_token}" --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.9.2
+    kubeadm init --token "${kubeadm_token}" --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.10.9
   fi
 
   # Copy Kubernetes configuration created by kubeadm (admin.conf to .kube/config)
