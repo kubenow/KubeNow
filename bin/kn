@@ -266,7 +266,10 @@ function upgrade() {
 }
 
 # First read vars specified in config file
-KN_PROVISIONERS_IMG=$(read_provisioner_image_from_config)
+provisioner_image=$(read_provisioner_image_from_config)
+if [ -n "$provisioner_image" ]; then
+  KN_PROVISIONERS_IMG="$provisioner_image"
+fi
 
 ###########
 # Options #
