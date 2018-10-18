@@ -41,8 +41,6 @@ before_install:
   - >
     sudo pip install
     yamllint=="${YAMLLINT_VERSION}"
-  # Pull hadolint
-  - docker pull lukasmartinelli/hadolint
 
   # Check code quality
   # check Terraform
