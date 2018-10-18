@@ -2,9 +2,9 @@
 
 set -e # exit at first error
 
-##########################
+###############################################
 # Set global vars (from Environment or Default)
-##########################
+###############################################
 export KN_REPO=${KN_REPO:-'https://github.com/kubenow/KubeNow.git'}
 export KN_BRANCH=${KN_BRANCH:-'feature/improved-repo-and-branch-vars'}
 export KN_PLUGIN_REPO=${KN_PLUGIN_REPO:-''}
@@ -12,9 +12,9 @@ export KN_PLUGIN_REPO_BRANCH=${KN_PLUGIN_REPO_BRANCH:-'master'}
 export KN_PLUGIN_NAME=${KN_PLUGIN_NAME:-''}
 export KN_PROVISIONERS_IMG=${KN_PROVISIONERS_IMG:-'kubenow/provisioners:phenomenal-stable'}
 
-#############
-# Functions #
-#############
+###################################
+# Functions
+###################################
 
 function usage() {
   cat <<EOF
@@ -80,19 +80,44 @@ CLOUD=<gce|aws|openstack|azure>
 EOF
 }
 
+########################################
+# Reads variables from config file and
+# sets selected environment vars
+#
+# Globals:
+#   KN_PROVISIONERS_IMG
+# Arguments:
+#   None
+# Returns:
+#   None
+########################################
 function set_vars_from_config_file() {
   # Get var from tfvars-file
   if [ -f config.tfvars ]; then
-    export KN_PROVISIONERS_IMG=$(grep "^provisioner_image" "config.tfvars" |
+    KN_PROVISIONERS_IMG=$(grep "^provisioner_image" "config.tfvars" |
       cut -d "=" -f 2- |
       awk -F\" '{print $(NF-1)}')
   fi
 }
 
+########################################
+# Run Docker provisioner container
+#
+# Globals:
+#   Passes all OS_, TF_, GOOGLE_, AWS_
+#     ARM_, KN_, TERRAFORM_OPT,
+#     ANSIBLE_OPT variables to container
+# Arguments:
+#   container=$1
+#   kubenow_root=$2
+# Returns:
+#   None
+########################################
 function docker_run() {
   # parameters
   local container=$1
   local kubenow_root=$2
+  echo "Using provisioner docker image version: $container"
   # shellcheck disable=SC2068
   docker run --rm -it \
     -v "$kubenow_root":/KubeNow_root:Z \
@@ -110,6 +135,16 @@ function docker_run() {
     "/opt/KubeNow/bin/docker-entrypoint" ${@:3}
 }
 
+#########################################
+# Checks if pwd contains mandatory files
+#
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#########################################
 function validate_pwd() {
   # Make sure that all of the needed files are in place
   if [ ! -f ssh_key ] || [ ! -f ssh_key.pub ]; then
@@ -126,6 +161,17 @@ function validate_pwd() {
   fi
 }
 
+########################################
+# Resolve source-path until the file
+# is no longer a symlink
+#
+# Globals:
+#   None
+# Arguments:
+#   source="$1"
+# Returns:
+#   Real path
+########################################
 function resolve_links() {
   # parameters
   local source="$1"
@@ -140,10 +186,22 @@ function resolve_links() {
   echo "$source"
 }
 
+#########################################
+# Upgrades kn-script by downloading from
+# github and replacing the currently
+# running file
+#
+# Globals:
+#   KN_BRANCH (optional)
+# Arguments:
+#   version=$1
+# Returns:
+#   None
+#########################################
 function upgrade() {
   # version is first arg or otherwise default
   local version=${1:-$KN_BRANCH}
-  local branch=""
+  local branch
   echo "upgrade version: $version"
   case "$version" in
   latest)
@@ -159,17 +217,21 @@ function upgrade() {
     ;;
   esac
 
-  local url="https://raw.githubusercontent.com/kubenow/KubeNow/$branch/bin/kn"
+  local url
+  url="https://raw.githubusercontent.com/kubenow/KubeNow/$branch/bin/kn"
 
   # Add a random suffix to prevent url caching
-  local random="$(openssl rand -base64 16)"
+  local random
+  random="$(openssl rand -base64 16)"
   url="$url?rnd=$random"
 
   # Get full filename of this script
-  local absolute_file="$(resolve_links "${BASH_SOURCE[0]}")"
+  local absolute_file
+  absolute_file="$(resolve_links "${BASH_SOURCE[0]}")"
 
   echo "Download new version to /tmp"
-  local tmpfile=$(mktemp)
+  local tmpfile
+  tmpfile=$(mktemp)
   curl -f "$url" -o "$tmpfile" || (
     echo -e "\\nError trying to download file $url" >&2
     echo -e "Are you sure \"$version\" is an available version?\\n" >&2
@@ -206,13 +268,12 @@ function upgrade() {
 ###########
 
 # Read vars specified in config file
-# then it would try to read even if there is no config-file
-#set_vars_from_config_file
+set_vars_from_config_file
 
 # While current command starts with "-" parse options
 # in environment variables
 while [[ "$1" == -* ]]; do
-  local option="$1"
+  option="$1"
   case $option in
   -p | --preset)
     preset="$2"
@@ -260,7 +321,7 @@ done
 # Subcommands #
 ###############
 
-local subcommand="$1"
+subcommand="$1"
 case "$subcommand" in
 help)
   usage
@@ -331,9 +392,6 @@ kubetoken)
 # KubeNow-defined commands that need PWD validation
 apply | destroy | provision | scale | kubectl | helm | ssh)
   validate_pwd
-  # get provisioner image from tfvar-file
-  set_vars_from_config_file
-  echo "Using provisioner version: $KN_PROVISIONERS_IMG"
   # shellcheck disable=SC2068
   docker_run "$KN_PROVISIONERS_IMG" "$PWD" "kn-$subcommand" ${@:2}
   ;;
