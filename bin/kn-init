@@ -12,11 +12,11 @@ if [ -n "$KN_PLUGIN_REPO" ]; then
   mkdir -p "$plugin_dir"
   git clone "$KN_PLUGIN_REPO" "$plugin_dir"
   echo "Clone plugin repo done"
-fi
 
-# Checkout a specific branch if provided
-if [ -n "$KN_PLUGIN_REPO_BRANCH" ]; then
-  git -C "/opt/KubeNow/plugins/$KN_PLUGIN_NAME" checkout "$KN_PLUGIN_REPO_BRANCH"
+  # Checkout a specific branch if provided
+  if [ -n "$KN_PLUGIN_REPO_BRANCH" ]; then
+    git -C "/opt/KubeNow/plugins/$KN_PLUGIN_NAME" checkout "$KN_PLUGIN_REPO_BRANCH"
+  fi
 fi
 
 # Set template dir
