@@ -1,45 +1,50 @@
 variable name_prefix {}
 variable vpc_id {}
 
+variable ingress_tcp_ports {
+  default = ["22", "80", "443"]
+}
+
 resource "aws_security_group" "main" {
   name        = "${var.name_prefix}"
   description = "kubenow default security group"
   vpc_id      = "${var.vpc_id}"
+}
 
-  ingress {
-    from_port   = 22            # SSH
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_security_group_rule" "security_rule_allow_all_internal" {
+  description = "Automatically created security rule by-${var.name_prefix}"
+  type        = "ingress"
+  from_port   = "0"
+  to_port     = "0"
+  protocol    = "-1"
+  self        = true
 
-  ingress {
-    from_port   = 80            # HTTP
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  security_group_id = "${aws_security_group.main.id"
+}
 
-  ingress {
-    from_port   = 443           # HTTPS
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_security_group_rule" "security_rule_allow_all_outbound" {
+  description = "Automatically created security rule by-${var.name_prefix}"
+  type        = "egress"
+  from_port   = "0"
+  to_port     = "0"
+  protocol    = "-1"
+  cidr_blocks = ["0.0.0.0/0"]
 
-  ingress {
-    from_port = 0    # Allow ALL internal (self)
-    to_port   = 0
-    protocol  = -1
-    self      = true
-  }
+  security_group_id = "${aws_security_group.main.id"
+}
 
-  egress {
-    from_port   = 0             # Allow ALL outbound
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+
+resource "aws_security_group_rule" "security_rule_ingress_tcp_port" {
+  count = "${length(var.ingress_tcp_ports)}"
+
+  description     = "Automatically created security rule by-${var.name_prefix}"
+  type            = "ingress"
+  from_port       = "${element(var.ingress_tcp_ports, count.index)}"
+  to_port         = "${element(var.ingress_tcp_ports, count.index)}"
+  protocol        = "tcp"
+  cidr_blocks     = ["0.0.0.0/0"]
+
+  security_group_id = "${aws_security_group.main.id"
 }
 
 output "id" {
