@@ -47,7 +47,8 @@ variable ingress_tcp_ports {
   default = ["22", "80", "443"]
 }
 
-eeMaster settings variable master_count {
+# Master settings
+variable master_count {
   default = 1
 }
 
@@ -58,6 +59,7 @@ variable master_as_edge {
   default = "true"
 }
 
+# Nodes settings
 variable node_count {}
 
 variable node_instance_type {}
