@@ -50,6 +50,11 @@ variable ssh_key {
   default = "ssh_key.pub"
 }
 
+# Networking
+variable ingress_tcp_ports {
+  default = ["22", "80", "443"]
+}
+
 # Master settings
 variable master_count {
   default = 1
@@ -173,6 +178,7 @@ module "security_group" {
   name_prefix         = "${var.cluster_prefix}"
   location            = "${var.location}"
   resource_group_name = "${azurerm_resource_group.rg.name}"
+  ingress_tcp_ports   = "${var.ingress_tcp_ports}"
 }
 
 # Network (here would be nice with condition)

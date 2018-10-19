@@ -1,8 +1,5 @@
 variable network_name {}
-
-variable ingress_tcp_ports {
-  default = ["22", "80", "443"]
-}
+variable ingress_tcp_ports {}
 
 # Network
 resource "google_compute_network" "kn-network" {

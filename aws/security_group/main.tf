@@ -1,9 +1,6 @@
 variable name_prefix {}
 variable vpc_id {}
-
-variable ingress_tcp_ports {
-  default = ["22", "80", "443"]
-}
+variable ingress_tcp_ports {}
 
 resource "aws_security_group" "main" {
   name        = "${var.name_prefix}"

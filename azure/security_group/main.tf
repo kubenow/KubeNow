@@ -1,10 +1,7 @@
 variable name_prefix {}
 variable location {}
 variable resource_group_name {}
-
-variable ingress_tcp_ports {
-  default = ["22", "80", "443"]
-}
+variable ingress_tcp_ports {}
 
 resource "azurerm_network_security_group" "main" {
   name                = "${var.name_prefix}-secgroup"

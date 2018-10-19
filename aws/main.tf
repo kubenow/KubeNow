@@ -43,7 +43,11 @@ variable additional_sec_group_ids {
   default = []
 }
 
-# Master settings
+variable ingress_tcp_ports {
+  default = ["22", "80", "443"]
+}
+
+eeMaster settings
 variable master_count {
   default = 1
 }
