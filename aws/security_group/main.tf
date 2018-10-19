@@ -19,7 +19,7 @@ resource "aws_security_group_rule" "security_rule_allow_all_internal" {
   protocol    = "-1"
   self        = true
 
-  security_group_id = "${aws_security_group.main.id"
+  security_group_id = "${aws_security_group.main.id}"
 }
 
 resource "aws_security_group_rule" "security_rule_allow_all_outbound" {
@@ -30,7 +30,7 @@ resource "aws_security_group_rule" "security_rule_allow_all_outbound" {
   protocol    = "-1"
   cidr_blocks = ["0.0.0.0/0"]
 
-  security_group_id = "${aws_security_group.main.id"
+  security_group_id = "${aws_security_group.main.id}"
 }
 
 
@@ -44,7 +44,7 @@ resource "aws_security_group_rule" "security_rule_ingress_tcp_port" {
   protocol        = "tcp"
   cidr_blocks     = ["0.0.0.0/0"]
 
-  security_group_id = "${aws_security_group.main.id"
+  security_group_id = "${aws_security_group.main.id}"
 }
 
 output "id" {
