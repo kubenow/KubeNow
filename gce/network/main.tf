@@ -22,7 +22,7 @@ resource "google_compute_firewall" "kn-firewall-external" {
 
   allow {
     protocol = "tcp"
-    ports = "${var.ingress_tcp_ports}"
+    ports    = "${var.ingress_tcp_ports}"
   }
 }
 
