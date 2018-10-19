@@ -38,7 +38,7 @@ variable subnet_id {
 }
 
 variable additional_sec_group_ids {
-  type = "list"
+  type    = "list"
   default = []
 }
 
