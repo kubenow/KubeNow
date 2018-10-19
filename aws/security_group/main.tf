@@ -12,7 +12,6 @@ resource "aws_security_group" "main" {
 }
 
 resource "aws_security_group_rule" "security_rule_allow_all_internal" {
-  description = "Automatically created security rule by-${var.name_prefix}"
   type        = "ingress"
   from_port   = "0"
   to_port     = "0"
@@ -23,7 +22,6 @@ resource "aws_security_group_rule" "security_rule_allow_all_internal" {
 }
 
 resource "aws_security_group_rule" "security_rule_allow_all_outbound" {
-  description = "Automatically created security rule by-${var.name_prefix}"
   type        = "egress"
   from_port   = "0"
   to_port     = "0"
@@ -36,7 +34,6 @@ resource "aws_security_group_rule" "security_rule_allow_all_outbound" {
 resource "aws_security_group_rule" "security_rule_ingress_tcp_port" {
   count = "${length(var.ingress_tcp_ports)}"
 
-  description = "Automatically created security rule by-${var.name_prefix}"
   type        = "ingress"
   from_port   = "${element(var.ingress_tcp_ports, count.index)}"
   to_port     = "${element(var.ingress_tcp_ports, count.index)}"
