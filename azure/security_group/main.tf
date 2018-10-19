@@ -17,7 +17,7 @@ resource "azurerm_network_security_rule" "security_rule_ingress_tcp_port" {
 
   name                       = "${var.name_prefix}-secrule-${format("%03d", count.index)}"
   description                = "Automatically created security rule by-${var.name_prefix}"
-  priority                   = 100
+  priority                   = "${100 + count.index}"
   direction                  = "Inbound"
   access                     = "Allow"
   protocol                   = "Tcp"
