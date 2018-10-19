@@ -34,6 +34,7 @@ variable gce_credentials_file {
 
 # Networking
 variable ingress_tcp_ports {
+  type = "list"
   default = ["22", "80", "443"]
 }
 

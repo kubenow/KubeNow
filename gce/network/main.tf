@@ -1,5 +1,7 @@
 variable network_name {}
-variable ingress_tcp_ports {}
+variable ingress_tcp_ports {
+  type = "list"
+}
 
 # Network
 resource "google_compute_network" "kn-network" {
