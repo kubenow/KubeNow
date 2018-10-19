@@ -47,8 +47,7 @@ variable ingress_tcp_ports {
   default = ["22", "80", "443"]
 }
 
-eeMaster settings
-variable master_count {
+eeMaster settings variable master_count {
   default = 1
 }
 

@@ -1,6 +1,6 @@
 variable name_prefix {}
 variable secgroup_name {}
-variable ingress_tcp_ports{}
+variable ingress_tcp_ports {}
 
 resource "openstack_networking_secgroup_v2" "created" {
   # create only if not specified in var.secgroup_name

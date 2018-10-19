@@ -29,7 +29,7 @@ variable secgroup_name {
 
 variable secgroup_name {}
 
-variable ingress_tcp_ports{
+variable ingress_tcp_ports {
   default = ["22", "80", "443"]
 }
 
