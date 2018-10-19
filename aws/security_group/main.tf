@@ -33,16 +33,15 @@ resource "aws_security_group_rule" "security_rule_allow_all_outbound" {
   security_group_id = "${aws_security_group.main.id}"
 }
 
-
 resource "aws_security_group_rule" "security_rule_ingress_tcp_port" {
   count = "${length(var.ingress_tcp_ports)}"
 
-  description     = "Automatically created security rule by-${var.name_prefix}"
-  type            = "ingress"
-  from_port       = "${element(var.ingress_tcp_ports, count.index)}"
-  to_port         = "${element(var.ingress_tcp_ports, count.index)}"
-  protocol        = "tcp"
-  cidr_blocks     = ["0.0.0.0/0"]
+  description = "Automatically created security rule by-${var.name_prefix}"
+  type        = "ingress"
+  from_port   = "${element(var.ingress_tcp_ports, count.index)}"
+  to_port     = "${element(var.ingress_tcp_ports, count.index)}"
+  protocol    = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
 
   security_group_id = "${aws_security_group.main.id}"
 }
