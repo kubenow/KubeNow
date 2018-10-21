@@ -1,7 +1,7 @@
 variable name_prefix {}
 variable vpc_id {}
 
-variable ingress_tcp_ports {
+variable ports_ingress_tcp {
   type = "list"
 }
 
@@ -32,11 +32,11 @@ resource "aws_security_group_rule" "security_rule_allow_all_outbound" {
 }
 
 resource "aws_security_group_rule" "security_rule_ingress_tcp_port" {
-  count = "${length(var.ingress_tcp_ports)}"
+  count = "${length(var.ports_ingress_tcp)}"
 
   type        = "ingress"
-  from_port   = "${element(var.ingress_tcp_ports, count.index)}"
-  to_port     = "${element(var.ingress_tcp_ports, count.index)}"
+  from_port   = "${element(var.ports_ingress_tcp, count.index)}"
+  to_port     = "${element(var.ports_ingress_tcp, count.index)}"
   protocol    = "tcp"
   cidr_blocks = ["0.0.0.0/0"]
 

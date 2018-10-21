@@ -1,7 +1,7 @@
 variable name_prefix {}
 variable secgroup_name {}
 
-variable ingress_tcp_ports {
+variable ports_ingress_tcp {
   type = "list"
 }
 
@@ -40,13 +40,13 @@ resource "openstack_networking_secgroup_rule_v2" "secgroup_rule_allow_all_intern
 
 resource "openstack_networking_secgroup_rule_v2" "secgroup_rule_ingress_tcp_port" {
   # create only if not specified in var.secgroup_name
-  count = "${var.secgroup_name == "" ? length(var.ingress_tcp_ports) : 0}"
+  count = "${var.secgroup_name == "" ? length(var.ports_ingress_tcp) : 0}"
 
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  port_range_min    = "${element(var.ingress_tcp_ports, count.index)}"
-  port_range_max    = "${element(var.ingress_tcp_ports, count.index)}"
+  port_range_min    = "${element(var.ports_ingress_tcp, count.index)}"
+  port_range_max    = "${element(var.ports_ingress_tcp, count.index)}"
   remote_ip_prefix  = "0.0.0.0/0"
   security_group_id = "${openstack_networking_secgroup_v2.created.id}"
 }

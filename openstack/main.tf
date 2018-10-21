@@ -27,7 +27,7 @@ variable secgroup_name {
   default = ""
 }
 
-variable ingress_tcp_ports {
+variable ports_ingress_tcp {
   type    = "list"
   default = ["22", "80", "443"]
 }
@@ -162,7 +162,7 @@ module "secgroup" {
   source            = "./secgroup"
   secgroup_name     = "${var.secgroup_name}"
   name_prefix       = "${var.cluster_prefix}"
-  ingress_tcp_ports = "${var.ingress_tcp_ports}"
+  ports_ingress_tcp = "${var.ports_ingress_tcp}"
 }
 
 module "master" {

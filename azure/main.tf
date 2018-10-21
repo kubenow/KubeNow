@@ -51,7 +51,7 @@ variable ssh_key {
 }
 
 # Networking
-variable ingress_tcp_ports {
+variable ports_ingress_tcp {
   type    = "list"
   default = ["22", "80", "443"]
 }
@@ -179,7 +179,7 @@ module "security_group" {
   name_prefix         = "${var.cluster_prefix}"
   location            = "${var.location}"
   resource_group_name = "${azurerm_resource_group.rg.name}"
-  ingress_tcp_ports   = "${var.ingress_tcp_ports}"
+  ports_ingress_tcp   = "${var.ports_ingress_tcp}"
 }
 
 # Network (here would be nice with condition)

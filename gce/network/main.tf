@@ -1,6 +1,6 @@
 variable network_name {}
 
-variable ingress_tcp_ports {
+variable ports_ingress_tcp {
   type = "list"
 }
 
@@ -22,7 +22,7 @@ resource "google_compute_firewall" "kn-firewall-external" {
 
   allow {
     protocol = "tcp"
-    ports    = "${var.ingress_tcp_ports}"
+    ports    = "${var.ports_ingress_tcp}"
   }
 }
 

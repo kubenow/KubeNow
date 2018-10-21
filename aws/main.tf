@@ -42,7 +42,7 @@ variable additional_sec_group_ids {
   default = []
 }
 
-variable ingress_tcp_ports {
+variable ports_ingress_tcp {
   type    = "list"
   default = ["22", "80", "443"]
 }
@@ -163,7 +163,7 @@ module "subnet" {
 module "security_group" {
   name_prefix       = "${var.cluster_prefix}"
   vpc_id            = "${module.vpc.id}"
-  ingress_tcp_ports = "${var.ingress_tcp_ports}"
+  ports_ingress_tcp = "${var.ports_ingress_tcp}"
   source            = "./security_group"
 }
 

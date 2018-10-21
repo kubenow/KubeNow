@@ -33,7 +33,7 @@ variable gce_credentials_file {
 }
 
 # Networking
-variable ingress_tcp_ports {
+variable ports_ingress_tcp {
   type    = "list"
   default = ["22", "80", "443"]
 }
@@ -131,7 +131,7 @@ provider "google" {
 module "network" {
   source            = "./network"
   network_name      = "${var.cluster_prefix}"
-  ingress_tcp_ports = "${var.ingress_tcp_ports}"
+  ports_ingress_tcp = "${var.ports_ingress_tcp}"
 }
 
 module "master" {

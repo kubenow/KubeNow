@@ -2,7 +2,7 @@ variable name_prefix {}
 variable location {}
 variable resource_group_name {}
 
-variable ingress_tcp_ports {
+variable ports_ingress_tcp {
   type = "list"
 }
 
@@ -13,7 +13,7 @@ resource "azurerm_network_security_group" "main" {
 }
 
 resource "azurerm_network_security_rule" "security_rule_ingress_tcp_port" {
-  count = "${length(var.ingress_tcp_ports)}"
+  count = "${length(var.ports_ingress_tcp)}"
 
   name                       = "${var.name_prefix}-secrule-${format("%03d", count.index)}"
   description                = "Automatically created security rule by-${var.name_prefix}"
@@ -22,7 +22,7 @@ resource "azurerm_network_security_rule" "security_rule_ingress_tcp_port" {
   access                     = "Allow"
   protocol                   = "Tcp"
   source_port_range          = "*"
-  destination_port_range     = "${element(var.ingress_tcp_ports, count.index)}"
+  destination_port_range     = "${element(var.ports_ingress_tcp, count.index)}"
   source_address_prefix      = "*"
   destination_address_prefix = "*"
 
