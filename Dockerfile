@@ -22,7 +22,7 @@ ENV PLUGIN_NULL=1.0.0
 ENV PLUGIN_CLOUDFLARE=0.1.0
 ENV PLUGIN_TEMPLATE=1.0.0
 ENV PLUGIN_RANDOM=1.0.0
-ENV PLUGIN_LIBVIRT=master-180127
+ENV PLUGIN_LIBVIRT=0.5.0
 # Pip version, PIP_VERSION env is reserved by Pip
 ENV PIP=9.0.3
 
@@ -124,11 +124,10 @@ RUN curl "https://releases.hashicorp.com/terraform-provider-random/${PLUGIN_RAND
     unzip "terraform-provider-random_${PLUGIN_RANDOM}_linux_amd64.zip" -d /terraform_plugins/ && \
     rm -f "terraform-provider-random_${PLUGIN_RANDOM}_linux_amd64.zip"
 
-# libvirt-plugin
-RUN curl "https://raw.githubusercontent.com/andersla/terraform-provider-libvirt-binary/master/${PLUGIN_LIBVIRT}-linux_x86/terraform-provider-libvirt.zip" > \
-    "terraform-provider-libvirt.zip" && \
-    unzip "terraform-provider-libvirt.zip" -d /terraform_plugins/ && \
-    rm -f "terraform-provider-libvirt.zip"
+RUN curl -L "https://github.com/dmacvicar/terraform-provider-libvirt/releases/download/v${PLUGIN_LIBVIRT}/terraform-provider-libvirt-${PLUGIN_LIBVIRT}.Ubuntu_18.04.amd64.tar.gz" > \
+    "terraform-provider-libvirt.tar.gz" && \
+    tar -xzvf terraform-provider-libvirt.tar.gz -C /terraform_plugins/ && \
+    rm -f "terraform-provider-libvirt.tar.gz"
 
 # Add KubeNow
 COPY . /opt/KubeNow

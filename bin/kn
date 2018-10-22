@@ -145,12 +145,13 @@ function docker_run() {
   # parameters
   local container=$1
   local kubenow_root=$2
-  local libvirt_extra_opts="$(get_libvirt_extra_opts)"
+  local libvirt_extra_opts
+  libvirt_extra_opts="$(get_libvirt_extra_opts)"
 
   # TODO get_user_tempdir
 
   echo "Using provisioner docker image version: $container"
-  # shellcheck disable=SC2068
+  # shellcheck disable=SC2068,SC2086
   docker run --rm -it \
     -v "$kubenow_root":/KubeNow_root:Z \
     -v "/tmp":/tmp \
