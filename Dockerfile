@@ -22,6 +22,7 @@ ENV PLUGIN_NULL=1.0.0
 ENV PLUGIN_CLOUDFLARE=0.1.0
 ENV PLUGIN_TEMPLATE=1.0.0
 ENV PLUGIN_RANDOM=1.0.0
+ENV PLUGIN_LIBVIRT=master-180127
 # Pip version, PIP_VERSION env is reserved by Pip
 ENV PIP=9.0.3
 
@@ -37,6 +38,8 @@ RUN apt-get update -y && \
       gosu \
       jq \
       libffi-dev \
+      libvirt-bin \
+      mkisofs \
       openssl \
       python-pip \
       libcrack2 \
@@ -120,6 +123,12 @@ RUN curl "https://releases.hashicorp.com/terraform-provider-random/${PLUGIN_RAND
     "terraform-provider-random_${PLUGIN_RANDOM}_linux_amd64.zip" && \
     unzip "terraform-provider-random_${PLUGIN_RANDOM}_linux_amd64.zip" -d /terraform_plugins/ && \
     rm -f "terraform-provider-random_${PLUGIN_RANDOM}_linux_amd64.zip"
+
+# libvirt-plugin
+RUN curl "https://raw.githubusercontent.com/andersla/terraform-provider-libvirt-binary/master/${PLUGIN_LIBVIRT}-linux_x86/terraform-provider-libvirt.zip" > \
+    "terraform-provider-libvirt.zip" && \
+    unzip "terraform-provider-libvirt.zip" -d /terraform_plugins/ && \
+    rm -f "terraform-provider-libvirt.zip"
 
 # Add KubeNow
 COPY . /opt/KubeNow

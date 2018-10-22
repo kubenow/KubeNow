@@ -75,9 +75,35 @@ function usage_init() {
   cat <<EOF
 
 Usage: init <CLOUD> <DIR>
-CLOUD=<gce|aws|openstack|azure>
+CLOUD=<gce|aws|openstack|azure|kvm>
 
 EOF
+}
+
+########################################
+# xxxxxxxxxx
+#
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+########################################
+function get_libvirt_extra_opts() {
+  # Get var from tfvars-file
+  opts=""
+  if [ -f config.tfvars ]; then
+    provider=$(grep "^provider" "config.tfvars" |
+      cut -d "=" -f 2- |
+      awk -F\" '{print $(NF-1)}')
+
+    # Specify extra kvm/libvirt args
+    if [[ $provider == "kvm" ]]; then
+      opts="-v /var/run/libvirt/libvirt-sock:/var/run/libvirt/libvirt-sock --net=host --privileged=true"
+    fi
+  fi
+  echo "$opts"
 }
 
 ########################################
@@ -119,10 +145,16 @@ function docker_run() {
   # parameters
   local container=$1
   local kubenow_root=$2
+  local libvirt_extra_opts="$(get_libvirt_extra_opts)"
+
+  # TODO get_user_tempdir
+
   echo "Using provisioner docker image version: $container"
   # shellcheck disable=SC2068
   docker run --rm -it \
     -v "$kubenow_root":/KubeNow_root:Z \
+    -v "/tmp":/tmp \
+    $libvirt_extra_opts \
     -e "LOCAL_USER_ID=$UID" \
     -e "LOCAL_GROUP_IDS=$(id -G)" \
     -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
@@ -356,7 +388,7 @@ init)
   # Parse HOST_CLOUD
   host_cloud="$2"
   # Check for recognized cloud provider
-  if ! grep -qw "$host_cloud" <<<"openstack gce azure aws"; then
+  if ! grep -qw "$host_cloud" <<<"openstack gce azure aws kvm"; then
     echo "Error: unrecognized host cloud '$host_cloud'" >&2
     usage_init
     exit 1

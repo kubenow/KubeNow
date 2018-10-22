@@ -1,0 +1,15 @@
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: local-shared-volume
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: "{{ vol_size }}"
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "{{ mnt_path }}"
