@@ -38,9 +38,13 @@ variable subnet_id {
 }
 
 variable additional_sec_group_ids {
-  type = "list"
-
+  type    = "list"
   default = []
+}
+
+variable ports_ingress_tcp {
+  type    = "list"
+  default = ["22", "80", "443"]
 }
 
 # Master settings
@@ -157,9 +161,10 @@ module "subnet" {
 
 # Networking - sec-group
 module "security_group" {
-  name_prefix = "${var.cluster_prefix}"
-  vpc_id      = "${module.vpc.id}"
-  source      = "./security_group"
+  name_prefix       = "${var.cluster_prefix}"
+  vpc_id            = "${module.vpc.id}"
+  ports_ingress_tcp = "${var.ports_ingress_tcp}"
+  source            = "./security_group"
 }
 
 # Lookup image-id of boot_image

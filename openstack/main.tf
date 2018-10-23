@@ -27,6 +27,11 @@ variable secgroup_name {
   default = ""
 }
 
+variable ports_ingress_tcp {
+  type    = "list"
+  default = ["22", "80", "443"]
+}
+
 variable external_network_uuid {}
 
 variable dns_nameservers {
@@ -182,9 +187,10 @@ module "network" {
 
 # Secgroup
 module "secgroup" {
-  source        = "./secgroup"
-  secgroup_name = "${var.secgroup_name}"
-  name_prefix   = "${var.cluster_prefix}"
+  source            = "./secgroup"
+  secgroup_name     = "${var.secgroup_name}"
+  name_prefix       = "${var.cluster_prefix}"
+  ports_ingress_tcp = "${var.ports_ingress_tcp}"
 }
 
 module "master" {
