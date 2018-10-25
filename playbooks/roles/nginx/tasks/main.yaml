@@ -5,4 +5,4 @@
 
 - name: install nginx
   command: >
-    helm upgrade --install nginx-ingress --namespace=nginx-ingress stable/nginx-ingress --values /tmp/nginx-config.yml
+    helm upgrade --install nginx-ingress --namespace=nginx-ingress stable/nginx-ingress --values /tmp/nginx-config.yaml
