@@ -79,7 +79,7 @@ jobs:
               docker push kubenow/provisioners:latest
             elif [[ "$TRAVIS_BRANCH" == "master" ||
                       "$TRAVIS_BRANCH" == *"stable"* ||
-                      "$TRAVIS_BRANCH" == *"development"* ]]
+                      "$TRAVIS_BRANCH" == *"development"* ]]; then
               # Create a docker image tag out of branch-name where / is replaced by -
               tag="${TRAVIS_BRANCH/\//-}"
               docker build -t kubenow/provisioners:$tag .
