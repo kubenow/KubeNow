@@ -35,7 +35,7 @@ basic:
                          Default <host> is master
   upgrade <version>      upgrade kn to <latest|latest-stable|master|"tag">
                          Default <version> is the one currently in use
-  pull                   pull latest version of provisioner for current branch
+  pull                   pull latest version of provisioner for the current branch
 kubernetes:
   kubectl                run kubectl on the master. More help: kn kubectl help
   helm                   run helm on the master. More help: kn helm help
