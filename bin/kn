@@ -35,6 +35,7 @@ basic:
                          Default <host> is master
   upgrade <version>      upgrade kn to <latest|latest-stable|master|"tag">
                          Default <version> is the one currently in use
+  pull                   pull latest version of provisioner for the current branch
 kubernetes:
   kubectl                run kubectl on the master. More help: kn kubectl help
   helm                   run helm on the master. More help: kn helm help
@@ -255,14 +256,26 @@ function upgrade() {
     exit 1
   )
 
+  echo -e "\\nUpdated ok to version $version\\n"
+
   rm "$tmpfile"
 
+}
+
+#########################################
+# pull latest version of provisioner for
+# current branch
+# Globals:
+#   KN_PROVISIONERS_IMG
+# Arguments:
+#   None
+# Returns:
+#   None
+#########################################
+function pull() {
   # Pull latest docker
   echo "Pull provisioners docker image"
-
   docker pull "$KN_PROVISIONERS_IMG"
-
-  echo -e "\\nUpdated ok to version $KN_PROVISIONERS_IMG\\n"
 }
 
 # First read vars specified in config file
@@ -343,6 +356,13 @@ upgrade)
 
   # shellcheck disable=SC2068
   upgrade ${@:2}
+  exit
+  ;;
+
+pull)
+
+  # shellcheck disable=SC2068
+  pull ${@:2}
   exit
   ;;
 
