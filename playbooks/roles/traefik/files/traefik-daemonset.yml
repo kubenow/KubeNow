@@ -20,7 +20,7 @@ spec:
       - key: node-role.kubernetes.io/master
         effect: NoSchedule
       containers:
-      - image: traefik:v1.3.8
+      - image: traefik:v1.7.4
         name: traefik-ingress-lb
         imagePullPolicy: Always
         volumeMounts:
