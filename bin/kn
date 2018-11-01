@@ -10,7 +10,7 @@ export KN_BRANCH=${KN_BRANCH:-'development/kvm-provider'}
 export KN_PLUGIN_REPO=${KN_PLUGIN_REPO:-''}
 export KN_PLUGIN_REPO_BRANCH=${KN_PLUGIN_REPO_BRANCH:-'master'}
 export KN_PLUGIN_NAME=${KN_PLUGIN_NAME:-''}
-export KN_PROVISIONERS_IMG=${KN_PROVISIONERS_IMG:-'kubenow/development-kvm-provider'}
+export KN_PROVISIONERS_IMG=${KN_PROVISIONERS_IMG:-'kubenow/provisioners:development-kvm-provider'}
 
 ###################################
 # Functions
