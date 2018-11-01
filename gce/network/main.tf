@@ -1,5 +1,9 @@
 variable network_name {}
 
+variable ports_ingress_tcp {
+  type = "list"
+}
+
 # Network
 resource "google_compute_network" "kn-network" {
   name                    = "${var.network_name}"
@@ -18,12 +22,7 @@ resource "google_compute_firewall" "kn-firewall-external" {
 
   allow {
     protocol = "tcp"
-
-    ports = [
-      "22",  # SSH
-      "80",  # HTTP
-      "443",
-    ] # HTTPS
+    ports    = "${var.ports_ingress_tcp}"
   }
 }
 
