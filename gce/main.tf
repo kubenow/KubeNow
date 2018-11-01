@@ -32,6 +32,12 @@ variable gce_credentials_file {
   default = "service-account.json"
 }
 
+# Networking
+variable ports_ingress_tcp {
+  type    = "list"
+  default = ["22", "80", "443"]
+}
+
 # Master settings
 variable master_count {
   default = 1
@@ -123,8 +129,9 @@ provider "google" {
 
 # Network (here would be nice with condition)
 module "network" {
-  source       = "./network"
-  network_name = "${var.cluster_prefix}"
+  source            = "./network"
+  network_name      = "${var.cluster_prefix}"
+  ports_ingress_tcp = "${var.ports_ingress_tcp}"
 }
 
 module "master" {

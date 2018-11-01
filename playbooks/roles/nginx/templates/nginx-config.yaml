@@ -1,4 +1,7 @@
 controller:
+  tolerations:
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
   nodeSelector:
     role: edge
   hostNetwork: true
