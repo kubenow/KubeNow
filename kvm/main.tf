@@ -97,6 +97,10 @@ resource "libvirt_network" "network" {
 #  bridge = "${var.bridge_name}"
   domain = "k8s.local"
   addresses = ["10.0.0.0/16"]
+  dhcp {
+    enabled = "true"
+  }
+  autostart = "true"
 }
 
 # Create a template disk
