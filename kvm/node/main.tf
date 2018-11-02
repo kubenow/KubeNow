@@ -37,23 +37,21 @@ data "template_file" "instance_bootstrap" {
   }
 }
 
-# Create cloud-init iso image
-resource "libvirt_cloudinit" "clouddrive" {
-  count              = "${var.count > 0 ? 1 : 0}"
-  name               = "${var.name_prefix}-cloud-init.iso"
-  ssh_authorized_key = "${file(var.ssh_key)}"
-  pool               = "${var.volume_pool}"
+# Create cloud init config file
+data "template_file" "user_data" {
+  template                 = "${file("${path.module}/cloud_init.cfg")}"
 
-  # create a cloud config yaml
-  user_data = <<EOF
-write_files:
-  - path: /tmp/bootstrap.sh
-    encoding: base64
-    content: "${base64encode(data.template_file.instance_bootstrap.rendered)}"
-    permissions: '755'
-runcmd:
-  - /tmp/bootstrap.sh
-EOF
+  vars{
+    bootstrap_script_content = "${base64encode(data.template_file.instance_bootstrap.rendered)}"
+    ssh_key                  = "${file(var.ssh_key)}"
+  }
+}
+
+# Create cloud-init iso image
+resource "libvirt_cloudinit_disk" "commoninit" {
+  count     = "${var.count > 0 ? 1 : 0}"
+  name      = "${var.name_prefix}-cloud-init.iso"
+  user_data = "${data.template_file.user_data.rendered}"
 }
 
 # Create root volume
@@ -79,7 +77,7 @@ resource "libvirt_domain" "instance" {
   vcpu        = "${var.vcpu}"
   memory      = "${var.memory}"
 
-  cloudinit   = "${libvirt_cloudinit.clouddrive.id}"
+  cloudinit   = "${libvirt_cloudinit_disk.commoninit.id}"
 
   disk = [
     {
@@ -94,7 +92,7 @@ resource "libvirt_domain" "instance" {
     hostname       = "${var.name_prefix}-${format("%03d", count.index)}"
     network_id     = "${var.network_id}"
     # addresses      = ["${var.fixed_ip_series}.${format("%01d", count.index + 1)}"]
-    wait_for_lease = 0
+    wait_for_lease = 1
   }
 
   console {
