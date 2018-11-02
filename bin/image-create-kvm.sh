@@ -55,7 +55,7 @@ else
   echo "File eists on server $KN_IMAGE_BUCKET_URL"
 fi
 
-echo "Downloading image to local dir $local_dir"
+echo "Downloading image to local dir: ./$local_dir"
 
 mkdir -p "$local_dir"
 curl "$KN_IMAGE_BUCKET_URL/$file_name" \
