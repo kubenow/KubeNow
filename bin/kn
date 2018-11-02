@@ -6,11 +6,11 @@ set -e # exit at first error
 # Set global vars (from Environment or Default)
 ###############################################
 export KN_REPO=${KN_REPO:-'https://github.com/kubenow/KubeNow.git'}
-export KN_BRANCH=${KN_BRANCH:-'feature/improved-repo-and-branch-vars'}
+export KN_BRANCH=${KN_BRANCH:-'master'}
 export KN_PLUGIN_REPO=${KN_PLUGIN_REPO:-''}
 export KN_PLUGIN_REPO_BRANCH=${KN_PLUGIN_REPO_BRANCH:-'master'}
 export KN_PLUGIN_NAME=${KN_PLUGIN_NAME:-''}
-export KN_PROVISIONERS_IMG=${KN_PROVISIONERS_IMG:-'kubenow/provisioners:phenomenal-stable'}
+export KN_PROVISIONERS_IMG=${KN_PROVISIONERS_IMG:-'kubenow/provisioners:master'}
 
 ###################################
 # Functions
