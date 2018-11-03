@@ -96,7 +96,7 @@ resource "libvirt_network" "network" {
   mode = "${var.network_mode}"
 #  bridge = "${var.bridge_name}"
   domain = "k8s.local"
-  addresses = ["10.0.0.0/16"]
+  addresses = ["10.0.0.0/24"]
   dhcp {
     enabled = "true"
   }
