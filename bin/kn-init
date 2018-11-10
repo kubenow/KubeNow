@@ -8,10 +8,9 @@ host_cloud="$1"
 # Checkout speciffic branch if specified (and pull it)
 if [ -n "$KN_BRANCH" ]; then
   echo "Checkout KubeNow branch"
-  cd "/opt/KubeNow"
-  git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
-  git fetch --unshallow --tags
-  git checkout "$KN_BRANCH"
+  git -C "/opt/KubeNow" config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+  git -C "/opt/KubeNow" fetch --unshallow --tags
+  git -C "/opt/KubeNow" checkout "$KN_BRANCH"
   echo "Checkout KubeNow branch done"
 fi
 
