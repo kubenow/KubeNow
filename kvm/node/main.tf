@@ -11,7 +11,8 @@ variable ssh_user {}
 
 # Network settings
 variable network_id {}
-variable fixed_ip_series {}
+variable ip_if1 { type = "list" }
+variable ip_if2 { type = "list" }
 
 # Disk settings
 variable template_vol_id {}
@@ -23,6 +24,11 @@ variable kubeadm_token {}
 variable node_labels { type = "list" }
 variable node_taints { type = "list" }
 variable master_ip { default = "" }
+
+resource "random_string" "password" {
+ length = 16
+ special = true
+}
 
 # Bootstrap
 data "template_file" "instance_bootstrap" {
@@ -39,19 +45,39 @@ data "template_file" "instance_bootstrap" {
 
 # Create cloud init config file
 data "template_file" "user_data" {
-  template                 = "${file("${path.module}/cloud_init.cfg")}"
+  count    = "${var.count > 0 ? 1 : 0}"
+  template = "${file("${path.module}/cloud_init.cfg")}"
 
   vars{
     bootstrap_script_content = "${base64encode(data.template_file.instance_bootstrap.rendered)}"
     ssh_key                  = "${file(var.ssh_key)}"
+    hostname                 = "${var.name_prefix}-${format("%03d", count.index)}"
+    password                 = "${sha256(bcrypt(random_string.password.result))}"
+  }
+
+  lifecycle {
+    ignore_changes = ["password"]
+  }
+}
+
+# Create network interface init config file
+data "template_file" "network_config" {
+  count     = "${var.count > 0 ? 1 : 0}"
+  template  = "${file("${path.module}/network_config.cfg")}"
+
+  vars{
+    fixed_ip  = "${element(var.fixed_ip, count.index)}"
+    fixed_ip2 = "${element(var.fixed_ip2, count.index)}"
   }
 }
 
 # Create cloud-init iso image
 resource "libvirt_cloudinit_disk" "commoninit" {
-  count     = "${var.count > 0 ? 1 : 0}"
-  name      = "${var.name_prefix}-cloud-init.iso"
-  user_data = "${data.template_file.user_data.rendered}"
+  count          = "${var.count > 0 ? 1 : 0}"
+  name           = "${var.name_prefix}-cloud-init.iso"
+  user_data      = "${data.template_file.user_data.rendered}"
+  network_config = "${element(data.template_file.network_config.*.rendered, count.index)}"
+  pool           = "${var.volume_pool}"
 }
 
 # Create root volume
@@ -77,7 +103,7 @@ resource "libvirt_domain" "instance" {
   vcpu        = "${var.vcpu}"
   memory      = "${var.memory}"
 
-  cloudinit   = "${libvirt_cloudinit_disk.commoninit.id}"
+  cloudinit   = "${element(libvirt_cloudinit_disk.commoninit.*.id, count.index)}"
 
   disk = [
     {
@@ -89,10 +115,13 @@ resource "libvirt_domain" "instance" {
   ]
 
   network_interface {
-    hostname       = "${var.name_prefix}-${format("%03d", count.index)}"
-    network_id     = "${var.network_id}"
-    # addresses      = ["${var.fixed_ip_series}.${format("%01d", count.index + 1)}"]
-    wait_for_lease = 1
+    bridge         = "br0"
+    addresses      = ["${element(var.ip_if1, count.index)}"]
+  }
+  
+  network_interface {
+    bridge         = "br1"
+    addresses      = ["${element(var.ip_if1, count.index)}"]
   }
 
   console {
@@ -114,13 +143,21 @@ output "extra_disk_device" {
   value = ["/dev/vdb"]
 }
 
+#output "local_ip_v4" {
+#  value = ["${libvirt_domain.instance.*.network_interface.0.addresses.0}"]
+#}
+#
+#output "public_ip" {
+#  # TODO same as internal until creating second network
+#  value = ["${libvirt_domain.instance.*.network_interface.0.addresses.0}"]
+#}
+
 output "local_ip_v4" {
-  value = ["${libvirt_domain.instance.*.network_interface.0.addresses.0}"]
+  value = "${var.ip_if2}"
 }
 
 output "public_ip" {
-  # TODO same as internal until creating second network
-  value = ["${libvirt_domain.instance.*.network_interface.0.addresses.0}"]
+  value = "${var.ip_if1}"
 }
 
 output "hostnames" {

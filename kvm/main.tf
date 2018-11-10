@@ -23,7 +23,7 @@ variable kubeadm_token {
 # Image settings
 variable boot_image {}
 variable image_dir { default = "/tmp" } # to do fixme
-variable volume_pool  { default = "default" }
+variable volume_pool  { default = "images" }
 
 # Network settings
 variable network_mode  { default = "nat" }
@@ -35,22 +35,54 @@ variable master_vcpu { default = 2 }
 variable master_memory { default = 1024 }
 variable master_as_edge { default = "true" }
 variable master_extra_disk_size { default = "200" }
+variable master_ip_if1{
+  type    = "list"
+  default = ["130.238.44.20"]
+}
+variable master_ip_if2{
+  type    = "list"
+  default = ["10.10.0.20"]
+}
 
 # Nodes settings
 variable node_count { default = 0 }
 variable node_vcpu { default = 2 }
 variable node_memory { default = 1024 }
+variable node_ip_if1{
+  type    = "list"
+  default = ["130.238.44.30"]
+}
+variable node_ip_if2{
+  type    = "list"
+  default = ["10.10.0.30"]
+}
 
 # Edges settings
 variable edge_count { default = 0 }
 variable edge_vcpu { default = 2 }
 variable edge_memory { default = 1024 }
+variable edge_ip_if1{
+  type    = "list"
+  default = ["x.x.x.x"]
+}
+variable edge_ip_if2{
+  type    = "list"
+  default = ["x.x.x.x"]
+}
 
 # Glusternode settings
 variable glusternode_count { default = 0 }
 variable glusternode_vcpu { default = 2 }
 variable glusternode_memory { default = 1024 }
 variable glusternode_extra_disk_size { default = "200" }
+variable glusternode_ip_if1{
+  type    = "list"
+  default = ["x.x.x.x"]
+}
+variable glusternode_ip_if2{
+  type    = "list"
+  default = ["x.x.x.x"]
+}
 variable gluster_volumetype {
   default = "none:1"
 }
@@ -92,9 +124,9 @@ provider "libvirt" {
 
 # Network
 resource "libvirt_network" "network" {
-  name = "${var.cluster_prefix}-network"
-  mode = "${var.network_mode}"
-#  bridge = "${var.bridge_name}"
+  name  = "${var.cluster_prefix}-network"
+  mode  = "${var.network_mode}"
+#  bridge = "${var.bridge_name}-another"
   domain = "k8s.local"
   addresses = ["10.0.0.0/24"]
   dhcp {
@@ -122,7 +154,8 @@ module "master" {
 
   # Network settings
   network_id      = "${libvirt_network.network.id}"
-  fixed_ip_series = "10.0.0"
+  ip_if1          = "${var.master_ip_if1}"
+  ip_if2          = "${var.master_ip_if2}"
   ssh_key         = "${var.ssh_key}"
   ssh_user        = "${var.ssh_user}"
 
@@ -151,7 +184,8 @@ module "node" {
 
   # Network settings
   network_id      = "${libvirt_network.network.id}"
-  fixed_ip_series = "10.0.1"
+  ip_if1          = "${var.node_ip_if1}"
+  ip_if2          = "${var.node_ip_if2}"
   ssh_key         = "${var.ssh_key}"
   ssh_user        = "${var.ssh_user}"
 
@@ -163,7 +197,7 @@ module "node" {
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
-  node_labels    = ["role=node"]
+  node_labels    = ["role=node","role=bajs"]
   node_taints    = [""]
   master_ip      = "${element(module.master.local_ip_v4, 0)}"
 }
@@ -180,7 +214,8 @@ module "edge" {
 
   # Network settings
   network_id      = "${libvirt_network.network.id}"
-  fixed_ip_series = "10.0.2"
+  ip_if1          = "${var.edge_ip_if1}"
+  ip_if2          = "${var.edge_ip_if2}"
   ssh_key         = "${var.ssh_key}"
   ssh_user        = "${var.ssh_user}"
 
@@ -192,7 +227,7 @@ module "edge" {
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
-  node_labels    = ["role=edge"]
+  node_labels    = ["role=edge","role=bajs"]
   node_taints    = [""]
   master_ip      = "${element(module.master.local_ip_v4, 0)}"
 }
@@ -209,7 +244,8 @@ module "glusternode" {
 
   # Network settings
   network_id      = "${libvirt_network.network.id}"
-  fixed_ip_series = "10.0.3"
+  ip_if1          = "${var.glusternode_ip_if1}"
+  ip_if2          = "${var.glusternode_ip_if2}"
   ssh_key         = "${var.ssh_key}"
   ssh_user        = "${var.ssh_user}"
 
@@ -221,7 +257,7 @@ module "glusternode" {
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
   kubeadm_token  = "${var.kubeadm_token}"
-  node_labels    = ["storagenode=glusterfs"]
+  node_labels    = ["storagenode=glusterfs","role=bajs"]
   node_taints    = [""]
   master_ip      = "${element(module.master.local_ip_v4, 0)}"
 }
