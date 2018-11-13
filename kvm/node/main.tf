@@ -52,12 +52,10 @@ data "template_file" "user_data" {
     bootstrap_script_content = "${base64encode(data.template_file.instance_bootstrap.rendered)}"
     ssh_key                  = "${file(var.ssh_key)}"
     hostname                 = "${var.name_prefix}-${format("%03d", count.index)}"
-    password                 = "${sha256(bcrypt(random_string.password.result))}"
+    password                 = "slaskslask"
+    # password                 = "${sha256(bcrypt(random_string.password.result))}"
   }
 
-  lifecycle {
-    ignore_changes = ["password"]
-  }
 }
 
 # Create network interface init config file
@@ -66,8 +64,8 @@ data "template_file" "network_config" {
   template  = "${file("${path.module}/network_config.cfg")}"
 
   vars{
-    fixed_ip  = "${element(var.fixed_ip, count.index)}"
-    fixed_ip2 = "${element(var.fixed_ip2, count.index)}"
+    ip_if1  = "${element(var.ip_if1, count.index)}"
+    ip_if2 = "${element(var.ip_if2, count.index)}"
   }
 }
 
@@ -113,7 +111,7 @@ resource "libvirt_domain" "instance" {
       volume_id = "${element(libvirt_volume.extra_disk.*.id, count.index)}"
     }
   ]
-
+  
   network_interface {
     bridge         = "br0"
     addresses      = ["${element(var.ip_if1, count.index)}"]
