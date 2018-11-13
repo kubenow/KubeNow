@@ -45,6 +45,9 @@ done
 # Set ownership to KubeNow folder
 chown -R "$username" "/opt/KubeNow"
 
+# add write permission to KubeNow folder
+chmod -R +w "/opt/KubeNow"
+
 # add KubeNow bin path (works with gosu - environment variables are kept
 # when swiching user)
 if [[ "$1" == "kn-init" ]]; then

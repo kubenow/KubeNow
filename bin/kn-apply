@@ -18,7 +18,7 @@ if [ -z "$preflight_script" ]; then
 fi
 
 # Check for recognized cloud provider
-if ! grep -qw "$host_cloud" <<<"openstack gce azure aws"; then
+if ! grep -qw "$host_cloud" <<<"openstack gce azure aws kvm"; then
   echo >&2 "Error: unrecognized host cloud '$host_cloud' in config file config.tfvars"
   exit 1
 fi
