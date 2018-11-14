@@ -1,0 +1,12 @@
+---
+- hosts: all
+  tasks:
+  - name: install NetworkManager
+    yum: name=NetworkManager
+       state=installed
+
+  - name: enable NetworkManager
+    service: name=NetworkManager
+       enabled=true
+       state=started
+
