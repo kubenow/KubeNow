@@ -5,6 +5,18 @@ set -e
 
 host_cloud="$1"
 
+# Checkout speciffic branch if specified (and pull it)
+if [ -n "$KN_BRANCH" ]; then
+  echo "Checkout KubeNow branch"
+  git -C "/opt/KubeNow" config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+  git -C "/opt/KubeNow" fetch --unshallow --tags
+  git -C "/opt/KubeNow" checkout "$KN_BRANCH"
+  echo "Checkout KubeNow branch done"
+fi
+
+# Pull branch
+git -C "/opt/KubeNow" pull
+
 # Git clone plugin-repo if plugin-repo is specified
 if [ -n "$KN_PLUGIN_REPO" ]; then
   echo "Clone plugin repo: $KN_PLUGIN_REPO"
@@ -13,7 +25,7 @@ if [ -n "$KN_PLUGIN_REPO" ]; then
   git clone "$KN_PLUGIN_REPO" "$plugin_dir"
   echo "Clone plugin repo done"
 
-  # Checkout a specific branch if provided
+  # Checkout a specific plugin-branch if provided
   if [ -n "$KN_PLUGIN_REPO_BRANCH" ]; then
     git -C "/opt/KubeNow/plugins/$KN_PLUGIN_NAME" checkout "$KN_PLUGIN_REPO_BRANCH"
   fi
