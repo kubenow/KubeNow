@@ -10,4 +10,3 @@
     service: name=NetworkManager
        enabled=true
        state=started
-
