@@ -25,11 +25,6 @@ variable node_labels { type = "list" }
 variable node_taints { type = "list" }
 variable master_ip { default = "" }
 
-resource "random_string" "password" {
- length = 16
- special = true
-}
-
 # Bootstrap
 data "template_file" "instance_bootstrap" {
   template = "${file("${path.root}/../${var.bootstrap_file }")}"
@@ -43,6 +38,11 @@ data "template_file" "instance_bootstrap" {
   }
 }
 
+# Create a password
+resource "random_id" "password" {
+ byte_length = 8
+}
+
 # Create cloud init config file
 data "template_file" "user_data" {
   count    = "${var.count > 0 ? 1 : 0}"
@@ -52,8 +52,7 @@ data "template_file" "user_data" {
     bootstrap_script_content = "${base64encode(data.template_file.instance_bootstrap.rendered)}"
     ssh_key                  = "${file(var.ssh_key)}"
     hostname                 = "${var.name_prefix}-${format("%03d", count.index)}"
-    password                 = "slaskslask"
-    # password                 = "${sha256(bcrypt(random_string.password.result))}"
+    password                 = "${random_id.password.b64_url}"
   }
 
 }
