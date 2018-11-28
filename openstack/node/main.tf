@@ -14,6 +14,10 @@ variable keypair_name {}
 # Network settings
 variable network_name {}
 
+variable external_network_uuid {
+  default = ""
+}
+
 variable secgroup_name {}
 
 variable assign_floating_ip {
@@ -70,6 +74,10 @@ resource "openstack_compute_instance_v2" "instance" {
     name = "${var.network_name}"
   }
 
+  network {
+    uuid = "${var.external_network_uuid}"
+  }
+
   security_groups = ["${var.secgroup_name}"]
   user_data       = "${data.template_file.instance_bootstrap.rendered}"
 }
@@ -111,7 +119,7 @@ output "local_ip_v4" {
 }
 
 output "public_ip" {
-  value = ["${openstack_compute_floatingip_v2.floating_ip.*.address}"]
+  value = ["${openstack_compute_instance_v2.instance.*.network.1.fixed_ip_v4}"]  
 }
 
 output "hostnames" {
