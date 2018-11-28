@@ -12,6 +12,16 @@ secondary_interface=$(echo $interfaces | cut -d' ' -f2)
 # Add ext interface
 echo -e "auto $secondary_interface\niface $secondary_interface inet dhcp" > /etc/network/interfaces.d/ext-net.cfg
 service networking restart
+
+# Primary interface info
+network_1_addr=$(ip -o -4  a | grep ens3 | awk '{print $4}') 
+network_1_ip=$(cut -d'/' -f1 <<<"$network_1_addr")
+network_1_cl=$(cut -d'/' -f2 <<<"$network_1_addr")
+
+# Secondary interface info
+network_2_addr=$(ip -o -4  a | grep ens4 | awk '{print $4}') 
+network_2_ip=$(cut -d'/' -f1 <<<"$network_2_addr")
+network_2_cl=$(cut -d'/' -f2 <<<"$network_2_addr")
 # Taint and label
 node_labels=${node_labels}
 node_taints=${node_taints}
