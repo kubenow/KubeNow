@@ -27,6 +27,9 @@ network_2_cl=$(cut -d'/' -f2 <<<"$network_2_addr")
 route add default gw 90.147.75.1 $secondary_interface
 route del default gw 172.30.63.1 ens3
 
+# Set advertise address of Kubernetes Master
+API_ADVERTISE_ADDRESSES="$network_1_ip"
+
 # Taint and label
 node_labels=${node_labels}
 node_taints=${node_taints}
@@ -55,7 +58,7 @@ echo "Inititializing the master...."
 
 if [ -n "$API_ADVERTISE_ADDRESSES" ]; then
   # shellcheck disable=SC2154
-  kubeadm init --token "${kubeadm_token}" --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.9.2 --api-advertise-address="$API_ADVERTISE_ADDRESSES"
+  kubeadm init --token "${kubeadm_token}" --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.9.2 --apiserver-advertise-address="$API_ADVERTISE_ADDRESSES"
 else
   # shellcheck disable=SC2154
   kubeadm init --token "${kubeadm_token}" --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.9.2
