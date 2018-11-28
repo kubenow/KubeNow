@@ -22,6 +22,11 @@ network_1_cl=$(cut -d'/' -f2 <<<"$network_1_addr")
 network_2_addr=$(ip -o -4  a | grep ens4 | awk '{print $4}') 
 network_2_ip=$(cut -d'/' -f1 <<<"$network_2_addr")
 network_2_cl=$(cut -d'/' -f2 <<<"$network_2_addr")
+
+# Update routes
+route add default gw 90.147.75.1 $secondary_interface
+route del default gw 172.30.63.1 ens3
+
 # Taint and label
 node_labels=${node_labels}
 node_taints=${node_taints}
