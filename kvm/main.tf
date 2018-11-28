@@ -9,6 +9,10 @@ variable inventory_template {
   default = "inventory-template"
 }
 
+variable inventory_output_file {
+  default = "inventory"
+}
+
 variable ssh_user {
   default = "ubuntu"
 }
@@ -305,4 +309,5 @@ module "generate-inventory" {
   gluster_volumetype     = "${var.gluster_volumetype}"
   gluster_extra_disk_dev = "${element(concat(module.glusternode.extra_disk_device, list("")),0)}"
   inventory_template     = "${var.inventory_template}"
+  inventory_output_file  = "${var.inventory_output_file}"
 }
