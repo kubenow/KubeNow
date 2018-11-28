@@ -157,6 +157,7 @@ module "master" {
 
   # Network settings
   network_name       = "${module.network.network_name}"
+  external_network_uuid = "${var.external_network_uuid}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "true"
   floating_ip_pool   = "${var.floating_ip_pool}"
@@ -187,6 +188,7 @@ module "node" {
 
   # Network settings
   network_name       = "${module.network.network_name}"
+  external_network_uuid = "${var.external_network_uuid}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "false"
   floating_ip_pool   = ""
@@ -217,6 +219,7 @@ module "edge" {
 
   # Network settings
   network_name       = "${module.network.network_name}"
+  external_network_uuid = "${var.external_network_uuid}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "true"
   floating_ip_pool   = "${var.floating_ip_pool}"
@@ -247,6 +250,7 @@ module "glusternode" {
 
   # Network settings
   network_name       = "${module.network.network_name}"
+  external_network_uuid = "${var.external_network_uuid}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "false"
   floating_ip_pool   = "${var.floating_ip_pool}"
