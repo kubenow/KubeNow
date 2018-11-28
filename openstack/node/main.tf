@@ -26,6 +26,10 @@ variable assign_floating_ip {
 
 variable floating_ip_pool {}
 
+variable attach_external_net {
+  default = false
+}
+
 # Disk settings
 variable extra_disk_size {
   default = 0
@@ -63,7 +67,23 @@ data "template_file" "instance_bootstrap" {
 
 # Create instances
 resource "openstack_compute_instance_v2" "instance" {
-  count       = "${var.count}"
+  count       = "${!var.attach_external_net ? var.count : 0}"
+  name        = "${var.name_prefix}-${format("%03d", count.index)}"
+  image_name  = "${var.image_name}"
+  flavor_name = "${var.flavor_name}"
+  flavor_id   = "${var.flavor_id}"
+  key_pair    = "${var.keypair_name}"
+
+  network {
+    name = "${var.network_name}"
+  }
+
+  security_groups = ["${var.secgroup_name}"]
+  user_data       = "${data.template_file.instance_bootstrap.rendered}"
+}
+
+resource "openstack_compute_instance_v2" "instance_ext" {
+  count       = "${var.attach_external_net ? var.count : 0}"
   name        = "${var.name_prefix}-${format("%03d", count.index)}"
   image_name  = "${var.image_name}"
   flavor_name = "${var.flavor_name}"
@@ -105,7 +125,9 @@ resource "openstack_blockstorage_volume_v2" "extra_disk" {
 # Attach extra disk (if created) Disk attaches as /dev/
 resource "openstack_compute_volume_attach_v2" "attach_extra_disk" {
   count       = "${var.extra_disk_size > 0 ? var.count : 0}"
-  instance_id = "${element(openstack_compute_instance_v2.instance.*.id, count.index)}"
+  # The concat() hack is needed beacause the HIL (the interpolation language) 
+  # doesn't lazy evaluate the branches of the if statement yet.
+  instance_id = "${var.attach_external_net ? element(concat(openstack_compute_instance_v2.instance_ext.*.id, list("")), count.index) : element(concat(openstack_compute_instance_v2.instance.*.id, list("")), count.index)}"
   volume_id   = "${element(openstack_blockstorage_volume_v2.extra_disk.*.id, count.index)}"
 }
 
@@ -115,15 +137,15 @@ output "extra_disk_device" {
 }
 
 output "local_ip_v4" {
-  value = ["${openstack_compute_instance_v2.instance.*.network.0.fixed_ip_v4}"]
+  value = ["${openstack_compute_instance_v2.instance.*.network.0.fixed_ip_v4}", "${openstack_compute_instance_v2.instance_ext.*.network.0.fixed_ip_v4}"]
 }
 
 output "public_ip" {    
-  value = ["${openstack_compute_floatingip_v2.floating_ip.*.address}", "${openstack_compute_instance_v2.instance.*.network.1.fixed_ip_v4}"]
+  value = ["${openstack_compute_floatingip_v2.floating_ip.*.address}", "${openstack_compute_instance_v2.instance_ext.*.network.1.fixed_ip_v4}"]
 }
 
 output "hostnames" {
-  value = ["${openstack_compute_instance_v2.instance.*.name}"]
+  value = ["${openstack_compute_instance_v2.instance.*.name}", "${openstack_compute_instance_v2.instance_ext.*.name}"]
 }
 
 output "node_labels" {
