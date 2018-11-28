@@ -194,7 +194,7 @@ module "node" {
   # Network settings
   network_name       = "${module.network.network_name}"
   external_network_uuid = "${var.external_network_uuid}"
-  attach_external_net = "${var.attach_external_net}"
+  attach_external_net = "false"
   secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "false"
   floating_ip_pool   = ""
@@ -258,7 +258,7 @@ module "glusternode" {
   # Network settings
   network_name       = "${module.network.network_name}"
   external_network_uuid = "${var.external_network_uuid}"
-  attach_external_net = "${var.attach_external_net}"
+  attach_external_net = "false"
   secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "false"
   floating_ip_pool   = "${var.floating_ip_pool}"
