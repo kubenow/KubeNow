@@ -3,6 +3,15 @@
 # Add hostname
 echo "127.0.0.1 $HOSTNAME" >>/etc/hosts
 
+# TODO: Add flag to enable "ext" interface and NAT rules
+
+# Detect name of the secondary interface
+interfaces=$(cat /proc/net/dev | grep ens | cut -d':' -f1)
+secondary_interface=$(echo $interfaces | cut -d' ' -f2)
+
+# Add ext interface
+echo -e "auto $secondary_interface\niface $secondary_interface inet dhcp" > /etc/network/interfaces.d/ext-net.cfg
+service networking restart
 # Taint and label
 node_labels=${node_labels}
 node_taints=${node_taints}
