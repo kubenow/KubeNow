@@ -15,6 +15,11 @@ plain)
   export KN_PLUGIN_NAME="KubeNow/plugin-plain"
   export KN_PLUGIN_REPO_BRANCH="master"
   ;;
+pharmbio-os)
+  export KN_PLUGIN_REPO="https://github.com/pharmbio/KubeNow-plugin-pharmbio-openshift.git"
+  export KN_PLUGIN_NAME="pharmbio/KubeNow-plugin-pharmbio-openshift/KubeNow-plugin-pharmbio-openshift"
+  export KN_PLUGIN_REPO_BRANCH="master"
+  ;;
 *)
   echo "Unrecognized preset $preset" >&2
   exit 1
