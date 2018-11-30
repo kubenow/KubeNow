@@ -26,7 +26,7 @@ variable assign_floating_ip {
 
 variable floating_ip_pool {}
 
-variable attach_external_net {
+variable use_external_net {
   default = false
 }
 
@@ -67,7 +67,7 @@ data "template_file" "instance_bootstrap" {
 
 # Create instances
 resource "openstack_compute_instance_v2" "instance" {
-  count       = "${!var.attach_external_net ? var.count : 0}"
+  count       = "${!var.use_external_net ? var.count : 0}"
   name        = "${var.name_prefix}-${format("%03d", count.index)}"
   image_name  = "${var.image_name}"
   flavor_name = "${var.flavor_name}"
@@ -83,7 +83,7 @@ resource "openstack_compute_instance_v2" "instance" {
 }
 
 resource "openstack_compute_instance_v2" "instance_ext" {
-  count       = "${var.attach_external_net ? var.count : 0}"
+  count       = "${var.use_external_net ? var.count : 0}"
   name        = "${var.name_prefix}-${format("%03d", count.index)}"
   image_name  = "${var.image_name}"
   flavor_name = "${var.flavor_name}"
@@ -127,7 +127,7 @@ resource "openstack_compute_volume_attach_v2" "attach_extra_disk" {
   count       = "${var.extra_disk_size > 0 ? var.count : 0}"
   # The concat() hack is needed beacause the HIL (the interpolation language) 
   # doesn't lazy evaluate the branches of the if statement yet.
-  instance_id = "${var.attach_external_net ? element(concat(openstack_compute_instance_v2.instance_ext.*.id, list("")), count.index) : element(concat(openstack_compute_instance_v2.instance.*.id, list("")), count.index)}"
+  instance_id = "${var.use_external_net ? element(concat(openstack_compute_instance_v2.instance_ext.*.id, list("")), count.index) : element(concat(openstack_compute_instance_v2.instance.*.id, list("")), count.index)}"
   volume_id   = "${element(openstack_blockstorage_volume_v2.extra_disk.*.id, count.index)}"
 }
 

@@ -21,7 +21,7 @@ variable secgroup_name {
 
 variable external_network_uuid {}
 
-variable attach_external_net {
+variable use_external_net {
   default = false
 }
 
@@ -162,9 +162,9 @@ module "master" {
   # Network settings
   network_name       = "${module.network.network_name}"
   external_network_uuid = "${var.external_network_uuid}"
-  attach_external_net = "${var.attach_external_net}"
+  use_external_net = "${var.use_external_net}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
-  assign_floating_ip = "${var.attach_external_net ? false: true}"
+  assign_floating_ip = "${var.use_external_net ? false: true}"
   floating_ip_pool   = "${var.floating_ip_pool}"
 
   # Disk settings
@@ -194,7 +194,7 @@ module "node" {
   # Network settings
   network_name       = "${module.network.network_name}"
   external_network_uuid = "${var.external_network_uuid}"
-  attach_external_net = "false"
+  use_external_net = "false"
   secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "false"
   floating_ip_pool   = ""
@@ -226,9 +226,9 @@ module "edge" {
   # Network settings
   network_name       = "${module.network.network_name}"
   external_network_uuid = "${var.external_network_uuid}"
-  attach_external_net = "${var.attach_external_net}"
+  use_external_net = "${var.use_external_net}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
-  assign_floating_ip = "${var.attach_external_net ? false: true}"
+  assign_floating_ip = "${var.use_external_net ? false: true}"
   floating_ip_pool   = "${var.floating_ip_pool}"
 
   # Disk settings
@@ -258,7 +258,7 @@ module "glusternode" {
   # Network settings
   network_name       = "${module.network.network_name}"
   external_network_uuid = "${var.external_network_uuid}"
-  attach_external_net = "false"
+  use_external_net   = "false"
   secgroup_name      = "${module.secgroup.secgroup_name}"
   assign_floating_ip = "false"
   floating_ip_pool   = "${var.floating_ip_pool}"
