@@ -62,6 +62,7 @@ data "template_file" "instance_bootstrap" {
     node_labels   = "${join(",", var.node_labels)}"
     node_taints   = "${join(",", var.node_taints)}"
     ssh_user      = "${var.ssh_user}"
+    use_external_net = "${var.use_external_net}"
   }
 }
 

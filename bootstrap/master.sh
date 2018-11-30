@@ -3,32 +3,38 @@
 # Add hostname
 echo "127.0.0.1 $HOSTNAME" >>/etc/hosts
 
-# TODO: Add flag to enable "ext" interface and NAT rules
+if [[ "${use_external_net}" == "1" || $(echo ${use_external_net} | tr '[:upper:]' '[:lower:]') == "true" ]]; then
+  # Detect name of the secondary interface
+  interfaces=$(cat /proc/net/dev | grep ens | cut -d':' -f1)
+  primary_interface=$(echo $interfaces | cut -d' ' -f1)
+  secondary_interface=$(echo $interfaces | cut -d' ' -f2)
 
-# Detect name of the secondary interface
-interfaces=$(cat /proc/net/dev | grep ens | cut -d':' -f1)
-secondary_interface=$(echo $interfaces | cut -d' ' -f2)
+  # Add external interface
+  echo -e "auto $secondary_interface\niface $secondary_interface inet dhcp" > /etc/network/interfaces.d/ext-net.cfg
+  service networking restart
 
-# Add ext interface
-echo -e "auto $secondary_interface\niface $secondary_interface inet dhcp" > /etc/network/interfaces.d/ext-net.cfg
-service networking restart
+  # Detect gateways
+  private_net_gateway=$(tac "/var/lib/dhcp/dhclient.$primary_interface.leases" | grep -m1 'option routers' | awk '{print $3}' | sed -e 's/;//')
+  public_net_gateway=$(tac "/var/lib/dhcp/dhclient.$secondary_interface.leases" | grep -m1 'option routers' | awk '{print $3}' | sed -e 's/;//')
 
-# Primary interface info
-network_1_addr=$(ip -o -4  a | grep ens3 | awk '{print $4}') 
-network_1_ip=$(cut -d'/' -f1 <<<"$network_1_addr")
-network_1_cl=$(cut -d'/' -f2 <<<"$network_1_addr")
+  if [[ -z "$private_net_gateway" || -z "$public_net_gateway" ]]; then 
+    echo "Couldn't retrieve gateway routers" >&2
+    echo "Private gateway: $private_net_gateway; Public gateway: $public_net_gateway" >&2
+    exit 1
+  fi
 
-# Secondary interface info
-network_2_addr=$(ip -o -4  a | grep ens4 | awk '{print $4}') 
-network_2_ip=$(cut -d'/' -f1 <<<"$network_2_addr")
-network_2_cl=$(cut -d'/' -f2 <<<"$network_2_addr")
+  # Update routes
+  route add default gw $public_net_gateway $secondary_interface
+  route del default gw $private_net_gateway $primary_interface
 
-# Update routes
-route add default gw 90.147.75.1 $secondary_interface
-route del default gw 172.30.63.1 ens3
+  # Primary interface info
+  network_1_addr=$(ip -o -4 a | awk "/\<$primary_interface\>/{print \$4}") 
+  network_1_ip=$(cut -d'/' -f1 <<<"$network_1_addr")
+  network_1_cl=$(cut -d'/' -f2 <<<"$network_1_addr")
 
-# Set advertise address of Kubernetes Master
-API_ADVERTISE_ADDRESSES="$network_1_ip"
+  # Set advertise address of Kubernetes Master
+  API_ADVERTISE_ADDRESSES="$network_1_ip"
+fi
 
 # Taint and label
 node_labels=${node_labels}
@@ -53,6 +59,7 @@ systemctl restart kubelet
 # execute modprobe on node - workaround for heketi gluster
 echo "Modprobe dm_thin_pool..."
 modprobe dm_thin_pool
+modprobe dm_multipath
 
 echo "Inititializing the master...."
 
