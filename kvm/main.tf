@@ -67,11 +67,11 @@ variable edge_vcpu { default = 2 }
 variable edge_memory { default = 1024 }
 variable edge_ip_if1{
   type    = "list"
-  default = ["x.x.x.x"]
+  default = []
 }
 variable edge_ip_if2{
   type    = "list"
-  default = ["x.x.x.x"]
+  default = []
 }
 
 # Glusternode settings
@@ -81,11 +81,11 @@ variable glusternode_memory { default = 1024 }
 variable glusternode_extra_disk_size { default = "200" }
 variable glusternode_ip_if1{
   type    = "list"
-  default = ["x.x.x.x"]
+  default = []
 }
 variable glusternode_ip_if2{
   type    = "list"
-  default = ["x.x.x.x"]
+  default = []
 }
 variable gluster_volumetype {
   default = "none:1"
