@@ -34,7 +34,7 @@ data "template_file" "instance_bootstrap" {
   vars {
     kubeadm_token = "${var.kubeadm_token}"
     master_ip     = "${var.master_ip}"
-    private_ip    = "${element(var.ip_if2, 1)}"
+#    private_ip    = "${element(var.ip_if2, 1)}"
     node_labels   = "${join(",", var.node_labels)}"
     node_taints   = "${join(",", var.node_taints)}"
     ssh_user      = "${var.ssh_user}"
