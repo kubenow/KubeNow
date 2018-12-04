@@ -35,6 +35,11 @@ variable storage_pool  { default = "images" }
 
 # Network settings
 variable network_mode  { default = "nat" }
+variable network_addresses  {
+  type    = "list"
+  default = ["10.0.0.0/24"]
+}
+
 variable bridge_name { default = "br0" }
 
 # Master settings
@@ -136,7 +141,7 @@ resource "libvirt_network" "network" {
   mode  = "${var.network_mode}"
 #  bridge = "${var.bridge_name}-another"
   domain = "k8s.local"
-#  addresses = ["10.0.0.0/24"]
+  addresses = "${var.network_addresses}"
   dhcp {
     enabled = "true"
   }
