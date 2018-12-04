@@ -5,6 +5,10 @@ variable bootstrap_script {
   default = "bootstrap/bootstrap-default.sh"
 }
 
+variable cloud_init_cfg {}
+
+variable network_cfg {}
+
 variable inventory_template {
   default = "inventory-template"
 }
@@ -27,7 +31,7 @@ variable kubeadm_token {
 # Image settings
 variable boot_image {}
 variable image_dir { default = "/tmp" } # to do fixme
-variable volume_pool  { default = "images" }
+variable storage_pool  { default = "images" }
 
 # Network settings
 variable network_mode  { default = "nat" }
@@ -132,7 +136,7 @@ resource "libvirt_network" "network" {
   mode  = "${var.network_mode}"
 #  bridge = "${var.bridge_name}-another"
   domain = "k8s.local"
-  addresses = ["10.0.0.0/24"]
+#  addresses = ["10.0.0.0/24"]
   dhcp {
     enabled = "true"
   }
@@ -143,7 +147,7 @@ resource "libvirt_network" "network" {
 resource "libvirt_volume" "template_volume" {
   name   = "${var.cluster_prefix}-template-volume"
   source = "${var.image_dir}/${var.boot_image}.qcow2"
-  pool   = "${var.volume_pool}"
+  pool   = "${var.storage_pool}"
 }
 
 module "master" {
@@ -154,7 +158,7 @@ module "master" {
   vcpu            = "${var.master_vcpu}"
   memory          = "${var.master_memory}"
   template_vol_id = "${libvirt_volume.template_volume.id}"
-  volume_pool     = "${var.volume_pool}"
+  storage_pool     = "${var.storage_pool}"
 
   # Network settings
   network_id      = "${libvirt_network.network.id}"
@@ -162,6 +166,7 @@ module "master" {
   ip_if2          = "${var.master_ip_if2}"
   ssh_key         = "${var.ssh_key}"
   ssh_user        = "${var.ssh_user}"
+  network_cfg     = "${var.network_cfg}"
 
   # TO DO configure port rules in firewall
 
@@ -174,6 +179,7 @@ module "master" {
   node_labels    = "${split(",", var.master_as_edge == "true" ? "role=master,role=edge" : "role=master")}"
   node_taints    = [""]
   master_ip      = ""
+  cloud_init_cfg = "${var.cloud_init_cfg}"
 }
 
 module "node" {
@@ -184,7 +190,7 @@ module "node" {
   vcpu            = "${var.node_vcpu}"
   memory          = "${var.node_memory}"
   template_vol_id = "${libvirt_volume.template_volume.id}"
-  volume_pool     = "${var.volume_pool}"
+  storage_pool     = "${var.storage_pool}"
 
   # Network settings
   network_id      = "${libvirt_network.network.id}"
@@ -192,6 +198,7 @@ module "node" {
   ip_if2          = "${var.node_ip_if2}"
   ssh_key         = "${var.ssh_key}"
   ssh_user        = "${var.ssh_user}"
+  network_cfg     = "${var.network_cfg}"
 
   # TO DO configure port rules in firewall
 
@@ -204,6 +211,7 @@ module "node" {
   node_labels    = ["role=node","role=bajs"]
   node_taints    = [""]
   master_ip      = "${element(module.master.local_ip_v4, 0)}"
+  cloud_init_cfg = "${var.cloud_init_cfg}"
 }
 
 module "edge" {
@@ -214,7 +222,7 @@ module "edge" {
   vcpu            = "${var.edge_vcpu}"
   memory          = "${var.edge_memory}"
   template_vol_id = "${libvirt_volume.template_volume.id}"
-  volume_pool     = "${var.volume_pool}"
+  storage_pool    = "${var.storage_pool}"
 
   # Network settings
   network_id      = "${libvirt_network.network.id}"
@@ -222,6 +230,7 @@ module "edge" {
   ip_if2          = "${var.edge_ip_if2}"
   ssh_key         = "${var.ssh_key}"
   ssh_user        = "${var.ssh_user}"
+  network_cfg     = "${var.network_cfg}"
 
   # TO DO configure port rules in firewall
 
@@ -234,6 +243,7 @@ module "edge" {
   node_labels    = ["role=edge","role=bajs"]
   node_taints    = [""]
   master_ip      = "${element(module.master.local_ip_v4, 0)}"
+  cloud_init_cfg = "${var.cloud_init_cfg}"
 }
 
 module "glusternode" {
@@ -244,7 +254,7 @@ module "glusternode" {
   vcpu            = "${var.glusternode_vcpu}"
   memory          = "${var.glusternode_memory}"
   template_vol_id = "${libvirt_volume.template_volume.id}"
-  volume_pool     = "${var.volume_pool}"
+  storage_pool    = "${var.storage_pool}"
 
   # Network settings
   network_id      = "${libvirt_network.network.id}"
@@ -252,6 +262,7 @@ module "glusternode" {
   ip_if2          = "${var.glusternode_ip_if2}"
   ssh_key         = "${var.ssh_key}"
   ssh_user        = "${var.ssh_user}"
+  network_cfg     = "${var.network_cfg}"
 
   # TO DO configure port rules in firewall
 
@@ -264,6 +275,7 @@ module "glusternode" {
   node_labels    = ["storagenode=glusterfs","role=bajs"]
   node_taints    = [""]
   master_ip      = "${element(module.master.local_ip_v4, 0)}"
+  cloud_init_cfg = "${var.cloud_init_cfg}"
 }
 
 # The code below (from here to end) should be identical for all cloud providers

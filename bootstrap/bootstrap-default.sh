@@ -11,6 +11,7 @@ echo "127.0.0.1 $HOSTNAME" >>/etc/hosts
 # Taint and label
 node_labels="${node_labels}"
 node_taints="${node_taints}"
+private_ip="${private_ip}"
 
 echo "Label nodes"
 if [ -n "$node_labels" ]; then
@@ -21,6 +22,12 @@ fi
 echo "Taint nodes"
 if [ -n "$node_taints" ]; then
   sed -i "s|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--register-with-taints=$node_taints |g" \
+    /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+fi
+
+echo "Set kubernetes private ip"
+if [ -n "$private_ip" ]; then
+  sed -i "s|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--node-ip=$private_ip |g" \
     /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 fi
 

@@ -3,7 +3,7 @@ variable count {}
 variable name_prefix {}
 variable vcpu {}
 variable memory {}
-variable volume_pool {}
+variable storage_pool {}
 
 # SSH settings
 variable ssh_key {}
@@ -13,6 +13,7 @@ variable ssh_user {}
 variable network_id {}
 variable ip_if1 { type = "list" }
 variable ip_if2 { type = "list" }
+variable network_cfg {}
 
 # Disk settings
 variable template_vol_id {}
@@ -24,6 +25,7 @@ variable kubeadm_token {}
 variable node_labels { type = "list" }
 variable node_taints { type = "list" }
 variable master_ip { default = "" }
+variable cloud_init_cfg {}
 
 # Bootstrap
 data "template_file" "instance_bootstrap" {
@@ -32,6 +34,7 @@ data "template_file" "instance_bootstrap" {
   vars {
     kubeadm_token = "${var.kubeadm_token}"
     master_ip     = "${var.master_ip}"
+    private_ip    = "${element(var.ip_if2, 1)}"
     node_labels   = "${join(",", var.node_labels)}"
     node_taints   = "${join(",", var.node_taints)}"
     ssh_user      = "${var.ssh_user}"
@@ -46,7 +49,7 @@ resource "random_id" "password" {
 # Create cloud init config file
 data "template_file" "user_data" {
   count    = "${var.count > 0 ? 1 : 0}"
-  template = "${file("${path.module}/cloud_init.cfg")}"
+  template = "${file("${path.root}/../${var.cloud_init_cfg }")}"
 
   vars{
     bootstrap_script_content = "${base64encode(data.template_file.instance_bootstrap.rendered)}"
@@ -54,13 +57,12 @@ data "template_file" "user_data" {
     hostname                 = "${var.name_prefix}-${format("%03d", count.index)}"
     password                 = "${random_id.password.b64_url}"
   }
-
 }
 
 # Create network interface init config file
 data "template_file" "network_config" {
   count     = "${var.count > 0 ? 1 : 0}"
-  template  = "${file("${path.module}/network_config.cfg")}"
+  template = "${file("${path.root}/../${var.network_cfg }")}"
 
   vars{
     ip_if1  = "${element(var.ip_if1, count.index)}"
@@ -74,7 +76,7 @@ resource "libvirt_cloudinit_disk" "commoninit" {
   name           = "${var.name_prefix}-cloud-init.iso"
   user_data      = "${data.template_file.user_data.rendered}"
   network_config = "${element(data.template_file.network_config.*.rendered, count.index)}"
-  pool           = "${var.volume_pool}"
+  pool           = "${var.storage_pool}"
 }
 
 # Create root volume
@@ -82,7 +84,7 @@ resource "libvirt_volume" "root_volume" {
   count          = "${var.count}"
   name           = "${var.name_prefix}-vol-${format("%03d", count.index)}"
   base_volume_id = "${var.template_vol_id}"
-  pool           = "${var.volume_pool}"
+  pool           = "${var.storage_pool}"
 }
 
 # Create extra volume
@@ -90,7 +92,7 @@ resource "libvirt_volume" "extra_disk" {
   count = "${var.count}"
   name  = "${var.name_prefix}-extra-vol-${format("%03d", count.index)}"
   size  = "${var.extra_disk_size * 1024 * 1024 * 1024}"
-  pool  = "${var.volume_pool}"
+  pool  = "${var.storage_pool}"
 }
 
 # Create instances
@@ -110,12 +112,12 @@ resource "libvirt_domain" "instance" {
       volume_id = "${element(libvirt_volume.extra_disk.*.id, count.index)}"
     }
   ]
-  
+
   network_interface {
     bridge         = "br0"
     addresses      = ["${element(var.ip_if1, count.index)}"]
   }
-  
+
   network_interface {
     bridge         = "br1"
     addresses      = ["${element(var.ip_if1, count.index)}"]
