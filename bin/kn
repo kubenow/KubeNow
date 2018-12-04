@@ -154,6 +154,7 @@ function docker_run() {
   echo "Using provisioner docker image version: $container"
   # shellcheck disable=SC2068,SC2086
   docker run --rm -it \
+    --net host \
     -v "$kubenow_root":/KubeNow_root:Z \
     -v "/tmp":/tmp \
     $libvirt_extra_opts \
