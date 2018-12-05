@@ -46,8 +46,9 @@ cp "/opt/KubeNow/$template_dir/inventory"*"-template" "/KubeNow_root/"
 
 # copy provider specific templates and remove suffix
 for templatefile in "/opt/KubeNow/$template_dir/"*".$host_cloud-template"; do
-  shortname="${templatefile%%.$host_cloud-template}"
-  cp "$templatefile" "/KubeNow_root/$shortname"
+  nosuffixfile="${templatefile%%.$host_cloud-template}"
+  onlyname="${nosuffixfile##*/}"
+  cp "$templatefile" "/KubeNow_root/$onlyname"
 done
 
 # Copy config, scripts and other files
