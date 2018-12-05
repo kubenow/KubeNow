@@ -2,7 +2,7 @@
 variable cluster_prefix {}
 
 variable bootstrap_script {
-  default = "bootstrap/bootstrap-default.sh"
+  default = "bootstrap/bootstrap-default-kvm.sh"
 }
 
 variable cloud_init_cfg {}

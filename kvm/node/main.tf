@@ -29,11 +29,13 @@ variable cloud_init_cfg {}
 
 # Bootstrap
 data "template_file" "instance_bootstrap" {
+  count    = "${var.count > 0 ? 1 : 0}"
   template = "${file("${path.root}/../${var.bootstrap_file }")}"
 
   vars {
     kubeadm_token = "${var.kubeadm_token}"
     master_ip     = "${var.master_ip}"
+    private_ip    = "${element(var.ip_if1, count.index)}"
     node_labels   = "${join(",", var.node_labels)}"
     node_taints   = "${join(",", var.node_taints)}"
     ssh_user      = "${var.ssh_user}"
