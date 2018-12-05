@@ -11,7 +11,6 @@ echo "127.0.0.1 $HOSTNAME" >>/etc/hosts
 # Taint and label
 node_labels="${node_labels}"
 node_taints="${node_taints}"
-private_ip=""
 
 echo "Label nodes"
 if [ -n "$node_labels" ]; then
@@ -22,12 +21,6 @@ fi
 echo "Taint nodes"
 if [ -n "$node_taints" ]; then
   sed -i "s|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--register-with-taints=$node_taints |g" \
-    /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
-fi
-
-echo "Set kubernetes private ip"
-if [ -n "$private_ip" ]; then
-  sed -i "s|KUBELET_KUBECONFIG_ARGS=|KUBELET_KUBECONFIG_ARGS=--node-ip=$private_ip |g" \
     /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 fi
 
@@ -54,10 +47,10 @@ if [[ "$node_labels" == *"role=master"* ]]; then
 
   if [ -n "$API_ADVERTISE_ADDRESSES" ]; then
     # shellcheck disable=SC2154
-    kubeadm init --token "${kubeadm_token}" --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.10.9 --api-advertise-address="$API_ADVERTISE_ADDRESSES" --ignore-preflight-errors=cri
+    kubeadm init --token "${kubeadm_token}" --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.10.7 --api-advertise-address="$API_ADVERTISE_ADDRESSES" --ignore-preflight-errors=cri
   else
     # shellcheck disable=SC2154
-    kubeadm init --token "${kubeadm_token}" --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.10.9 --ignore-preflight-errors=cri
+    kubeadm init --token "${kubeadm_token}" --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.10.7 --ignore-preflight-errors=cri
   fi
 
   # Copy Kubernetes configuration created by kubeadm (admin.conf to .kube/config)
