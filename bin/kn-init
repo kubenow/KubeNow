@@ -41,14 +41,14 @@ fi
 
 echo "Initializing deployment directory for cloud provider $host_cloud"
 
-# Copy template files to init dir
-cp "/opt/KubeNow/$template_dir/"*".$host_cloud-template" "/KubeNow_root/"
+# Copy inventory template files to init dir
 cp "/opt/KubeNow/$template_dir/inventory"*"-template" "/KubeNow_root/"
 
-# If there is only one config file - then rename template to config.tfvars
-if [ -f "/KubeNow_root/config.tfvars.$host_cloud-template" ]; then
-  mv "/KubeNow_root/config.tfvars.$host_cloud-template" "/KubeNow_root/config.tfvars"
-fi
+# copy provider specific templates and remove suffix
+for templatefile in "/opt/KubeNow/$template_dir/"*".$host_cloud-template"; do
+  shortname="${templatefile%%.$host_cloud-template}"
+  cp "$templatefile" "/KubeNow_root/$shortname"
+done
 
 # Copy config, scripts and other files
 cp -r "/opt/KubeNow/$host_cloud" "/KubeNow_root/"
