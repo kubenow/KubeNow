@@ -57,7 +57,7 @@ if [ -f "/tmp/$file_name" ]; then
   fi
 fi
 
-if [ ! -f "/tmp/$file_name" ];
+if [ ! -f "/tmp/$file_name" ]; then
   echo "Downloading image to local /tmp/"
   curl "$KN_IMAGE_BUCKET_URL/$file_name" \
     -o "/tmp/$file_name" \
