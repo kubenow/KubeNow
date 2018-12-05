@@ -114,12 +114,12 @@ resource "libvirt_domain" "instance" {
 
   network_interface {
     bridge         = "br1"
-    addresses      = ["${element(var.ip_if1, count.index)}"]
+    # Addresses are set by cloud init network_config
   }
 
   network_interface {
     bridge         = "br0"
-    addresses      = ["${element(var.ip_if2, count.index)}"]
+    # Addresses are set by cloud init network_config
   }
 
   console {
