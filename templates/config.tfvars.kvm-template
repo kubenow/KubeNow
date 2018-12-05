@@ -18,6 +18,8 @@ master_vcpu = "4"
 master_memory = "16384"
 master_as_edge = "true"
 master_extra_disk_size = "100" # Extra scratch disk size
+# first interface should be the private one since this is the one
+# being used by kubernetes for inter-cluster communication
 master_ip_if1 = ["10.10.0.xx"]
 master_ip_if2 = ["130.238.44.xx"]
 
@@ -25,6 +27,8 @@ master_ip_if2 = ["130.238.44.xx"]
 node_count = "1"
 node_vcpu = "4"
 node_memory = "16384"
+# first interface should be the private one since this is the one
+# being used by kubernetes for inter-cluster communication
 node_ip_if1 = ["10.10.0.xx"]
 node_ip_if2 = ["130.238.44.xx"]
 
