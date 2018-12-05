@@ -40,21 +40,21 @@ variable network_addresses  {
   default = ["10.0.0.0/24"]
 }
 
-variable bridge_name { default = "br0" }
+variable bridge_name { default = "brX" }
 
 # Master settings
 variable master_count { default = 1 }
 variable master_vcpu { default = 2 }
 variable master_memory { default = 1024 }
 variable master_as_edge { default = "true" }
-variable master_extra_disk_size { default = "200" }
+variable master_extra_disk_size { default = "100" }
 variable master_ip_if1{
   type    = "list"
-  default = ["130.238.44.20"]
+  default = ["10.10.0.xx"]
 }
 variable master_ip_if2{
   type    = "list"
-  default = ["10.10.0.20"]
+  default = ["130.238.44.xx"]
 }
 
 # Nodes settings
@@ -63,11 +63,11 @@ variable node_vcpu { default = 2 }
 variable node_memory { default = 1024 }
 variable node_ip_if1{
   type    = "list"
-  default = ["130.238.44.30"]
+  default = ["10.10.0.30"]
 }
 variable node_ip_if2{
   type    = "list"
-  default = ["10.10.0.30"]
+  default = ["130.238.44.30"]
 }
 
 # Edges settings

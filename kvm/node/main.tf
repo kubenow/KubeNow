@@ -34,7 +34,6 @@ data "template_file" "instance_bootstrap" {
   vars {
     kubeadm_token = "${var.kubeadm_token}"
     master_ip     = "${var.master_ip}"
-#    private_ip    = "${element(var.ip_if2, 1)}"
     node_labels   = "${join(",", var.node_labels)}"
     node_taints   = "${join(",", var.node_taints)}"
     ssh_user      = "${var.ssh_user}"
@@ -43,7 +42,7 @@ data "template_file" "instance_bootstrap" {
 
 # Create a password
 resource "random_id" "password" {
- byte_length = 8
+ byte_length = 6
 }
 
 # Create cloud init config file
@@ -114,13 +113,13 @@ resource "libvirt_domain" "instance" {
   ]
 
   network_interface {
-    bridge         = "br0"
+    bridge         = "br1"
     addresses      = ["${element(var.ip_if1, count.index)}"]
   }
 
   network_interface {
-    bridge         = "br1"
-    addresses      = ["${element(var.ip_if1, count.index)}"]
+    bridge         = "br0"
+    addresses      = ["${element(var.ip_if2, count.index)}"]
   }
 
   console {
@@ -152,11 +151,11 @@ output "extra_disk_device" {
 #}
 
 output "local_ip_v4" {
-  value = "${var.ip_if2}"
+  value = "${var.ip_if1}"
 }
 
 output "public_ip" {
-  value = "${var.ip_if1}"
+  value = "${var.ip_if2}"
 }
 
 output "hostnames" {
