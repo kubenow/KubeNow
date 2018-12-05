@@ -38,17 +38,32 @@ fi
 
 # If it doesn't exist then download it
 echo "Image not present in OpenStack"
-echo "Downloading image to local /tmp/"
-curl "$KN_IMAGE_BUCKET_URL/$file_name" \
-  -o "/tmp/$file_name" \
-  --connect-timeout 30 \
-  --max-time 1800
 
 echo "Download md5 sum file"
 curl "$KN_IMAGE_BUCKET_URL/$file_name.md5" \
   -o "/tmp/$file_name.md5" \
   --connect-timeout 30 \
   --max-time 1800
+
+if [ -f "/tmp/$file_name" ]; then
+  echo "Check md5 sum on already downloaded file"
+  md5result=$(
+    cd /tmp
+    md5sum -c "$file_name.md5"
+  )
+  if [[ "$md5result" != *": OK"* ]]; then
+    echo "Cached file failed md5 sum, will clear cache"
+    rm "/tmp/$file_name"
+  fi
+fi
+
+if [ ! -f "/tmp/$file_name" ]; then
+  echo "Downloading image to local /tmp/"
+  curl "$KN_IMAGE_BUCKET_URL/$file_name" \
+    -o "/tmp/$file_name" \
+    --connect-timeout 30 \
+    --max-time 1800
+fi
 
 # Verify md5sum of downloaded file
 echo "Check md5 sum"
