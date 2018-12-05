@@ -10,7 +10,7 @@ variable ssh_key {}
 variable ssh_user {}
 
 # Network settings
-variable network_id {}
+#variable network_id {}
 variable ip_if1 { type = "list" }
 variable ip_if2 { type = "list" }
 variable network_cfg {}

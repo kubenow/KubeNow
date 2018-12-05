@@ -8,8 +8,6 @@ ssh_user = "ubuntu"
 cloud_init_cfg = "cloud_init.cfg.ubuntu"
 
 storage_pool = "images"
-network_mode = "nat"
-network_addresses = ["10.xx.0.0/24"]
 network_cfg = "network_config.cfg.ubuntu"
 
 # Master configuration

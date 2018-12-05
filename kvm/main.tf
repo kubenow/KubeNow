@@ -135,18 +135,18 @@ provider "libvirt" {
   uri = "qemu:///system"
 }
 
-# Network
-resource "libvirt_network" "network" {
-  name  = "${var.cluster_prefix}-network"
-  mode  = "${var.network_mode}"
-#  bridge = "${var.bridge_name}-another"
-  domain = "k8s.local"
-  addresses = "${var.network_addresses}"
-  dhcp {
-    enabled = "true"
-  }
-  autostart = "true"
-}
+## Network
+#resource "libvirt_network" "network" {
+#  name  = "${var.cluster_prefix}-network"
+#  mode  = "${var.network_mode}"
+##  bridge = "${var.bridge_name}-another"
+#  domain = "k8s.local"
+#  addresses = "${var.network_addresses}"
+#  dhcp {
+#    enabled = "true"
+#  }
+#  autostart = "true"
+#}
 
 # Create a template disk
 resource "libvirt_volume" "template_volume" {
@@ -166,7 +166,7 @@ module "master" {
   storage_pool     = "${var.storage_pool}"
 
   # Network settings
-  network_id      = "${libvirt_network.network.id}"
+#  network_id      = "${libvirt_network.network.id}"
   ip_if1          = "${var.master_ip_if1}"
   ip_if2          = "${var.master_ip_if2}"
   ssh_key         = "${var.ssh_key}"
@@ -198,7 +198,7 @@ module "node" {
   storage_pool     = "${var.storage_pool}"
 
   # Network settings
-  network_id      = "${libvirt_network.network.id}"
+#  network_id      = "${libvirt_network.network.id}"
   ip_if1          = "${var.node_ip_if1}"
   ip_if2          = "${var.node_ip_if2}"
   ssh_key         = "${var.ssh_key}"
@@ -230,7 +230,7 @@ module "edge" {
   storage_pool    = "${var.storage_pool}"
 
   # Network settings
-  network_id      = "${libvirt_network.network.id}"
+#  network_id      = "${libvirt_network.network.id}"
   ip_if1          = "${var.edge_ip_if1}"
   ip_if2          = "${var.edge_ip_if2}"
   ssh_key         = "${var.ssh_key}"
@@ -262,7 +262,7 @@ module "glusternode" {
   storage_pool    = "${var.storage_pool}"
 
   # Network settings
-  network_id      = "${libvirt_network.network.id}"
+#  network_id      = "${libvirt_network.network.id}"
   ip_if1          = "${var.glusternode_ip_if1}"
   ip_if2          = "${var.glusternode_ip_if2}"
   ssh_key         = "${var.ssh_key}"
