@@ -5,16 +5,16 @@ config:
     subnets:
      - control: auto
        type: static
-       address: ${ip_if1}
-       netmask: 255.255.255.192
-       gateway: 130.238.44.1
+       address: ${ip_if2}
+       netmask: 255.255.255.0
   - type: physical
     name: ens4
     subnets:
      - control: auto
        type: static
-       address: ${ip_if2}
-       netmask: 255.255.255.0
+       address: ${ip_if1}
+       netmask: 255.255.255.192
+       gateway: 130.238.44.1
   - type: nameserver
     address:
      - 130.238.4.133
