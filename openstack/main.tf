@@ -11,7 +11,7 @@ variable ssh_key {
   default = "ssh_key.pub"
 }
 
-variable network_name {
+variable private_network_name {
   default = ""
 }
 
@@ -21,8 +21,8 @@ variable secgroup_name {
 
 variable external_network_uuid {}
 
-variable use_external_net {
-  default = false
+variable use_floating_IPs {
+  default = true
 }
 
 variable dns_nameservers {
@@ -133,7 +133,7 @@ module "keypair" {
 # Network
 module "network" {
   source            = "./network"
-  network_name      = "${var.network_name}"
+  network_name      = "${var.private_network_name}"
   external_net_uuid = "${var.external_network_uuid}"
   name_prefix       = "${var.cluster_prefix}"
   dns_nameservers   = "${var.dns_nameservers}"
@@ -162,9 +162,9 @@ module "master" {
   # Network settings
   network_name       = "${module.network.network_name}"
   external_network_uuid = "${var.external_network_uuid}"
-  use_external_net = "${var.use_external_net}"
+  use_floating_IPs = "${var.use_floating_IPs}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
-  assign_floating_ip = "${var.use_external_net ? false: true}"
+  assign_public_ip = "true"
   floating_ip_pool   = "${var.floating_ip_pool}"
 
   # Disk settings
@@ -194,9 +194,9 @@ module "node" {
   # Network settings
   network_name       = "${module.network.network_name}"
   external_network_uuid = "${var.external_network_uuid}"
-  use_external_net = "false"
+  use_floating_IPs   = "${var.use_floating_IPs}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
-  assign_floating_ip = "false"
+  assign_public_ip = "false"
   floating_ip_pool   = ""
 
   # Disk settings
@@ -226,9 +226,9 @@ module "edge" {
   # Network settings
   network_name       = "${module.network.network_name}"
   external_network_uuid = "${var.external_network_uuid}"
-  use_external_net = "${var.use_external_net}"
+  use_floating_IPs = "${var.use_floating_IPs}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
-  assign_floating_ip = "${var.use_external_net ? false: true}"
+  assign_public_ip = "true"
   floating_ip_pool   = "${var.floating_ip_pool}"
 
   # Disk settings
@@ -258,9 +258,9 @@ module "glusternode" {
   # Network settings
   network_name       = "${module.network.network_name}"
   external_network_uuid = "${var.external_network_uuid}"
-  use_external_net   = "false"
+  use_floating_IPs   = "${var.use_floating_IPs}"
   secgroup_name      = "${module.secgroup.secgroup_name}"
-  assign_floating_ip = "false"
+  assign_public_ip = "false"
   floating_ip_pool   = "${var.floating_ip_pool}"
 
   # Disk settings
