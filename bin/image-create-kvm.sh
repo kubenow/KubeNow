@@ -17,7 +17,7 @@ if [ -z "$KN_IMAGE_NAME" ]; then
 fi
 
 KN_IMAGE_BUCKET_URL=${KN_IMAGE_BUCKET_URL:-"https://s3.eu-central-1.amazonaws.com/kubenow-eu-central-1"}
-file_name="$KN_IMAGE_NAME.qcow2"
+file_name="$KN_IMAGE_NAME"
 local_dir=${KN_LOCAL_DIR:="kvm-image"}
 
 # check if image is present locally already (then also verify md5 sum)

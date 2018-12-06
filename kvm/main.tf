@@ -151,7 +151,7 @@ provider "libvirt" {
 # Create a template disk
 resource "libvirt_volume" "template_volume" {
   name   = "${var.cluster_prefix}-template-volume"
-  source = "${var.image_dir}/${var.boot_image}.qcow2"
+  source = "${var.image_dir}/${var.boot_image}"
   pool   = "${var.storage_pool}"
 }
 

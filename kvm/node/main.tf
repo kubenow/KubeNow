@@ -129,13 +129,6 @@ resource "libvirt_domain" "instance" {
     target_port = "0"
     target_type = "serial"
   }
-
-  ## TODO this is always mounted
-  #filesystem {
-  #  source   = "/data"
-  #  target   = "data"
-  #  readonly = false
-  #}
 }
 
 # Module outputs
