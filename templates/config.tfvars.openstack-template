@@ -43,6 +43,8 @@ provision = {
       # To disable traefik in favor for an external ingress controller replace "traefik" with "none".
       # To use nginx instead of traefik replace "traefik" with "nginx" on the line below.
       "ingress_controller" = "traefik"
+      # To enable encryption of the etcd key value store, change the value to "true" on the line below.
+      "encrypt_etcd" = "false"
     }
   }
 }
