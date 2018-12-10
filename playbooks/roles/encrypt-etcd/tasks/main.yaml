@@ -1,0 +1,40 @@
+---
+- name: generate encryption key
+  shell: head -c 32 /dev/urandom | base64 -
+  register: key
+  run_once: true
+
+- name: copy secrets conf file
+  become: yes
+  template:
+    src: secrets.conf
+    dest: /etc/kubernetes/pki/etcd/secrets.conf
+
+- name: insert key into secrets.conf
+  become: yes
+  replace:
+    path: /etc/kubernetes/pki/etcd/secrets.conf
+    regexp: "ENCRYPTION_KEY"
+    replace: "{{key.stdout}}"
+
+- name: update kube-api server to use encryption
+  become: yes
+  lineinfile:
+    path: /etc/kubernetes/manifests/kube-apiserver.yaml
+    regexp: '--enable-bootstrap-token-auth=true'
+    insertafter: '--enable-bootstrap-token-auth=true$'
+    line: '    - --encryption-provider-config=/etc/kubernetes/pki/etcd/secrets.conf'
+
+- name: wait until api-server is back online
+  shell: kubectl -n kube-system get pod -l component=kube-apiserver | grep -o 'Running' | wc -l
+  register: api_ready
+  until: (api_ready.stdout | int) > 0
+  # Wait for 5 minutes
+  retries: 60
+  delay: 5
+
+- name: make sure that all secrets are encrypted
+  shell: kubectl get secrets --all-namespaces -o json | kubectl replace -f -
+
+- name: make sure that all configmaps are encrypted
+  shell: kubectl get cm --all-namespaces -o json | kubectl replace -f -
