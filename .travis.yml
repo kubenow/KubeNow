@@ -113,6 +113,8 @@ before_script:
     sed -i -e
     "s/# cloudflare_subdomain = \"your-subdomain-name\"/cloudflare_subdomain = \"kubenow-ci-${TRAVIS_BUILD_NUMBER}-${HOST_CLOUD}\"/g"
     config.tfvars
+  # Enable etcd-encryption
+  - sed -i -e 's/\"encrypt_etcd.*false\"/\"encrypt_etcd\" = \"true\"/g' config.tfvars
 
 
 script:
