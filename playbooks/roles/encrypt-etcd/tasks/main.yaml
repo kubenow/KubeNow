@@ -26,7 +26,7 @@
     line: '    - --encryption-provider-config=/etc/kubernetes/pki/etcd/secrets.conf'
 
 - name: wait until api-server is back online
-  shell: kubectl -n kube-system get pod kube-apiserver-nbis-vault-master-000 | grep -o 'Running' | wc -l
+  shell: kubectl -n kube-system get pod -l component=kube-apiserver | grep -o 'Running' | wc -l
   register: api_ready
   until: (api_ready.stdout | int) > 0
   # Wait for 5 minutes
