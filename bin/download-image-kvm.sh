@@ -11,5 +11,4 @@ fi
 cp /tmp/kvm-image/ . -r
 qemu-img resize "kvm-image/$IMAGE_FILE" +100G
 # generate new md5sum after resize
-md5sum "kvm-image/$IMAGE_FILE" > "kvm-image/$IMAGE_FILE.md5"
-
+md5sum "kvm-image/$IMAGE_FILE" >"kvm-image/$IMAGE_FILE.md5"

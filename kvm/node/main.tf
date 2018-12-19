@@ -3,6 +3,7 @@ variable count {}
 variable name_prefix {}
 variable vcpu {}
 variable memory {}
+variable disk_size {}
 variable storage_pool {}
 
 # SSH settings
@@ -85,7 +86,7 @@ resource "libvirt_volume" "root_volume" {
   count          = "${var.count}"
   name           = "${var.name_prefix}-vol-${format("%03d", count.index)}"
   base_volume_id = "${var.template_vol_id}"
-  pool           = "${var.storage_pool}"
+  size           = "${var.disk_size * 1024 * 1024 * 1024}"
 }
 
 # Create extra volume

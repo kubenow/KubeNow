@@ -7,7 +7,40 @@
 #   KN_IMAGE_BUCKET_URL
 
 # Exit immediately if a command exits with a non-zero status
-#set -e
+set -e
+
+function is_checksum_ok() {
+  echo "Verify checksum"
+  # local source_file="$1"
+  echo 0
+}
+
+function download_checksum_file() {
+  echo "Download checksum"
+  # local source_file="$1"
+  echo 0
+}
+
+function download_image() {
+  local file_url="$1"
+  local dest_dir="$2"
+  local file_name="$3"
+
+  echo "Downloading image to $dest_dir"
+
+  mkdir -p "$dest_dir"
+  curl "$file_url" \
+    -o "$dest_dir/$file_name" \
+    --connect-timeout 30 \
+    --max-time 1800
+}
+
+function file_exists() {
+  local source_file="$1"
+  local exists
+  exists=$(test -e "$source_file")
+  echo "$exists"
+}
 
 echo "Started script image-create-kvm"
 
@@ -19,12 +52,17 @@ fi
 KN_IMAGE_BUCKET_URL=${KN_IMAGE_BUCKET_URL:-"https://s3.eu-central-1.amazonaws.com/kubenow-eu-central-1"}
 file_name="$KN_IMAGE_NAME"
 local_dir=${KN_LOCAL_DIR:="kvm-image"}
+temp_dir="/tmp/kvm-image"
 
-# check if image is present locally already (then also verify md5 sum)
-if [ -e "$local_dir/$file_name" ] && [ -e "$local_dir/$file_name.md5" ]; then
-  echo "Check md5 sum"
-  md5only=$(cut -f1 -d ' ' "$local_dir/$file_name.md5")
-  if md5sum -c <<<"$md5only  $local_dir/$file_name"; then
+# Add .qcow suffix if it is a KubeNow image
+if [[ "$file_name" == kubenow* ]]; then
+  file_name="$file_name.qcow"
+fi
+
+# Check if file exist
+if file_exists "$temp_dir/$file_name"; then
+  # Check if checksum ok
+  if is_checksum_ok; then
     echo "File exists, checksum is OK. Exit"
     exit 0
   else
@@ -34,50 +72,20 @@ else
   echo "File does not exist localy"
 fi
 
-# Make sure file exists on server
-response=$(curl "$KN_IMAGE_BUCKET_URL/$file_name" \
-  --connect-timeout 30 \
-  --max-time 1800 \
-  --head \
-  --write-out "%{http_code}" \
-  --silent \
-  --output /dev/null)
+# Download image
+download_image "$KN_IMAGE_BUCKET_URL/$file_name" "$temp_dir" "$file_name"
 
-if [[ "$response" != 200 ]]; then
-  if [[ "$response" == 404 ]]; then
-    echo "Error from download server: File not found: $KN_IMAGE_BUCKET_URL/$file_name"
-    exit 1
-  else
-    echo "Error code from download server: $KN_IMAGE_BUCKET_URL/$file_name"
-    exit 1
-  fi
-else
-  echo "File eists on server $KN_IMAGE_BUCKET_URL"
-fi
-
-echo "Downloading image to local dir: ./$local_dir"
-
-mkdir -p "$local_dir"
-curl "$KN_IMAGE_BUCKET_URL/$file_name" \
-  -o "$local_dir/$file_name" \
-  --connect-timeout 30 \
-  --max-time 1800
-
-echo "Download md5 sum file"
-curl "$KN_IMAGE_BUCKET_URL/$file_name.md5" \
-  -o "$local_dir/$file_name.md5" \
-  --connect-timeout 30 \
-  --max-time 1800
-
-echo "Check md5 sum"
-md5only=$(cut -f1 -d ' ' "$local_dir/$file_name.md5")
-if md5sum -c <<<"$md5only  $local_dir/$file_name"; then
-  echo "Checksum is OK"
-else
-  echo "Checksum is wrong. Downloading image has failed - please try running again. Exit"
+if ! file_exists "$temp_dir/$file_name"; then
+  echo "Could not download file ok"
   exit 1
 fi
 
-echo "Cleaning up old KuneNow images in local folder"
-# find and rm all images (and md5 files) but not current one
-find "$local_dir" -name 'kubenow-*.qcow*' ! -name "$file_name*" -exec rm {} \;
+if ! is_checksum_ok; then
+  echo "Checksum of downloaded file is not correct"
+  exit 1
+fi
+
+# Move image to final dest
+echo "Copy file to $local_dir/$file_name"
+mkdir -p "$local_dir"
+cp "$temp_dir/$file_name" "$local_dir/$file_name"

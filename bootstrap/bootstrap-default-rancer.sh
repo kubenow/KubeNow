@@ -3,7 +3,7 @@
 set -e
 
 # Add hostname
-echo "127.0.0.1 $HOSTNAME" >> /etc/hosts
+echo "127.0.0.1 $HOSTNAME" >>/etc/hosts
 
 #echo "Ensure that APT works with HTTPS..."
 #sudo apt-get -qq update -y

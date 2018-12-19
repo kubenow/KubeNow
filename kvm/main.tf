@@ -47,6 +47,7 @@ variable master_count { default = 1 }
 variable master_vcpu { default = 2 }
 variable master_memory { default = 1024 }
 variable master_as_edge { default = "true" }
+variable master_disk_size { default = "100" }
 variable master_extra_disk_size { default = "100" }
 variable master_ip_if1{
   type    = "list"
@@ -61,6 +62,7 @@ variable master_ip_if2{
 variable node_count { default = 0 }
 variable node_vcpu { default = 2 }
 variable node_memory { default = 1024 }
+variable node_disk_size { default = "100" }
 variable node_ip_if1{
   type    = "list"
   default = ["10.10.0.30"]
@@ -74,6 +76,7 @@ variable node_ip_if2{
 variable edge_count { default = 0 }
 variable edge_vcpu { default = 2 }
 variable edge_memory { default = 1024 }
+variable edge_disk_size { default = "100" }
 variable edge_ip_if1{
   type    = "list"
   default = []
@@ -87,6 +90,7 @@ variable edge_ip_if2{
 variable glusternode_count { default = 0 }
 variable glusternode_vcpu { default = 2 }
 variable glusternode_memory { default = 1024 }
+variable glusternode_disk_size { default = "100" }
 variable glusternode_extra_disk_size { default = "200" }
 variable glusternode_ip_if1{
   type    = "list"
@@ -162,6 +166,7 @@ module "master" {
   name_prefix     = "${var.cluster_prefix}-master"
   vcpu            = "${var.master_vcpu}"
   memory          = "${var.master_memory}"
+  disk_size       = "${var.master_disk_size}"
   template_vol_id = "${libvirt_volume.template_volume.id}"
   storage_pool     = "${var.storage_pool}"
 
@@ -194,6 +199,7 @@ module "node" {
   name_prefix     = "${var.cluster_prefix}-node"
   vcpu            = "${var.node_vcpu}"
   memory          = "${var.node_memory}"
+  disk_size       = "${var.node_disk_size}"
   template_vol_id = "${libvirt_volume.template_volume.id}"
   storage_pool     = "${var.storage_pool}"
 
@@ -226,6 +232,7 @@ module "edge" {
   name_prefix     = "${var.cluster_prefix}-edge"
   vcpu            = "${var.edge_vcpu}"
   memory          = "${var.edge_memory}"
+  disk_size       = "${var.edge_disk_size}"
   template_vol_id = "${libvirt_volume.template_volume.id}"
   storage_pool    = "${var.storage_pool}"
 
@@ -258,6 +265,7 @@ module "glusternode" {
   name_prefix     = "${var.cluster_prefix}-glusternode"
   vcpu            = "${var.glusternode_vcpu}"
   memory          = "${var.glusternode_memory}"
+  disk_size       = "${var.glusternode_disk_size}"
   template_vol_id = "${libvirt_volume.template_volume.id}"
   storage_pool    = "${var.storage_pool}"
 
