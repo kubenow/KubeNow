@@ -26,20 +26,13 @@ function download_image() {
   local dest_dir="$2"
   local file_name="$3"
 
-  echo "Downloading image to $dest_dir"
+  echo "Downloading image $file_name to $dest_dir"
 
   mkdir -p "$dest_dir"
   curl "$file_url" \
     -o "$dest_dir/$file_name" \
     --connect-timeout 30 \
     --max-time 1800
-}
-
-function file_exists() {
-  local source_file="$1"
-  local exists
-  exists=$(test -e "$source_file")
-  echo "$exists"
 }
 
 echo "Started script image-create-kvm"
@@ -60,11 +53,21 @@ if [[ "$file_name" == kubenow* ]]; then
 fi
 
 # Check if file exist
-if file_exists "$temp_dir/$file_name"; then
+if [ -f "$temp_dir/$file_name" ]; then
   # Check if checksum ok
   if is_checksum_ok; then
-    echo "File exists, checksum is OK. Exit"
-    exit 0
+    echo "File exists, checksum is OK."
+    
+    # move image to final dest if not there
+    if [ ! -f "$local_dir/$file_name" ]; then
+      echo "Copy file to $local_dir/$file_name"
+      mkdir -p "$local_dir"
+      cp "$temp_dir/$file_name" "$local_dir/$file_name"
+      exit 0
+    else
+      echo "File exists in final dir"
+      exit 0
+    fi
   else
     echo "File exists, checksum is wrong, continuing..."
   fi
@@ -75,7 +78,7 @@ fi
 # Download image
 download_image "$KN_IMAGE_BUCKET_URL/$file_name" "$temp_dir" "$file_name"
 
-if ! file_exists "$temp_dir/$file_name"; then
+if [ ! -f "$temp_dir/$file_name" ]; then
   echo "Could not download file ok"
   exit 1
 fi
@@ -89,3 +92,5 @@ fi
 echo "Copy file to $local_dir/$file_name"
 mkdir -p "$local_dir"
 cp "$temp_dir/$file_name" "$local_dir/$file_name"
+
+
