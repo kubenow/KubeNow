@@ -87,6 +87,7 @@ resource "libvirt_volume" "root_volume" {
   name           = "${var.name_prefix}-vol-${format("%03d", count.index)}"
   base_volume_id = "${var.template_vol_id}"
   size           = "${var.disk_size * 1024 * 1024 * 1024}"
+  pool           = "${var.storage_pool}"
 }
 
 # Create extra volume

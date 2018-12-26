@@ -48,7 +48,7 @@ variable master_vcpu { default = 2 }
 variable master_memory { default = 1024 }
 variable master_as_edge { default = "true" }
 variable master_disk_size { default = "100" }
-variable master_extra_disk_size { default = "100" }
+variable master_extra_disk_size { default = "0" }
 variable master_ip_if1{
   type    = "list"
   default = ["10.10.0.xx"]
@@ -63,6 +63,7 @@ variable node_count { default = 0 }
 variable node_vcpu { default = 2 }
 variable node_memory { default = 1024 }
 variable node_disk_size { default = "100" }
+variable node_extra_disk_size { default = "0" }
 variable node_ip_if1{
   type    = "list"
   default = ["10.10.0.30"]
@@ -77,6 +78,7 @@ variable edge_count { default = 0 }
 variable edge_vcpu { default = 2 }
 variable edge_memory { default = 1024 }
 variable edge_disk_size { default = "100" }
+variable edge_extra_disk_size { default = "0" }
 variable edge_ip_if1{
   type    = "list"
   default = []
@@ -214,7 +216,7 @@ module "node" {
   # TO DO configure port rules in firewall
 
   # Disk settings
-  extra_disk_size = "0"
+  extra_disk_size = "${var.node_extra_disk_size}"
 
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
@@ -247,7 +249,7 @@ module "edge" {
   # TO DO configure port rules in firewall
 
   # Disk settings
-  extra_disk_size = "0"
+  extra_disk_size = "${var.edge_extra_disk_size}"
 
   # Bootstrap settings
   bootstrap_file = "${var.bootstrap_script}"
