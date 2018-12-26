@@ -8,8 +8,17 @@ kn_config=$(json2hcl -reverse <config.tfvars)
 
 # Set variables from json-config
 host_cloud=$(jq -r '.provider' <<<"$kn_config")
+
 image_name=$(jq -r '.boot_image' <<<"$kn_config")
+if [[ image_name != "null" ]]; then
+  KN_IMAGE_NAME="$image_name"
+fi
+
 image_url=$(jq -r '.image_url' <<<"$kn_config")
+if [[ image_url != "null" ]]; then
+  KN_IMAGE_BUCKET_URL="$image_url"
+fi
+
 skip_image_import=$(jq -r '.skip_image_import' <<<"$kn_config")
 
 # Run preflight-check if file is specified
@@ -28,8 +37,9 @@ fi
 if [[ "$skip_image_import" != "true" ]] && [[ "$host_cloud" != 'aws' ]]; then
   export KN_GCE_ACCOUNT_FILE_PATH="$PWD/service-account.json"
   export TF_VARS_FILE="$PWD/config.tfvars"
-  export KN_IMAGE_NAME="$image_name"
-  export KN_IMAGE_BUCKET_URL="$image_url"
+  export KN_IMAGE_NAME
+  export KN_IMAGE_BUCKET_URL
+  echo $$KN_IMAGE_BUCKET_URL=KN_IMAGE_BUCKET_URL
   /KubeNow_root/bin/image-create-"$host_cloud".sh
 fi
 
