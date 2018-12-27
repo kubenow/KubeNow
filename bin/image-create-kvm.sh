@@ -57,7 +57,7 @@ if [ -f "$temp_dir/$file_name" ]; then
   # Check if checksum ok
   if is_checksum_ok; then
     echo "File exists, checksum is OK."
-    
+
     # move image to final dest if not there
     if [ ! -f "$local_dir/$file_name" ]; then
       echo "Copy file to $local_dir/$file_name"
@@ -92,5 +92,3 @@ fi
 echo "Copy file to $local_dir/$file_name"
 mkdir -p "$local_dir"
 cp "$temp_dir/$file_name" "$local_dir/$file_name"
-
-
