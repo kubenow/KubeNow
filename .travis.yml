@@ -61,6 +61,8 @@ before_install:
   # check YAML
   - yamllint -c .yamllint.yml -s $(find . -type f -name "*.yml")
 
+    - (echo before sleep; sleep 60; exit 1) &
+
 install:
 
   # Build Docker image
