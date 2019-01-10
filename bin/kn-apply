@@ -19,6 +19,11 @@ if [[ "$image_url" != "null" ]]; then
   KN_IMAGE_BUCKET_URL="$image_url"
 fi
 
+image_sha256sum=$(jq -r '.image_sha256sum' <<<"$kn_config")
+if [[ "$image_sha256sum" != "null" ]]; then
+  KN_IMAGE_SHA256_SUM="$image_sha256sum"
+fi
+
 skip_image_import=$(jq -r '.skip_image_import' <<<"$kn_config")
 
 # Run preflight-check if file is specified
@@ -39,7 +44,7 @@ if [[ "$skip_image_import" != "true" ]] && [[ "$host_cloud" != 'aws' ]]; then
   export TF_VARS_FILE="$PWD/config.tfvars"
   export KN_IMAGE_NAME
   export KN_IMAGE_BUCKET_URL
-  echo $$KN_IMAGE_BUCKET_URL=KN_IMAGE_BUCKET_URL
+  export KN_IMAGE_SHA256_SUM
   /KubeNow_root/bin/image-create-"$host_cloud".sh
 fi
 
