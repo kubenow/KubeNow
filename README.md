@@ -35,10 +35,10 @@ Deploying a KubeNow cluster you will get:
 
 In a KubeNow cluster there are 3 instance types:
 
-- **master**: it runs the Kubernetes master, and it optionally acts as an ingress controller proxying from the Internet to the application services through its public IP.
-- **node**: it runs a Kubernetes node and it hosts application services.
-- **edge**: it is a specialized kind of node with a public IP associated, it acts as an ingress controller proxying from the Internet to the application services. It can run application services as well. Edge nodes are optional.
-- **glusternode**: it is a specialized kind of node that runs only a GlusterFS server. One or more *glusternodes* can be used to provide distributed storage for the application services. Glusternodes are optional.
+- **Master**: it runs the Kubernetes master, and it optionally acts as an ingress controller proxying from the Internet to the application services through its public IP.
+- **Service**: it runs a Kubernetes node and it hosts application services.
+- **Edge**: it is a specialized service node with a public IP associated, it acts as an ingress controller proxying from the Internet to the application services. It can run application services as well. Edge nodes are optional.
+- **Storage**: it is a specialized service node that runs only a GlusterFS server. One or more *glusternodes* can be used to provide distributed storage for the application services. Glusternodes are optional.
 
 **Cloudflare** can be optionally used to setup DNS records and SSL/TSL (HTTPS) encryption.
 
