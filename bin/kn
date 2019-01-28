@@ -129,7 +129,7 @@ function docker_run() {
     -e "TERRAFORM_OPT=$TERRAFORM_OPT" \
     -e "ANSIBLE_OPT=$ANSIBLE_OPT" \
     --env-file <(env | grep OS_) \
-    --env-fibin/knle <(env | grep TF_) \
+    --env-file <(env | grep TF_) \
     --env-file <(env | grep GOOGLE_) \
     --env-file <(env | grep AWS_) \
     --env-file <(env | grep ARM_) \
