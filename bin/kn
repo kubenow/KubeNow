@@ -278,6 +278,40 @@ function pull() {
   docker pull "$KN_PROVISIONERS_IMG"
 }
 
+########################################
+# set variables from preset
+#
+# Globals:
+#   None
+# Arguments:
+#   preset="$1"
+# Returns:
+#   Real path
+########################################
+function set_preset() {
+  # parameters
+  local preset="$1"
+
+  echo "Setting preset: $preset"
+
+  case $preset in
+  phenomenal | pheno | phnmnl)
+    export KN_PLUGIN_REPO="https://github.com/phnmnl/KubeNow-plugin.git"
+    export KN_PLUGIN_NAME="phnmnl/KubeNow-plugin"
+    export KN_PLUGIN_REPO_BRANCH="master"
+    ;;
+  plain)
+    export KN_PLUGIN_REPO="https://github.com/KubeNow/plugin-plain.git"
+    export KN_PLUGIN_NAME="KubeNow/plugin-plain"
+    export KN_PLUGIN_REPO_BRANCH="master"
+    ;;
+  *)
+    echo "Unrecognized preset $preset" >&2
+    exit 1
+    ;;
+  esac
+}
+
 # First read vars specified in config file
 provisioner_image=$(read_provisioner_image_from_config)
 if [ -n "$provisioner_image" ]; then
@@ -295,8 +329,7 @@ while [[ "$1" == -* ]]; do
   case $option in
   -p | --preset)
     preset="$2"
-    echo "Setting preset: $preset"
-    source bin/presets "$preset"
+    set_preset "$preset"
     shift # past option
     shift # past value
     ;;
