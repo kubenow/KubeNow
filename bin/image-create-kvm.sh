@@ -12,13 +12,13 @@ set -e
 function is_checksum_ok() {
   local checksum="$1"
   local source_file="$2"
-  
+
   echo "Verify checksum"
-  
+
   sha256result=$(
-    sha256sum -c <<< "$checksum $source_file"
+    sha256sum -c <<<"$checksum $source_file"
   )
-  
+
   if [[ "$sha256result" != *": OK"* ]]; then
     return 1
   else
@@ -30,7 +30,7 @@ function download_image() {
   local file_url="$1"
   local dest_dir="$2"
   local file_name="$3"
-  
+
   if [ ! -f "$dest_dir/$file_name" ]; then
     echo "Downloading image $file_name to $dest_dir"
     mkdir -p "$dest_dir"
@@ -40,7 +40,7 @@ function download_image() {
       --connect-timeout 30 \
       --max-time 1800
   fi
-  
+
   return 0
 }
 
@@ -65,7 +65,7 @@ fi
 # check if file is in final dir
 if [ -f "$local_dir/$file_name" ]; then
   echo "File exists in final dir"
-  
+
   # Checksum
   if [ -n "$KN_IMAGE_SHA256_SUM" ]; then
     if is_checksum_ok "$checksum" "$local_dir/$file_name"; then
@@ -75,7 +75,7 @@ if [ -f "$local_dir/$file_name" ]; then
       exit 1
     fi
   fi
-  
+
   exit 0
 fi
 
