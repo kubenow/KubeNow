@@ -3,6 +3,11 @@ variable cluster_prefix {}
 
 variable boot_image {}
 
+variable boot_image_owners {
+  type    = "list"
+  default = ["275272412307"]
+}
+
 variable bootstrap_script {
   default = "bootstrap/bootstrap-default.sh"
 }
@@ -170,6 +175,7 @@ module "security_group" {
 # Lookup image-id of boot_image
 data "aws_ami" "bootimg" {
   most_recent = true
+  owners      = ["${var.boot_image_owners}"]
 
   filter {
     name   = "name"
