@@ -3,6 +3,48 @@
 # Add hostname
 echo "127.0.0.1 $HOSTNAME" >>/etc/hosts
 
+if [[ "${use_external_net}" == "1" || $(echo ${use_external_net} | tr '[:upper:]' '[:lower:]') == "true" ]]; then
+  # Collect name of network interfaces
+  interfaces=$(cat /proc/net/dev | grep ens | cut -d':' -f1)
+  # Detect primary interface
+  primary_interface=$(ifconfig | grep -m1 ens | awk '{print $1}')
+  echo "Primary interface: $i"
+  # Detect secondary interface
+  for i in $interfaces; do 
+    if [[ "$i" != "$primary_interface"  ]]; then 
+      echo "Secondary interface: $i"
+      secondary_interface="$i"
+      break
+    fi
+  done
+
+  # Check if network interfaces have been detected
+  if [[ -z "$primary_interface" || -z "$secondary_interface" ]]; then
+    echo "Couldn't retrieve network interfaces" >&2
+    echo "Primary interface: $primary_interface; Public gateway: $secondary_interface" >&2
+    exit 1
+  fi
+
+  # Add external interface
+  echo -e "auto $secondary_interface\niface $secondary_interface inet dhcp" > /etc/network/interfaces.d/ext-net.cfg
+  service networking restart
+
+  # Detect gateways
+  private_net_gateway=$(tac "/var/lib/dhcp/dhclient.$primary_interface.leases" | grep -m1 'option routers' | awk '{print $3}' | sed -e 's/;//')
+  public_net_gateway=$(tac "/var/lib/dhcp/dhclient.$secondary_interface.leases" | grep -m1 'option routers' | awk '{print $3}' | sed -e 's/;//')
+
+  if [[ -z "$private_net_gateway" || -z "$public_net_gateway" ]]; then 
+    echo "Couldn't retrieve gateway routers" >&2
+    echo "Private gateway: $private_net_gateway; Public gateway: $public_net_gateway" >&2
+    exit 1
+  fi
+
+  # Update routes
+  route add default gw $public_net_gateway $secondary_interface
+  route del default gw $private_net_gateway $primary_interface
+fi
+
+
 # Taint and label
 node_labels=${node_labels}
 node_taints=${node_taints}

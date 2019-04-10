@@ -155,6 +155,7 @@ module "security_group" {
 # Lookup image-id of kubenow-image
 data "aws_ami" "kubenow" {
   most_recent = true
+  owners      = ["275272412307"]
 
   filter {
     name   = "name"
