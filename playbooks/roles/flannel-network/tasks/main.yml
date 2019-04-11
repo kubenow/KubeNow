@@ -4,8 +4,8 @@
     url: https://raw.githubusercontent.com/coreos/flannel/v0.9.1/Documentation/kube-flannel.yml
     dest: /tmp/flannel.yml
 
-- name: "update flannel-network configuration"
-  command: sed -ri 's/(flanneld)(.[^]]*)/\1\2, "--iface=ens3"/g' /tmp/flannel.yml
+#- name: "update flannel-network configuration"
+#  command: sed -ri 's/(flanneld)(.[^]]*)/\1\2, "--iface=ens3"/g' /tmp/flannel.yml
 
 - name: "install flannel-network"
   command: kubectl apply -f /tmp/flannel.yml
