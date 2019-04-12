@@ -148,11 +148,11 @@ output "extra_disk_device" {
 #}
 
 output "local_ip_v4" {
-  value = "${var.ip_if1}"
+  value = ["${var.ip_if1}"]
 }
 
 output "public_ip" {
-  value = "${var.ip_if2}"
+  value = ["${var.ip_if2}"]
 }
 
 output "hostnames" {
@@ -160,5 +160,5 @@ output "hostnames" {
 }
 
 output "node_labels" {
-  value = "${var.node_labels}"
+  value = ["${var.node_labels}"]
 }
