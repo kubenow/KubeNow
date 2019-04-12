@@ -30,7 +30,7 @@ variable cloud_init_cfg {}
 
 # Bootstrap
 data "template_file" "instance_bootstrap" {
-  count    = "${var.count > 0 ? 1 : 0}"
+  count    = "${var.count}"
   template = "${file("${path.root}/../${var.bootstrap_file }")}"
 
   vars {
@@ -50,7 +50,7 @@ resource "random_id" "password" {
 
 # Create cloud init config file
 data "template_file" "user_data" {
-  count    = "${var.count > 0 ? 1 : 0}"
+  count    = "${var.count}"
   template = "${file("${path.root}/../${var.cloud_init_cfg }")}"
 
   vars{
@@ -63,7 +63,7 @@ data "template_file" "user_data" {
 
 # Create network interface init config file
 data "template_file" "network_config" {
-  count     = "${var.count > 0 ? 1 : 0}"
+  count     = "${var.count}"
   template = "${file("${path.root}/../${var.network_cfg }")}"
 
   vars{
@@ -74,7 +74,7 @@ data "template_file" "network_config" {
 
 # Create cloud-init iso image
 resource "libvirt_cloudinit_disk" "commoninit" {
-  count          = "${var.count > 0 ? 1 : 0}"
+  count          = "${var.count}"
   name           = "${var.name_prefix}-cloud-init.iso"
   user_data      = "${data.template_file.user_data.rendered}"
   network_config = "${element(data.template_file.network_config.*.rendered, count.index)}"
