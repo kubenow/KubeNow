@@ -106,6 +106,7 @@ variable cloudflare_record_texts {
 
 # Provider
 provider "google" {
+  version     = "1.20.0"
   credentials = "${file("${var.gce_credentials_file}")}"
   project     = "${var.gce_project}"
   region      = "${var.gce_zone}"
