@@ -5,8 +5,8 @@ echo "127.0.0.1 $HOSTNAME" >>/etc/hosts
 
 # Make sure instance is updated with latest security fixes
 # Run upgrades in a subshell that always succeeds so boot is not interrupted
-echo "Run unattended-upgrade in subshell"
-sudo bash -c 'apt-get update -y && unattended-upgrade -d'
+echo "Run unattended-upgrade in a nohup subshell, log output to tmp/cloud-init-output-nohup-upgrade.log"
+nohup sudo bash -c 'apt get update -y && unattended-upgrade -d' >/tmp/cloud-init-output-nohup-upgrade.log
 
 # Taint and label
 node_labels="${node_labels}"
