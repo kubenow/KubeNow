@@ -12,6 +12,6 @@ curl "releases.rancher.com/install-docker/17.03.sh" | bash
 sudo usermod -aG docker ubuntu
 
 # Extra requirements
-sudo apt-get -qq install -y
+sudo apt-get -qq install -y nfs-common
 
 echo "Bootstrap finished"
