@@ -12,6 +12,8 @@ cloud_init_cfg = "cloud_init.cfg.ubuntu"
 storage_pool = "images"
 network_cfg = "network_config.cfg.ubuntu"
 
+libvirt_uri = "qemu+ssh://your-serveradmin@your-kvm-server/system"
+
 # bootstrap_script="bootstrap/bootstrap-default-rancer.sh"
 
 # Master configuration

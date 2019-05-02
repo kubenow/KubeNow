@@ -136,9 +136,13 @@ variable cloudflare_record_texts {
   default = ["*"]
 }
 
+variable libvirt_uri {
+  default = "qemu:///system"
+}
+
 # Provider
 provider "libvirt" {
-  uri = "qemu:///system"
+  uri = "${var.libvirt_uri}"
 }
 
 ## Network
