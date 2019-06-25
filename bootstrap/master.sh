@@ -5,9 +5,9 @@ echo "127.0.0.1 $HOSTNAME" >>/etc/hosts
 
 if [[ "${use_external_net}" == "1" || $(echo ${use_external_net} | tr '[:upper:]' '[:lower:]') == "true" ]]; then
   # Collect name of network interfaces
-  interfaces=$(cat /proc/net/dev | grep ens | cut -d':' -f1)
+  interfaces=$(cat /proc/net/dev | grep -o -E '(ens|eth)[[:digit:]]')
   # Detect primary interface
-  primary_interface=$(ifconfig | grep -m1 ens | awk '{print $1}')
+  primary_interface=$(ifconfig | grep -o -m1 -E '(eth|ens)[[:digit:]]')
   echo "Primary interface: $i"
   # Detect secondary interface
   for i in $interfaces; do 
