@@ -95,6 +95,10 @@ variable cloudflare_subdomain {
   default = ""
 }
 
+variable cloudflare_zone_id {
+  default = ""
+}
+
 variable cloudflare_proxied {
   default = "false"
 }
@@ -238,6 +242,7 @@ module "cloudflare" {
   cloudflare_token     = "${var.cloudflare_token}"
   cloudflare_domain    = "${var.cloudflare_domain}"
   cloudflare_subdomain = "${var.cloudflare_subdomain}"
+  cloudflare_zone_id   = "${var.cloudflare_zone_id}"
 
   # add optional subdomain to record names
   # terraform interpolation is limited and can not return list in conditionals, workaround: first join to string, then split
